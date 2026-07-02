@@ -6,6 +6,7 @@ import {
   apiNotFound,
   apiGone,
   now,
+  notDeleted,
   withErrorHandler,
 } from '@api/server';
 
@@ -36,15 +37,17 @@ export const PATCH = withErrorHandler(
     const [existing] = await db
       .select()
       .from(serviceProviders)
-      .where(and(eq(serviceProviders.id, id), eq(serviceProviders.tenantId, tenantId)))
+      .where(
+        and(
+          eq(serviceProviders.id, id),
+          eq(serviceProviders.tenantId, tenantId),
+          notDeleted(serviceProviders)
+        )
+      )
       .limit(1);
 
     if (!existing) {
       return apiNotFound('Provider not found');
-    }
-
-    if (existing.deletedAt) {
-      return apiGone('This provider has been deleted');
     }
 
     const body = await request.json();
@@ -82,7 +85,13 @@ export const DELETE = withErrorHandler(
     const [existing] = await db
       .select()
       .from(serviceProviders)
-      .where(and(eq(serviceProviders.id, id), eq(serviceProviders.tenantId, tenantId)))
+      .where(
+        and(
+          eq(serviceProviders.id, id),
+          eq(serviceProviders.tenantId, tenantId),
+          notDeleted(serviceProviders)
+        )
+      )
       .limit(1);
 
     if (!existing) {

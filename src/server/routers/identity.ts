@@ -1,29 +1,30 @@
 import { z } from 'zod';
 import {
-  router,
-  publicProcedure,
-  protectedProcedure,
-  tenantProcedure,
-  privilegedProcedure,
-  db,
-  properties,
-  households,
-  profiles,
-  standardSeats,
-  soloSeats,
-  premiumSeats,
   agentAccesses,
-  users,
-  platformSuspensions,
   albums,
-  maintenanceRequests,
   bookings,
   conversationParticipants,
+  db,
+  households,
+  maintenanceRequests,
+  notDeleted,
   notifications,
   now,
-  writeAuditLog,
+  platformSuspensions,
+  premiumSeats,
+  privilegedProcedure,
+  profiles,
+  properties,
+  protectedProcedure,
+  publicProcedure,
+  router,
+  soloSeats,
+  standardSeats,
+  tenantProcedure,
   toEnvelope,
   toEnvelopeSchema,
+  users,
+  writeAuditLog,
 } from '@api/server';
 import {
   propertyDto,
@@ -1384,11 +1385,7 @@ export const identityRouter = router({
         .select()
         .from(albums)
         .where(
-          and(
-            eq(albums.tenantId, ctx.tenantId),
-            eq(albums.userId, ctx.userId),
-            isNull(albums.deletedAt)
-          )
+          and(eq(albums.tenantId, ctx.tenantId), eq(albums.userId, ctx.userId), notDeleted(albums))
         )
         .orderBy(desc(albums.createdAt));
 
@@ -1420,7 +1417,7 @@ export const identityRouter = router({
             eq(albums.id, input.id),
             eq(albums.tenantId, ctx.tenantId),
             eq(albums.userId, ctx.userId),
-            isNull(albums.deletedAt)
+            notDeleted(albums)
           )
         )
         .limit(1);
@@ -1457,11 +1454,7 @@ export const identityRouter = router({
         .select({ id: albums.id })
         .from(albums)
         .where(
-          and(
-            eq(albums.tenantId, ctx.tenantId),
-            eq(albums.userId, ctx.userId),
-            isNull(albums.deletedAt)
-          )
+          and(eq(albums.tenantId, ctx.tenantId), eq(albums.userId, ctx.userId), notDeleted(albums))
         );
 
       if (existingAlbums.length >= 3) {
@@ -1488,11 +1481,7 @@ export const identityRouter = router({
         .select()
         .from(albums)
         .where(
-          and(
-            eq(albums.tenantId, ctx.tenantId),
-            eq(albums.userId, ctx.userId),
-            isNull(albums.deletedAt)
-          )
+          and(eq(albums.tenantId, ctx.tenantId), eq(albums.userId, ctx.userId), notDeleted(albums))
         )
         .orderBy(desc(albums.createdAt));
 
@@ -1542,7 +1531,7 @@ export const identityRouter = router({
             eq(albums.id, id),
             eq(albums.tenantId, ctx.tenantId),
             eq(albums.userId, ctx.userId),
-            isNull(albums.deletedAt)
+            notDeleted(albums)
           )
         );
 
@@ -1550,11 +1539,7 @@ export const identityRouter = router({
         .select()
         .from(albums)
         .where(
-          and(
-            eq(albums.tenantId, ctx.tenantId),
-            eq(albums.userId, ctx.userId),
-            isNull(albums.deletedAt)
-          )
+          and(eq(albums.tenantId, ctx.tenantId), eq(albums.userId, ctx.userId), notDeleted(albums))
         )
         .orderBy(desc(albums.createdAt));
 
@@ -1588,7 +1573,7 @@ export const identityRouter = router({
             eq(albums.id, input.id),
             eq(albums.tenantId, ctx.tenantId),
             eq(albums.userId, ctx.userId),
-            isNull(albums.deletedAt)
+            notDeleted(albums)
           )
         );
 
@@ -1596,11 +1581,7 @@ export const identityRouter = router({
         .select()
         .from(albums)
         .where(
-          and(
-            eq(albums.tenantId, ctx.tenantId),
-            eq(albums.userId, ctx.userId),
-            isNull(albums.deletedAt)
-          )
+          and(eq(albums.tenantId, ctx.tenantId), eq(albums.userId, ctx.userId), notDeleted(albums))
         )
         .orderBy(desc(albums.createdAt));
 
@@ -1638,11 +1619,7 @@ export const identityRouter = router({
         .from(albums)
         .innerJoin(users, eq(albums.userId, users.id))
         .where(
-          and(
-            eq(albums.tenantId, ctx.tenantId),
-            eq(albums.isPublic, true),
-            isNull(albums.deletedAt)
-          )
+          and(eq(albums.tenantId, ctx.tenantId), eq(albums.isPublic, true), notDeleted(albums))
         )
         .orderBy(desc(albums.updatedAt));
 

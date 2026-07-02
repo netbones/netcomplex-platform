@@ -1,14 +1,15 @@
 import { z } from 'zod';
 import {
+  agentAccesses,
+  agentProcedure,
+  agentProfiles,
+  db,
+  notDeleted,
+  premiumSeats,
+  properties,
   router,
   tenantProcedure,
-  agentProcedure,
-  db,
-  agentAccesses,
-  agentProfiles,
   users,
-  properties,
-  premiumSeats,
 } from '@api/server';
 import { toEnvelope } from '@api/server';
 import { agentProfileDto } from '@server/dto';
@@ -76,7 +77,7 @@ export const agentsRouter = router({
             eq(agentAccesses.agentId, ctx.userId),
             eq(agentAccesses.tenantId, tenantId),
             eq(agentAccesses.status, 'ACTIVE'),
-            isNull(agentAccesses.deletedAt)
+            notDeleted(agentAccesses)
           )
         )
         .orderBy(desc(agentAccesses.createdAt));
@@ -136,7 +137,7 @@ export const agentsRouter = router({
           and(
             eq(agentProfiles.isVerified, true),
             eq(agentProfiles.tenantId, tenantId),
-            isNull(agentProfiles.deletedAt)
+            notDeleted(agentProfiles)
           )
         )
         .orderBy(desc(agentProfiles.rating), desc(agentProfiles.reviewCount))

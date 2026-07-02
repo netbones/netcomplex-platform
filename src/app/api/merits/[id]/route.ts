@@ -1,16 +1,17 @@
 import {
-  auth,
-  db,
-  communityMerits,
-  apiUnauthorized,
+  apiError,
   apiForbidden,
   apiNotFound,
-  apiError,
   apiSuccess,
+  apiUnauthorized,
+  auth,
+  communityMerits,
+  db,
+  notDeleted,
   now,
-  writeAuditLog,
-  withErrorHandler,
   rateLimitByUser,
+  withErrorHandler,
+  writeAuditLog,
 } from '@api/server';
 import { eq, and, isNull } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
@@ -52,7 +53,7 @@ export const GET = withErrorHandler(
         and(
           eq(communityMerits.id, id),
           eq(communityMerits.tenantId, tenantId),
-          isNull(communityMerits.deletedAt)
+          notDeleted(communityMerits)
         )
       );
 

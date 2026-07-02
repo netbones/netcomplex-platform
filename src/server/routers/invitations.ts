@@ -1,17 +1,18 @@
 import { z } from 'zod';
 import {
-  router,
-  publicProcedure,
-  tenantProcedure,
-  privilegedProcedure,
   db,
   invitations,
-  tenants,
-  users,
-  revalidateAdminChanges,
+  notDeleted,
   now,
+  privilegedProcedure,
+  publicProcedure,
+  revalidateAdminChanges,
+  router,
   sendEmail,
   templates,
+  tenantProcedure,
+  tenants,
+  users,
 } from '@api/server';
 import { toEnvelope } from '@api/server';
 import { invitationDto } from '@server/dto';
@@ -68,7 +69,7 @@ export const invitationsRouter = router({
 
       const canViewAll = hasPermission(ctx.role, 'users') || hasPermission(ctx.role, 'admin');
 
-      const conditions = [eq(invitations.tenantId, tenantId), isNull(invitations.deletedAt)];
+      const conditions = [eq(invitations.tenantId, tenantId), notDeleted(invitations)];
 
       if (!canViewAll) {
         const [user] = await db
@@ -117,7 +118,7 @@ export const invitationsRouter = router({
           and(
             eq(invitations.id, input.id),
             eq(invitations.tenantId, tenantId),
-            isNull(invitations.deletedAt)
+            notDeleted(invitations)
           )
         )
         .limit(1);
@@ -168,7 +169,7 @@ export const invitationsRouter = router({
             eq(invitations.tenantId, tenantId),
             eq(invitations.email, input.email),
             eq(invitations.status, 'PENDING'),
-            isNull(invitations.deletedAt)
+            notDeleted(invitations)
           )
         )
         .limit(1);
@@ -260,7 +261,7 @@ export const invitationsRouter = router({
           and(
             eq(invitations.id, input.id),
             eq(invitations.tenantId, tenantId),
-            isNull(invitations.deletedAt)
+            notDeleted(invitations)
           )
         )
         .limit(1);
@@ -469,7 +470,7 @@ export const invitationsRouter = router({
           and(
             eq(invitations.id, input.id),
             eq(invitations.tenantId, tenantId),
-            isNull(invitations.deletedAt)
+            notDeleted(invitations)
           )
         )
         .limit(1);

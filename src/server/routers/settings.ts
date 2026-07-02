@@ -15,6 +15,7 @@ import { eq, and } from 'drizzle-orm';
 import { validateSettingValue } from '@shared/lib/settings/validation';
 import { toEnvelope } from '@api/server';
 import { settingDto } from '@server/dto';
+import { notDeleted } from '@api/server';
 
 const SettingByKeyInput = z.object({ key: z.string() });
 const UpsertSettingInput = z.object({
@@ -36,7 +37,7 @@ export const settingsRouter = router({
       const rows = await db
         .select()
         .from(settings)
-        .where(eq(settings.tenantId, tenantId))
+        .where(and(eq(settings.tenantId, tenantId), notDeleted(settings)))
         .orderBy(settings.key);
 
       return toEnvelope(rows.map(r => settingDto.parse(r)));
@@ -55,7 +56,9 @@ export const settingsRouter = router({
       const [setting] = await db
         .select()
         .from(settings)
-        .where(and(eq(settings.tenantId, tenantId), eq(settings.key, input.key)))
+        .where(
+          and(eq(settings.tenantId, tenantId), eq(settings.key, input.key), notDeleted(settings))
+        )
         .limit(1);
 
       return toEnvelope(setting ? settingDto.parse(setting) : { key: input.key, value: null });
@@ -181,7 +184,10 @@ export const settingsRouter = router({
 
       const tenantId = ctx.tenantId;
 
-      const rows = await db.select().from(settings).where(eq(settings.tenantId, tenantId));
+      const rows = await db
+        .select()
+        .from(settings)
+        .where(and(eq(settings.tenantId, tenantId), notDeleted(settings)));
 
       const map = rows.reduce<Record<string, string>>((acc, s) => {
         acc[s.key] = s.value;

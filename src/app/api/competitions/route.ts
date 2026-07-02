@@ -1,16 +1,17 @@
 import {
-  auth,
-  db,
-  competitions,
-  users,
-  revalidateContent,
   apiCreated,
   apiForbidden,
   apiSuccess,
   apiUnauthorized,
-  withErrorHandler,
-  now,
+  auth,
+  competitions,
+  db,
   emitEvent,
+  notDeleted,
+  now,
+  revalidateContent,
+  users,
+  withErrorHandler,
 } from '@api/server';
 
 import { eq, and, desc, lte, gte, isNull } from 'drizzle-orm';
@@ -74,7 +75,7 @@ export const GET = withErrorHandler(async (request: Request) => {
           eq(competitions.status, 'ACTIVE'),
           lte(competitions.startDate, ts),
           gte(competitions.endDate, ts),
-          isNull(competitions.deletedAt)
+          notDeleted(competitions)
         )
       )
       .orderBy(desc(competitions.startDate));
@@ -108,7 +109,7 @@ export const GET = withErrorHandler(async (request: Request) => {
         and(
           eq(competitions.tenantId, tenantId),
           eq(competitions.status, statusParam as CompetitionStatus),
-          isNull(competitions.deletedAt)
+          notDeleted(competitions)
         )
       )
       .orderBy(desc(competitions.startDate));
@@ -118,7 +119,7 @@ export const GET = withErrorHandler(async (request: Request) => {
     const query = db
       .select()
       .from(competitions)
-      .where(and(eq(competitions.tenantId, tenantId), isNull(competitions.deletedAt)))
+      .where(and(eq(competitions.tenantId, tenantId), notDeleted(competitions)))
       .orderBy(desc(competitions.startDate));
 
     competitionItems = await query;

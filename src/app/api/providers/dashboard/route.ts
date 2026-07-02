@@ -1,12 +1,13 @@
 import { NextRequest } from 'next/server';
 import {
+  apiForbidden,
   apiInternalError,
   apiNotFound,
   apiSuccess,
-  apiForbidden,
   communityServiceInquiries,
   communityServiceListings,
   db,
+  notDeleted,
 } from '@api/server';
 import { requireProviderAccess } from '@shared/api';
 import { logError } from '@shared/lib';
@@ -63,7 +64,7 @@ export async function GET(request: NextRequest) {
         and(
           eq(communityServiceListings.tenantId, tenantId),
           eq(communityServiceListings.providerId, auth.userId),
-          isNull(communityServiceListings.deletedAt)
+          notDeleted(communityServiceListings)
         )
       )
       .orderBy(desc(communityServiceListings.updatedAt));

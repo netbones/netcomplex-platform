@@ -1,15 +1,16 @@
 import {
-  auth,
-  db,
-  users,
-  apiSuccess,
   apiCreated,
   apiError,
   apiForbidden,
+  apiSuccess,
   apiValidationError,
-  withErrorHandler,
+  auth,
   bursaries,
   bursaryFields,
+  db,
+  notDeleted,
+  users,
+  withErrorHandler,
 } from '@api/server';
 
 import { eq, and, isNull, desc } from 'drizzle-orm';
@@ -39,7 +40,7 @@ export const GET = withErrorHandler(async () => {
   const rows = await db
     .select()
     .from(bursaries)
-    .where(and(eq(bursaries.tenantId, tenantId), isNull(bursaries.deletedAt)))
+    .where(and(eq(bursaries.tenantId, tenantId), notDeleted(bursaries)))
     .orderBy(desc(bursaries.deadline));
 
   return apiSuccess(rows);

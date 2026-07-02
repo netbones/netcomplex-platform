@@ -1,14 +1,15 @@
 import { z } from 'zod';
 import {
-  publicProcedure,
-  tenantProcedure,
-  rateLimitMiddleware,
-  db,
   communityServiceListings,
-  serviceBookings,
-  users,
+  db,
+  notDeleted,
   now,
+  publicProcedure,
+  rateLimitMiddleware,
   revalidateAdminChanges,
+  serviceBookings,
+  tenantProcedure,
+  users,
 } from '@api/server';
 import { toEnvelope } from '@api/server';
 import { listingDto } from '@server/dto';
@@ -48,7 +49,7 @@ export const listingProcedures = {
 
       const conditions: ReturnType<typeof eq>[] = [
         eq(communityServiceListings.tenantId, tenantId),
-        isNull(communityServiceListings.deletedAt),
+        notDeleted(communityServiceListings),
       ];
 
       if (!input.providerId) {
@@ -212,7 +213,7 @@ export const listingProcedures = {
         .leftJoin(users, eq(communityServiceListings.providerId, users.id))
         .where(
           and(
-            isNull(communityServiceListings.deletedAt),
+            notDeleted(communityServiceListings),
             eq(communityServiceListings.id, input.id),
             eq(communityServiceListings.tenantId, tenantId)
           )
@@ -459,7 +460,7 @@ export const listingProcedures = {
       const conditions = [
         eq(communityServiceListings.tenantId, tenantId),
         eq(communityServiceListings.providerId, ctx.userId),
-        isNull(communityServiceListings.deletedAt),
+        notDeleted(communityServiceListings),
       ];
 
       const listings = await db

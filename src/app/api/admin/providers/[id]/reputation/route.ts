@@ -7,13 +7,14 @@ import {
   apiNotFound,
   apiSuccess,
   db,
+  getSessionAndRole,
+  notDeleted,
   now,
-  providerReputations,
   providerMerits,
+  providerReputations,
   requireAnyPermission,
   serviceProviders,
   writeAuditLog,
-  getSessionAndRole,
 } from '@api/server';
 import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { getProviderReputationSnapshot } from '@shared/api';
@@ -54,7 +55,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         and(
           eq(serviceProviders.tenantId, tenantId),
           eq(serviceProviders.id, id),
-          isNull(serviceProviders.deletedAt)
+          notDeleted(serviceProviders)
         )
       )
       .limit(1);

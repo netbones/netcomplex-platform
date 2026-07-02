@@ -5,6 +5,7 @@ import {
   apiSuccess,
   apiUnauthorized,
   db,
+  notDeleted,
   providerVerifications,
   serviceProviders,
 } from '@api/server';
@@ -61,7 +62,7 @@ export async function GET(request: Request) {
     .where(
       and(
         eq(serviceProviders.tenantId, tenantId),
-        isNull(serviceProviders.deletedAt),
+        notDeleted(serviceProviders),
         or(
           eq(providerVerifications.status, 'PENDING'),
           eq(providerVerifications.status, 'PROBATION'),

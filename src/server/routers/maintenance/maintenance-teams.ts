@@ -1,4 +1,4 @@
-import { toEnvelope } from '@api/server';
+import { notDeleted, toEnvelope } from '@api/server';
 import {
   z,
   tenantProcedure,
@@ -26,10 +26,7 @@ export const maintenanceTeamProcedures = {
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
 
-      const conditions = [
-        eq(maintenanceTeams.tenantId, tenantId),
-        isNull(maintenanceTeams.deletedAt),
-      ];
+      const conditions = [eq(maintenanceTeams.tenantId, tenantId), notDeleted(maintenanceTeams)];
 
       if (input?.isActive !== undefined) {
         conditions.push(eq(maintenanceTeams.isActive, input.isActive));
@@ -86,7 +83,7 @@ export const maintenanceTeamProcedures = {
         and(
           eq(maintenanceTeams.id, input.id),
           eq(maintenanceTeams.tenantId, tenantId),
-          isNull(maintenanceTeams.deletedAt)
+          notDeleted(maintenanceTeams)
         )
       );
 
@@ -127,7 +124,7 @@ export const maintenanceTeamProcedures = {
           and(
             eq(maintenanceTeams.id, input.id),
             eq(maintenanceTeams.tenantId, tenantId),
-            isNull(maintenanceTeams.deletedAt)
+            notDeleted(maintenanceTeams)
           )
         );
 

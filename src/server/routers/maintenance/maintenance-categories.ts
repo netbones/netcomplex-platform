@@ -1,4 +1,4 @@
-import { toEnvelope } from '@api/server';
+import { notDeleted, toEnvelope } from '@api/server';
 import {
   z,
   tenantProcedure,
@@ -28,7 +28,7 @@ export const maintenanceCategoryProcedures = {
 
       const conditions = [
         eq(maintenanceCategories.tenantId, tenantId),
-        isNull(maintenanceCategories.deletedAt),
+        notDeleted(maintenanceCategories),
       ];
 
       if (input?.isActive !== undefined) {
@@ -61,7 +61,7 @@ export const maintenanceCategoryProcedures = {
         and(
           eq(maintenanceCategories.tenantId, tenantId),
           eq(maintenanceCategories.value, input.value),
-          isNull(maintenanceCategories.deletedAt)
+          notDeleted(maintenanceCategories)
         )
       );
 
@@ -103,7 +103,7 @@ export const maintenanceCategoryProcedures = {
           and(
             eq(maintenanceCategories.id, input.id),
             eq(maintenanceCategories.tenantId, tenantId),
-            isNull(maintenanceCategories.deletedAt)
+            notDeleted(maintenanceCategories)
           )
         );
 
@@ -145,7 +145,7 @@ export const maintenanceCategoryProcedures = {
           and(
             eq(maintenanceCategories.id, input.id),
             eq(maintenanceCategories.tenantId, tenantId),
-            isNull(maintenanceCategories.deletedAt)
+            notDeleted(maintenanceCategories)
           )
         );
 

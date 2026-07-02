@@ -1,4 +1,4 @@
-import { db, events } from '@api/server';
+import { db, events, notDeleted } from '@api/server';
 
 import { eq, and, desc, asc, gte, isNull } from 'drizzle-orm';
 
@@ -11,9 +11,7 @@ export async function listEvents(params: { tenantId: string; limit?: number; upc
     const query = db
       .select()
       .from(events)
-      .where(
-        and(eq(events.tenantId, params.tenantId), gte(events.date, now), isNull(events.deletedAt))
-      )
+      .where(and(eq(events.tenantId, params.tenantId), gte(events.date, now), notDeleted(events)))
       .orderBy(asc(events.date));
     return params.limit ? query.limit(params.limit) : query;
   }
@@ -21,7 +19,7 @@ export async function listEvents(params: { tenantId: string; limit?: number; upc
   const query = db
     .select()
     .from(events)
-    .where(and(eq(events.tenantId, params.tenantId), isNull(events.deletedAt)))
+    .where(and(eq(events.tenantId, params.tenantId), notDeleted(events)))
     .orderBy(desc(events.date));
 
   return params.limit ? query.limit(params.limit) : query;

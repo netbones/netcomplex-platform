@@ -1,12 +1,13 @@
 import { NextRequest } from 'next/server';
 import {
-  db,
   albums,
-  users,
+  apiInternalError,
   apiSuccess,
   apiUnauthorized,
-  apiInternalError,
+  db,
   getSessionAndRole,
+  notDeleted,
+  users,
 } from '@api/server';
 import { eq, desc, and, isNull } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
@@ -35,9 +36,7 @@ export async function GET(request: NextRequest) {
       })
       .from(albums)
       .innerJoin(users, eq(albums.userId, users.id))
-      .where(
-        and(eq(albums.tenantId, tenantId), eq(albums.isPublic, true), isNull(albums.deletedAt))
-      )
+      .where(and(eq(albums.tenantId, tenantId), eq(albums.isPublic, true), notDeleted(albums)))
       .orderBy(desc(albums.updatedAt));
 
     return apiSuccess({ albums: publicAlbums });

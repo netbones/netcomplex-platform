@@ -10,6 +10,7 @@ import {
 
 import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
+import { notDeleted } from '@api/server';
 
 export const maxDuration = 8;
 
@@ -23,7 +24,9 @@ export const DELETE = withErrorHandler(
     await db
       .update(invitations)
       .set({ deletedAt: now() })
-      .where(and(eq(invitations.id, id), eq(invitations.tenantId, tenantId)));
+      .where(
+        and(eq(invitations.id, id), eq(invitations.tenantId, tenantId), notDeleted(invitations))
+      );
     return apiSuccess({ success: true });
   }
 );

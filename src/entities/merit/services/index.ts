@@ -1,5 +1,5 @@
 import { and, eq, gte, inArray, isNull, or, sql } from 'drizzle-orm';
-import { db, communityMerits, settings } from '@api/server';
+import { communityMerits, db, notDeleted, settings } from '@api/server';
 import { ESCALATION_THRESHOLDS, DEFAULT_TIER_THRESHOLDS } from '../model/constants';
 import { SETTINGS_KEYS } from '@entities/tenant/server';
 
@@ -8,7 +8,7 @@ const ACTIVE_STATUSES = ['ACTIVE', 'UPHELD'] as const;
 function notExpiredOrDeleted() {
   const now = new Date();
   return and(
-    isNull(communityMerits.deletedAt),
+    notDeleted(communityMerits),
     or(isNull(communityMerits.expiresAt), gte(communityMerits.expiresAt, now))
   );
 }

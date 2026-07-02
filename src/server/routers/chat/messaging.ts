@@ -1,4 +1,4 @@
-import { toEnvelope, rateLimitMiddleware } from '@api/server';
+import { notDeleted, rateLimitMiddleware, toEnvelope } from '@api/server';
 import { messageDto, unreadCountsDto } from '@server/dto';
 import {
   z,
@@ -77,7 +77,7 @@ export const messagingProcedures = {
 
       const conditionsArr: SQL<unknown>[] = [
         eq(messages.conversationId, input.conversationId),
-        isNull(messages.deletedAt),
+        notDeleted(messages),
         or(isNull(messages.expiresAt), gt(messages.expiresAt, new Date())),
       ].filter(Boolean) as SQL<unknown>[];
 

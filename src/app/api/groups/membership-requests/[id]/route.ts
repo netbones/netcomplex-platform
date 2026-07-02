@@ -19,6 +19,7 @@ import { hasPermission } from '@shared/lib';
 
 import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
+import { notDeleted } from '@api/server';
 import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
@@ -85,17 +86,14 @@ export const POST = withErrorHandler(
       .where(
         and(
           eq(groupMembershipRequests.id, requestId),
-          eq(groupMembershipRequests.tenantId, tenantId)
+          eq(groupMembershipRequests.tenantId, tenantId),
+          notDeleted(groupMembershipRequests)
         )
       )
       .limit(1);
 
     if (!existingRequest) {
       return apiNotFound('Membership request not found');
-    }
-
-    if (existingRequest.deletedAt) {
-      return apiGone('This record has been deleted');
     }
 
     if (existingRequest.status !== 'PENDING') {

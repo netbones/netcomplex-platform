@@ -1,14 +1,15 @@
 import { z } from 'zod';
 import {
+  communityMerits,
+  db,
+  notDeleted,
+  notifications,
+  now,
+  privilegedProcedure,
+  revalidateAdminChanges,
   router,
   tenantProcedure,
-  privilegedProcedure,
-  db,
-  communityMerits,
-  notifications,
   users,
-  revalidateAdminChanges,
-  now,
   writeAuditLog,
 } from '@api/server';
 import { toEnvelope } from '@api/server';
@@ -141,7 +142,7 @@ async function getTenantMerit(meritId: string, tenantId: string) {
       and(
         eq(communityMerits.id, meritId),
         eq(communityMerits.tenantId, tenantId),
-        isNull(communityMerits.deletedAt)
+        notDeleted(communityMerits)
       )
     );
   if (!record) {
@@ -278,10 +279,7 @@ export const meritsRouter = router({
 
       const tenantId = ctx.tenantId;
 
-      const conditions = [
-        eq(communityMerits.tenantId, tenantId),
-        isNull(communityMerits.deletedAt),
-      ];
+      const conditions = [eq(communityMerits.tenantId, tenantId), notDeleted(communityMerits)];
 
       if (input?.status) {
         conditions.push(eq(communityMerits.status, input.status));
@@ -488,7 +486,7 @@ export const meritsRouter = router({
           and(
             eq(communityMerits.userId, ctx.userId),
             eq(communityMerits.tenantId, tenantId),
-            isNull(communityMerits.deletedAt)
+            notDeleted(communityMerits)
           )
         )
         .limit(input?.limit ?? 50)

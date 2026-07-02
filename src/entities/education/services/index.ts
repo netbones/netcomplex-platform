@@ -1,4 +1,4 @@
-import { db, now } from '@api/server';
+import { db, notDeleted, now } from '@api/server';
 import { bursaries } from '@schema/bursaries';
 import { bursaryFields } from '@schema/bursary-fields';
 import { eq, desc, and, isNull } from 'drizzle-orm';
@@ -9,7 +9,7 @@ export async function listBursaryFields(tenantId: string) {
   return db
     .select()
     .from(bursaryFields)
-    .where(and(eq(bursaryFields.tenantId, tenantId), isNull(bursaryFields.deletedAt)))
+    .where(and(eq(bursaryFields.tenantId, tenantId), notDeleted(bursaryFields)))
     .orderBy(bursaryFields.label);
 }
 
@@ -61,7 +61,7 @@ export async function listBursaries(tenantId: string) {
   return db
     .select()
     .from(bursaries)
-    .where(and(eq(bursaries.tenantId, tenantId), isNull(bursaries.deletedAt)))
+    .where(and(eq(bursaries.tenantId, tenantId), notDeleted(bursaries)))
     .orderBy(desc(bursaries.deadline));
 }
 

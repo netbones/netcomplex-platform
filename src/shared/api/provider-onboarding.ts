@@ -4,6 +4,7 @@ import { and, eq, isNull, sql } from 'drizzle-orm';
 
 import {
   db,
+  notDeleted,
   now,
   providerLegalAgreements,
   providerVerifications,
@@ -39,7 +40,7 @@ export async function findProviderDuplicateByCompanyName(tenantId: string, compa
     .where(
       and(
         eq(serviceProviders.tenantId, tenantId),
-        isNull(serviceProviders.deletedAt),
+        notDeleted(serviceProviders),
         sql`lower(${serviceProviders.companyName}) = lower(${normalizedName})`
       )
     )

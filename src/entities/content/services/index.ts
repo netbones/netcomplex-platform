@@ -1,4 +1,4 @@
-import { db, contents, users, groups } from '@api/server';
+import { contents, db, groups, notDeleted, users } from '@api/server';
 
 import { eq, and, desc, or, isNull, lte, gt, type SQL } from 'drizzle-orm';
 import { ContentCategoryEnum, type ContentCategory, type ContentLicense } from '@api/shared';
@@ -17,7 +17,7 @@ export function buildContentConditions(params: {
 }) {
   const whereConditions: (SQL<unknown> | undefined)[] = [
     eq(contents.tenantId, params.tenantId),
-    isNull(contents.deletedAt),
+    notDeleted(contents),
   ];
 
   if (params.category && params.category in (ContentCategoryEnum as Record<string, string>)) {

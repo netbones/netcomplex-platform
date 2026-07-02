@@ -1,16 +1,17 @@
 import { NextRequest } from 'next/server';
 import {
-  auth,
-  db,
-  households,
-  properties,
-  standardSeats,
-  profiles,
-  users,
   apiForbidden,
   apiInternalError,
   apiSuccess,
   apiUnauthorized,
+  auth,
+  db,
+  households,
+  notDeleted,
+  profiles,
+  properties,
+  standardSeats,
+  users,
 } from '@api/server';
 
 import { eq, and, count, desc, isNull } from 'drizzle-orm';
@@ -58,7 +59,7 @@ export async function GET(request: NextRequest) {
     const totalResult = await db
       .select({ total: count() })
       .from(households)
-      .where(and(eq(households.tenantId, tenantId), isNull(households.deletedAt)));
+      .where(and(eq(households.tenantId, tenantId), notDeleted(households)));
 
     const total = totalResult[0]?.total || 0;
 
@@ -76,7 +77,7 @@ export async function GET(request: NextRequest) {
       })
       .from(households)
       .innerJoin(properties, eq(households.propertyId, properties.id))
-      .where(and(eq(households.tenantId, tenantId), isNull(households.deletedAt)))
+      .where(and(eq(households.tenantId, tenantId), notDeleted(households)))
       .orderBy(desc(households.createdAt))
       .limit(limit)
       .offset(skip);

@@ -5,6 +5,7 @@ import {
   apiInternalError,
   apiSuccess,
   db,
+  notDeleted,
   paymentTransactions,
   providerReputations,
   providerVerifications,
@@ -60,7 +61,7 @@ export async function GET(request: NextRequest) {
           eq(providerReputations.providerId, serviceProviders.id)
         )
       )
-      .where(and(eq(serviceProviders.tenantId, tenantId), isNull(serviceProviders.deletedAt)));
+      .where(and(eq(serviceProviders.tenantId, tenantId), notDeleted(serviceProviders)));
 
     const totalProviders = providerRows.length;
     const statusCounts = providerRows.reduce(

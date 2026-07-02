@@ -7,6 +7,7 @@ import {
   apiForbidden,
   apiNotFound,
   withErrorHandler,
+  notDeleted,
 } from '@api/server';
 
 import { eq, and } from 'drizzle-orm';
@@ -35,7 +36,9 @@ export const GET = withErrorHandler(
     const [row] = await db
       .select()
       .from(resources)
-      .where(and(eq(resources.id, params.id), eq(resources.category, 'EDUCATION')))
+      .where(
+        and(eq(resources.id, params.id), eq(resources.category, 'EDUCATION'), notDeleted(resources))
+      )
       .limit(1);
 
     if (!row || row.tenantId !== tenantId) {
@@ -59,7 +62,9 @@ export const PATCH = withErrorHandler(
     const [existing] = await db
       .select()
       .from(resources)
-      .where(and(eq(resources.id, params.id), eq(resources.category, 'EDUCATION')))
+      .where(
+        and(eq(resources.id, params.id), eq(resources.category, 'EDUCATION'), notDeleted(resources))
+      )
       .limit(1);
 
     if (!existing || existing.tenantId !== tenantId) {
@@ -94,7 +99,9 @@ export const DELETE = withErrorHandler(
     const [existing] = await db
       .select()
       .from(resources)
-      .where(and(eq(resources.id, params.id), eq(resources.category, 'EDUCATION')))
+      .where(
+        and(eq(resources.id, params.id), eq(resources.category, 'EDUCATION'), notDeleted(resources))
+      )
       .limit(1);
 
     if (!existing || existing.tenantId !== tenantId) {

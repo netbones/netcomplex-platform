@@ -113,7 +113,7 @@ async function isGroupMember(userId: string, groupId: string, tenantId: string):
         eq(groupMembers.userId, userId),
         eq(groupMembers.groupId, groupId),
         eq(groupMembers.tenantId, tenantId),
-        isNull(groupMembers.deletedAt)
+        notDeleted(groupMembers)
       )
     )
     .limit(1);
@@ -181,7 +181,7 @@ export const groupsRouter = router({
               .where(
                 and(
                   eq(groupMembers.tenantId, tenantId),
-                  isNull(groupMembers.deletedAt),
+                  notDeleted(groupMembers),
                   inArray(groupMembers.groupId, groupIds)
                 )
               )
@@ -547,7 +547,7 @@ export const groupsRouter = router({
             eq(groupMembers.userId, input.userId),
             eq(groupMembers.groupId, input.groupId),
             eq(groupMembers.tenantId, tenantId),
-            isNull(groupMembers.deletedAt)
+            notDeleted(groupMembers)
           )
         )
         .limit(1);
@@ -592,7 +592,7 @@ export const groupsRouter = router({
             eq(groupMembers.userId, input.userId),
             eq(groupMembers.groupId, input.groupId),
             eq(groupMembers.tenantId, tenantId),
-            isNull(groupMembers.deletedAt)
+            notDeleted(groupMembers)
           )
         )
         .limit(1);

@@ -1,12 +1,13 @@
 import {
+  apiConflict,
+  apiCreated,
+  apiError,
+  apiSuccess,
   db,
   maintenanceCategories,
-  requireAnyPermission,
-  apiSuccess,
-  apiCreated,
-  apiConflict,
-  apiError,
+  notDeleted,
   now,
+  requireAnyPermission,
   withErrorHandler,
 } from '@api/server';
 
@@ -34,7 +35,7 @@ export const GET = withErrorHandler(async (request: Request) => {
 
   const conditions = [
     eq(maintenanceCategories.tenantId, tenantId),
-    isNull(maintenanceCategories.deletedAt),
+    notDeleted(maintenanceCategories),
   ];
 
   if (isActiveFilter === 'true') {
@@ -79,7 +80,7 @@ export const POST = withErrorHandler(async (request: Request) => {
       and(
         eq(maintenanceCategories.tenantId, tenantId),
         eq(maintenanceCategories.value, value),
-        isNull(maintenanceCategories.deletedAt)
+        notDeleted(maintenanceCategories)
       )
     )
     .limit(1);

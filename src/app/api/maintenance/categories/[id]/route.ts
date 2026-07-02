@@ -7,6 +7,7 @@ import {
   apiGone,
   apiError,
   now,
+  notDeleted,
   withErrorHandler,
 } from '@api/server';
 
@@ -34,15 +35,17 @@ export const PATCH = withErrorHandler(
     const [existing] = await db
       .select()
       .from(maintenanceCategories)
-      .where(and(eq(maintenanceCategories.id, id), eq(maintenanceCategories.tenantId, tenantId)))
+      .where(
+        and(
+          eq(maintenanceCategories.id, id),
+          eq(maintenanceCategories.tenantId, tenantId),
+          notDeleted(maintenanceCategories)
+        )
+      )
       .limit(1);
 
     if (!existing) {
       return apiNotFound('Category not found');
-    }
-
-    if (existing.deletedAt) {
-      return apiGone('This category has been deleted');
     }
 
     const body = await request.json();
@@ -87,7 +90,13 @@ export const DELETE = withErrorHandler(
     const [existing] = await db
       .select()
       .from(maintenanceCategories)
-      .where(and(eq(maintenanceCategories.id, id), eq(maintenanceCategories.tenantId, tenantId)))
+      .where(
+        and(
+          eq(maintenanceCategories.id, id),
+          eq(maintenanceCategories.tenantId, tenantId),
+          notDeleted(maintenanceCategories)
+        )
+      )
       .limit(1);
 
     if (!existing) {

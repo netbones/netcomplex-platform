@@ -1,13 +1,14 @@
 import {
-  auth,
-  apiSuccess,
   apiCreated,
-  apiUnauthorized,
   apiInternalError,
+  apiSuccess,
+  apiUnauthorized,
   apiValidationError,
+  auth,
   db,
   disputeCases,
   disputeEvents,
+  notDeleted,
   users,
 } from '@api/server';
 
@@ -70,7 +71,7 @@ export async function GET(request: Request) {
   // Build filters
   const filters: ReturnType<typeof and>[] = [
     eq(disputeCases.tenantId, tenantId),
-    isNull(disputeCases.deletedAt),
+    notDeleted(disputeCases),
   ];
 
   // Role-based scoping: residents see only their own disputes

@@ -26,7 +26,7 @@ import {
   requireContentPermission,
   getTenantSurvey,
 } from './shared';
-import { toEnvelope } from '@api/server';
+import { notDeleted, toEnvelope } from '@api/server';
 import { surveyDto, responseDto } from '@server/dto';
 import { createId } from '@shared/lib/id';
 
@@ -49,7 +49,7 @@ export const surveyManagementProcedures = {
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
 
-      const conditions = [eq(surveys.tenantId, tenantId), isNull(surveys.deletedAt)];
+      const conditions = [eq(surveys.tenantId, tenantId), notDeleted(surveys)];
 
       if (input?.status) {
         conditions.push(eq(surveys.status, input.status));
@@ -67,8 +67,8 @@ export const surveyManagementProcedures = {
           endDate: surveys.endDate,
           createdAt: surveys.createdAt,
           updatedAt: surveys.updatedAt,
-          questionCount: sql<number>`(SELECT COUNT(*) FROM ${questions} WHERE ${eq(questions.surveyId, surveys.id)} AND ${isNull(questions.deletedAt)})`,
-          responseCount: sql<number>`(SELECT COUNT(*) FROM ${responses} WHERE ${eq(responses.surveyId, surveys.id)} AND ${isNull(responses.deletedAt)})`,
+          questionCount: sql<number>`(SELECT COUNT(*) FROM ${questions} WHERE ${eq(questions.surveyId, surveys.id)} AND ${notDeleted(questions)})`,
+          responseCount: sql<number>`(SELECT COUNT(*) FROM ${responses} WHERE ${eq(responses.surveyId, surveys.id)} AND ${notDeleted(responses)})`,
         })
         .from(surveys)
         .where(and(...conditions))
@@ -100,13 +100,13 @@ export const surveyManagementProcedures = {
       const sections = await db
         .select()
         .from(surveySections)
-        .where(and(eq(surveySections.surveyId, input.id), isNull(surveySections.deletedAt)))
+        .where(and(eq(surveySections.surveyId, input.id), notDeleted(surveySections)))
         .orderBy(asc(surveySections.order));
 
       const surveyQuestions = await db
         .select()
         .from(questions)
-        .where(and(eq(questions.surveyId, input.id), isNull(questions.deletedAt)))
+        .where(and(eq(questions.surveyId, input.id), notDeleted(questions)))
         .orderBy(asc(questions.sectionId), asc(questions.order));
 
       return toEnvelope({ survey: surveyDto.parse(survey), questions: surveyQuestions, sections });
@@ -258,11 +258,7 @@ export const surveyManagementProcedures = {
         .select({ id: surveys.id, status: surveys.status })
         .from(surveys)
         .where(
-          and(
-            eq(surveys.id, input.surveyId),
-            eq(surveys.tenantId, tenantId),
-            isNull(surveys.deletedAt)
-          )
+          and(eq(surveys.id, input.surveyId), eq(surveys.tenantId, tenantId), notDeleted(surveys))
         )
         .limit(1);
 
@@ -284,7 +280,7 @@ export const surveyManagementProcedures = {
           and(
             eq(responses.surveyId, input.surveyId),
             eq(responses.userId, ctx.userId),
-            isNull(responses.deletedAt)
+            notDeleted(responses)
           )
         )
         .limit(1);
@@ -334,20 +330,20 @@ export const surveyManagementProcedures = {
       const surveyQuestions = await db
         .select()
         .from(questions)
-        .where(and(eq(questions.surveyId, input.id), isNull(questions.deletedAt)))
+        .where(and(eq(questions.surveyId, input.id), notDeleted(questions)))
         .orderBy(asc(questions.order));
 
       const [countResult] = await db
         .select({ count: count() })
         .from(responses)
-        .where(and(eq(responses.surveyId, input.id), isNull(responses.deletedAt)));
+        .where(and(eq(responses.surveyId, input.id), notDeleted(responses)));
 
       const totalResponses = Number(countResult?.count ?? 0);
 
       const surveyResponses = await db
         .select()
         .from(responses)
-        .where(and(eq(responses.surveyId, input.id), isNull(responses.deletedAt)))
+        .where(and(eq(responses.surveyId, input.id), notDeleted(responses)))
         .limit(input.maxResponses)
         .offset(input.offset);
 

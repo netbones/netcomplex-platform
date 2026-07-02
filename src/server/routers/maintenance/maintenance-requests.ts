@@ -1,4 +1,4 @@
-import { toEnvelope } from '@api/server';
+import { notDeleted, toEnvelope } from '@api/server';
 import { maintenanceRequestDto, maintenanceRequestDetailDto } from '@server/dto';
 import {
   z,
@@ -289,7 +289,7 @@ export const maintenanceRequestProcedures = {
           .where(
             and(
               eq(internalMaintenanceNotes.requestId, input.requestId),
-              isNull(internalMaintenanceNotes.deletedAt)
+              notDeleted(internalMaintenanceNotes)
             )
           )
           .orderBy(desc(internalMaintenanceNotes.createdAt));
@@ -376,7 +376,7 @@ export const maintenanceRequestProcedures = {
             eq(maintenanceTeams.id, input.teamId),
             eq(maintenanceTeams.tenantId, tenantId),
             eq(maintenanceTeams.isActive, true),
-            isNull(maintenanceTeams.deletedAt)
+            notDeleted(maintenanceTeams)
           )
         );
       if (!team) {
@@ -394,7 +394,7 @@ export const maintenanceRequestProcedures = {
             eq(serviceProviders.id, input.providerId),
             eq(serviceProviders.tenantId, tenantId),
             eq(serviceProviders.isActive, true),
-            isNull(serviceProviders.deletedAt)
+            notDeleted(serviceProviders)
           )
         );
       if (!provider) {
