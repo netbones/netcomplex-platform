@@ -1,9 +1,9 @@
 # BD Issue Tracker
 
 > **Last updated:** 2026-07-02 (Session 15)
-> **Total remaining:** 35 issues
-> **Closed this session:** 4 (`0orq`, `7a02`, `gb5p`, `tbtr`)
-> **Created this session:** 10 (`5z3g`, `0orq`, `7a02`, `gb5p`, `tbtr`, `7tqj`, `sioz`, `g8c3`, `2pxb`, `8rve`)
+> **Total remaining:** 36 issues
+> **Closed this session:** 5 (`0orq`, `7a02`, `gb5p`, `tbtr`, `2pxb`)
+> **Created this session:** 12 (`5z3g`, `0orq`, `7a02`, `gb5p`, `tbtr`, `7tqj`, `sioz`, `g8c3`, `2pxb`, `8rve`, `owuh`, `h9o4`)
 > **Note:** BD is for quick fixes and small tasks. **Any BD issue touching 5+ files across multiple FSD slices, or requiring new directories/types, is GSD territory — escalate it.**
 
 ## Summary by Priority
@@ -12,7 +12,7 @@
 | -------- | ----- | -------------------------------------------------- |
 | **P1**   | **1** | **Supply-chain: pnpm audit high-severity cleanup** |
 | P2       | 8     | Core features, epics, bugs, **architecture**       |
-| P3       | 20    | Tech debt, Phase 4/5 features, enhancements        |
+| P3       | 21    | Tech debt, Phase 4/5 features, enhancements        |
 | P4       | 6     | Backlog, blocked events                            |
 
 ## Summary by Status
@@ -157,7 +157,9 @@ Phase 47 is now M5b (anchor tenant launch) because dWallet is the **headline sel
 | `hfy`  | Implement per-tenant and per-module usage analytics                         | ○      | REPORT.md schema audit            |
 | `sioz` | Model duplication: seat polymorphism, invoice/payment overlap               | ○      | PRISMA_ANALYSIS.md finding #6, #7 |
 | `g8c3` | Denormalized aggregate drift risk                                           | ○      | PRISMA_ANALYSIS.md finding #8     |
-| `2pxb` | Soft-delete inconsistency policy                                            | ○      | PRISMA_ANALYSIS.md finding #10    |
+| `2pxb` | Soft-delete inconsistency policy                                            | ✅     | PRISMA_ANALYSIS.md finding #10    |
+| `owuh` | Soft-delete alignment: add deletedAt to orphan child models                 | ○      | Follow-up from `2pxb`             |
+| `h9o4` | Adopt notDeleted() helper across all query files                            | ○      | Follow-up from `2pxb`             |
 
 ### In Progress
 

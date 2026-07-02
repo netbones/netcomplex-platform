@@ -299,8 +299,10 @@ Shared patterns that could be abstracted:
 
 ## 7. Soft-Delete Patterns (deletedAt fields)
 
-Models with deletedAt (38 out of 108):
-Profile, Member, Notification, ServiceBooking, AgentProfile, Setting, Property, Household, PropertyListing, Invitation, Conversation, Message, Content, ContentLike, Group, GroupMember, GroupMembershipRequest, Album, Resource, ResourceVersion, Announcement, Event, Booking, RequestNote, InternalMaintenanceNote (has deletedAt but NO updatedAt for note edits), MaintenanceCategory, ServiceProvider, CommunityServiceInquiry, CommunityServiceListing, CommunityServiceReview, Survey, Question, Response, SurveySection, ExternalSurvey, CommunityMerit, Competition, CompetitionEntry, PlatformSuspension, DisputeCase, DisputeEvidence, DisputeMessage
+**Policy:** See `docs/STEERING/SOFT_DELETE.md` (updated 2026-07-02 by [soralia-village-2pxb]).
+
+Models with deletedAt (47 out of 111):
+Profile, Member, Notification, ServiceBooking, AgentProfile, Setting, Property, Household, PropertyListing, Invitation, Conversation, Message, Content, ContentLike, Group, GroupMember, GroupMembershipRequest, Album, Resource, ResourceVersion, Announcement, Event, Booking, MaintenanceRequest, MaintenanceTeam, MaintenanceCategory, BursaryField, InternalMaintenanceNote, ServiceProvider, CommunityServiceInquiry, CommunityServiceListing, CommunityServiceReview, Survey, Question, Response, SurveySection, ExternalSurvey, CommunityMerit, Competition, CompetitionEntry, AgentAccess, PlatformSuspension, AchievementDefinition, DisputeCase, DisputeEvidence, DisputeMessage, Bursary
 Models WITHOUT deletedAt (hard-deleted):
 account, verification, passkey, session, twoFactor, user, Organization, PlatformModule, TenantModule, Tenant, PropertyPremiumSeat (junction table), ConversationParticipant (junction table), EventAttendee (junction table), MaintenanceRequest, MaintenanceTeam, RequestHistory, ProviderVerification, ProviderLegalAgreement, ProviderReputation, ProviderMerit, ProviderSubscription, PaymentTransaction, RevenueRecord, ProviderCharge, ProviderInvoice, SubscriptionTier, BillingPlan, TenantSubscription, TenantInvoice, TenantPayment, BillingAdjustment, BillingEvent, Coupon, CouponRedemption, TaxRate, TaxJurisdiction, AchievementDefinition, TenantAchievement, UserAchievementProgress, UserAchievement, DWallet, WalletTransaction, DataConsent, PayoutRequest, DataRevenueStream, DataShareBatch, Address, Handle, AddressEndpoint, PlatformAiTierQuota, AiCapabilityCost, TenantAiUsage, AiUsageEvent, DisputeEvent, DisputeMessageVersion, DisputeNotification
 Inconsistencies in soft-delete:
@@ -425,4 +427,4 @@ This analysis was snapshotted before the Senior Engineer Audit (2026-06-25). The
 | S4-3 (Sprint 4)   | Missing `SurveySection` back-link on Survey                                                                 | Added `sections SurveySection[]` relation |
 | S5-7 (Sprint 5)   | Missing indexes: `Content(tenantId)`, `Event(date)`                                                         | Added `@@index` declarations              |
 
-Remaining open (tracked as BD issues): model duplication [soralia-village-sioz], denormalized aggregates drift risk [soralia-village-g8c3], soft-delete inconsistency policy [soralia-village-2pxb]. tsc --noEmit hang tracked as [soralia-village-8rve].
+Resolved: soft-delete policy defined in `docs/STEERING/SOFT_DELETE.md` [soralia-village-2pxb]. Remaining open: model duplication [soralia-village-sioz], denormalized aggregates drift risk [soralia-village-g8c3], parent-child orphan alignment [soralia-village-owuh], notDeleted() adoption [soralia-village-h9o4]. tsc --noEmit hang tracked as [soralia-village-8rve].
