@@ -47,6 +47,7 @@ export const tenantConfig = {
             'www.soralia.com',
             'soralia.org',
             'soralia.co.za',
+            'solaris.co.za',
             '*.vercel.app',
             '*.netbones.co.za',
             'localhost:3000',

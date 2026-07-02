@@ -21,6 +21,7 @@ const nextConfig = {
     'soralia.co.za',
     'soralia.org',
     'soralia.com',
+    'solaris.co.za',
   ],
 
   // Enable Partial Prerendering for better performance

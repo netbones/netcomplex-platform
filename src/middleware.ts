@@ -5,12 +5,12 @@ import { NextResponse, type NextRequest } from 'next/server';
  *
  * Route groups:
  * - (platform) - Platform control plane (app.netbones.co.za)
- * - (tenant) - Tenant data plane (*.netbones.co.za, soralia.org, soralia.com, soralia.co.za)
+ * - (tenant) - Tenant data plane (*.netbones.co.za, soralia.org, soralia.com, soralia.co.za, solaris.co.za)
  * - (auth) - Shared auth routes
  *
  * Host rules:
  * - app.netbones.co.za → allow (platform) routes, deny (tenant) routes
- * - *.netbones.co.za, soralia.org, soralia.com, soralia.co.za → allow (tenant) routes, deny (platform) routes
+ * - *.netbones.co.za, soralia.org, soralia.com, soralia.co.za, solaris.co.za → allow (tenant) routes, deny (platform) routes
  *
  * Key invariant: plane resolution (isPlatform/isLocalhost) MUST occur before any
  * API/auth early-return branches.  Platform API/auth calls must receive x-plane: platform,
@@ -30,6 +30,7 @@ const CORS_ALLOWED_ORIGINS = [
   'https://soralia.org',
   'https://soralia.com',
   'https://soralia.co.za',
+  'https://solaris.co.za',
   process.env.NEXT_PUBLIC_ANDROID_URL || '',
   process.env.NEXT_PUBLIC_ADMIN_DASHBOARD_URL || '',
 ].filter(Boolean);
