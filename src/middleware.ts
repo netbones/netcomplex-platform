@@ -38,7 +38,13 @@ function addCorsHeaders(response: NextResponse, origin: string | null): NextResp
   const requestOrigin = origin || '';
   const isAllowed =
     CORS_ALLOWED_ORIGINS.includes(requestOrigin) ||
-    CORS_ALLOWED_ORIGINS.some(allowed => allowed && requestOrigin.startsWith(allowed));
+    CORS_ALLOWED_ORIGINS.some(allowed => {
+      try {
+        return new URL(requestOrigin).hostname === new URL(allowed).hostname;
+      } catch {
+        return false;
+      }
+    });
 
   if (isAllowed) {
     response.headers.set('Access-Control-Allow-Origin', requestOrigin);
