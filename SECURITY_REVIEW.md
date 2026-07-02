@@ -54,6 +54,6 @@ No new vulnerabilities introduced. The commit is a well-architected operational 
 
 ~~2. Rate-limit on Better Auth's GET handler too — auth.ts:route:7-8 only rate-limits POST. Add IP-based rate limiting for GET (session checks) to prevent enumeration~~ ✅ Done (300 req/min per IP)
 
-3. Add Redis-ready CAPTCHA — Turnstile is wired in signup/route.ts but not in the general [...all]/route.ts. Consider adding Turnstile to the login path for high-risk sign-in attempts
+~~3. Add Redis-ready CAPTCHA — Turnstile is wired in signup/route.ts but not in the general [...all]/route.ts. Consider adding Turnstile to the login path for high-risk sign-in attempts~~ ✅ Done (x-turnstile-token header on sign-in POST)
 
 4. Document the trustedOrigins dev/prod split in auth.ts with an inline comment

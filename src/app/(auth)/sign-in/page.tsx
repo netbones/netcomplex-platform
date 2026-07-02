@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { authClient } from '@api/client';
+import { useTurnstile } from '@shared/ui';
 
 export default function SignInPage() {
   const router = useRouter();
@@ -12,6 +13,7 @@ export default function SignInPage() {
   const [error, setError] = useState('');
   const [unverifiedEmail, setUnverifiedEmail] = useState('');
   const [loading, setLoading] = useState(false);
+  const turnstile = useTurnstile();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,7 +26,12 @@ export default function SignInPage() {
         email,
         password,
         callbackURL: '/dashboard',
+        fetchOptions: {
+          headers: turnstile.token ? { 'x-turnstile-token': turnstile.token } : undefined,
+        },
       });
+
+      turnstile.reset();
 
       if (error) {
         if (error.code === 'EMAIL_NOT_VERIFIED' || error.status === 403) {
@@ -88,6 +95,8 @@ export default function SignInPage() {
               required
             />
           </div>
+
+          <div className="mb-4" ref={turnstile.ref} />
 
           <button
             type="submit"
