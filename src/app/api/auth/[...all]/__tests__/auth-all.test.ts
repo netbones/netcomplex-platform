@@ -7,11 +7,13 @@ const mocks = vi.hoisted(() => ({
   mockBetterAuthGet: vi.fn(),
   mockBetterAuthPost: vi.fn(),
   mockRateLimitByIP: vi.fn<(...args: unknown[]) => Response | null>(() => null),
+  mockVerifyTurnstile: vi.fn<(...args: unknown[]) => Promise<boolean>>(() => Promise.resolve(true)),
 }));
 
 vi.mock('@api/server', () => ({
   auth: {},
   rateLimitByIP: (...args: unknown[]) => mocks.mockRateLimitByIP(...args) as Response | null,
+  verifyTurnstile: (...args: unknown[]) => mocks.mockVerifyTurnstile(...args) as Promise<boolean>,
 }));
 
 vi.mock('better-auth/next-js', () => ({
@@ -99,6 +101,10 @@ describe('Auth All Catch-All API', () => {
   });
 
   describe('POST — custom with rate limiting', () => {
+    beforeEach(() => {
+      mocks.mockVerifyTurnstile.mockResolvedValue(true);
+    });
+
     it('calls better-auth POST when rate limit not exceeded', async () => {
       const mockResponse = new Response(JSON.stringify({ user: { id: '1' } }), {
         status: 200,
@@ -153,6 +159,67 @@ describe('Auth All Catch-All API', () => {
         windowMs: 60000,
         maxRequests: 10,
       });
+    });
+
+    it('verifies Turnstile token when x-turnstile-token header is present', async () => {
+      const mockResponse = new Response(JSON.stringify({ user: { id: '1' } }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+      mocks.mockBetterAuthPost.mockResolvedValue(mockResponse);
+
+      const request = new Request('http://localhost:3000/api/auth/signin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-turnstile-token': 'valid-token',
+        },
+        body: JSON.stringify({ email: 'test@test.com', password: 'password' }),
+      });
+
+      const response = await POST(request as any);
+
+      expect(mocks.mockVerifyTurnstile).toHaveBeenCalledWith('valid-token');
+      expect(mocks.mockBetterAuthPost).toHaveBeenCalled();
+      expect(response.status).toBe(200);
+    });
+
+    it('returns 403 when Turnstile verification fails', async () => {
+      mocks.mockVerifyTurnstile.mockResolvedValue(false);
+
+      const request = new Request('http://localhost:3000/api/auth/signin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-turnstile-token': 'invalid-token',
+        },
+        body: JSON.stringify({ email: 'test@test.com', password: 'password' }),
+      });
+
+      const response = await POST(request as any);
+
+      expect(mocks.mockVerifyTurnstile).toHaveBeenCalledWith('invalid-token');
+      expect(mocks.mockBetterAuthPost).not.toHaveBeenCalled();
+      expect(response.status).toBe(403);
+    });
+
+    it('skips Turnstile verification when header is not present', async () => {
+      const mockResponse = new Response(JSON.stringify({ user: { id: '1' } }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+      mocks.mockBetterAuthPost.mockResolvedValue(mockResponse);
+
+      const request = new Request('http://localhost:3000/api/auth/signin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: 'test@test.com', password: 'password' }),
+      });
+
+      await POST(request as any);
+
+      expect(mocks.mockVerifyTurnstile).not.toHaveBeenCalled();
+      expect(mocks.mockBetterAuthPost).toHaveBeenCalled();
     });
   });
 });
