@@ -45,14 +45,15 @@ describe('Auth All Catch-All API', () => {
     vi.restoreAllMocks();
   });
 
-  describe('GET — re-exported from better-auth', () => {
-    it('delegates to better-auth GET handler', async () => {
+  describe('GET — rate-limited (spray prevention)', () => {
+    it('delegates to better-auth GET handler when rate limit not exceeded', async () => {
       const mockResponse = new Response('ok', { status: 200 });
       mocks.mockBetterAuthGet.mockResolvedValue(mockResponse);
 
       const request = new Request('http://localhost:3000/api/auth/session');
       const response = await GET(request as any);
 
+      expect(mocks.mockRateLimitByIP).toHaveBeenCalled();
       expect(mocks.mockBetterAuthGet).toHaveBeenCalledWith(request);
       expect(response.status).toBe(200);
     });
@@ -68,6 +69,32 @@ describe('Auth All Catch-All API', () => {
       const response = await GET(request as any);
 
       expect(response.status).toBe(401);
+    });
+
+    it('returns 429 when rate limit exceeded', async () => {
+      mocks.mockRateLimitByIP.mockReturnValue(
+        new Response(JSON.stringify({ success: false, error: { code: 'RATE_LIMITED' } }), {
+          status: 429,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      );
+
+      const request = new Request('http://localhost:3000/api/auth/session');
+      const response = await GET(request as any);
+
+      expect(mocks.mockRateLimitByIP).toHaveBeenCalled();
+      expect(mocks.mockBetterAuthGet).not.toHaveBeenCalled();
+      expect(response.status).toBe(429);
+    });
+
+    it('rate limit uses 60 second window and 300 max requests', async () => {
+      const request = new Request('http://localhost:3000/api/auth/session');
+      await GET(request as any);
+
+      expect(mocks.mockRateLimitByIP).toHaveBeenCalledWith(request, {
+        windowMs: 60000,
+        maxRequests: 300,
+      });
     });
   });
 
