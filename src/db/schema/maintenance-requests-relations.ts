@@ -1,11 +1,42 @@
 import { relations } from 'drizzle-orm';
 import { maintenanceRequests } from './maintenance-requests';
-import { properties } from './properties';
-import { users } from './users';
-import { maintenanceTeams } from './maintenance-teams';
+import { internalMaintenanceNotes } from './internal-maintenance-notes';
 import { serviceProviders } from './service-providers';
+import { maintenanceTeams } from './maintenance-teams';
+import { users } from './users';
+import { properties } from './properties';
 import { requestHistories } from './request-histories';
 import { requestNotes } from './request-notes';
-import { internalMaintenanceNotes } from './internal-maintenance-notes';
 
-export const maintenanceRequestsRelations = relations(maintenanceRequests, (helpers) => ({ property: helpers.one(properties, { relationName: 'MaintenanceRequestToProperty', fields: [ maintenanceRequests.propertyId ], references: [ properties.id ] }), user: helpers.one(users, { relationName: 'MaintenanceRequestTouser', fields: [ maintenanceRequests.userId ], references: [ users.id ] }), landlord: helpers.one(users, { relationName: 'MaintenanceRequest_landlord', fields: [ maintenanceRequests.landlordId ], references: [ users.id ] }), assignedTeam: helpers.one(maintenanceTeams, { relationName: 'TeamAssignments', fields: [ maintenanceRequests.assignedTeamId ], references: [ maintenanceTeams.id ] }), assignedProvider: helpers.one(serviceProviders, { relationName: 'ProviderAssignments', fields: [ maintenanceRequests.assignedProviderId ], references: [ serviceProviders.id ] }), histories: helpers.many(requestHistories, { relationName: 'MaintenanceRequestToRequestHistory' }), notes: helpers.many(requestNotes, { relationName: 'MaintenanceRequestToRequestNote' }), internalNotes: helpers.many(internalMaintenanceNotes, { relationName: 'InternalMaintenanceNoteToMaintenanceRequest' }) }));
+export const maintenanceRequestsRelations = relations(maintenanceRequests, helpers => ({
+  internalNotes: helpers.many(internalMaintenanceNotes, {
+    relationName: 'InternalMaintenanceNoteToMaintenanceRequest',
+  }),
+  assignedProvider: helpers.one(serviceProviders, {
+    relationName: 'ProviderAssignments',
+    fields: [maintenanceRequests.assignedProviderId],
+    references: [serviceProviders.id],
+  }),
+  assignedTeam: helpers.one(maintenanceTeams, {
+    relationName: 'TeamAssignments',
+    fields: [maintenanceRequests.assignedTeamId],
+    references: [maintenanceTeams.id],
+  }),
+  landlord: helpers.one(users, {
+    relationName: 'MaintenanceRequest_landlord',
+    fields: [maintenanceRequests.landlordId],
+    references: [users.id],
+  }),
+  property: helpers.one(properties, {
+    relationName: 'MaintenanceRequestToProperty',
+    fields: [maintenanceRequests.propertyId],
+    references: [properties.id],
+  }),
+  user: helpers.one(users, {
+    relationName: 'MaintenanceRequestTouser',
+    fields: [maintenanceRequests.userId],
+    references: [users.id],
+  }),
+  histories: helpers.many(requestHistories, { relationName: 'MaintenanceRequestToRequestHistory' }),
+  notes: helpers.many(requestNotes, { relationName: 'MaintenanceRequestToRequestNote' }),
+}));

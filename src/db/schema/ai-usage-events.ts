@@ -1,3 +1,22 @@
-import { pgTable, text, integer, decimal, boolean, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, boolean, timestamp, decimal } from 'drizzle-orm/pg-core';
 
-export const aiUsageEvents = pgTable('AiUsageEvent', { id: text('id').primaryKey(), tenantId: text('tenantId').notNull(), usageId: text('usageId').notNull(), capability: text('capability').notNull(), provider: text('provider').notNull(), model: text('model').notNull(), inputTokens: integer('inputTokens').notNull(), outputTokens: integer('outputTokens').notNull(), totalTokens: integer('totalTokens').notNull(), estimatedCostUSD: decimal('estimatedCostUSD', { precision: 65, scale: 30 }).default('0').notNull(), userId: text('userId'), referenceId: text('referenceId'), durationMs: integer('durationMs'), success: boolean('success').default(true).notNull(), errorCode: text('errorCode'), createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull() });
+export const aiUsageEvents = pgTable('AiUsageEvent', {
+  id: text('id').primaryKey(),
+  tenantId: text('tenantId').notNull(),
+  usageId: text('usageId').notNull(),
+  capability: text('capability').notNull(),
+  provider: text('provider').notNull(),
+  model: text('model').notNull(),
+  inputTokens: integer('inputTokens').notNull(),
+  outputTokens: integer('outputTokens').notNull(),
+  totalTokens: integer('totalTokens').notNull(),
+  userId: text('userId'),
+  referenceId: text('referenceId'),
+  durationMs: integer('durationMs'),
+  success: boolean('success').default(true).notNull(),
+  errorCode: text('errorCode'),
+  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+  estimatedCostUSD: decimal('estimatedCostUSD', { precision: 65, scale: 30 })
+    .default('0')
+    .notNull(),
+});

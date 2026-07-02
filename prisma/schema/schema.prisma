@@ -1,26 +1,17 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["prismaSchemaFolder"]
 }
 
 generator drizzle {
   provider = "prisma-generator-drizzle"
-  output   = "../src/db/schema"
+  output   = "../../src/db/schema"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
-// ── ID Strategy ──
-// All IDs are UUID v4 generated at the application layer via `createId()` from
-// `@shared/lib/id`. Prisma `@default(cuid())` annotations are vestigial — the
-// prisma-generator-drizzle tool does not translate them to Drizzle column
-// defaults, and all queries use Drizzle. Schema-level `@default()` annotations
-// have no runtime effect and are retained for Prisma introspection compatibility.
-// See ADR-023 for the full decision record.
-
-// ── Auth & Sessions (Better Auth) ──
 
 model account {
   id                    String    @id
@@ -102,26 +93,22 @@ model twoFactor {
   @@index([userId])
 }
 
-// ── User & Identity ──
-
 model user {
   id                                                    String                    @id
   tenantId                                              String
   email                                                 String                    @unique
   name                                                  String
   role                                                  Role                      @default(USER)
-  isActive    Boolean              @default(false)
+  isActive                                              Boolean                   @default(false)
   phone                                                 String?
   interests                                             String[]
   avatar                                                String?
   profileImage                                          String?
   books                                                 Json?                     @default("[]")
   dashboardLayout                                       Json?                     @default("null")
-  profileData                                           Json?                     @default("{}")
   isPublic                                              Boolean                   @default(true)
   showEmail                                             Boolean                   @default(true)
   showPhone                                             Boolean                   @default(true)
-  notificationPreferences                               Json?                     @default("{\"info\":{\"inApp\":true,\"email\":true},\"warning\":{\"inApp\":true,\"email\":true},\"success\":{\"inApp\":true,\"email\":true},\"error\":{\"inApp\":true,\"email\":true}}")
   profileSlug                                           String?
   createdAt                                             DateTime                  @default(now())
   updatedAt                                             DateTime                  @default(now()) @updatedAt
@@ -129,105 +116,108 @@ model user {
   image                                                 String?
   twoFactorEnabled                                      Boolean?                  @default(false)
   isPlatformAdmin                                       Boolean                   @default(false)
-  banned                                                Boolean                   @default(false)
-  banReason                                             String?
+  notificationPreferences                               Json?                     @default("{\"info\": {\"email\": true, \"inApp\": true}, \"error\": {\"email\": true, \"inApp\": true}, \"success\": {\"email\": true, \"inApp\": true}, \"warning\": {\"email\": true, \"inApp\": true}}")
   banExpires                                            DateTime?
-  assistSessions                                        AssistSession[]
-  Booking                                               Booking[]
-  CompetitionEntry                                      CompetitionEntry[]
-  Content                                               Content[]
-  ContentLike                                           ContentLike[]
-  EventAttendee                                         EventAttendee[]
-  ConversationParticipant                               ConversationParticipant[]
-  Group                                                 Group[]
-  GroupMembershipRequest                                GroupMembershipRequest[]
-  MaintenanceRequest                                    MaintenanceRequest[]
-  maintenanceRequestsAsLandlord                         MaintenanceRequest[]     @relation("MaintenanceRequest_landlord")
-  RequestNote                                           RequestNote[]
-  InternalMaintenanceNote                               InternalMaintenanceNote[]
-  RequestHistory                                        RequestHistory[]
-  Message                                               Message[]
-  Notification                                          Notification[]
-  ownedProperties                                       Property[]                @relation("PropertyOwner")
-  Resource                                              Resource[]
-  ownedTenants                                          Tenant[]                  @relation("TenantOwner")
-  GroupMember                                           GroupMember[]
-  account                                               account[]
+  banReason                                             String?
+  banned                                                Boolean                   @default(false)
+  profileData                                           Json?                     @default("{}")
   agentAccess_agentAccess_agentIdTouser                 AgentAccess[]             @relation("agentAccess_agentIdTouser")
   agentAccess_agentAccess_grantedByIdTouser             AgentAccess[]             @relation("agentAccess_grantedByIdTouser")
+  agentProfile                                          AgentProfile?
   agentTokensAsAgent                                    AgentToken[]              @relation("agentToken_agentIdTouser")
   agentTokensIssued                                     AgentToken[]              @relation("agentToken_issuedByIdTouser")
-  residentDelegationsGranted                            ResidentDelegation[]      @relation("ResidentDelegation_owner")
-  delegationActionsAsActor                              DelegationAction[]
-  agentProfile                                          AgentProfile?
   album                                                 Album[]
+  assistSessions                                        AssistSession[]
+  Booking                                               Booking[]
+  communityMeritsCreatedBy                              CommunityMerit[]          @relation("CommunityMeritCreatedBy")
+  communityMeritsResolvedBy                             CommunityMerit[]          @relation("CommunityMeritResolvedBy")
+  communityMeritsSubject                                CommunityMerit[]          @relation("CommunityMeritSubject")
   communityServiceInquiry                               CommunityServiceInquiry[]
   communityServiceListing                               CommunityServiceListing[]
   communityServiceReview                                CommunityServiceReview[]
-  serviceBooking                                        ServiceBooking[]          @relation("ServiceBookingToUser")
+  CompetitionEntry                                      CompetitionEntry[]
+  Content                                               Content[]
+  ContentLike                                           ContentLike[]
+  ConversationParticipant                               ConversationParticipant[]
+  dWallet                                               DWallet?
+  delegationActionsAsActor                              DelegationAction[]
+  disputeCases_moderator                                DisputeCase[]             @relation("DisputeModerator")
+  disputeCases_closedBy                                 DisputeCase[]             @relation("DisputeClosedBy")
+  disputeCases_complainant                              DisputeCase[]             @relation("DisputeComplainant")
+  disputeCases_respondent                               DisputeCase[]             @relation("DisputeRespondent")
+  disputeEvent_actor                                    DisputeEvent[]            @relation("DisputeEventActor")
+  disputeEvidence_uploader                              DisputeEvidence[]         @relation("DisputeEvidenceUploader")
+  disputeMessage_sender                                 DisputeMessage[]          @relation("DisputeMessageSender")
+  disputeNotification_user                              DisputeNotification[]     @relation("DisputeNotificationUser")
+  EventAttendee                                         EventAttendee[]
+  Group                                                 Group[]
+  GroupMember                                           GroupMember[]
+  GroupMembershipRequest                                GroupMembershipRequest[]
+  InternalMaintenanceNote                               InternalMaintenanceNote[]
   invitation                                            Invitation[]
+  maintenanceRequestsAsLandlord                         MaintenanceRequest[]      @relation("MaintenanceRequest_landlord")
+  MaintenanceRequest                                    MaintenanceRequest[]
   member                                                Member[]
-  passkey                                               passkey[]
+  Message                                               Message[]
+  Notification                                          Notification[]
   platformSuspension                                    PlatformSuspension[]
-  communityMeritsSubject                                CommunityMerit[]          @relation("CommunityMeritSubject")
-  communityMeritsCreatedBy                              CommunityMerit[]          @relation("CommunityMeritCreatedBy")
-  communityMeritsResolvedBy                             CommunityMerit[]          @relation("CommunityMeritResolvedBy")
   premiumSeat                                           PremiumSeat?
   profile_profile_landlordIdTouser                      Profile[]                 @relation("profile_landlordIdTouser")
   profile_profile_userIdTouser                          Profile[]                 @relation("profile_userIdTouser")
+  ownedProperties                                       Property[]                @relation("PropertyOwner")
   propertyListing_propertyListing_assignedAgentIdTouser PropertyListing[]         @relation("propertyListing_assignedAgentIdTouser")
   propertyListing_propertyListing_ownerIdTouser         PropertyListing[]         @relation("propertyListing_ownerIdTouser")
-  session                                               session[]
+  RequestHistory                                        RequestHistory[]
+  RequestNote                                           RequestNote[]
+  residentDelegationsGranted                            ResidentDelegation[]      @relation("ResidentDelegation_owner")
+  Resource                                              Resource[]
+  serviceBooking                                        ServiceBooking[]          @relation("ServiceBookingToUser")
+  serviceProviders                                      ServiceProvider[]
   soloSeat                                              SoloSeat[]
   standardSeat                                          StandardSeat[]
-  serviceProviders                                      ServiceProvider[]
-  twoFactor                                             twoFactor[]
-  UserKey                                               UserKey[]
-  UserDevice                                            UserDevice[]
+  receivedSupports                                      Support[]                 @relation("ReceivedSupports")
+  sentSupports                                          Support[]                 @relation("SentSupports")
+  ownedTenants                                          Tenant[]                  @relation("TenantOwner")
+  UserAchievement                                       UserAchievement[]
   UserAchievementProgress                               UserAchievementProgress[]
-  UserAchievement                               UserAchievement[]
-  dWallet                                            DWallet?
-  disputeCases_complainant                            DisputeCase[]             @relation("DisputeComplainant")
-  disputeCases_respondent                             DisputeCase[]             @relation("DisputeRespondent")
-  disputeCases_moderator                              DisputeCase[]             @relation("DisputeModerator")
-  disputeCases_closedBy                               DisputeCase[]             @relation("DisputeClosedBy")
-  disputeEvidence_uploader                            DisputeEvidence[]         @relation("DisputeEvidenceUploader")
-  disputeEvent_actor                                  DisputeEvent[]            @relation("DisputeEventActor")
-  disputeMessage_sender                               DisputeMessage[]          @relation("DisputeMessageSender")
-  disputeNotification_user                            DisputeNotification[]     @relation("DisputeNotificationUser")
-  sentSupports                                                Support[]                 @relation("SentSupports")
-  receivedSupports                                                Support[]                 @relation("ReceivedSupports")
+  UserDevice                                            UserDevice[]
+  UserKey                                               UserKey[]
+  account                                               account[]
+  passkey                                               passkey[]
+  session                                               session[]
+  twoFactor                                             twoFactor[]
 }
 
 model Profile {
-  id                            String        @id
+  id                            String               @id
   tenantId                      String
   householdId                   String
   displayName                   String
-  profileAddress                String        @unique
+  profileAddress                String               @unique
   userId                        String?
   avatar                        String?
-  isPublic                      Boolean       @default(true)
-  showEmail                     Boolean       @default(true)
-  showPhone                     Boolean       @default(true)
-  occupantSince                 DateTime      @default(now())
-  householdRole                 HouseholdRole @default(OCCUPANT)
+  isPublic                      Boolean              @default(true)
+  showEmail                     Boolean              @default(true)
+  showPhone                     Boolean              @default(true)
+  occupantSince                 DateTime             @default(now())
+  householdRole                 HouseholdRole        @default(OCCUPANT)
   leaseStartDate                DateTime?
   leaseEndDate                  DateTime?
-  status                        ProfileStatus @default(ACTIVE)
+  status                        ProfileStatus        @default(ACTIVE)
   organizationId                String?
-  createdAt                     DateTime      @default(now())
-  updatedAt                     DateTime      @default(now()) @updatedAt
+  createdAt                     DateTime             @default(now())
+  updatedAt                     DateTime             @default(now()) @updatedAt
   deletedAt                     DateTime?
-  aliasAddressId                String?
-  aliasAddress                  Address?               @relation(fields: [aliasAddressId], references: [id])
   occupantImage                 String?
   rentalImage                   String?
   landlordId                    String?
-  residencyType                 ResidencyType @default(FAMILY)
-  household                     Household              @relation(fields: [householdId], references: [id], onDelete: Cascade)
-  user_profile_landlordIdTouser user?                  @relation("profile_landlordIdTouser", fields: [landlordId], references: [id])
-  user_profile_userIdTouser     user?                  @relation("profile_userIdTouser", fields: [userId], references: [id])
+  residencyType                 ResidencyType        @default(FAMILY)
+  aliasAddressId                String?
+  aliasAddress                  Address?             @relation(fields: [aliasAddressId], references: [id])
+  household                     Household            @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  user_profile_landlordIdTouser user?                @relation("profile_landlordIdTouser", fields: [landlordId], references: [id])
+  Tenant                        Tenant               @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  user_profile_userIdTouser     user?                @relation("profile_userIdTouser", fields: [userId], references: [id])
   residentDelegations           ResidentDelegation[]
 
   @@unique([householdId, profileAddress])
@@ -236,6 +226,7 @@ model Profile {
   @@index([organizationId])
   @@index([userId])
   @@index([aliasAddressId])
+  @@index([tenantId])
 }
 
 model Member {
@@ -247,10 +238,12 @@ model Member {
   createdAt      DateTime
   deletedAt      DateTime?
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  Tenant         Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   user           user         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([organizationId])
   @@index([userId])
+  @@index([tenantId])
 }
 
 model Organization {
@@ -263,6 +256,7 @@ model Organization {
   metadata   String?
   invitation Invitation[]
   member     Member[]
+  Tenant     Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
 
   @@index([tenantId])
 }
@@ -271,42 +265,44 @@ model Notification {
   id             String           @id
   tenantId       String
   userId         String
-  senderId       String?
   title          String
   message        String
   type           NotificationType @default(info)
-  category       String?
   link           String?
   read           Boolean          @default(false)
-  readAt         DateTime?
-  deliveryStatus String           @default("PENDING")
-  payload        Json?
   createdAt      DateTime         @default(now())
   deletedAt      DateTime?
+  senderId       String?
+  readAt         DateTime?
+  payload        Json?
+  deliveryStatus String           @default("PENDING")
+  category       String?
+  Tenant         Tenant           @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   user           user             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([tenantId, userId])
 }
 
 model ServiceBooking {
-  id            String               @id
+  id            String                  @id
   tenantId      String
   listingId     String
   providerId    String
   userId        String
-  date          DateTime             @db.Date
+  date          DateTime                @db.Date
   startTime     String
   endTime       String
-  price         Decimal?             @db.Decimal(65, 30)
-  platformFee   Decimal?             @db.Decimal(65, 30)
-  paymentStatus BookingPaymentStatus @default(PENDING)
-  status        ServiceBookingStatus @default(PENDING_CONFIRMATION)
-  createdAt     DateTime             @default(now())
-  updatedAt     DateTime             @updatedAt
+  price         Decimal?
+  platformFee   Decimal?
+  paymentStatus BookingPaymentStatus    @default(PENDING)
+  status        ServiceBookingStatus    @default(PENDING_CONFIRMATION)
+  createdAt     DateTime                @default(now())
+  updatedAt     DateTime                @updatedAt
   deletedAt     DateTime?
   listing       CommunityServiceListing @relation("ServiceBookingToListing", fields: [listingId], references: [id], onDelete: Cascade)
-  provider      ServiceProvider       @relation("ServiceBookingToProvider", fields: [providerId], references: [id], onDelete: Cascade)
-  user          user                  @relation("ServiceBookingToUser", fields: [userId], references: [id], onDelete: Cascade)
+  provider      ServiceProvider         @relation("ServiceBookingToProvider", fields: [providerId], references: [id], onDelete: Cascade)
+  Tenant        Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  user          user                    @relation("ServiceBookingToUser", fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([tenantId])
   @@index([listingId, date, startTime])
@@ -353,20 +349,22 @@ model PremiumSeat {
   maxProperties        Int                   @default(5)
   platformAddress      String                @unique
   organizationId       String?
-  status               SeatStatus            @default(ACTIVE)
-  archivedAt           DateTime?
   createdAt            DateTime              @default(now())
   updatedAt            DateTime              @default(now()) @updatedAt
   messageRetentionDays Int                   @default(30)
   tier                 String                @default("foundation")
+  archivedAt           DateTime?
+  status               SeatStatus            @default(ACTIVE)
   addressId            String?
   address              Address?              @relation(fields: [addressId], references: [id])
+  Tenant               Tenant                @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   user                 user                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   propertyPremiumSeats PropertyPremiumSeat[]
 
   @@index([organizationId])
   @@index([userId])
   @@index([addressId])
+  @@index([tenantId])
 }
 
 model SoloSeat {
@@ -379,19 +377,21 @@ model SoloSeat {
   isComplimentary     Boolean      @default(false)
   linkedFromProfileId String?
   organizationId      String?
-  status              SeatStatus   @default(ACTIVE)
-  archivedAt          DateTime?
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @default(now()) @updatedAt
+  archivedAt          DateTime?
+  status              SeatStatus   @default(ACTIVE)
   addressId           String?
   address             Address?     @relation(fields: [addressId], references: [id])
   property            Property?    @relation(fields: [propertyId], references: [id])
+  Tenant              Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   user                user         @relation(fields: [userId], references: [id])
 
   @@index([propertyId])
   @@index([organizationId])
   @@index([userId])
   @@index([addressId])
+  @@index([tenantId])
 }
 
 model StandardSeat {
@@ -402,20 +402,22 @@ model StandardSeat {
   isPrimaryOwner  Boolean    @default(true)
   platformAddress String     @unique
   organizationId  String?
-  status          SeatStatus @default(ACTIVE)
-  archivedAt      DateTime?
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @default(now()) @updatedAt
+  archivedAt      DateTime?
+  status          SeatStatus @default(ACTIVE)
   addressId       String?
   address         Address?   @relation(fields: [addressId], references: [id])
-  property        Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  user            user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property        Property   @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  Tenant          Tenant     @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  user            user       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, propertyId])
   @@index([propertyId])
   @@index([organizationId])
   @@index([userId])
   @@index([addressId])
+  @@index([tenantId])
 }
 
 model UserKey {
@@ -440,8 +442,6 @@ model UserDevice {
 
   @@index([userId])
 }
-
-// ── Tenant & Platform ──
 
 model PlatformModule {
   id             String         @id @default(cuid())
@@ -468,50 +468,18 @@ model TenantModule {
   @@index([moduleKey])
 }
 
-model Tenant {
-  id               String          @id @default(uuid())
-  name             String
-  slug             String          @unique
-  customDomain     String?         @unique
-  logoUrl          String?
-  faviconUrl       String?
-  primaryColor     String          @default("#4F46E5")
-  accentColor      String?
-  secondaryColor   String?
-  fontFamily       String?
-  customCss        String?
-  active           Boolean         @default(true)
-  subscriptionTier String          @default("basic")
-  modules          Json?
-  maxPages         Int             @default(5)
-  pageCount        Int             @default(0)
-  featureFlags     Json            @default("{}")
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime?
-  tier             Tier            @default(STANDARD)
-  ownerId          String?
-  assistSessions   AssistSession[]
-  owner            user?           @relation("TenantOwner", fields: [ownerId], references: [id])
-  tenantModules    TenantModule[]
-  tenantAchievements TenantAchievement[]
-
-  @@index([ownerId])
-}
-
 model Setting {
   id            String    @id
   tenantId      String
   key           String
   value         String
-  schemaVersion Int       @default(1)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @default(now()) @updatedAt
+  schemaVersion Int       @default(1)
   deletedAt     DateTime?
 
   @@unique([tenantId, key])
 }
-
-// ── Directory & Properties ──
 
 model Property {
   id                  String                @id @default(cuid())
@@ -525,20 +493,22 @@ model Property {
   updatedAt           DateTime              @updatedAt
   deletedAt           DateTime?
   addressId           String?
-  address             Address?              @relation(fields: [addressId], references: [id])
+  agentAccess         AgentAccess[]
   Booking             Booking[]
   households          Household[]
   MaintenanceRequest  MaintenanceRequest[]
+  address             Address?              @relation(fields: [addressId], references: [id])
   owner               user?                 @relation("PropertyOwner", fields: [ownerId], references: [id])
-  agentAccess         AgentAccess[]
+  Tenant              Tenant                @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   propertyListing     PropertyListing[]
+  PropertyPremiumSeat PropertyPremiumSeat[]
   residentDelegations ResidentDelegation[]
   soloSeat            SoloSeat[]
   standardSeat        StandardSeat[]
-  PropertyPremiumSeat PropertyPremiumSeat[]
 
   @@index([ownerId])
   @@index([addressId])
+  @@index([tenantId])
 }
 
 model Household {
@@ -554,10 +524,12 @@ model Household {
   updatedAt      DateTime        @updatedAt
   deletedAt      DateTime?
   property       Property        @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  Tenant         Tenant          @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   profiles       Profile[]
 
   @@index([propertyId])
   @@index([organizationId])
+  @@index([tenantId])
 }
 
 model PropertyListing {
@@ -588,6 +560,7 @@ model PropertyListing {
   user_propertyListing_assignedAgentIdTouser user?         @relation("propertyListing_assignedAgentIdTouser", fields: [assignedAgentId], references: [id])
   user_propertyListing_ownerIdTouser         user          @relation("propertyListing_ownerIdTouser", fields: [ownerId], references: [id])
   property                                   Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  Tenant                                     Tenant        @relation(fields: [tenantId], references: [id], onDelete: Restrict)
 
   @@index([assignedAgentId])
   @@index([propertyId])
@@ -596,6 +569,7 @@ model PropertyListing {
   @@index([organizationId])
   @@index([ownerId])
   @@index([status])
+  @@index([tenantId])
 }
 
 model PropertyPremiumSeat {
@@ -604,12 +578,14 @@ model PropertyPremiumSeat {
   propertyId    String
   premiumSeatId String
   createdAt     DateTime    @default(now())
-  property      Property    @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   premiumSeat   PremiumSeat @relation(fields: [premiumSeatId], references: [id], onDelete: Cascade)
+  property      Property    @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  Tenant        Tenant      @relation(fields: [tenantId], references: [id], onDelete: Restrict)
 
   @@unique([propertyId, premiumSeatId])
   @@index([propertyId])
   @@index([premiumSeatId])
+  @@index([tenantId])
 }
 
 model Invitation {
@@ -630,23 +606,24 @@ model Invitation {
   inviterId      String
   user           user             @relation(fields: [inviterId], references: [id], onDelete: Cascade)
   organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  Tenant         Tenant           @relation(fields: [tenantId], references: [id], onDelete: Restrict)
 
   @@index([email])
   @@index([organizationId])
   @@index([inviterId])
+  @@index([tenantId])
 }
-
-// ── Chat & Messaging ──
 
 model Conversation {
   id                      String                    @id
   tenantId                String
   name                    String?
   type                    ConversationType          @default(DIRECT)
-  capabilities            Json?
   createdAt               DateTime                  @default(now())
   updatedAt               DateTime                  @default(now()) @updatedAt
   deletedAt               DateTime?
+  capabilities            Json?
+  Tenant                  Tenant                    @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   ConversationParticipant ConversationParticipant[]
   Message                 Message[]
 
@@ -662,11 +639,13 @@ model ConversationParticipant {
   lastReadAt        DateTime?
   lastReadMessageId String?
   Conversation      Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  Tenant            Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   user              user         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([conversationId, userId])
   @@index([conversationId])
   @@index([userId])
+  @@index([tenantId])
 }
 
 model Message {
@@ -676,21 +655,21 @@ model Message {
   senderId       String
   content        String
   type           MessageType  @default(TEXT)
-  messageVersion Int          @default(1)
-  payload        Json?
   createdAt      DateTime     @default(now())
   expiresAt      DateTime?
   deletedAt      DateTime?
   mediaUrl       String?
+  messageVersion Int          @default(1)
+  payload        Json?
   Conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   user           user         @relation(fields: [senderId], references: [id])
+  Tenant         Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
 
   @@index([conversationId, createdAt])
   @@index([expiresAt])
   @@index([senderId])
+  @@index([tenantId])
 }
-
-// ── Content & Community ──
 
 model Content {
   id               String           @id
@@ -720,6 +699,7 @@ model Content {
   deletedAt        DateTime?
   user             user?            @relation(fields: [authorId], references: [id])
   Group            Group?           @relation(fields: [groupId], references: [id])
+  Tenant           Tenant           @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   likes            ContentLike[]
 
   @@index([authorId])
@@ -735,11 +715,13 @@ model ContentLike {
   createdAt DateTime  @default(now())
   deletedAt DateTime?
   content   Content   @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  Tenant    Tenant    @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   user      user      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([contentId, userId])
   @@index([contentId])
   @@index([userId])
+  @@index([tenantId])
 }
 
 model Support {
@@ -753,9 +735,8 @@ model Support {
   message         String?
   isAnonymous     Boolean       @default(false)
   createdAt       DateTime      @default(now())
-
-  sender          user          @relation("SentSupports", fields: [senderUserId], references: [id], onDelete: Cascade)
   recipient       user          @relation("ReceivedSupports", fields: [recipientUserId], references: [id], onDelete: Cascade)
+  sender          user          @relation("SentSupports", fields: [senderUserId], references: [id], onDelete: Cascade)
 
   @@index([tenantId])
   @@index([targetType, targetId])
@@ -782,10 +763,12 @@ model Group {
   ownerId                String
   Content                Content[]
   user                   user                     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  GroupMembershipRequest GroupMembershipRequest[]
+  Tenant                 Tenant                   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   GroupMember            GroupMember[]
+  GroupMembershipRequest GroupMembershipRequest[]
 
   @@index([ownerId])
+  @@index([tenantId])
 }
 
 model GroupMember {
@@ -797,10 +780,12 @@ model GroupMember {
   joinedAt  DateTime  @default(now())
   deletedAt DateTime?
   Group     Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  Tenant    Tenant    @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   user      user      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([groupId])
   @@index([userId])
+  @@index([tenantId])
 }
 
 model GroupMembershipRequest {
@@ -814,10 +799,12 @@ model GroupMembershipRequest {
   updatedAt DateTime         @default(now()) @updatedAt
   deletedAt DateTime?
   Group     Group            @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  Tenant    Tenant           @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   user      user             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, groupId])
   @@index([groupId, status])
+  @@index([tenantId])
 }
 
 model Album {
@@ -831,10 +818,12 @@ model Album {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @default(now()) @updatedAt
   deletedAt   DateTime?
+  Tenant      Tenant    @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   user        user      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([isPublic])
   @@index([userId])
+  @@index([tenantId])
 }
 
 model Resource {
@@ -848,10 +837,6 @@ model Resource {
   fileSize      Int?
   externalUrl   String?
   bodyContent   Json?
-  provider      String?
-  tags          String[]             @default([])
-  mediaType     ResourceMediaType?
-  featured      Boolean              @default(false)
   version       String?
   downloadCount Int                @default(0)
   visibility    ResourceVisibility @default(ALL_RESIDENTS)
@@ -860,10 +845,14 @@ model Resource {
   createdAt     DateTime           @default(now())
   updatedAt     DateTime           @updatedAt
   deletedAt     DateTime?
-  user          user?              @relation(fields: [authorId], references: [id])
-
-  versions      ResourceVersion[]
+  featured      Boolean            @default(false)
+  mediaType     ResourceMediaType?
+  provider      String?
+  tags          String[]           @default([])
   announcements Announcement[]
+  user          user?              @relation(fields: [authorId], references: [id])
+  Tenant        Tenant             @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  versions      ResourceVersion[]
 
   @@index([tenantId])
   @@index([category])
@@ -881,8 +870,7 @@ model ResourceVersion {
   notes      String?
   createdAt  DateTime  @default(now())
   deletedAt  DateTime?
-
-  resource Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  resource   Resource  @relation(fields: [resourceId], references: [id], onDelete: Cascade)
 
   @@index([resourceId])
 }
@@ -902,11 +890,11 @@ model Announcement {
   expiresAt    DateTime?
   deletedAt    DateTime?
   resource     Resource?      @relation(fields: [resourceId], references: [id])
+  Tenant       Tenant         @relation(fields: [tenantId], references: [id], onDelete: Restrict)
 
   @@index([resourceId])
+  @@index([tenantId])
 }
-
-// ── Events ──
 
 model Event {
   id          String          @id
@@ -921,6 +909,7 @@ model Event {
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @default(now()) @updatedAt
   deletedAt   DateTime?
+  Tenant      Tenant          @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   attendees   EventAttendee[]
 
   @@index([tenantId])
@@ -934,14 +923,14 @@ model EventAttendee {
   userId    String
   createdAt DateTime @default(now())
   event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  Tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([eventId, userId])
   @@index([eventId])
   @@index([userId])
+  @@index([tenantId])
 }
-
-// ── Bookings ──
 
 model Booking {
   id         String        @id
@@ -958,49 +947,49 @@ model Booking {
   updatedAt  DateTime      @default(now()) @updatedAt
   deletedAt  DateTime?
   property   Property?     @relation(fields: [propertyId], references: [id])
+  Tenant     Tenant        @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   user       user          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([propertyId])
   @@index([userId])
+  @@index([tenantId])
 }
 
-// ── Maintenance ──
-
 model MaintenanceRequest {
-  id                 String           @id
+  id                 String                    @id
   tenantId           String
   propertyId         String?
   userId             String
   category           String
   priority           Priority
   description        String
-  status             RequestStatus    @default(SUBMITTED)
+  status             RequestStatus             @default(SUBMITTED)
   images             String[]
   assignedTo         String?
   vendor             String?
   scheduledDate      DateTime?
-  estimatedCost      Decimal?         @db.Decimal(10, 2)
-  actualCost         Decimal?         @db.Decimal(10, 2)
+  estimatedCost      Decimal?                  @db.Decimal(10, 2)
+  actualCost         Decimal?                  @db.Decimal(10, 2)
   resolution         String?
   completedAt        DateTime?
   deletedAt          DateTime?
-  createdAt          DateTime         @default(now())
-  updatedAt          DateTime         @default(now()) @updatedAt
+  createdAt          DateTime                  @default(now())
+  updatedAt          DateTime                  @default(now()) @updatedAt
   ticketNumber       String
   preferredDate      DateTime?
   preferredTime      String?
   assignedTeamId     String?
   assignedProviderId String?
-  routingType        MaintenanceRouting @default(HOA)
+  routingType        MaintenanceRouting        @default(HOA)
   landlordId         String?
-  property           Property?        @relation(fields: [propertyId], references: [id])
-  user               user             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  landlord           user?            @relation("MaintenanceRequest_landlord", fields: [landlordId], references: [id])
-  assignedTeam       MaintenanceTeam? @relation("TeamAssignments", fields: [assignedTeamId], references: [id])
-  assignedProvider   ServiceProvider? @relation("ProviderAssignments", fields: [assignedProviderId], references: [id])
+  internalNotes      InternalMaintenanceNote[]
+  assignedProvider   ServiceProvider?          @relation("ProviderAssignments", fields: [assignedProviderId], references: [id])
+  assignedTeam       MaintenanceTeam?          @relation("TeamAssignments", fields: [assignedTeamId], references: [id])
+  landlord           user?                     @relation("MaintenanceRequest_landlord", fields: [landlordId], references: [id])
+  property           Property?                 @relation(fields: [propertyId], references: [id])
+  user               user                      @relation(fields: [userId], references: [id], onDelete: Cascade)
   histories          RequestHistory[]
   notes              RequestNote[]
-  internalNotes      InternalMaintenanceNote[]
 
   @@index([tenantId])
   @@index([assignedTeamId])
@@ -1040,13 +1029,13 @@ model MaintenanceCategory {
 }
 
 model BursaryField {
-  id          String     @id @default(cuid())
+  id          String    @id @default(cuid())
   tenantId    String
   value       String
   label       String
   description String?
-  isActive    Boolean    @default(true)
-  createdAt   DateTime   @default(now())
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
   deletedAt   DateTime?
   bursaries   Bursary[]
 
@@ -1099,37 +1088,34 @@ model RequestHistory {
   @@index([userId])
 }
 
-// ── Service Providers ──
-
 model ServiceProvider {
-  id          String               @id @default(cuid())
-  tenantId    String
-  userId      String?
-  companyName String
-  contactName String?
-  phone       String?
-  email       String?
-  trade       String
-  website     String?
-  isActive    Boolean              @default(true)
-  createdAt   DateTime             @default(now())
-  updatedAt   DateTime             @updatedAt
-  deletedAt   DateTime?
-  addressId   String?
-  address     Address?              @relation(fields: [addressId], references: [id])
-  user        user?                @relation(fields: [userId], references: [id])
-  assignments MaintenanceRequest[] @relation("ProviderAssignments")
-
-  verifications   ProviderVerification[]
-  legalAgreements ProviderLegalAgreement[]
-  reputation      ProviderReputation?
-  merits          ProviderMerit[]
-  subscriptions   ProviderSubscription[]
+  id              String                   @id @default(cuid())
+  tenantId        String
+  companyName     String
+  contactName     String?
+  phone           String?
+  email           String?
+  trade           String
+  isActive        Boolean                  @default(true)
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
+  deletedAt       DateTime?
+  userId          String?
+  website         String?
+  addressId       String?
+  assignments     MaintenanceRequest[]     @relation("ProviderAssignments")
   transactions    PaymentTransaction[]
-  revenue         RevenueRecord[]
   charges         ProviderCharge[]
   invoices        ProviderInvoice[]
-  serviceBooking  ServiceBooking[]      @relation("ServiceBookingToProvider")
+  legalAgreements ProviderLegalAgreement[]
+  merits          ProviderMerit[]
+  reputation      ProviderReputation?
+  subscriptions   ProviderSubscription[]
+  verifications   ProviderVerification?
+  revenue         RevenueRecord[]
+  serviceBooking  ServiceBooking[]         @relation("ServiceBookingToProvider")
+  address         Address?                 @relation(fields: [addressId], references: [id])
+  user            user?                    @relation(fields: [userId], references: [id])
 
   @@index([tenantId])
   @@index([addressId])
@@ -1240,52 +1226,49 @@ model ProviderVerification {
   tenantId              String
   status                ProviderVerificationStatus @default(PENDING)
   notes                 String?
-  dueDiligenceItems     Json?
   startDate             DateTime                   @default(now())
   endDate               DateTime?
   verificationThreshold Int                        @default(300)
   probationThreshold    Int                        @default(0)
   createdAt             DateTime                   @default(now())
   updatedAt             DateTime                   @updatedAt
-
-  provider ServiceProvider @relation(fields: [providerId], references: [id])
+  dueDiligenceItems     Json?
+  provider              ServiceProvider            @relation(fields: [providerId], references: [id])
 
   @@index([tenantId])
   @@index([providerId])
 }
 
 model ProviderLegalAgreement {
-  id            String   @id @default(cuid())
+  id            String          @id @default(cuid())
   providerId    String
   tenantId      String
-  agreementType String   // 'TOS', 'PRIVACY', 'CODE_OF_CONDUCT'
+  agreementType String
   version       String
-  acceptedAt    DateTime @default(now())
+  acceptedAt    DateTime        @default(now())
   ipAddress     String?
   userAgent     String?
-  createdAt     DateTime @default(now())
-
-  provider ServiceProvider @relation(fields: [providerId], references: [id])
+  createdAt     DateTime        @default(now())
+  provider      ServiceProvider @relation(fields: [providerId], references: [id])
 
   @@index([tenantId])
   @@index([providerId])
 }
 
 model ProviderReputation {
-  id                String    @id @default(cuid())
-  providerId        String    @unique
+  id                String          @id @default(cuid())
+  providerId        String          @unique
   tenantId          String
-  totalScore        Int       @default(0)
+  totalScore        Int             @default(0)
   responseTimeScore Int?
   qualityScore      Int?
   reviewScore       Int?
   complianceScore   Int?
   engagementScore   Int?
   lastCalculatedAt  DateTime?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-
-  provider ServiceProvider @relation(fields: [providerId], references: [id])
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  provider          ServiceProvider @relation(fields: [providerId], references: [id])
 
   @@index([tenantId])
 }
@@ -1298,61 +1281,58 @@ model ProviderMerit {
   points      Int
   description String?
   referenceId String?
-  evidenceUrl String?
   createdAt   DateTime          @default(now())
-
-  provider ServiceProvider @relation(fields: [providerId], references: [id])
+  evidenceUrl String?
+  provider    ServiceProvider   @relation(fields: [providerId], references: [id])
 
   @@index([tenantId])
   @@index([providerId])
 }
 
 model ProviderSubscription {
-  id              String             @id @default(cuid())
+  id              String               @id @default(cuid())
   providerId      String
   tenantId        String
   tierId          String
-  status          SubscriptionStatus @default(ACTIVE)
+  status          SubscriptionStatus   @default(ACTIVE)
   startDate       DateTime
   endDate         DateTime?
   nextBillingDate DateTime?
-  price           Decimal            @db.Decimal(10, 2)
-  currency        String             @default("ZAR")
+  price           Decimal              @db.Decimal(10, 2)
+  currency        String               @default("ZAR")
   paymentGateway  PaymentGateway?
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
-
-  provider     ServiceProvider      @relation(fields: [providerId], references: [id])
-  tier         SubscriptionTier     @relation(fields: [tierId], references: [id])
-  transactions PaymentTransaction[]
-  charges      ProviderCharge[]
-  invoices     ProviderInvoice[]
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  transactions    PaymentTransaction[]
+  charges         ProviderCharge[]
+  invoices        ProviderInvoice[]
+  provider        ServiceProvider      @relation(fields: [providerId], references: [id])
+  tier            SubscriptionTier     @relation(fields: [tierId], references: [id])
 
   @@index([tenantId])
   @@index([providerId])
 }
 
 model PaymentTransaction {
-  id             String            @id @default(cuid())
+  id             String               @id @default(cuid())
   providerId     String
   tenantId       String
   subscriptionId String
-  amount         Decimal           @db.Decimal(10, 2)
-  currency       String            @default("ZAR")
-  platformFee    Decimal           @db.Decimal(10, 2)
-  processorFee   Decimal           @db.Decimal(10, 2)
-  netAmount      Decimal           @db.Decimal(10, 2)
-  status         TransactionStatus @default(PENDING)
+  amount         Decimal              @db.Decimal(10, 2)
+  currency       String               @default("ZAR")
+  platformFee    Decimal              @db.Decimal(10, 2)
+  processorFee   Decimal              @db.Decimal(10, 2)
+  netAmount      Decimal              @db.Decimal(10, 2)
+  status         TransactionStatus    @default(PENDING)
   gateway        PaymentGateway
   externalRef    String?
   invoiceUrl     String?
-  createdAt      DateTime          @default(now())
-
-  provider     ServiceProvider      @relation(fields: [providerId], references: [id])
-  subscription ProviderSubscription @relation(fields: [subscriptionId], references: [id])
-  charges      ProviderCharge[]
-  invoices     ProviderInvoice[]
-  revenue      RevenueRecord[]
+  createdAt      DateTime             @default(now())
+  provider       ServiceProvider      @relation(fields: [providerId], references: [id])
+  subscription   ProviderSubscription @relation(fields: [subscriptionId], references: [id])
+  charges        ProviderCharge[]
+  invoices       ProviderInvoice[]
+  revenue        RevenueRecord[]
 
   @@index([tenantId])
   @@index([providerId])
@@ -1360,20 +1340,19 @@ model PaymentTransaction {
 }
 
 model RevenueRecord {
-  id            String   @id @default(cuid())
+  id            String             @id @default(cuid())
   tenantId      String
   providerId    String
   transactionId String
-  grossAmount   Decimal  @db.Decimal(10, 2)
-  platformFee   Decimal  @db.Decimal(10, 2)
-  processorFee  Decimal  @db.Decimal(10, 2)
-  netAmount     Decimal  @db.Decimal(10, 2)
-  currency      String   @default("ZAR")
+  grossAmount   Decimal            @db.Decimal(10, 2)
+  platformFee   Decimal            @db.Decimal(10, 2)
+  processorFee  Decimal            @db.Decimal(10, 2)
+  netAmount     Decimal            @db.Decimal(10, 2)
+  currency      String             @default("ZAR")
   period        String
-  createdAt     DateTime @default(now())
-
-  provider    ServiceProvider    @relation(fields: [providerId], references: [id])
-  transaction PaymentTransaction @relation(fields: [transactionId], references: [id])
+  createdAt     DateTime           @default(now())
+  provider      ServiceProvider    @relation(fields: [providerId], references: [id])
+  transaction   PaymentTransaction @relation(fields: [transactionId], references: [id])
 
   @@index([tenantId])
   @@index([providerId])
@@ -1395,73 +1374,68 @@ model ProviderCharge {
   paidAt         DateTime?
   createdAt      DateTime             @default(now())
   updatedAt      DateTime             @updatedAt
-
-  provider     ServiceProvider      @relation(fields: [providerId], references: [id])
-  subscription ProviderSubscription @relation(fields: [subscriptionId], references: [id])
-  transaction  PaymentTransaction?  @relation(fields: [transactionId], references: [id])
+  provider       ServiceProvider      @relation(fields: [providerId], references: [id])
+  subscription   ProviderSubscription @relation(fields: [subscriptionId], references: [id])
+  transaction    PaymentTransaction?  @relation(fields: [transactionId], references: [id])
 
   @@index([tenantId])
   @@index([providerId])
-
 }
 
 model ProviderInvoice {
-  id             String        @id @default(cuid())
+  id             String               @id @default(cuid())
   providerId     String
   tenantId       String
   subscriptionId String
   transactionId  String
   invoiceNumber  String
   items          Json
-  total          Decimal       @db.Decimal(10, 2)
-  platformFee    Decimal       @db.Decimal(10, 2)
-  processorFee   Decimal       @db.Decimal(10, 2)
-  netAmount      Decimal       @db.Decimal(10, 2)
-  currency       String        @default("ZAR")
-  status         InvoiceStatus @default(PENDING)
+  total          Decimal              @db.Decimal(10, 2)
+  platformFee    Decimal              @db.Decimal(10, 2)
+  processorFee   Decimal              @db.Decimal(10, 2)
+  netAmount      Decimal              @db.Decimal(10, 2)
+  currency       String               @default("ZAR")
+  status         InvoiceStatus        @default(PENDING)
   paidAt         DateTime?
   pdfUrl         String?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-
-  provider     ServiceProvider      @relation(fields: [providerId], references: [id])
-  subscription ProviderSubscription @relation(fields: [subscriptionId], references: [id])
-  transaction  PaymentTransaction   @relation(fields: [transactionId], references: [id])
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  provider       ServiceProvider      @relation(fields: [providerId], references: [id])
+  subscription   ProviderSubscription @relation(fields: [subscriptionId], references: [id])
+  transaction    PaymentTransaction   @relation(fields: [transactionId], references: [id])
 
   @@index([tenantId])
   @@index([providerId])
 }
 
-// ── Billing (Platform SaaS) ──
-
 model BillingPlan {
-  id              String             @id @default(cuid())
-  tenantId        String
-  name            String
-  description     String?
-  monthlyPrice    Decimal            @default(0) @db.Decimal(10,2)
-  annualPrice     Decimal            @default(0) @db.Decimal(10,2)
-  currency        String             @default("ZAR")
-  interval        BillingPlanInterval @default(MONTHLY)
-  modulesIncluded Json               @default("[]")
-  pageLimits      Json               @default("{}")
-  seatLimits      Json               @default("{}")
-  aiQuota         Int                @default(0)
-  features        Json               @default("{}")
-  tier            Tier               @default(STANDARD)
-  isDefault       Boolean            @default(false)
-  isActive        Boolean            @default(true)
-  sortOrder       Int                @default(0)
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
-  tenantSubscriptions TenantSubscription[]
+  id                  String               @id @default(cuid())
+  tenantId            String
+  name                String
+  description         String?
+  monthlyPrice        Decimal              @default(0) @db.Decimal(10, 2)
+  annualPrice         Decimal              @default(0) @db.Decimal(10, 2)
+  currency            String               @default("ZAR")
+  interval            BillingPlanInterval  @default(MONTHLY)
+  modulesIncluded     Json                 @default("[]")
+  pageLimits          Json                 @default("{}")
+  seatLimits          Json                 @default("{}")
+  aiQuota             Int                  @default(0)
+  features            Json                 @default("{}")
+  tier                Tier                 @default(STANDARD)
+  isDefault           Boolean              @default(false)
+  isActive            Boolean              @default(true)
+  sortOrder           Int                  @default(0)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
   coupons             Coupon[]
+  tenantSubscriptions TenantSubscription[]
 
   @@index([tenantId])
 }
 
 model TenantSubscription {
-  id                 String                    @id @default(cuid())
+  id                 String                   @id @default(cuid())
   tenantId           String
   planId             String
   status             TenantSubscriptionStatus @default(PENDING)
@@ -1473,35 +1447,35 @@ model TenantSubscription {
   conversionSource   String?
   cancelledAt        DateTime?
   cancelReason       String?
-  tierManualOverride Boolean                   @default(false)
-  createdAt          DateTime                  @default(now())
-  updatedAt          DateTime                  @updatedAt
-  plan               BillingPlan               @relation(fields: [planId], references: [id])
+  tierManualOverride Boolean                  @default(false)
+  createdAt          DateTime                 @default(now())
+  updatedAt          DateTime                 @updatedAt
+  events             BillingEvent[]
   invoices           TenantInvoice[]
   payments           TenantPayment[]
-  events             BillingEvent[]
+  plan               BillingPlan              @relation(fields: [planId], references: [id])
 
   @@index([tenantId])
   @@index([planId])
 }
 
 model TenantInvoice {
-  id             String        @id @default(cuid())
+  id             String             @id @default(cuid())
   tenantId       String
   subscriptionId String
   transactionId  String?
   invoiceNumber  String
-  items          Json          @default("[]")
-  subtotal       Decimal       @default(0) @db.Decimal(10,2)
-  taxAmount      Decimal       @default(0) @db.Decimal(10,2)
-  total          Decimal       @default(0) @db.Decimal(10,2)
-  currency       String        @default("ZAR")
-  status         InvoiceStatus @default(PENDING)
+  items          Json               @default("[]")
+  subtotal       Decimal            @default(0) @db.Decimal(10, 2)
+  taxAmount      Decimal            @default(0) @db.Decimal(10, 2)
+  total          Decimal            @default(0) @db.Decimal(10, 2)
+  currency       String             @default("ZAR")
+  status         InvoiceStatus      @default(PENDING)
   paidAt         DateTime?
   pdfUrl         String?
-  downloadReady  Boolean       @default(false)
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  downloadReady  Boolean            @default(false)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
   subscription   TenantSubscription @relation(fields: [subscriptionId], references: [id])
 
   @@index([tenantId])
@@ -1509,20 +1483,20 @@ model TenantInvoice {
 }
 
 model TenantPayment {
-  id             String            @id @default(cuid())
+  id             String             @id @default(cuid())
   tenantId       String
   subscriptionId String
-  amount         Decimal           @db.Decimal(10,2)
-  currency       String            @default("ZAR")
-  platformFee    Decimal           @default(0) @db.Decimal(10,2)
-  processorFee   Decimal           @default(0) @db.Decimal(10,2)
-  netAmount      Decimal           @default(0) @db.Decimal(10,2)
-  status         TransactionStatus @default(PENDING)
+  amount         Decimal            @db.Decimal(10, 2)
+  currency       String             @default("ZAR")
+  platformFee    Decimal            @default(0) @db.Decimal(10, 2)
+  processorFee   Decimal            @default(0) @db.Decimal(10, 2)
+  netAmount      Decimal            @default(0) @db.Decimal(10, 2)
+  status         TransactionStatus  @default(PENDING)
   gateway        PaymentGateway
   externalRef    String?
   invoiceUrl     String?
   couponId       String?
-  createdAt      DateTime          @default(now())
+  createdAt      DateTime           @default(now())
   subscription   TenantSubscription @relation(fields: [subscriptionId], references: [id])
 
   @@index([tenantId])
@@ -1531,28 +1505,28 @@ model TenantPayment {
 }
 
 model BillingAdjustment {
-  id             String   @id @default(cuid())
+  id             String                @id @default(cuid())
   tenantId       String
   subscriptionId String?
   invoiceId      String?
   type           BillingAdjustmentType
-  amount         Decimal  @db.Decimal(10,2)
-  currency       String   @default("ZAR")
+  amount         Decimal               @db.Decimal(10, 2)
+  currency       String                @default("ZAR")
   reason         String?
-  appliedAt      DateTime @default(now())
-  createdAt      DateTime @default(now())
+  appliedAt      DateTime              @default(now())
+  createdAt      DateTime              @default(now())
 
   @@index([tenantId])
 }
 
 model BillingEvent {
-  id             String            @id @default(cuid())
+  id             String              @id @default(cuid())
   tenantId       String
   subscriptionId String?
   planId         String?
   eventType      BillingEventType
-  metadata       Json              @default("{}")
-  createdAt      DateTime          @default(now())
+  metadata       Json                @default("{}")
+  createdAt      DateTime            @default(now())
   subscription   TenantSubscription? @relation(fields: [subscriptionId], references: [id])
 
   @@index([tenantId])
@@ -1560,22 +1534,22 @@ model BillingEvent {
 }
 
 model Coupon {
-  id                String             @id @default(cuid())
-  tenantId          String
-  code              String
-  discountType      CouponDiscountType
-  discountValue     Decimal            @db.Decimal(10,2)
-  maxRedemptions    Int                @default(0)
-  currentRedemptions Int               @default(0)
-  validFrom         DateTime?
-  validUntil        DateTime?
-  isActive          Boolean            @default(true)
-  planId            String?
-  minPlanPrice      Decimal?           @db.Decimal(10,2)
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  plan              BillingPlan?       @relation(fields: [planId], references: [id])
-  redemptions       CouponRedemption[]
+  id                 String             @id @default(cuid())
+  tenantId           String
+  code               String
+  discountType       CouponDiscountType
+  discountValue      Decimal            @db.Decimal(10, 2)
+  maxRedemptions     Int                @default(0)
+  currentRedemptions Int                @default(0)
+  validFrom          DateTime?
+  validUntil         DateTime?
+  isActive           Boolean            @default(true)
+  planId             String?
+  minPlanPrice       Decimal?           @db.Decimal(10, 2)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  plan               BillingPlan?       @relation(fields: [planId], references: [id])
+  redemptions        CouponRedemption[]
 
   @@unique([tenantId, code])
   @@index([tenantId])
@@ -1596,48 +1570,46 @@ model CouponRedemption {
 }
 
 model TaxRate {
-  id             String          @id @default(cuid())
+  id             String           @id @default(cuid())
   name           String
-  rate           Decimal         @db.Decimal(5,2)
-  country        String          @default("ZA")
+  rate           Decimal          @db.Decimal(5, 2)
+  country        String           @default("ZA")
   jurisdictionId String?
-  isActive       Boolean         @default(true)
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+  isActive       Boolean          @default(true)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
   jurisdiction   TaxJurisdiction? @relation(fields: [jurisdictionId], references: [id])
 
   @@index([country])
 }
 
 model TaxJurisdiction {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   name      String
-  country   String   @default("ZA")
+  country   String    @default("ZA")
   region    String?
-  isDefault Boolean  @default(false)
-  createdAt DateTime @default(now())
+  isDefault Boolean   @default(false)
+  createdAt DateTime  @default(now())
   taxRates  TaxRate[]
 
   @@index([country])
 }
 
-// ── Surveys ──
-
 model Survey {
-  id          String          @id
-  tenantId    String
-  title       String
-  description String?
-  type        SurveyType      @default(INTERNAL)
-  status      SurveyStatus    @default(DRAFT)
-  startDate   DateTime?
-  endDate     DateTime?
-  config      Json?           @default("{}")
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @default(now()) @updatedAt
-  deletedAt   DateTime?
-  Question    Question[]
-  Response    Response[]
+  id            String          @id
+  tenantId      String
+  title         String
+  description   String?
+  type          SurveyType      @default(INTERNAL)
+  status        SurveyStatus    @default(DRAFT)
+  startDate     DateTime?
+  endDate       DateTime?
+  config        Json?           @default("{}")
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @default(now()) @updatedAt
+  deletedAt     DateTime?
+  Question      Question[]
+  Response      Response[]
   SurveySection SurveySection[]
 
   @@index([tenantId, status])
@@ -1656,8 +1628,8 @@ model Question {
   order     Int            @default(0)
   config    Json?          @default("{}")
   deletedAt DateTime?
+  Section   SurveySection? @relation(fields: [sectionId], references: [id])
   Survey    Survey         @relation(fields: [surveyId], references: [id], onDelete: Cascade)
-  Section   SurveySection? @relation(fields: [sectionId], references: [id], onDelete: SetNull)
 
   @@index([surveyId])
   @@index([sectionId])
@@ -1687,8 +1659,8 @@ model SurveySection {
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @default(now()) @updatedAt
   deletedAt   DateTime?
-  Survey      Survey     @relation(fields: [surveyId], references: [id], onDelete: Cascade)
   Question    Question[]
+  Survey      Survey     @relation(fields: [surveyId], references: [id], onDelete: Cascade)
 
   @@index([surveyId])
 }
@@ -1709,8 +1681,6 @@ model ExternalSurvey {
   @@index([tenantId, isActive])
 }
 
-// ── Community Merits ──
-
 model CommunityMerit {
   id                 String               @id
   tenantId           String
@@ -1725,7 +1695,6 @@ model CommunityMerit {
   standingAfter      Int?
   status             BehaviorRecordStatus @default(ACTIVE)
   disputeReason      String?
-  disputeHistory     Json?
   disputedAt         DateTime?
   resolvedById       String?
   resolvedAt         DateTime?
@@ -1733,20 +1702,17 @@ model CommunityMerit {
   createdAt          DateTime             @default(now())
   expiresAt          DateTime?
   deletedAt          DateTime?
-
-  user       user  @relation("CommunityMeritSubject", fields: [userId], references: [id], onDelete: Cascade)
-  createdBy  user  @relation("CommunityMeritCreatedBy", fields: [createdById], references: [id])
-  resolvedBy user? @relation("CommunityMeritResolvedBy", fields: [resolvedById], references: [id])
+  disputeHistory     Json?
+  createdBy          user                 @relation("CommunityMeritCreatedBy", fields: [createdById], references: [id])
+  resolvedBy         user?                @relation("CommunityMeritResolvedBy", fields: [resolvedById], references: [id])
+  user               user                 @relation("CommunityMeritSubject", fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([tenantId])
   @@index([behaviorType])
   @@index([status])
   @@index([category])
-
 }
-
-// ── Competitions (Marketing) ──
 
 model Competition {
   id              String             @id @default(cuid())
@@ -1778,24 +1744,21 @@ model CompetitionEntry {
   userId         String
   status         EntryStatus @default(JOINED)
   joinedAt       DateTime    @default(now())
-  submissionUrl  String? // For PHOTO type — entry photo URL
-  submissionText String? // For PHOTO type — optional description
-  score          Float? // For SCORE type — admin-assigned score
-  winnerAt       DateTime? // When marked as winner
-  prize          String? // What they won
+  submissionUrl  String?
+  submissionText String?
+  score          Float?
+  winnerAt       DateTime?
+  prize          String?
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
   deletedAt      DateTime?
-
-  competition Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
-  user        user        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  competition    Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  user           user        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([competitionId])
   @@index([userId])
   @@index([status])
 }
-
-// ── Admin & Suspensions ──
 
 model AssistSession {
   id        String    @id @default(cuid())
@@ -1817,38 +1780,30 @@ model AssistSession {
   @@index([isActive])
 }
 
-enum DelegationStatus {
-  PENDING
-  ACTIVE
-  REJECTED
-  REVOKED
-  EXPIRED
-}
-
 model AgentAccess {
-  id                                 String            @id
+  id                                 String             @id
   tenantId                           String
   agentId                            String
   propertyId                         String
   grantedById                        String
-  accessLevel                        AgentAccessLevel  @default(MANAGEMENT)
-  permissions                        String[]
-  originalPermissions                String[]                             // immutable ceiling set at creation
-  startedAt                          DateTime          @default(now())
+  accessLevel                        AgentAccessLevel   @default(MANAGEMENT)
+  startedAt                          DateTime           @default(now())
   expiresAt                          DateTime
-  status                             DelegationStatus  @default(PENDING)
-  acceptedAt                         DateTime?
-  rejectedAt                         DateTime?
-  revokedAt                          DateTime?
-  commissionRate                     Decimal?          @db.Decimal(5, 2)
+  commissionRate                     Decimal?           @db.Decimal(5, 2)
   contractTerms                      String?
   organizationId                     String?
-  createdAt                          DateTime          @default(now())
-  updatedAt                          DateTime          @updatedAt
+  createdAt                          DateTime           @default(now())
+  updatedAt                          DateTime           @updatedAt
   deletedAt                          DateTime?
-  user_agentAccess_agentIdTouser     user              @relation("agentAccess_agentIdTouser", fields: [agentId], references: [id])
-  user_agentAccess_grantedByIdTouser user              @relation("agentAccess_grantedByIdTouser", fields: [grantedById], references: [id])
-  property                           Property          @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  acceptedAt                         DateTime?
+  originalPermissions                String[]
+  rejectedAt                         DateTime?
+  revokedAt                          DateTime?
+  status                             DelegationStatus   @default(PENDING)
+  permissions                        String[]
+  user_agentAccess_agentIdTouser     user               @relation("agentAccess_agentIdTouser", fields: [agentId], references: [id])
+  user_agentAccess_grantedByIdTouser user               @relation("agentAccess_grantedByIdTouser", fields: [grantedById], references: [id])
+  property                           Property           @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   agentTokens                        AgentToken[]
   delegationActions                  DelegationAction[]
 
@@ -1860,24 +1815,23 @@ model AgentAccess {
 }
 
 model AgentToken {
-  id             String    @id @default(cuid())
+  id             String       @id @default(cuid())
   tenantId       String
   agentId        String
   issuedById     String
   accessId       String?
   name           String
-  tokenHash      String    @unique
+  tokenHash      String       @unique
   scope          Json
-  credentialType String    @default("jwt_es256")
+  credentialType String       @default("jwt_es256")
   credentialMeta Json?
   expiresAt      DateTime
   lastUsedAt     DateTime?
   revokedAt      DateTime?
-  createdAt      DateTime  @default(now())
-
-  agent    user         @relation("agentToken_agentIdTouser", fields: [agentId], references: [id])
-  issuedBy user         @relation("agentToken_issuedByIdTouser", fields: [issuedById], references: [id])
-  access   AgentAccess? @relation(fields: [accessId], references: [id])
+  createdAt      DateTime     @default(now())
+  access         AgentAccess? @relation(fields: [accessId], references: [id])
+  agent          user         @relation("agentToken_agentIdTouser", fields: [agentId], references: [id])
+  issuedBy       user         @relation("agentToken_issuedByIdTouser", fields: [issuedById], references: [id])
 
   @@index([agentId])
   @@index([tokenHash])
@@ -1885,16 +1839,15 @@ model AgentToken {
 }
 
 model DelegationAction {
-  id           String    @id @default(cuid())
+  id           String      @id @default(cuid())
   tenantId     String
   delegationId String
   action       String
   actorId      String
   metadata     Json?
-  createdAt    DateTime  @default(now())
-
-  delegation AgentAccess @relation(fields: [delegationId], references: [id])
-  actor         user      @relation(fields: [actorId], references: [id])
+  createdAt    DateTime    @default(now())
+  actor        user        @relation(fields: [actorId], references: [id])
+  delegation   AgentAccess @relation(fields: [delegationId], references: [id])
 
   @@index([delegationId])
   @@index([tenantId])
@@ -1902,21 +1855,20 @@ model DelegationAction {
 }
 
 model ResidentDelegation {
-  id         String   @id @default(cuid())
+  id         String    @id @default(cuid())
   tenantId   String
   propertyId String
   ownerId    String
   profileId  String
   scopes     String[]
-  grantedAt  DateTime @default(now())
+  grantedAt  DateTime  @default(now())
   expiresAt  DateTime?
   revokedAt  DateTime?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  owner    user     @relation("ResidentDelegation_owner", fields: [ownerId], references: [id])
-  profile  Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  owner      user      @relation("ResidentDelegation_owner", fields: [ownerId], references: [id])
+  profile    Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  property   Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
   @@index([propertyId])
   @@index([profileId])
@@ -1944,105 +1896,96 @@ model PlatformSuspension {
   @@index([userId])
 }
 
-// ── Pricing ──
-
 model SubscriptionTier {
-  id                   String   @id @default(cuid())
+  id                   String                 @id @default(cuid())
   tenantId             String
   name                 String
   description          String?
-  price                Decimal  @db.Decimal(10, 2)
-  currency             String   @default("ZAR")
+  price                Decimal                @db.Decimal(10, 2)
+  currency             String                 @default("ZAR")
   maxListings          Int?
   features             Json?
-  platformFeePercent   Decimal  @default(8.00) @db.Decimal(5, 2)
-  verificationRequired Boolean  @default(false)
-  createdAt            DateTime @default(now())
-
-  subscriptions ProviderSubscription[]
+  platformFeePercent   Decimal                @default(8.00) @db.Decimal(5, 2)
+  verificationRequired Boolean                @default(false)
+  createdAt            DateTime               @default(now())
+  subscriptions        ProviderSubscription[]
 
   @@index([tenantId])
-
 }
 
-// ── Achievements System ──
-
 model AchievementDefinition {
-  id                  String              @id @default(cuid())
-  key                 String              @unique
-  label               String
-  description         String?
-  icon                String?
-  eventType           String
-  threshold           Int                 @default(1)
-  category            AchievementCategory @default(ENGAGEMENT)
-  createdAt           DateTime            @default(now())
-  deletedAt           DateTime?
-  tenantAchievements  TenantAchievement[]
-  userAchievements    UserAchievement[]
+  id                      String                    @id @default(cuid())
+  key                     String                    @unique
+  label                   String
+  description             String?
+  icon                    String?
+  eventType               String
+  threshold               Int                       @default(1)
+  category                AchievementCategory       @default(ENGAGEMENT)
+  createdAt               DateTime                  @default(now())
+  deletedAt               DateTime?
+  tenantAchievements      TenantAchievement[]
+  userAchievements        UserAchievement[]
   userAchievementProgress UserAchievementProgress[]
 }
 
 model TenantAchievement {
-  id              String               @id @default(cuid())
+  id              String                @id @default(cuid())
   tenantId        String
   definitionId    String
-  enabled         Boolean              @default(true)
+  enabled         Boolean               @default(true)
   customThreshold Int?
   icon            String?
   definition      AchievementDefinition @relation(fields: [definitionId], references: [id], onDelete: Cascade)
-  tenant          Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant          Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@unique([tenantId, definitionId])
   @@index([tenantId])
 }
 
 model UserAchievementProgress {
-  id           String   @id @default(cuid())
+  id           String                @id @default(cuid())
   tenantId     String
   userId       String
   definitionId String
-  count        Int      @default(0)
-  updatedAt    DateTime @updatedAt
-  user         user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  count        Int                   @default(0)
+  updatedAt    DateTime              @updatedAt
   definition   AchievementDefinition @relation(fields: [definitionId], references: [id], onDelete: Cascade)
+  user         user                  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, definitionId])
   @@index([tenantId])
 }
 
 model UserAchievement {
-  id           String   @id @default(cuid())
+  id           String                @id @default(cuid())
   tenantId     String
   userId       String
   definitionId String
-  unlockedAt   DateTime @default(now())
-  user         user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  unlockedAt   DateTime              @default(now())
   definition   AchievementDefinition @relation(fields: [definitionId], references: [id], onDelete: Cascade)
+  user         user                  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, definitionId])
   @@index([tenantId])
   @@index([userId])
 }
 
-// ── dWallet — Data Rights, Consent & Rewards Wallet ──
-
 model DWallet {
-  id              String          @id @default(cuid())
-  tenantId        String
-  userId          String          @unique
-  balance         Decimal         @default(0) @db.Decimal(12, 2)
-  currency        String          @default("ZAR")
-  lifetimeEarned  Decimal         @default(0) @db.Decimal(12, 2)
-  lifetimePaid    Decimal         @default(0) @db.Decimal(12, 2)
-  status          WalletStatus    @default(ACTIVE)
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-
-  user            user            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  transactions    WalletTransaction[]
-  consents        DataConsent[]
-  payoutRequests  PayoutRequest[]
+  id             String              @id @default(cuid())
+  tenantId       String
+  userId         String              @unique
+  balance        Decimal             @default(0) @db.Decimal(12, 2)
+  currency       String              @default("ZAR")
+  lifetimeEarned Decimal             @default(0) @db.Decimal(12, 2)
+  lifetimePaid   Decimal             @default(0) @db.Decimal(12, 2)
+  status         WalletStatus        @default(ACTIVE)
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  user           user                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  consents       DataConsent[]
+  payoutRequests PayoutRequest[]
+  transactions   WalletTransaction[]
 
   @@unique([tenantId, userId])
   @@index([tenantId])
@@ -2051,21 +1994,20 @@ model DWallet {
 }
 
 model WalletTransaction {
-  id              String              @id @default(cuid())
-  tenantId        String
-  walletId        String
-  type            TransactionType
-  amount          Decimal             @db.Decimal(12, 2)
-  currency        String              @default("ZAR")
-  description     String
-  referenceId     String?
-  referenceType   String?
-  balanceBefore   Decimal             @db.Decimal(12, 2)
-  balanceAfter    Decimal             @db.Decimal(12, 2)
-  sourceType      TransactionSource   @default(RESIDENT_DATA_SHARE)
-  createdAt       DateTime            @default(now())
-
-  wallet          DWallet             @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  id            String            @id @default(cuid())
+  tenantId      String
+  walletId      String
+  type          TransactionType
+  amount        Decimal           @db.Decimal(12, 2)
+  currency      String            @default("ZAR")
+  description   String
+  referenceId   String?
+  referenceType String?
+  balanceBefore Decimal           @db.Decimal(12, 2)
+  balanceAfter  Decimal           @db.Decimal(12, 2)
+  sourceType    TransactionSource @default(RESIDENT_DATA_SHARE)
+  createdAt     DateTime          @default(now())
+  wallet        DWallet           @relation(fields: [walletId], references: [id], onDelete: Cascade)
 
   @@index([walletId])
   @@index([tenantId])
@@ -2074,19 +2016,18 @@ model WalletTransaction {
 }
 
 model DataConsent {
-  id              String          @id @default(cuid())
-  tenantId        String
-  walletId        String
-  userId          String
-  streamKey       String
-  granted         Boolean
-  ipAddress       String?
-  userAgent       String?
-  grantedAt       DateTime?
-  revokedAt       DateTime?
-  createdAt       DateTime        @default(now())
-
-  wallet          DWallet         @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  id        String    @id @default(cuid())
+  tenantId  String
+  walletId  String
+  userId    String
+  streamKey String
+  granted   Boolean
+  ipAddress String?
+  userAgent String?
+  grantedAt DateTime?
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+  wallet    DWallet   @relation(fields: [walletId], references: [id], onDelete: Cascade)
 
   @@index([walletId])
   @@index([tenantId, streamKey])
@@ -2094,22 +2035,21 @@ model DataConsent {
 }
 
 model PayoutRequest {
-  id              String          @id @default(cuid())
-  tenantId        String
-  walletId        String
-  userId          String
-  amount          Decimal         @db.Decimal(12, 2)
-  currency        String          @default("ZAR")
-  status          PayoutStatus    @default(PENDING)
-  method          String?
-  bankReference   String?
-  processedAt     DateTime?
-  processedBy     String?
-  notes           String?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-
-  wallet          DWallet         @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  id            String       @id @default(cuid())
+  tenantId      String
+  walletId      String
+  userId        String
+  amount        Decimal      @db.Decimal(12, 2)
+  currency      String       @default("ZAR")
+  status        PayoutStatus @default(PENDING)
+  method        String?
+  bankReference String?
+  processedAt   DateTime?
+  processedBy   String?
+  notes         String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  wallet        DWallet      @relation(fields: [walletId], references: [id], onDelete: Cascade)
 
   @@index([walletId])
   @@index([tenantId])
@@ -2117,39 +2057,319 @@ model PayoutRequest {
 }
 
 model DataRevenueStream {
-  id              String          @id @default(cuid())
-  tenantId        String
-  key             String
-  label           String
-  description     String?
-  residentSharePct Decimal        @db.Decimal(5, 2)
-  isActive        Boolean         @default(true)
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  id               String   @id @default(cuid())
+  tenantId         String
+  key              String
+  label            String
+  description      String?
+  residentSharePct Decimal  @db.Decimal(5, 2)
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   @@unique([tenantId, key])
   @@index([tenantId])
 }
 
 model DataShareBatch {
-  id              String          @id @default(cuid())
-  tenantId        String
-  periodStart     DateTime
-  periodEnd       DateTime
-  streamKey       String
-  totalRevenue    Decimal         @db.Decimal(12, 2)
-  residentPool    Decimal         @db.Decimal(12, 2)
+  id               String      @id @default(cuid())
+  tenantId         String
+  periodStart      DateTime
+  periodEnd        DateTime
+  streamKey        String
+  totalRevenue     Decimal     @db.Decimal(12, 2)
+  residentPool     Decimal     @db.Decimal(12, 2)
   participantCount Int
-  status          BatchStatus     @default(PENDING)
-  processedAt     DateTime?
-  processedBy     String?
-  createdAt       DateTime        @default(now())
+  status           BatchStatus @default(PENDING)
+  processedAt      DateTime?
+  processedBy      String?
+  createdAt        DateTime    @default(now())
 
   @@index([tenantId])
   @@index([status])
 }
 
-// ── Enums: dWallet ──
+model Address {
+  id                 String            @id @default(cuid())
+  tenantId           String
+  address            String
+  localPart          String
+  domain             String
+  kind               AddressKind
+  status             AddressStatus     @default(ACTIVE)
+  ownerType          AddressOwnerType?
+  ownerId            String?
+  canonicalAddressId String?
+  forwardStrategy    ForwardStrategy?
+  receiveExternal    Boolean           @default(false)
+  coolingUntil       DateTime?
+  archivedUntil      DateTime?
+  releasedAt         DateTime?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  canonicalAddress   Address?          @relation("AddressCanonical", fields: [canonicalAddressId], references: [id])
+  aliases            Address[]         @relation("AddressCanonical")
+  endpoints          AddressEndpoint[]
+  handles            Handle[]
+  premiumSeats       PremiumSeat[]
+  profiles           Profile[]
+  properties         Property[]
+  serviceProviders   ServiceProvider[]
+  soloSeats          SoloSeat[]
+  standardSeats      StandardSeat[]
+
+  @@unique([tenantId, address])
+  @@index([tenantId])
+  @@index([ownerType, ownerId])
+  @@index([status])
+  @@index([canonicalAddressId])
+}
+
+model Handle {
+  id        String       @id @default(cuid())
+  tenantId  String
+  handle    String
+  addressId String
+  status    HandleStatus @default(ACTIVE)
+  createdAt DateTime     @default(now())
+  address   Address      @relation(fields: [addressId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, handle])
+  @@index([addressId])
+}
+
+model AddressEndpoint {
+  id        String       @id @default(cuid())
+  addressId String
+  type      EndpointType
+  enabled   Boolean      @default(true)
+  config    Json?
+  createdAt DateTime     @default(now())
+  address   Address      @relation(fields: [addressId], references: [id], onDelete: Cascade)
+
+  @@index([addressId])
+}
+
+model PlatformAiTierQuota {
+  id              String          @id @default(cuid())
+  tier            Tier            @unique
+  monthlyTokens   Int
+  overagePolicy   AiOveragePolicy @default(HARD_STOP)
+  overageTokens   Int             @default(0)
+  overagePriceZAR Decimal         @default(0) @db.Decimal(10, 4)
+  updatedAt       DateTime        @updatedAt
+  updatedById     String?
+}
+
+model AiCapabilityCost {
+  id              String   @id @default(cuid())
+  capability      String   @unique
+  estimatedTokens Int
+  maxTokens       Int
+  notes           String?
+  updatedAt       DateTime @updatedAt
+}
+
+model TenantAiUsage {
+  id             String         @id @default(cuid())
+  tenantId       String
+  billingMonth   String
+  tokensAllotted Int
+  tokensUsed     Int            @default(0)
+  overageTokens  Int            @default(0)
+  overageCostZAR Decimal        @default(0) @db.Decimal(10, 4)
+  status         AiUsageStatus  @default(ACTIVE)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  events         AiUsageEvent[]
+
+  @@unique([tenantId, billingMonth])
+  @@index([tenantId])
+  @@index([billingMonth])
+}
+
+model AiUsageEvent {
+  id               String        @id @default(cuid())
+  tenantId         String
+  usageId          String
+  capability       String
+  provider         String
+  model            String
+  inputTokens      Int
+  outputTokens     Int
+  totalTokens      Int
+  userId           String?
+  referenceId      String?
+  durationMs       Int?
+  success          Boolean       @default(true)
+  errorCode        String?
+  createdAt        DateTime      @default(now())
+  estimatedCostUSD Decimal       @default(0) @db.Decimal(10, 6)
+  usage            TenantAiUsage @relation(fields: [usageId], references: [id])
+
+  @@index([tenantId, createdAt])
+  @@index([capability])
+  @@index([usageId])
+}
+
+model DisputeCase {
+  id                  String                @id @default(cuid())
+  tenantId            String
+  referenceNumber     String                @unique
+  complainantId       String
+  respondentId        String?
+  respondentType      DisputeRespondent     @default(RESIDENT)
+  category            DisputeCategory
+  subcategory         String?
+  title               String
+  description         String
+  desiredOutcome      String?
+  severity            DisputeSeverity       @default(MODERATE)
+  status              DisputeStatus         @default(DRAFT)
+  intakeCompletedAt   DateTime?
+  coolingOffEndsAt    DateTime?
+  submittedAt         DateTime?
+  assignedModeratorId String?
+  mediationOfferedAt  DateTime?
+  mediationAcceptedAt DateTime?
+  rulingIssuedAt      DateTime?
+  rulingDescription   String?
+  csosReferenceNumber String?
+  csosEscalatedAt     DateTime?
+  csosClosedAt        DateTime?
+  resolvedAt          DateTime?
+  closedById          String?
+  closedReason        String?
+  isConfidential      Boolean               @default(true)
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @default(now()) @updatedAt
+  deletedAt           DateTime?
+  assignedModerator   user?                 @relation("DisputeModerator", fields: [assignedModeratorId], references: [id])
+  closedBy            user?                 @relation("DisputeClosedBy", fields: [closedById], references: [id])
+  complainant         user                  @relation("DisputeComplainant", fields: [complainantId], references: [id])
+  respondent          user?                 @relation("DisputeRespondent", fields: [respondentId], references: [id])
+  events              DisputeEvent[]
+  evidence            DisputeEvidence[]
+  mediationThread     DisputeMessage[]
+  notifications       DisputeNotification[]
+
+  @@index([tenantId])
+  @@index([complainantId])
+  @@index([respondentId])
+  @@index([status])
+  @@index([category])
+  @@index([assignedModeratorId])
+}
+
+model DisputeEvidence {
+  id          String      @id @default(cuid())
+  tenantId    String
+  disputeId   String
+  uploadedBy  String
+  fileUrl     String
+  fileType    String
+  fileName    String
+  description String?
+  createdAt   DateTime    @default(now())
+  deletedAt   DateTime?
+  dispute     DisputeCase @relation(fields: [disputeId], references: [id], onDelete: Cascade)
+  uploader    user        @relation("DisputeEvidenceUploader", fields: [uploadedBy], references: [id])
+
+  @@index([disputeId])
+  @@index([uploadedBy])
+}
+
+model DisputeEvent {
+  id         String           @id @default(cuid())
+  tenantId   String
+  disputeId  String
+  actorId    String?
+  eventType  DisputeEventType
+  fromStatus DisputeStatus?
+  toStatus   DisputeStatus?
+  note       String?
+  metadata   Json?
+  createdAt  DateTime         @default(now())
+  actor      user?            @relation("DisputeEventActor", fields: [actorId], references: [id])
+  dispute    DisputeCase      @relation(fields: [disputeId], references: [id], onDelete: Cascade)
+
+  @@index([disputeId])
+  @@index([eventType])
+}
+
+model DisputeMessage {
+  id         String                  @id @default(cuid())
+  tenantId   String
+  disputeId  String
+  senderId   String
+  content    String
+  isInternal Boolean                 @default(false)
+  createdAt  DateTime                @default(now())
+  editedAt   DateTime?
+  deletedAt  DateTime?
+  dispute    DisputeCase             @relation(fields: [disputeId], references: [id], onDelete: Cascade)
+  sender     user                    @relation("DisputeMessageSender", fields: [senderId], references: [id])
+  versions   DisputeMessageVersion[]
+
+  @@index([disputeId])
+  @@index([senderId])
+}
+
+model DisputeMessageVersion {
+  id              String         @id @default(cuid())
+  messageId       String
+  originalContent String
+  editedAt        DateTime
+  createdAt       DateTime       @default(now())
+  message         DisputeMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([messageId])
+}
+
+model DisputeNotification {
+  id        String      @id @default(cuid())
+  tenantId  String
+  disputeId String
+  userId    String
+  type      String
+  read      Boolean     @default(false)
+  createdAt DateTime    @default(now())
+  dispute   DisputeCase @relation(fields: [disputeId], references: [id], onDelete: Cascade)
+  user      user        @relation("DisputeNotificationUser", fields: [userId], references: [id])
+
+  @@index([disputeId])
+  @@index([userId])
+}
+
+model Bursary {
+  id          String        @id @default(cuid())
+  tenantId    String
+  title       String
+  funder      String
+  fieldId     String
+  amount      String
+  description String
+  applyUrl    String?
+  deadline    DateTime
+  status      BursaryStatus @default(DRAFT)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  deletedAt   DateTime?
+  field       BursaryField  @relation(fields: [fieldId], references: [id])
+
+  @@index([tenantId])
+  @@index([deadline])
+  @@index([status])
+  @@index([fieldId])
+}
+
+enum DelegationStatus {
+  PENDING
+  ACTIVE
+  REJECTED
+  REVOKED
+  EXPIRED
+}
 
 enum WalletStatus {
   ACTIVE
@@ -2167,11 +2387,11 @@ enum TransactionType {
 enum TransactionSource {
   RESIDENT_DATA_SHARE
   COMMUNITY_MERITS
-  COMMUNITY_SUPPORT
   REFERRAL_REWARD
   VOLUNTEER_CREDIT
   AI_CREDIT
   MARKETPLACE_CREDIT
+  COMMUNITY_SUPPORT
 }
 
 enum SupportTarget {
@@ -2199,8 +2419,6 @@ enum BatchStatus {
   COMPLETED
   FAILED
 }
-
-// ── Enums: Billing ──
 
 enum TenantSubscriptionStatus {
   ACTIVE
@@ -2237,15 +2455,11 @@ enum BillingAdjustmentType {
   DISCOUNT
 }
 
-// ── Enums: Tenant & Platform ──
-
 enum Tier {
   STANDARD
   PREMIUM
   ENTERPRISE
 }
-
-// ── Enums: Directory & Properties ──
 
 enum OccupancyType {
   OWNER_OCCUPIED
@@ -2306,8 +2520,6 @@ enum ProfileStatus {
   LEASE_ENDED
 }
 
-// ── Enums: Chat & Messaging ──
-
 enum ConversationType {
   DIRECT
   GROUP
@@ -2323,17 +2535,15 @@ enum MessageType {
   FILE
 }
 
-// ── Enums: Content & Community ──
-
 enum ContentCategory {
   ANNOUNCEMENT
-  BLOG
-  CAMPAIGN
-  CONSERVATION
-  EVENT
-  LEGAL
   NEWS
+  EVENT
+  BLOG
+  CONSERVATION
   SERVICES
+  CAMPAIGN
+  LEGAL
 }
 
 enum ContentLicense {
@@ -2377,8 +2587,8 @@ enum ResourceCategory {
   DIY
   FINANCIAL
   LEGAL
-  EDUCATION
   OTHER
+  EDUCATION
 }
 
 enum ResourceVisibility {
@@ -2401,15 +2611,11 @@ enum ResourceMediaType {
   VIDEO
 }
 
-// ── Enums: Bookings ──
-
 enum BookingStatus {
   CONFIRMED
   CANCELLED
   COMPLETED
 }
-
-// ── Enums: Maintenance ──
 
 enum MaintenanceRouting {
   HOA
@@ -2432,8 +2638,6 @@ enum RequestStatus {
   COMPLETED
   CANCELLED
 }
-
-// ── Enums: Service Providers ──
 
 enum InquiryStatus {
   PENDING
@@ -2523,8 +2727,6 @@ enum InvoiceStatus {
   VOID
 }
 
-// ── Enums: Surveys ──
-
 enum QuestionType {
   SINGLE_CHOICE
   MULTIPLE_CHOICE
@@ -2544,8 +2746,6 @@ enum SurveyType {
   INTERNAL
   EXTERNAL
 }
-
-// ── Enums: Community Merits ──
 
 enum BehaviorType {
   MERIT
@@ -2572,8 +2772,6 @@ enum BehaviorCategory {
   OTHER
 }
 
-// ── Enums: Competitions ──
-
 enum CompetitionStatus {
   DRAFT
   ACTIVE
@@ -2594,16 +2792,11 @@ enum EntryStatus {
   RUNNER_UP
 }
 
-// ── Enums: Admin ──
-
 enum AgentAccessLevel {
   VIEW_ONLY
   MANAGEMENT
   FULL_ACCESS
 }
-
-// AgentPermission enum REMOVED — permissions stored as String[]
-// validated against AgentScopeRegistry (src/entities/agent/scopes.ts)
 
 enum SuspensionType {
   NON_PAYMENT
@@ -2618,77 +2811,6 @@ enum SoloSeatType {
   RESIDENT
   MEMBER
 }
-
-// ── Address Registry ──
-
-model Address {
-  id                  String             @id @default(cuid())
-  tenantId            String
-  address             String
-  localPart           String
-  domain              String
-  kind                AddressKind
-  status              AddressStatus      @default(ACTIVE)
-  ownerType           AddressOwnerType?
-  ownerId             String?
-  canonicalAddressId  String?
-  forwardStrategy     ForwardStrategy?
-  receiveExternal     Boolean            @default(false)
-  coolingUntil        DateTime?
-  archivedUntil       DateTime?
-  releasedAt          DateTime?
-  createdAt           DateTime           @default(now())
-  updatedAt           DateTime           @updatedAt
-
-  // Self-referencing: alias → canonical address
-  canonicalAddress    Address?           @relation("AddressCanonical", fields: [canonicalAddressId], references: [id])
-  aliases             Address[]          @relation("AddressCanonical")
-
-  // FK consumers
-  handles             Handle[]
-  endpoints           AddressEndpoint[]
-  standardSeats       StandardSeat[]
-  soloSeats           SoloSeat[]
-  premiumSeats        PremiumSeat[]
-  profiles            Profile[]
-  properties          Property[]
-  serviceProviders    ServiceProvider[]
-
-  @@unique([tenantId, address])
-  @@index([tenantId])
-  @@index([ownerType, ownerId])
-  @@index([status])
-  @@index([canonicalAddressId])
-}
-
-model Handle {
-  id          String       @id @default(cuid())
-  tenantId    String
-  handle      String
-  addressId   String
-  status      HandleStatus @default(ACTIVE)
-  createdAt   DateTime     @default(now())
-
-  address     Address      @relation(fields: [addressId], references: [id], onDelete: Cascade)
-
-  @@unique([tenantId, handle])
-  @@index([addressId])
-}
-
-model AddressEndpoint {
-  id          String       @id @default(cuid())
-  addressId   String
-  type        EndpointType
-  enabled     Boolean      @default(true)
-  config      Json?
-  createdAt   DateTime     @default(now())
-
-  address     Address      @relation(fields: [addressId], references: [id], onDelete: Cascade)
-
-  @@index([addressId])
-}
-
-// ── Enums: Address Registry ──
 
 enum AddressKind {
   STANDARD
@@ -2738,8 +2860,6 @@ enum EndpointType {
   PUSH
 }
 
-// ── Enums: User & Identity ──
-
 enum AchievementCategory {
   ENGAGEMENT
   CONTRIBUTION
@@ -2747,7 +2867,6 @@ enum AchievementCategory {
 }
 
 enum Role {
-  USER
   RESIDENT
   GROUP_ADMIN
   COMMITTEE
@@ -2757,6 +2876,7 @@ enum Role {
   MANAGER
   ASSOCIATE
   PROVIDER
+  USER
 }
 
 enum SeatStatus {
@@ -2764,8 +2884,6 @@ enum SeatStatus {
   ARCHIVED
   COOLING_OFF
 }
-
-// ── Enums: AI Pool ──
 
 enum AiOveragePolicy {
   HARD_STOP
@@ -2778,72 +2896,6 @@ enum AiUsageStatus {
   SETTLED
   OVERRIDDEN
 }
-
-// ── Platform AI Pool ──
-
-model PlatformAiTierQuota {
-  id              String           @id @default(cuid())
-  tier            Tier             @unique
-  monthlyTokens   Int
-  overagePolicy   AiOveragePolicy  @default(HARD_STOP)
-  overageTokens   Int              @default(0)
-  overagePriceZAR Decimal          @default(0) @db.Decimal(10, 4)
-  updatedAt       DateTime         @updatedAt
-  updatedById     String?
-}
-
-model AiCapabilityCost {
-  id              String   @id @default(cuid())
-  capability      String   @unique
-  estimatedTokens Int
-  maxTokens       Int
-  notes           String?
-  updatedAt       DateTime @updatedAt
-}
-
-model TenantAiUsage {
-  id              String         @id @default(cuid())
-  tenantId        String
-  billingMonth    String
-  tokensAllotted  Int
-  tokensUsed      Int            @default(0)
-  overageTokens   Int            @default(0)
-  overageCostZAR  Decimal        @default(0) @db.Decimal(10, 4)
-  status          AiUsageStatus  @default(ACTIVE)
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
-  events          AiUsageEvent[]
-
-  @@unique([tenantId, billingMonth])
-  @@index([tenantId])
-  @@index([billingMonth])
-}
-
-model AiUsageEvent {
-  id           String          @id @default(cuid())
-  tenantId     String
-  usageId      String
-  capability   String
-  provider     String
-  model        String
-  inputTokens  Int
-  outputTokens Int
-  totalTokens       Int
-  estimatedCostUSD  Decimal  @default(0) @db.Decimal(10, 6)
-  userId            String?
-  referenceId  String?
-  durationMs   Int?
-  success      Boolean         @default(true)
-  errorCode    String?
-  createdAt    DateTime        @default(now())
-  usage        TenantAiUsage   @relation(fields: [usageId], references: [id])
-
-  @@index([tenantId, createdAt])
-  @@index([capability])
-  @@index([usageId])
-}
-
-// ── Dispute Resolution ──
 
 enum DisputeStatus {
   DRAFT
@@ -2903,161 +2955,4 @@ enum DisputeEventType {
   NOTE_ADDED
   EVIDENCE_ADDED
   STATUS_CHANGED
-}
-
-model DisputeCase {
-  id                  String             @id @default(cuid())
-  tenantId            String
-  referenceNumber     String             @unique
-  complainantId       String
-  respondentId        String?
-  respondentType      DisputeRespondent  @default(RESIDENT)
-  category            DisputeCategory
-  subcategory         String?
-  title               String
-  description         String
-  desiredOutcome      String?
-  severity            DisputeSeverity    @default(MODERATE)
-  status              DisputeStatus      @default(DRAFT)
-  intakeCompletedAt   DateTime?
-  coolingOffEndsAt    DateTime?
-  submittedAt         DateTime?
-  assignedModeratorId String?
-  mediationOfferedAt  DateTime?
-  mediationAcceptedAt DateTime?
-  rulingIssuedAt      DateTime?
-  rulingDescription   String?
-  csosReferenceNumber String?
-  csosEscalatedAt     DateTime?
-  csosClosedAt        DateTime?
-  resolvedAt          DateTime?
-  closedById          String?
-  closedReason        String?
-  isConfidential      Boolean            @default(true)
-  createdAt           DateTime           @default(now())
-  updatedAt           DateTime           @default(now()) @updatedAt
-  deletedAt           DateTime?
-
-  complainant         user               @relation("DisputeComplainant", fields: [complainantId], references: [id])
-  respondent          user?              @relation("DisputeRespondent", fields: [respondentId], references: [id])
-  assignedModerator   user?              @relation("DisputeModerator", fields: [assignedModeratorId], references: [id])
-  closedBy            user?              @relation("DisputeClosedBy", fields: [closedById], references: [id])
-  evidence            DisputeEvidence[]
-  events              DisputeEvent[]
-  mediationThread     DisputeMessage[]
-  notifications       DisputeNotification[]
-
-  @@index([tenantId])
-  @@index([complainantId])
-  @@index([respondentId])
-  @@index([status])
-  @@index([category])
-  @@index([assignedModeratorId])
-}
-
-model DisputeEvidence {
-  id          String    @id @default(cuid())
-  tenantId    String
-  disputeId   String
-  uploadedBy  String
-  fileUrl     String
-  fileType    String
-  fileName    String
-  description String?
-  createdAt   DateTime  @default(now())
-  deletedAt   DateTime?
-
-  dispute     DisputeCase @relation(fields: [disputeId], references: [id], onDelete: Cascade)
-  uploader    user        @relation("DisputeEvidenceUploader", fields: [uploadedBy], references: [id])
-
-  @@index([disputeId])
-  @@index([uploadedBy])
-}
-
-model DisputeEvent {
-  id          String           @id @default(cuid())
-  tenantId    String
-  disputeId   String
-  actorId     String?
-  eventType   DisputeEventType
-  fromStatus  DisputeStatus?
-  toStatus    DisputeStatus?
-  note        String?
-  metadata    Json?
-  createdAt   DateTime         @default(now())
-
-  dispute     DisputeCase @relation(fields: [disputeId], references: [id], onDelete: Cascade)
-  actor       user?       @relation("DisputeEventActor", fields: [actorId], references: [id])
-
-  @@index([disputeId])
-  @@index([eventType])
-}
-
-model DisputeMessage {
-  id          String    @id @default(cuid())
-  tenantId    String
-  disputeId   String
-  senderId    String
-  content     String
-  isInternal  Boolean   @default(false)
-  createdAt   DateTime  @default(now())
-  editedAt    DateTime?
-  deletedAt   DateTime?
-
-  dispute     DisputeCase @relation(fields: [disputeId], references: [id], onDelete: Cascade)
-  sender      user        @relation("DisputeMessageSender", fields: [senderId], references: [id])
-  versions    DisputeMessageVersion[]
-
-  @@index([disputeId])
-  @@index([senderId])
-}
-
-model DisputeMessageVersion {
-  id              String    @id @default(cuid())
-  messageId       String
-  originalContent String
-  editedAt        DateTime
-  createdAt       DateTime  @default(now())
-
-  message         DisputeMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
-
-  @@index([messageId])
-}
-
-model DisputeNotification {
-  id          String    @id @default(cuid())
-  tenantId    String
-  disputeId   String
-  userId      String
-  type        String
-  read        Boolean   @default(false)
-  createdAt   DateTime  @default(now())
-
-  dispute     DisputeCase @relation(fields: [disputeId], references: [id], onDelete: Cascade)
-  user        user        @relation("DisputeNotificationUser", fields: [userId], references: [id])
-
-  @@index([disputeId])
-  @@index([userId])
-}
-
-model Bursary {
-  id          String        @id @default(cuid())
-  tenantId    String
-  title       String
-  funder      String
-  fieldId     String
-  amount      String
-  description String
-  applyUrl    String?
-  deadline    DateTime
-  status      BursaryStatus @default(DRAFT)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  deletedAt   DateTime?
-  field       BursaryField  @relation(fields: [fieldId], references: [id])
-
-  @@index([tenantId])
-  @@index([deadline])
-  @@index([status])
-  @@index([fieldId])
 }
