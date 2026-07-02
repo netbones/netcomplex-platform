@@ -26,6 +26,8 @@ import { ErrorBoundary } from '@shared/ui';
 import { useVisibleSpaces } from '@shared/lib/hooks';
 import { SpaceLauncher } from './SpaceLauncher';
 import { MobileSpaceBar } from './MobileSpaceBar';
+import { EmptyWorkspaceState } from '@widgets/workspace';
+import { WorkspaceScopePanel } from '@widgets/workspace';
 import { getActiveSpaceId } from '../model/spaces';
 
 interface SpaceChromeProps {
@@ -55,11 +57,16 @@ export function SpaceChrome({ children }: SpaceChromeProps) {
           onToggleCollapse={() => setCollapsed(prev => !prev)}
         />
 
+        {/* Workspace scope panel — persistent workspace identity surface (WS-06, D-13) */}
+        <WorkspaceScopePanel />
+
         {/* Main content area — safe-area-aware bottom padding for mobile bottom bar */}
         <main
           className="flex-1 min-w-0 md:pb-0"
           style={{ paddingBottom: 'calc(4rem + env(safe-area-inset-bottom, 0px))' }}
         >
+          {/* Empty workspace state — welcome surface for zero-delegation users (WS-05, D-12) */}
+          <EmptyWorkspaceState />
           {children}
         </main>
       </div>
