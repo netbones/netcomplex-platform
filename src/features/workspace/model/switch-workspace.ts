@@ -77,6 +77,23 @@ function workspaceLabel(ctx: WorkspaceContextType): string {
   }
 }
 
+/**
+ * Resolve a target's delegationId from propertyId when not already set.
+ *
+ * Used when inferWorkspaceTarget returns { propertyId } from a deep link
+ * but resolveWorkspaceContext requires a delegationId for PROPERTY workspaces.
+ */
+function resolveTargetDelegation(
+  target: WorkspaceTarget,
+  delegations: import('@entities/delegation').DelegationListItem[]
+): WorkspaceTarget {
+  if (target.delegationId || target.workspaceType !== 'PROPERTY' || !target.propertyId) {
+    return target;
+  }
+  const match = delegations.find(d => d.propertyId === target.propertyId && d.status === 'ACTIVE');
+  return match ? { ...target, delegationId: match.id } : target;
+}
+
 // ═══════════════════════════════════════════════════════════════
 // Switch Workspace Hook
 // ═══════════════════════════════════════════════════════════════
@@ -141,9 +158,13 @@ export function useSwitchWorkspace(): SwitchWorkspaceFn {
       }
 
       // ── Step 1: Resolve (Pattern E verbatim) ─────────────
+      // If the target has a propertyId but no delegationId (from deep-link
+      // inference via inferWorkspaceTarget), resolve the delegation by
+      // matching propertyId from the delegations list.
+      const resolvedTarget = resolveTargetDelegation(target, delegations ?? []);
       let nextCtx: WorkspaceContextType;
       try {
-        nextCtx = resolveWorkspaceContext(target, delegations ?? [], {
+        nextCtx = resolveWorkspaceContext(resolvedTarget, delegations ?? [], {
           user: { id: sessionData?.user?.id ?? 'unknown' },
         });
       } catch (err) {

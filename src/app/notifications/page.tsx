@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import { NotificationLink } from '@widgets/workspace';
 import { useTranslation } from 'react-i18next';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { usePageLoading } from '@shared/ui';
@@ -125,12 +125,13 @@ export default function NotificationsPage() {
                   {!notification.read && <span className="w-2 h-2 bg-blue-600 rounded-full"></span>}
                 </div>
                 {notification.link && (
-                  <Link
+                  <NotificationLink
                     href={notification.link}
+                    notificationId={notification.id}
                     className="text-indigo-600 text-sm hover:underline mt-2 block"
                   >
                     View details
-                  </Link>
+                  </NotificationLink>
                 )}
               </div>
             ))}
