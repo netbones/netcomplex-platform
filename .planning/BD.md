@@ -1,9 +1,9 @@
 # BD Issue Tracker
 
 > **Last updated:** 2026-07-02 (Session 15)
-> **Total remaining:** 35 issues
+> **Total remaining:** 44 issues
 > **Closed this session:** 6 (`0orq`, `7a02`, `gb5p`, `tbtr`, `2pxb`, `owuh`)
-> **Created this session:** 12 (`5z3g`, `0orq`, `7a02`, `gb5p`, `tbtr`, `7tqj`, `sioz`, `g8c3`, `2pxb`, `8rve`, `owuh`, `h9o4`)
+> **Created this session:** 21 (`5z3g`, `0orq`, `7a02`, `gb5p`, `tbtr`, `7tqj`, `sioz`, `g8c3`, `2pxb`, `8rve`, `owuh`, `h9o4`, `e8hs`, `tkt5`, `ee5p`, `3m0h`, `qzll`, `axh6`, `vukt`, `c3zg`, `bnxu`)
 > **Note:** BD is for quick fixes and small tasks. **Any BD issue touching 5+ files across multiple FSD slices, or requiring new directories/types, is GSD territory — escalate it.**
 
 ## Summary by Priority
@@ -12,8 +12,8 @@
 | -------- | ----- | -------------------------------------------------- |
 | **P1**   | **1** | **Supply-chain: pnpm audit high-severity cleanup** |
 | P2       | 8     | Core features, epics, bugs, **architecture**       |
-| P3       | 20    | Tech debt, Phase 4/5 features, enhancements        |
-| P4       | 6     | Backlog, blocked events                            |
+| P3       | 25    | Tech debt, Phase 4/5 features, enhancements        |
+| P4       | 10    | Backlog, blocked events                            |
 
 ## Summary by Status
 
@@ -160,6 +160,11 @@ Phase 47 is now M5b (anchor tenant launch) because dWallet is the **headline sel
 | `2pxb` | Soft-delete inconsistency policy                                            | ✅     | PRISMA_ANALYSIS.md finding #10    |
 | `owuh` | Soft-delete alignment: add deletedAt to orphan child models                 | ✅     | Follow-up from `2pxb`             |
 | `h9o4` | Adopt notDeleted() helper across all query files                            | ○      | Follow-up from `2pxb`             |
+| `e8hs` | tRPC/REST duplication: 16+ domains have parallel REST + tRPC handlers       | ○      | API_REVIEW.md finding #2          |
+| `tkt5` | REST routes: inconsistent auth — inline getSessionAndRole duplicates        | ○      | API_REVIEW.md finding #3          |
+| `ee5p` | REST routes: inconsistent Zod validation                                    | ○      | API_REVIEW.md finding #4          |
+| `3m0h` | REST routes: missing rate limiting on mutation endpoints                    | ○      | API_REVIEW.md finding #5          |
+| `qzll` | Incomplete v1 API migration — flat legacy routes still primary              | ○      | API_REVIEW.md finding #6          |
 
 ### In Progress
 
@@ -170,16 +175,20 @@ Phase 47 is now M5b (anchor tenant launch) because dWallet is the **headline sel
 
 ---
 
-## P4 — Backlog (6 issues)
+## P4 — Backlog (10 issues)
 
-| ID      | Type    | Title                                             | Status | Notes            |
-| ------- | ------- | ------------------------------------------------- | ------ | ---------------- |
-| `0tb`   | feature | Upgrade to OTP-based password reset               | ○      |                  |
-| `p81.1` | event   | State change: patrol → active                     | ○      | Blocked by `p81` |
-| `rbs.1` | event   | State change: patrol → active                     | ○      | Blocked by `p81` |
-| `up2`   | task    | Configure Better Auth background tasks for Vercel | ○      |                  |
-| `4vk`   | task    | Phase 5: Mobile app optimization                  | ○      |                  |
-| `4fh`   | task    | Phase 4: Billing integration                      | ○      |                  |
+| ID      | Type    | Title                                                                   | Status | Notes                     |
+| ------- | ------- | ----------------------------------------------------------------------- | ------ | ------------------------- |
+| `0tb`   | feature | Upgrade to OTP-based password reset                                     | ○      |                           |
+| `p81.1` | event   | State change: patrol → active                                           | ○      | Blocked by `p81`          |
+| `rbs.1` | event   | State change: patrol → active                                           | ○      | Blocked by `p81`          |
+| `up2`   | task    | Configure Better Auth background tasks for Vercel                       | ○      |                           |
+| `4vk`   | task    | Phase 5: Mobile app optimization                                        | ○      |                           |
+| `4fh`   | task    | Phase 4: Billing integration                                            | ○      |                           |
+| `axh6`  | task    | DTO schemas duplicated across src/server/dto/ and src/shared/api/dto/   | ○      | API_REVIEW.md finding #7  |
+| `vukt`  | task    | Barrel file: src/shared/api/server/index.ts at 234 lines tight coupling | ○      | API_REVIEW.md finding #8  |
+| `c3zg`  | task    | Only ~10% of tRPC procedures OpenAPI-exported (24 of 235+)              | ○      | API_REVIEW.md finding #9  |
+| `bnxu`  | task    | CI missing redocly lint enforcement for OpenAPI spec                    | ○      | API_REVIEW.md finding #10 |
 
 ---
 
