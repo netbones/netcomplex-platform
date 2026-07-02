@@ -1,9 +1,9 @@
 # BD Issue Tracker
 
-> **Last updated:** 2026-06-27 (Session 14)
-> **Total remaining:** 31 issues
+> **Last updated:** 2026-07-02 (Session 15)
+> **Total remaining:** 35 issues
 > **Closed this session:** 4 (`0orq`, `7a02`, `gb5p`, `tbtr`)
-> **Created this session:** 6 (`5z3g`, `0orq`, `7a02`, `gb5p`, `tbtr`, `7tqj`)
+> **Created this session:** 10 (`5z3g`, `0orq`, `7a02`, `gb5p`, `tbtr`, `7tqj`, `sioz`, `g8c3`, `2pxb`, `8rve`)
 > **Note:** BD is for quick fixes and small tasks. **Any BD issue touching 5+ files across multiple FSD slices, or requiring new directories/types, is GSD territory — escalate it.**
 
 ## Summary by Priority
@@ -11,8 +11,8 @@
 | Priority | Open  | Focus                                              |
 | -------- | ----- | -------------------------------------------------- |
 | **P1**   | **1** | **Supply-chain: pnpm audit high-severity cleanup** |
-| P2       | 7     | Core features, epics, bugs, **architecture**       |
-| P3       | 17    | Tech debt, Phase 4/5 features, enhancements        |
+| P2       | 8     | Core features, epics, bugs, **architecture**       |
+| P3       | 20    | Tech debt, Phase 4/5 features, enhancements        |
 | P4       | 6     | Backlog, blocked events                            |
 
 ## Summary by Status
@@ -28,9 +28,10 @@
 
 ### Bugs
 
-| ID    | Type | Title                                                                         | Status | Source              |
-| ----- | ---- | ----------------------------------------------------------------------------- | ------ | ------------------- |
-| `cs5` | bug  | MyHomeSpace: Property not linked despite user having property (183 Pagoda Rd) | ○      | Phase 30 checkpoint |
+| ID     | Type | Title                                                                         | Status | Source                  |
+| ------ | ---- | ----------------------------------------------------------------------------- | ------ | ----------------------- |
+| `cs5`  | bug  | MyHomeSpace: Property not linked despite user having property (183 Pagoda Rd) | ○      | Phase 30 checkpoint     |
+| `8rve` | bug  | Investigate tsc --noEmit hang                                                 | ○      | S5-11/S6-5 pre-existing |
 
 ### Features & Tasks
 
@@ -134,26 +135,29 @@ Phase 47 is now M5b (anchor tenant launch) because dWallet is the **headline sel
 
 ### Tasks
 
-| ID    | Title                                                                       | Status | Source                           |
-| ----- | --------------------------------------------------------------------------- | ------ | -------------------------------- |
-| `ka6` | Design decision: widget placement across Focus Spaces                       | ○      | Phase 30 checkpoint              |
-| `jc1` | Implement cookie management for privacy compliance                          | ○      |                                  |
-| `6d8` | Migrate React imports to Preact and remove dead code                        | ○      |
-| `gtm` | Phase 5: Notification system                                                | ○      |
-| `cp8` | Phase 5: Payment processing                                                 | ○      |
-| `qx7` | Phase 5: Booking calendar integration                                       | ○      |
-| `kia` | Phase 4: Advanced analytics                                                 | ○      |
-| `9e8` | Phase 4: Provider dashboard                                                 | ○      |
-| `69c` | Phase 4: Third party registration flow                                      | ○      |
-| `5u2` | Architecture: De-duplicate maintenance API transform logic                  | ○      | cleaner_react_architecture audit |
-| `9xr` | Architecture: Extract pure domain helpers (useIdentity, ticketNumber, etc.) | ○      | cleaner_react_architecture audit |
-| `1ei` | Architecture: Migrate widget useEffect+fetch to useQuery/useMutation        | ○      | cleaner_react_architecture audit |
-| `b5d` | Standardize ID strategy across all models (cuid/uuid/plain String mix)      | ○      | REPORT.md schema audit           |
-| `zjm` | Extract high-frequency JSON fields into proper columns                      | ○      | REPORT.md schema audit           |
-| `6i9` | Add soft deletes (deletedAt) across all entities                            | ○      | REPORT.md schema audit           |
-| `8re` | Verify Preact compatibility with TipTap, charts, maps, and React Flow       | ○      | REPORT.md schema audit           |
-| `7cp` | Complete formal POPIA compliance audit for South Africa tenant              | ○      | REPORT.md schema audit           |
-| `hfy` | Implement per-tenant and per-module usage analytics                         | ○      | REPORT.md schema audit           |
+| ID     | Title                                                                       | Status | Source                            |
+| ------ | --------------------------------------------------------------------------- | ------ | --------------------------------- |
+| `ka6`  | Design decision: widget placement across Focus Spaces                       | ○      | Phase 30 checkpoint               |
+| `jc1`  | Implement cookie management for privacy compliance                          | ○      |                                   |
+| `6d8`  | Migrate React imports to Preact and remove dead code                        | ○      |
+| `gtm`  | Phase 5: Notification system                                                | ○      |
+| `cp8`  | Phase 5: Payment processing                                                 | ○      |
+| `qx7`  | Phase 5: Booking calendar integration                                       | ○      |
+| `kia`  | Phase 4: Advanced analytics                                                 | ○      |
+| `9e8`  | Phase 4: Provider dashboard                                                 | ○      |
+| `69c`  | Phase 4: Third party registration flow                                      | ○      |
+| `5u2`  | Architecture: De-duplicate maintenance API transform logic                  | ○      | cleaner_react_architecture audit  |
+| `9xr`  | Architecture: Extract pure domain helpers (useIdentity, ticketNumber, etc.) | ○      | cleaner_react_architecture audit  |
+| `1ei`  | Architecture: Migrate widget useEffect+fetch to useQuery/useMutation        | ○      | cleaner_react_architecture audit  |
+| `b5d`  | Standardize ID strategy across all models (cuid/uuid/plain String mix)      | ○      | REPORT.md schema audit            |
+| `zjm`  | Extract high-frequency JSON fields into proper columns                      | ○      | REPORT.md schema audit            |
+| `6i9`  | Add soft deletes (deletedAt) across all entities                            | ○      | REPORT.md schema audit            |
+| `8re`  | Verify Preact compatibility with TipTap, charts, maps, and React Flow       | ○      | REPORT.md schema audit            |
+| `7cp`  | Complete formal POPIA compliance audit for South Africa tenant              | ○      | REPORT.md schema audit            |
+| `hfy`  | Implement per-tenant and per-module usage analytics                         | ○      | REPORT.md schema audit            |
+| `sioz` | Model duplication: seat polymorphism, invoice/payment overlap               | ○      | PRISMA_ANALYSIS.md finding #6, #7 |
+| `g8c3` | Denormalized aggregate drift risk                                           | ○      | PRISMA_ANALYSIS.md finding #8     |
+| `2pxb` | Soft-delete inconsistency policy                                            | ○      | PRISMA_ANALYSIS.md finding #10    |
 
 ### In Progress
 
