@@ -20,6 +20,21 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 const PLATFORM_DOMAIN = 'app.netbones.co.za';
 const DEFAULT_TENANT_SLUG = 'soralia';
+
+// Map custom domains to tenant slugs.
+// Subdomain extraction (*.netbones.co.za → slug) covers wildcard tenants;
+// bare custom domains must be listed here explicitly.
+const DOMAIN_TO_SLUG: Record<string, string> = {
+  'soralia.org': 'soralia',
+  'www.soralia.org': 'soralia',
+  'soralia.com': 'soralia',
+  'www.soralia.com': 'soralia',
+  'soralia.co.za': 'soralia',
+  'www.soralia.co.za': 'soralia',
+  'solaris.co.za': 'solaris-heights',
+  'www.solaris.co.za': 'solaris-heights',
+};
+
 const SUPPORTED_LOCALES = ['en', 'af', 'xh', 'zu'] as const;
 const DEFAULT_LOCALE = 'en';
 const LOCALE_COOKIE = 'i18n-locale';
@@ -178,7 +193,10 @@ export async function middleware(request: NextRequest) {
 
   const hostWithoutPort = host.split(':')[0] || '';
   const subdomain = hostWithoutPort.split('.')[0] || '';
-  const inferredTenantSlug = isLocalhost ? DEFAULT_TENANT_SLUG : subdomain || DEFAULT_TENANT_SLUG;
+  const domainSlug = DOMAIN_TO_SLUG[hostWithoutPort];
+  const inferredTenantSlug = isLocalhost
+    ? DEFAULT_TENANT_SLUG
+    : domainSlug || subdomain || DEFAULT_TENANT_SLUG;
 
   const isApiRoute = pathname.startsWith('/api/');
   const isAuthRouteCheck = isAuthRoute(pathname);
