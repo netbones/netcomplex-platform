@@ -326,4 +326,4 @@ This analysis was snapshotted before the Senior Engineer Audit (2026-06-25). The
 | T1 (Sprint 1)                    | No CORS configuration            | `addCorsHeaders()` in `src/middleware.ts` + OPTIONS handler |
 | S5-1 to S5-6, S6-2 (Sprints 5–6) | TypeScript errors in REST routes | Path aliases, `Promise<params>`, import/export fixes        |
 
-Issues #2–#10 above remain open as of the audit close.
+Issues #2–#10 tracked as BD issues (2026-07-02): #2=[soralia-village-e8hs], #3=[soralia-village-tkt5], #4=[soralia-village-ee5p], #5=[soralia-village-3m0h], #6=[soralia-village-qzll], #7=[soralia-village-axh6], #8=[soralia-village-vukt], #9=[soralia-village-c3zg], #10=[soralia-village-bnxu].
