@@ -96,7 +96,7 @@ Senior Engineer code-quality audit of the Netcomplex Platform (Soralia Village a
 | S6-1 | `privilegedProcedure` not exported from `surveys/shared.ts` — breaks build   | ✅ Done | Added to imports/re-exports in shared.ts                                |
 | S6-2 | 7 route files use sync `params` — Next.js 15 requires `Promise<params>`      | ✅ Done | Changed to `Promise<{ id: string }>` + `await params` across 9 handlers |
 | S6-3 | 83 unused-import/unused-variable warnings in `src/`                          | ✅ Done | Cleared to 0 (47 files touched)                                         |
-| S6-4 | `getComplainantLabel` always returns `'Resident'` — complainant data unwired | ⚠️ Open | `dispute` param accepted but never used; API returns complainant info   |
+| S6-4 | `getComplainantLabel` always returns `'Resident'` — complainant data unwired | ✅ Done | API now joins `users` table; UI uses `dispute.complainantName`          |
 | S6-5 | `tsc --noEmit` hangs/timeout on full project                                 | ⚠️ Open | Investigate `.next/types/validator.ts` cache corruption                 |
 | S6-6 | `next build` hangs/timeout                                                   | ⚠️ Open | Likely related to tsc hang — diagnose parallelism or memory pressure    |
 
@@ -114,10 +114,26 @@ Senior Engineer code-quality audit of the Netcomplex Platform (Soralia Village a
 | Coverage (functions) | <10%      | ≥15%                | 15%    |
 | Known TS errors      | ~84       | 0 (selective check) | 0      |
 
+---
+
+## Sprint 7 — Tenant FK Referential Integrity (ADVISORY-024)
+
+### Findings
+
+| #    | Issue                                                                     | Status  | Fix                                                                          |
+| ---- | ------------------------------------------------------------------------- | ------- | ---------------------------------------------------------------------------- |
+| S7-1 | 92 tenant-scoped models lack `@relation` FK constraints to `Tenant` table | ✅ Done | Batch A (27 models): Core Community + Seats & Listings                       |
+| S7-2 | Missing FK on Maintenance, Provider, Billing & Commerce models            | ✅ Done | Batch B (26 models): Maintenance & Providers + Billing & Commerce            |
+| S7-3 | Missing FK on Surveys, Merits, dWallet & Data models                      | ✅ Done | Batch C (14 models): Surveys & Merits + dWallet & Data + AgentProfile        |
+| S7-4 | Missing FK on Admin, Agent, Address, AI, Dispute models                   | ✅ Done | Batch D (19 models): Admin & Agents + Achievements & Disputes + Address & AI |
+| S7-5 | Multi-file Prisma schema migration                                        | ✅ Done | Adopted `prismaSchemaFolder` preview feature; split `tenant.prisma` out      |
+| S7-6 | `AgentProfile` missed in original Batch A scope                           | ✅ Done | Included in Batch C                                                          |
+
+---
+
 ## Unfinished Work
 
-1. **`getComplainantLabel` hardcoded to `'Resident'`** — `src/entities/dispute/ui/DisputeListTable.tsx:15` accepts a `dispute: DisputeCaseDTO` but never extracts the complainant name from it. The API returns complainant info that was never wired into the UI.
-2. **`tsc --noEmit` and `next build` both hang/timeout** — Incremental cache corruption after clearing `.next`. Suspected cause: Next.js type checker (`.next/types/validator.ts`) chokes on certain source files. Mitigation: use `npx tsc --noEmit --pretty src/path/to/modified-file.ts 2>&1 | head -30` for scoped checks.
+1. **`tsc --noEmit` and `next build` both hang/timeout** — Incremental cache corruption after clearing `.next`. Suspected cause: Next.js type checker (`.next/types/validator.ts`) chokes on certain source files. Mitigation: use `npx tsc --noEmit --pretty src/path/to/modified-file.ts 2>&1 | head -30` for scoped checks.
 
 ## File Changes Summary
 

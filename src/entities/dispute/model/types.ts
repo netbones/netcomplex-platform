@@ -53,6 +53,7 @@ export interface DisputeCaseDTO {
   tenantId: string;
   referenceNumber: string;
   complainantId: string;
+  complainantName?: string;
   respondentId?: string;
   respondentType: DisputeRespondent;
   category: DisputeCategory;
