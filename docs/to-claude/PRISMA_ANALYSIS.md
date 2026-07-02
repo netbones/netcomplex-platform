@@ -252,8 +252,7 @@ Where naming is mismatched or missing
 
 ~~1. UserAchievementProgress.definitionId -- Contains an FK value with no relation declaration. This will NOT create a DB FK constraint.~~ → **FALSE POSITIVE: `@relation` is present on line 2006 of schema.prisma**
 ~~2. UserAchievement.definitionId -- Same issue.~~ → **FALSE POSITIVE: `@relation` is present on line 2019 of schema.prisma**
-~~3. DelegationAction.actorId~~ → **RESOLVED per S4-1**
-4. N+1 Query Risks Based on Relation Patterns
+~~3. DelegationAction.actorId~~ → **RESOLVED per S4-1** 4. N+1 Query Risks Based on Relation Patterns
 
 ## High Risk
 
@@ -402,15 +401,15 @@ strict: true,
 # Consolidated Summary of Critical Findings (reconciled against SENIOR_REPORT.md 2026-06-25)
 
 |Severity| Finding|
-1 HIGH drizzle.config.ts points to ./prisma/drizzle/schema.ts which does not exist. The Prisma generator outputs to ../src/db/schema instead.
+1 HIGH ~~drizzle.config.ts points to ./prisma/drizzle/schema.ts which does not exist. The Prisma generator outputs to ../src/db/schema instead.~~ → ✅ RESOLVED: Config now points to `./src/db/schema/*.ts` (post ADVISORY-024)
 ~~2 HIGH UserAchievementProgress.definitionId and UserAchievement.definitionId have no @relation declared.~~ → FALSE POSITIVE — both have valid `@relation` declarations (schema.prisma:2006, :2019)
 ~~3 HIGH DelegationAction.actorId has no @relation declared. Dangling foreign key with no integrity constraint.~~ → ✅ RESOLVED per S4-1
-4 MEDIUM 19 models have zero composite indexes. ~~Conversation, Survey, ExternalSurvey~~ → **All 3 resolved per S4-2 + S5-7. Organization, AiCapabilityCost, PlatformAiTierQuota remain.**
-5 MEDIUM ~20 tenant-scoped models have a tenantId String field but no FK relation to Tenant. Tenant deletion will leave orphans across the database.
+4 MEDIUM ~~19 models have zero composite indexes. Conversation, Survey, ExternalSurvey~~ → **All 3 resolved per S4-2 + S5-7. Organization, AiCapabilityCost, PlatformAiTierQuota remain.**
+~~5 MEDIUM ~20 tenant-scoped models have a tenantId String field but no FK relation to Tenant. Tenant deletion will leave orphans across the database.~~ → ✅ RESOLVED per ADVISORY-024 (Batches A-D, 86 models). All non-Better-Auth tenant-scoped models now have `@relation(fields: [tenantId], references: [id], onDelete: Restrict)`.
 6 MEDIUM 3 seat models (PremiumSeat, SoloSeat, StandardSeat) share ~10 fields. Polymorphism via separate tables adds maintenance burden.
 7 MEDIUM TenantInvoice and ProviderInvoice are near-duplicates. TenantPayment and PaymentTransaction are also near-duplicates.
 8 MEDIUM 8 models have computed/denormalized fields (rating, reviewCount, entryCount, balance, viewCount, downloadCount, totalListings, activeListings, salesCompleted) that could drift from source-of-truth.
-9 LOW user model has 55 relation back-links. This is a god-model anti-pattern and creates N+1 risk for any eager-loading query.
+9 LOW ~~user model has 55 relation back-links. This is a god-model anti-pattern and creates N+1 risk for any eager-loading query.~~ → Now has 86+ back-links. Still high risk — mitigated by never using `include:` on Tenant queries.
 10 LOW Soft-delete (deletedAt) is applied inconsistently: 38 models have it, 70 do not. No clear policy on when to soft-delete vs hard-delete.
 
 ---
