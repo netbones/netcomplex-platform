@@ -11,4 +11,5 @@ export const providerMerits = pgTable('ProviderMerit', {
   referenceId: text('referenceId'),
   createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
   evidenceUrl: text('evidenceUrl'),
+  deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }),
 });

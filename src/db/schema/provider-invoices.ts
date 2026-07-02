@@ -1,4 +1,23 @@
 import { pgTable, text, jsonb, decimal, timestamp } from 'drizzle-orm/pg-core';
 import { invoiceStatusEnum } from './invoice-status-enum';
 
-export const providerInvoices = pgTable('ProviderInvoice', { id: text('id').primaryKey(), providerId: text('providerId').notNull(), tenantId: text('tenantId').notNull(), subscriptionId: text('subscriptionId').notNull(), transactionId: text('transactionId').notNull(), invoiceNumber: text('invoiceNumber').notNull(), items: jsonb('items').notNull(), total: decimal('total', { precision: 65, scale: 30 }).notNull(), platformFee: decimal('platformFee', { precision: 65, scale: 30 }).notNull(), processorFee: decimal('processorFee', { precision: 65, scale: 30 }).notNull(), netAmount: decimal('netAmount', { precision: 65, scale: 30 }).notNull(), currency: text('currency').default('ZAR').notNull(), status: invoiceStatusEnum('status').default('PENDING').notNull(), paidAt: timestamp('paidAt', { mode: 'date', precision: 3 }), pdfUrl: text('pdfUrl'), createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull() });
+export const providerInvoices = pgTable('ProviderInvoice', {
+  id: text('id').primaryKey(),
+  providerId: text('providerId').notNull(),
+  tenantId: text('tenantId').notNull(),
+  subscriptionId: text('subscriptionId').notNull(),
+  transactionId: text('transactionId').notNull(),
+  invoiceNumber: text('invoiceNumber').notNull(),
+  items: jsonb('items').notNull(),
+  total: decimal('total', { precision: 65, scale: 30 }).notNull(),
+  platformFee: decimal('platformFee', { precision: 65, scale: 30 }).notNull(),
+  processorFee: decimal('processorFee', { precision: 65, scale: 30 }).notNull(),
+  netAmount: decimal('netAmount', { precision: 65, scale: 30 }).notNull(),
+  currency: text('currency').default('ZAR').notNull(),
+  status: invoiceStatusEnum('status').default('PENDING').notNull(),
+  paidAt: timestamp('paidAt', { mode: 'date', precision: 3 }),
+  pdfUrl: text('pdfUrl'),
+  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+  updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull(),
+  deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }),
+});
