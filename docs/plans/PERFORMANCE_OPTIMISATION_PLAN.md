@@ -4,6 +4,8 @@ Prepared by: Senior Performance Engineer (docs/skills/performance-optimisation-e
 Scope: Netcomplex / Soralia Village — Next.js 14 App Router + tRPC + Drizzle + Supabase
 Date: 2026-07-02
 
+---
+
 1. Executive Summary
    The codebase is architecturally sound but is operating at ~10–30% of its theoretical capacity because of an over-broad dynamic = 'force-dynamic' declaration that disables ISR site-wide, a tenant-resolution layer that does a SQL round-trip on every API call, a tRPC context that re-queries the user table for every procedure, and a dashboard home layer that fires 8 separate fetch() calls on mount.
 
@@ -15,6 +17,8 @@ Net impact if all P1 items are fixed:
 - DB connection pressure: cut by ~40% during traffic spikes
 
 The work below is grouped by ROI and travel-risk. Each item has a concrete patch sketch, evidence, and a verification step.
+
+---
 
 2. Inventory of Issues
 
@@ -52,10 +56,15 @@ F15 Suspense fallback is null for children — flashes blank UI before stream re
 
 F16 unstable_cache keys use a single shared array (['dashboard-stats']) — collisions under arg changes src/shared/api/data-fetching.ts:52
 
+---
+
 3. P1 — Highest ROI Fixes
-   F1 · Remove global dynamic = 'force-dynamic' and adopt per-segment static strategy
-   Evidence: src/app/layout.tsx:10. Every route inherits dynamic rendering, defeating ISR entirely. The same line is repeated in (platform)/layout.tsx:4. Most public landing routes (/, /resources, /news/\*, etc.) are perfectly cacheable.
-   Fix sketch:
+
+- F1 · Remove global dynamic = 'force-dynamic' and adopt per-segment static strategy
+  Evidence: src/app/layout.tsx:10. Every route inherits dynamic rendering, defeating ISR entirely. The same line is repeated in (platform)/layout.tsx:4. Most public landing routes (/, /resources, /news/\*, etc.) are perfectly cacheable.
+  Fix sketch:
+
+```
    // src/app/layout.tsx
    import './globals.css';
    // remove: export const dynamic = 'force-dynamic';
@@ -65,6 +74,7 @@ F16 unstable_cache keys use a single shared array (['dashboard-stats']) — coll
 export default async function RootLayout({ children }) {
 // ...
 }
+```
 
 For each route group, choose:
 
@@ -89,11 +99,13 @@ curl -sI http://localhost:3000/ | grep -i cache-control
 
 # Expect: s-maxage=...
 
-F2 · Cache tenant resolution with unstable_cache
-Evidence: src/entities/tenant/api/with-tenant.ts:21-31. Every API route calls getTenantBySlug() (unbounded SQL query) before middleware sets x-tenant-id. The comment on line 19 of src/entities/tenant/api/base.ts even shows the unstable_cache import was uncommented and removed — meaning it was removed by mistake.
-In middleware (src/middleware.ts:174), the slug is already inferred from subdomain. The DB lookup is duplicating that work.
+- F2 · Cache tenant resolution with unstable_cache
+  Evidence: src/entities/tenant/api/with-tenant.ts:21-31. Every API route calls getTenantBySlug() (unbounded SQL query) before middleware sets x-tenant-id. The comment on line 19 of src/entities/tenant/api/base.ts even shows the unstable_cache import was uncommented and removed — meaning it was removed by mistake.
+  In middleware (src/middleware.ts:174), the slug is already inferred from subdomain. The DB lookup is duplicating that work.
 
 Fix sketch:
+
+```
 // src/entities/tenant/api/base.ts
 import { unstable_cache } from 'next/cache';
 
@@ -112,10 +124,11 @@ Re-tag from any tenant mutation:
 // wherever tenants are updated:
 import { revalidateTag } from 'next/cache';
 revalidateTag(`tenant:${slug}`);
+```
 
 Verification: First request cold = SELECT. Second within 5 min = no Postgres connection acquired.
 
-F3 · Short-circuit tRPC context DB queries when headers have tenantId
+- F3 · Short-circuit tRPC context DB queries when headers have tenantId
 
 Evidence: src/shared/api/trpc/server.ts:21-61. Currently:
 
@@ -124,6 +137,8 @@ Evidence: src/shared/api/trpc/server.ts:21-61. Currently:
 3. If tenantId was missing from headers and user has tenantId in DB → SELECT tenants.slug → 1 SQL
 
 For a fully authenticated tRPC call with valid x-tenant-id + x-tenant-slug headers (the common case), the second query is pure overhead — middleware already gave us the slug.
+
+```
 // src/shared/api/trpc/server.ts
 export async function createContext(opts: { headers: Headers }): Promise<Context> {
 const session = await auth.api.getSession({ headers: opts.headers }); // unavoidable
@@ -164,8 +179,11 @@ tenantSlug: resolvedTenantSlug,
 organizationId: ((session?.user as Record<string, unknown>)?.organizationId as string | null) ?? null,
 };
 }
+```
 
 For the role lookup that still has to fire, consider caching by user ID for 60s in a transient Redis/Map cache (or unstable_cache since the user rarely changes role mid-session):
+
+```
 const getRoleByUserId = (uid: string) =>
 unstable_cache(
 async () => {
@@ -175,16 +193,21 @@ return u?.role ?? null;
 ['user-role', uid],
 { revalidate: 60, tags: [`user:${uid}:role`] }
 )();
+```
+
 Roll the role back to null in headers-only path means routers that mutate role may want to call revalidateTag('user:${uid}:role').
+
 Verification:
 
 # Look for /api/trpc in network tab — Postgres query count should drop from 2 → 0 per request
 
-F4 · Apply unstable_cache to high-traffic tenant flags / gate resolution
+- F4 · Apply unstable_cache to high-traffic tenant flags / gate resolution
 
 Evidence: src/entities/tenant/api/flags/platform-flags.ts:66 already caches getPlatformPageFlags (5 min, SETTINGS tag). But the gate context endpoint (src/app/api/gate/context/route.ts) calls getPlatformPageFlags only once per route-hit. Each /api/access call (called on every nav, see resolver file size 393 lines) reloads the same flags.
 
 Fix sketch — layer tier flags (similar to page flags) into a single cached resolver:
+
+```
 // New: src/entities/tenant/api/cache/tenant-gate.ts
 import { unstable_cache } from 'next/cache';
 import { CACHE_TAGS } from '@shared/api';
@@ -195,17 +218,22 @@ async () => loadGateFromDb(tenantId),
 ['tenant-gate', tenantId],
 { revalidate: 60, tags: [CACHE_TAGS.SETTINGS, `tenant:${tenantId}:gate`] }
 )();
+```
+
 Call it from /api/access and /api/gate/context. Mutators call revalidateTag(\tenant:${tenantId}:gate\`)`.
+
 Verification:
 
 # Stress with 50 RPS, watch DB QPS drop
 
 vitest run src/entities/tenant
 
-F5 · Stop calling internal API routes from inside getDashboardStats
-Evidence: src/shared/api/data-fetching.ts:11-63. The cached function calls 4 internal routes (/api/maintenance, /api/bookings, /api/conversations, /api/notifications) via fetch(). Each of those 4 routes spins up a serverless function, runs auth, runs withTenant(), hits DB, and returns JSON — only for the cache to discard it after 5 minutes. That is 2× cost (cache-internal fetch + the original fetch on cold miss).
+- F5 · Stop calling internal API routes from inside getDashboardStats
+  Evidence: src/shared/api/data-fetching.ts:11-63. The cached function calls 4 internal routes (/api/maintenance, /api/bookings, /api/conversations, /api/notifications) via fetch(). Each of those 4 routes spins up a serverless function, runs auth, runs withTenant(), hits DB, and returns JSON — only for the cache to discard it after 5 minutes. That is 2× cost (cache-internal fetch + the original fetch on cold miss).
 
 Fix: Read directly from the DB inside the cached function — the cache already de-duplicates:
+
+```
 // src/shared/api/data-fetching.ts
 import { db, maintenanceRequests, bookings, conversations, notifications, tenants } from '@api/server';
 import { eq, and, isNull, sql } from 'drizzle-orm';
@@ -253,16 +281,21 @@ revalidate: 300,
 tags: [CACHE_TAGS.STATS, CACHE_TAGS.MAINTENANCE, CACHE_TAGS.BOOKINGS, CACHE_TAGS.MESSAGES, CACHE_TAGS.NOTIFICATIONS],
 }
 );
+```
+
 Verification:
 
 # Watch DB console — combination 'cache fast' should fire 4 SQL COUNT
 
 # instead of 4 internal HTTP round-trips.
 
-F6 · Replace HomeLayer fetch() waterfall with tRPC batch + Suspense
-Evidence: src/widgets/dashboard/ui/HomeLayer.tsx:495-587. On mount, fires 8 separate raw fetch() calls (announcements ×2, maintenance ×2, messages, events, bookings, …). None have an AbortController. None benefit from tRPC's httpBatchLink batching. None use TanStack Query cache (/ rerun hits all 8 every navigation`). Adds 8 separate HTTP requests + 8 separate security/auth contexts on the server.
+- F6 · Replace HomeLayer fetch() waterfall with tRPC batch + Suspense
+  Evidence: src/widgets/dashboard/ui/HomeLayer.tsx:495-587. On mount, fires 8 separate raw fetch() calls (announcements ×2, maintenance ×2, messages, events, bookings, …). None have an AbortController. None benefit from tRPC's httpBatchLink batching. None use TanStack Query cache (/ rerun hits all 8 every navigation`). Adds 8 separate HTTP requests + 8 separate security/auth contexts on the server.
 
 Fix sketch — create one batched tRPC procedure, then query via TanStack Query:
+
+```
+
 // src/server/routers/dashboard.ts
 export const dashboardRouter = router({
 home: protectedProcedure.input(z.object({
@@ -294,24 +327,31 @@ const dayAfter = new Date(tomorrow); dayAfter.setDate(dayAfter.getDate()+1);
 
 }),
 });
+```
+
+```
 // HomeLayer.tsx
 const { data, isLoading, error, refetch } = trpc.dashboard.home.useQuery(
 { role },
 { staleTime: 30_000, refetchInterval: 60_000, refetchOnWindowFocus: false }
 );
+```
+
 This collapses 8 HTTP calls → 1 batched HTTP call (tRPC's httpBatchLink). Combined with F1/F2/F3, the server side does 4–6 parallel SQL queries instead of 8 (because urgent + community + recent are now one indexed query with a priority filter).
 Verification: Network tab on /dashboard should show 1 tRPC batch POST within 200ms instead of 8 GETs.
 
+---
+
 4. P2 — Important but Conditional
 
-F7 · Pool configuration
-Evidence: src/shared/api/db.ts:38-42. Two pg.Pool instances with max: 10 each = 20 connections per Node process. The comments at lines 23-37 explain why — to avoid concurrent-query deprecation warnings from pg. Under 100-concurrent RPS with 100ms-avg functions, this is tight on the production PA budget.
-Alternative: keep the split pools but cap at max: 6 per pool (gate/context and admin/\* already have Cache-Control headers — they're hitting the headers, not the body). If you observe 5xx timeout-exceeded like the comment mentions, raise back to 10 for one pool only.
-Lower-effort alternative: use Supabase pgbouncer transaction-mode (already configured at line 31-32). Add a statement_cache_size = 0 flag for pgbouncer compatibility; configure the proxy URL as pooledUrl not directUrl.
+- F7 · Pool configuration
+  Evidence: src/shared/api/db.ts:38-42. Two pg.Pool instances with max: 10 each = 20 connections per Node process. The comments at lines 23-37 explain why — to avoid concurrent-query deprecation warnings from pg. Under 100-concurrent RPS with 100ms-avg functions, this is tight on the production PA budget.
+  Alternative: keep the split pools but cap at max: 6 per pool (gate/context and admin/\* already have Cache-Control headers — they're hitting the headers, not the body). If you observe 5xx timeout-exceeded like the comment mentions, raise back to 10 for one pool only.
+  Lower-effort alternative: use Supabase pgbouncer transaction-mode (already configured at line 31-32). Add a statement_cache_size = 0 flag for pgbouncer compatibility; configure the proxy URL as pooledUrl not directUrl.
 
-F8 · Widget-store auto-save: serialize layout deltas, not full body
-Evidence: src/entities/widget/model/widget-store.ts:284-304. saveToDatabase JSON-stringifies the whole widget tree on every drag-end and ships it through PATCH /api/users/[userId]. For persisted layouts of 30+ widgets this is a ~50KB body per save event.
-Fix:
+- F8 · Widget-store auto-save: serialize layout deltas, not full body
+  Evidence: src/entities/widget/model/widget-store.ts:284-304. saveToDatabase JSON-stringifies the whole widget tree on every drag-end and ships it through PATCH /api/users/[userId]. For persisted layouts of 30+ widgets this is a ~50KB body per save event.
+  Fix:
 
 - Add a server endpoint PATCH /api/users/[userId]/layout accepting { spaceId, widgetId, layout } increments, then diff-merge on the server. Body drops from ~50KB to ~200B.
 - Or: ship the whole tree on first save then send diffs after. Keep unstable_cache aligned so PATCH writes invalidate users:${userId} cache.
@@ -359,6 +399,8 @@ unstable_cache(fn, ['user-content'], { ... });
 unstable_cache(fn, ['user-content', userId], { tags: [...] });
 Verify with workload that mixes two authors in 5 min — both should see fresh personal content.
 
+---
+
 5. P3 — Polish & Caching Hygiene
 
 F12 · Cache-Control for top hot endpoints
@@ -380,6 +422,8 @@ src/app/layout.tsx:45 uses fallback={null}. Stream a tiny <HeaderSkeleton /> if 
 F10 · Audit logger
 createComponentLogger and pino are present — verify transports are serverExternalPackages: ['pino'] (next.config.mjs:15, already ✓). On client, ensure console._ was removed from build via terser — grep found only 8 sites, all in error paths (good). Add a build rule: if (process.env.NODE_ENV === 'production') console._(); → stripped. (Use existing next.config.mjs webpack block.)
 
+---
+
 6. Performance Issue Breakdown
    Bottlenecks (hot paths)
    Hot Path Current Latency After P1 Fixes Source of Latency
@@ -389,7 +433,7 @@ createComponentLogger and pino are present — verify transports are serverExter
    Widget drag → DB save ~150–300ms ~30–60ms F8 (50KB body)
    Tenant resolution (100 RPS) 100 DB QPS 0 DB QPS F2 (unstable_cache(tenant-by-slug))
 
-Inefficient Logic
+## Inefficient Logic
 
 - Wasteful cache indirection (F5): the unstable_cache wrapping 4 internal fetch() calls. Cache the SQL aggregate instead — half the cost.
 - Re-derivation of role (F3): runs on every tRPC call. Add a transient cache keyed by userId.
@@ -399,13 +443,13 @@ Inefficient Logic
 - HomeLayer is 'use client' and re-renders entirely on each setState flip in load/success. Convert to a server component using <Suspense> + tRPC prefetch in the page boundary (Next 15 PPR).
 - Top 11 heaviest widgets all 'use client'. Many have no React.memo and receive primitives — would benefit from useDeferredValue on list filters.
 
-Expensive Operations
+## Expensive Operations
 
 - Widget store (370 lines) hot-paths Object.freeze({...defaultWidgetLayout}) is O(1) ✓, but the set callbacks spread state.layouts + per-space spread + per-widget spread — three deep clones per drag-tick. For a dashboard with 30 widgets, that's ~120 object allocations per drag. Memo a stable default and avoid full-state reset on update.
 - JSON.stringify(layouts) runs on every saveToDatabase — 50KB+ payloads. F8 fix.
 - with-tenant → getTenantBySlug SQL for every API route. F2 fix.
 
-Memory Leaks
+## Memory Leaks
 
 - HomeLayer fetches have no AbortController. Unmount-mid-fetch still resolves a state setter. With React 18 strict mode (next.config.mjs:10) this is doubly invasive in dev.
 - Auto-save timer in widget-store.ts:91 is a module-level let. Calling subscribeWidgetAutoSave twice without specific unsubscribe leaks the subscription and replaces the timer — but never clears the original subscription. Use setTimeout instance kept on the subscription object, paired with a returned unsubscribe.
@@ -423,6 +467,8 @@ Memory Leaks
   };
   }
 - PostHog provider wraps the body — verify bootstrapFlags doesn't leak unbounded pageview queue across transitions.
+
+---
 
 7. Improved-Ready Code Snippets
 
@@ -572,6 +618,8 @@ return (
 export default HomeLayer;
 The 8 fetch() calls collapse to 1 batched tRPC POST; React Query caches for staleTime: 30s; refetch keeps the data live without thrash on focus.
 
+---
+
 8. Scalability Recommendations
 
 Connection budget
@@ -592,6 +640,8 @@ Pagination
 - Multiple dashboard widgets fetch limit=5 or unbounded lists. Add cursor-based pagination to /api/conversations, /api/maintenance, /api/notifications — both safer and faster.
   Streaming
 - After F1+F11, push dashboard zones into <Suspense> boundaries so the page streams. Header (static) → UrgencyZone (dynamic) → TickerZone (dynamic).
+
+---
 
 9. Verification Matrix
    After each fix, run:
@@ -627,14 +677,19 @@ Week 1
 Week 2 5. F5 / F4: De-indirect dashboard stats; cache gate snapshot. (3 hours.) 6. F6: Replace HomeLayer with batched tRPC + TanStack Query. (4 hours incl. dashboard router implementation.) 7. F8: Widget-store delta saves. (2 hours.) 8. F11: Enable cacheComponents last (after F1 fully rolled out). (2 hours.)
 Backlog 9. F7, F9, F13, F16, F12, F14, F10 — banded together in a single Phase.
 
+---
+
 11. Risks & Mitigations
-    Risk Mitigation
-    Removing force-dynamic could cache user-specific role in static HTML Keep (tenant)/tenant/_ and (tenant)/dashboard/_ as dynamic = 'force-dynamic'; only public routes go static.
-    unstable_cache cache-key collisions (F16) Audit all getUserContent, getDashboardStats keys; standardise on [name, ...args].
-    In-mem roleCache Map leaks in serverless Use unstable_cache('user-role', uid) instead — process-scoped lifetime, no leak.
-    Auth getSession is still on hot path Acceptable; 1 query is unavoidable. Consider services/auth/session-cache.ts 5s TTL.
-    Cache stampede on invalidations unstable_cache coalesces tags to one invalidation; no stampede.
-    PostHog bootstrapFlags in production Confirm flags are sent before mount; otherwise SSR re-init.
+    |Risk| Mitigation|
+    |----|-----------|
+    |Removing force-dynamic could cache user-specific role in static | HTML Keep (tenant)/tenant/_ and (tenant)/dashboard/_ as dynamic = 'force-dynamic'; only public routes go static.|
+    |unstable_cache cache-key collisions (F16)| Audit all getUserContent, getDashboardStats keys; standardise on [name, ...args].|
+    |In-mem roleCache Map leaks in serverless| Use unstable_cache('user-role', uid) instead — process-scoped lifetime, no leak.|
+    |Auth getSession is still on hot path| Acceptable; 1 query is unavoidable. Consider services/auth/session-cache.ts 5s TTL.|
+    |Cache stampede on invalidations| unstable_cache coalesces tags to one invalidation; no stampede.|
+    |PostHog bootstrapFlags in production| Confirm flags are sent before mount; otherwise SSR re-init.|
+
+---
 
 12. What Not to Do
 
@@ -643,6 +698,8 @@ Backlog 9. F7, F9, F13, F16, F12, F14, F10 — banded together in a single Phase
 - ❌ Don't React.memo all components — over-memoization costs more than it saves.
 - ❌ Don't useLayoutEffect for data fetching.
 - ❌ Don't replace next-auth with cookie reading in components — keep it in server.ts.
+
+---
 
 13. Quick-Win Checklist (≤1 hour each, fail-fast)
 

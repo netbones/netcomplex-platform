@@ -22,56 +22,71 @@
 | **Address / Handle**                                                                                                                   | `status` enum                 | Status-based soft-delete (`DELETED`, `RELEASED`) with explicit lifecycle.                                 |
 | **Soft-delete NOT suitable** (BillingPlan, BillingAdjustment, Coupon, DataRevenueStream)                                               | `isActive`                    | Boolean flag is sufficient for toggling availability; no recovery timeline needed.                        |
 
-## Models With `deletedAt` (47 models)
+## Models With `deletedAt` (62 models)
 
 ```typescript
-(Profile,
-  Member,
-  Notification,
-  ServiceBooking,
+(AchievementDefinition,
+  AgentAccess,
   AgentProfile,
-  Setting,
-  Property,
-  Household,
-  PropertyListing,
-  Invitation,
-  Conversation,
-  Message,
-  Content,
-  ContentLike,
-  Group,
-  GroupMember,
-  GroupMembershipRequest,
   Album,
-  Resource,
-  ResourceVersion,
   Announcement,
-  Event,
   Booking,
-  MaintenanceRequest,
-  MaintenanceTeam,
-  MaintenanceCategory,
+  Bursary,
   BursaryField,
-  InternalMaintenanceNote,
-  ServiceProvider,
+  CommunityMerit,
   CommunityServiceInquiry,
   CommunityServiceListing,
   CommunityServiceReview,
-  Survey,
-  Question,
-  Response,
-  SurveySection,
-  ExternalSurvey,
-  CommunityMerit,
   Competition,
   CompetitionEntry,
-  AgentAccess,
-  PlatformSuspension,
-  AchievementDefinition,
+  Content,
+  ContentLike,
+  Conversation,
+  ConversationParticipant,
   DisputeCase,
+  DisputeEvent,
   DisputeEvidence,
   DisputeMessage,
-  Bursary);
+  DisputeMessageVersion,
+  DisputeNotification,
+  Event,
+  EventAttendee,
+  ExternalSurvey,
+  Group,
+  GroupMember,
+  GroupMembershipRequest,
+  Household,
+  InternalMaintenanceNote,
+  Invitation,
+  MaintenanceCategory,
+  MaintenanceRequest,
+  MaintenanceTeam,
+  Member,
+  Message,
+  Notification,
+  PaymentTransaction,
+  PlatformSuspension,
+  Profile,
+  Property,
+  PropertyListing,
+  ProviderCharge,
+  ProviderInvoice,
+  ProviderLegalAgreement,
+  ProviderMerit,
+  ProviderReputation,
+  ProviderSubscription,
+  ProviderVerification,
+  Question,
+  RequestNote,
+  Resource,
+  ResourceVersion,
+  Response,
+  RevenueRecord,
+  ServiceBooking,
+  ServiceProvider,
+  Setting,
+  Survey,
+  SurveySection);
 ```
 
 ## Models Using Alternative Soft-Delete Mechanisms
@@ -97,20 +112,18 @@ import { notDeleted } from '@/shared/api/db';
 await db.select().from(content).where(notDeleted(content));
 ```
 
-## Known Parent-Child Inconsistencies
+## Resolved Parent-Child Inconsistencies
 
-These parent-child pairs have mismatched delete strategies. Tracked for follow-up:
+All 6 known parent-child mismatches from migration `20260702040000` are now resolved. The following child models received `deletedAt`:
 
-| Parent                         | Child                                           | Issue                                                                     |
-| ------------------------------ | ----------------------------------------------- | ------------------------------------------------------------------------- |
-| Event (deletedAt)              | EventAttendee (hard-delete)                     | Attendees orphaned on event soft-delete                                   |
-| Conversation (deletedAt)       | ConversationParticipant (hard-delete)           | Participants orphaned on conversation soft-delete                         |
-| MaintenanceRequest (deletedAt) | RequestNote (hard-delete)                       | Notes orphaned — but InternalMaintenanceNote has deletedAt (inconsistent) |
-| ServiceProvider (deletedAt)    | 9 children\* (hard-delete)                      | Verifications, subscriptions, transactions orphaned                       |
-| DisputeCase (deletedAt)        | DisputeEvent, DisputeNotification (hard-delete) | Events and notifications orphaned                                         |
-| DisputeMessage (deletedAt)     | DisputeMessageVersion (hard-delete)             | Version history orphaned                                                  |
-
-_\*ProviderVerification, ProviderLegalAgreement, ProviderReputation, ProviderMerit, ProviderSubscription, PaymentTransaction, ProviderCharge, ProviderInvoice, RevenueRecord_
+| Parent             | Children                                                                                                                                                                  |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Event              | EventAttendee                                                                                                                                                             |
+| Conversation       | ConversationParticipant                                                                                                                                                   |
+| MaintenanceRequest | RequestNote                                                                                                                                                               |
+| ServiceProvider    | ProviderVerification, ProviderLegalAgreement, ProviderReputation, ProviderMerit, ProviderSubscription, PaymentTransaction, ProviderCharge, ProviderInvoice, RevenueRecord |
+| DisputeCase        | DisputeEvent, DisputeNotification                                                                                                                                         |
+| DisputeMessage     | DisputeMessageVersion                                                                                                                                                     |
 
 ## Admin Hard Delete
 

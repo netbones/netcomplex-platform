@@ -14,4 +14,5 @@ export const providerVerifications = pgTable('ProviderVerification', {
   createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
   updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull(),
   dueDiligenceItems: jsonb('dueDiligenceItems'),
+  deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }),
 });

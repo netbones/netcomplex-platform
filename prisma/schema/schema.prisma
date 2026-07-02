@@ -642,6 +642,7 @@ model ConversationParticipant {
   joinedAt          DateTime     @default(now())
   lastReadAt        DateTime?
   lastReadMessageId String?
+  deletedAt         DateTime?
   Conversation      Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   Tenant            Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   user              user         @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -927,6 +928,7 @@ model EventAttendee {
   eventId   String
   userId    String
   createdAt DateTime @default(now())
+  deletedAt DateTime?
   event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
   Tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -1058,6 +1060,7 @@ model RequestNote {
   content    String
   isInternal Boolean            @default(false)
   createdAt  DateTime           @default(now())
+  deletedAt  DateTime?
   request    MaintenanceRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
   user       user               @relation(fields: [userId], references: [id])
 
@@ -1250,6 +1253,7 @@ model ProviderVerification {
   createdAt             DateTime                   @default(now())
   updatedAt             DateTime                   @updatedAt
   dueDiligenceItems     Json?
+  deletedAt             DateTime?
   provider              ServiceProvider            @relation(fields: [providerId], references: [id])
 
   @@index([tenantId])
@@ -1267,6 +1271,7 @@ model ProviderLegalAgreement {
   ipAddress     String?
   userAgent     String?
   createdAt     DateTime        @default(now())
+  deletedAt     DateTime?
   provider      ServiceProvider @relation(fields: [providerId], references: [id])
 
   @@index([tenantId])
@@ -1287,6 +1292,7 @@ model ProviderReputation {
   lastCalculatedAt  DateTime?
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
+  deletedAt         DateTime?
   provider          ServiceProvider @relation(fields: [providerId], references: [id])
 
   @@index([tenantId])
@@ -1303,6 +1309,7 @@ model ProviderMerit {
   referenceId String?
   createdAt   DateTime          @default(now())
   evidenceUrl String?
+  deletedAt   DateTime?
   provider    ServiceProvider   @relation(fields: [providerId], references: [id])
 
   @@index([tenantId])
@@ -1324,6 +1331,7 @@ model ProviderSubscription {
   paymentGateway  PaymentGateway?
   createdAt       DateTime             @default(now())
   updatedAt       DateTime             @updatedAt
+  deletedAt       DateTime?
   transactions    PaymentTransaction[]
   charges         ProviderCharge[]
   invoices        ProviderInvoice[]
@@ -1350,6 +1358,7 @@ model PaymentTransaction {
   externalRef    String?
   invoiceUrl     String?
   createdAt      DateTime             @default(now())
+  deletedAt      DateTime?
   provider       ServiceProvider      @relation(fields: [providerId], references: [id])
   subscription   ProviderSubscription @relation(fields: [subscriptionId], references: [id])
   charges        ProviderCharge[]
@@ -1374,6 +1383,7 @@ model RevenueRecord {
   currency      String             @default("ZAR")
   period        String
   createdAt     DateTime           @default(now())
+  deletedAt     DateTime?
   provider      ServiceProvider    @relation(fields: [providerId], references: [id])
   transaction   PaymentTransaction @relation(fields: [transactionId], references: [id])
 
@@ -1398,6 +1408,7 @@ model ProviderCharge {
   paidAt         DateTime?
   createdAt      DateTime             @default(now())
   updatedAt      DateTime             @updatedAt
+  deletedAt      DateTime?
   provider       ServiceProvider      @relation(fields: [providerId], references: [id])
   subscription   ProviderSubscription @relation(fields: [subscriptionId], references: [id])
   transaction    PaymentTransaction?  @relation(fields: [transactionId], references: [id])
@@ -1425,6 +1436,7 @@ model ProviderInvoice {
   pdfUrl         String?
   createdAt      DateTime             @default(now())
   updatedAt      DateTime             @updatedAt
+  deletedAt      DateTime?
   provider       ServiceProvider      @relation(fields: [providerId], references: [id])
   subscription   ProviderSubscription @relation(fields: [subscriptionId], references: [id])
   transaction    PaymentTransaction   @relation(fields: [transactionId], references: [id])
@@ -2360,6 +2372,7 @@ model DisputeEvent {
   note       String?
   metadata   Json?
   createdAt  DateTime         @default(now())
+  deletedAt  DateTime?
   actor      user?            @relation("DisputeEventActor", fields: [actorId], references: [id])
   dispute    DisputeCase      @relation(fields: [disputeId], references: [id], onDelete: Cascade)
 
@@ -2394,6 +2407,7 @@ model DisputeMessageVersion {
   originalContent String
   editedAt        DateTime
   createdAt       DateTime       @default(now())
+  deletedAt       DateTime?
   message         DisputeMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
 
   @@index([messageId])
@@ -2408,6 +2422,7 @@ model DisputeNotification {
   type      String
   read      Boolean     @default(false)
   createdAt DateTime    @default(now())
+  deletedAt DateTime?
   dispute   DisputeCase @relation(fields: [disputeId], references: [id], onDelete: Cascade)
   user      user        @relation("DisputeNotificationUser", fields: [userId], references: [id])
 

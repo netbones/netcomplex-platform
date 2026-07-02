@@ -299,10 +299,10 @@ Shared patterns that could be abstracted:
 
 ## 7. Soft-Delete Patterns (deletedAt fields)
 
-**Policy:** See `docs/STEERING/SOFT_DELETE.md` (updated 2026-07-02 by [soralia-village-2pxb]).
+**Policy:** See `docs/STEERING/SOFT_DELETE.md` (updated 2026-07-02 by [soralia-village-2pxb]; parent-child orphans resolved by [soralia-village-owuh]).
 
-Models with deletedAt (47 out of 111):
-Profile, Member, Notification, ServiceBooking, AgentProfile, Setting, Property, Household, PropertyListing, Invitation, Conversation, Message, Content, ContentLike, Group, GroupMember, GroupMembershipRequest, Album, Resource, ResourceVersion, Announcement, Event, Booking, MaintenanceRequest, MaintenanceTeam, MaintenanceCategory, BursaryField, InternalMaintenanceNote, ServiceProvider, CommunityServiceInquiry, CommunityServiceListing, CommunityServiceReview, Survey, Question, Response, SurveySection, ExternalSurvey, CommunityMerit, Competition, CompetitionEntry, AgentAccess, PlatformSuspension, AchievementDefinition, DisputeCase, DisputeEvidence, DisputeMessage, Bursary
+Models with deletedAt (62 out of 111):
+AchievementDefinition, AgentAccess, AgentProfile, Album, Announcement, Booking, Bursary, BursaryField, CommunityMerit, CommunityServiceInquiry, CommunityServiceListing, CommunityServiceReview, Competition, CompetitionEntry, Content, ContentLike, Conversation, ConversationParticipant, DisputeCase, DisputeEvent, DisputeEvidence, DisputeMessage, DisputeMessageVersion, DisputeNotification, Event, EventAttendee, ExternalSurvey, Group, GroupMember, GroupMembershipRequest, Household, InternalMaintenanceNote, Invitation, MaintenanceCategory, MaintenanceRequest, MaintenanceTeam, Member, Message, Notification, PaymentTransaction, PlatformSuspension, Profile, Property, PropertyListing, ProviderCharge, ProviderInvoice, ProviderLegalAgreement, ProviderMerit, ProviderReputation, ProviderSubscription, ProviderVerification, Question, RequestNote, Resource, ResourceVersion, Response, RevenueRecord, ServiceBooking, ServiceProvider, Setting, Survey, SurveySection
 Models WITHOUT deletedAt (hard-deleted):
 account, verification, passkey, session, twoFactor, user, Organization, PlatformModule, TenantModule, Tenant, PropertyPremiumSeat (junction table), ConversationParticipant (junction table), EventAttendee (junction table), MaintenanceRequest, MaintenanceTeam, RequestHistory, ProviderVerification, ProviderLegalAgreement, ProviderReputation, ProviderMerit, ProviderSubscription, PaymentTransaction, RevenueRecord, ProviderCharge, ProviderInvoice, SubscriptionTier, BillingPlan, TenantSubscription, TenantInvoice, TenantPayment, BillingAdjustment, BillingEvent, Coupon, CouponRedemption, TaxRate, TaxJurisdiction, AchievementDefinition, TenantAchievement, UserAchievementProgress, UserAchievement, DWallet, WalletTransaction, DataConsent, PayoutRequest, DataRevenueStream, DataShareBatch, Address, Handle, AddressEndpoint, PlatformAiTierQuota, AiCapabilityCost, TenantAiUsage, AiUsageEvent, DisputeEvent, DisputeMessageVersion, DisputeNotification
 Inconsistencies in soft-delete:
@@ -412,7 +412,7 @@ strict: true,
 7 MEDIUM TenantInvoice and ProviderInvoice are near-duplicates. TenantPayment and PaymentTransaction are also near-duplicates.
 8 MEDIUM 8 models have computed/denormalized fields (rating, reviewCount, entryCount, balance, viewCount, downloadCount, totalListings, activeListings, salesCompleted) that could drift from source-of-truth.
 9 LOW ~~user model has 55 relation back-links. This is a god-model anti-pattern and creates N+1 risk for any eager-loading query.~~ → Now has 86+ back-links. Still high risk — mitigated by never using `include:` on Tenant queries.
-10 LOW Soft-delete (deletedAt) is applied inconsistently: 38 models have it, 70 do not. No clear policy on when to soft-delete vs hard-delete.
+~~10 LOW Soft-delete (deletedAt) is applied inconsistently: 38 models have it, 70 do not. No clear policy on when to soft-delete vs hard-delete.~~ → ✅ RESOLVED: Policy defined in `docs/STEERING/SOFT_DELETE.md`; 15 orphan child models received `deletedAt`; now 62/111 models have deletedAt.
 
 ---
 
@@ -427,4 +427,4 @@ This analysis was snapshotted before the Senior Engineer Audit (2026-06-25). The
 | S4-3 (Sprint 4)   | Missing `SurveySection` back-link on Survey                                                                 | Added `sections SurveySection[]` relation |
 | S5-7 (Sprint 5)   | Missing indexes: `Content(tenantId)`, `Event(date)`                                                         | Added `@@index` declarations              |
 
-Resolved: soft-delete policy defined in `docs/STEERING/SOFT_DELETE.md` [soralia-village-2pxb]. Remaining open: model duplication [soralia-village-sioz], denormalized aggregates drift risk [soralia-village-g8c3], parent-child orphan alignment [soralia-village-owuh], notDeleted() adoption [soralia-village-h9o4]. tsc --noEmit hang tracked as [soralia-village-8rve].
+Resolved: soft-delete policy + parent-child orphan alignment [soralia-village-2pxb, soralia-village-owuh]. Remaining open: model duplication [soralia-village-sioz], denormalized aggregates drift risk [soralia-village-g8c3], notDeleted() adoption [soralia-village-h9o4]. tsc --noEmit hang tracked as [soralia-village-8rve].
