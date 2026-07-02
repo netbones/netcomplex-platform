@@ -12,6 +12,7 @@ import { type PlatformPageFlags } from '@shared/lib';
 import { NAV_REGISTRY, isNavItemVisible } from '@/shared/lib/nav';
 import { Wallet } from 'lucide-react';
 import { MobileMenu } from './MobileMenu';
+import { WorkspaceSelector } from '@widgets/workspace';
 
 function TeaserLink({
   href,
@@ -363,6 +364,8 @@ export function Header() {
               ))}
               <MoreDropdown items={moreItems} t={t} pathname={pathname} />
             </nav>
+
+            {session && <WorkspaceSelector />}
 
             <Suspense fallback={<div className="w-16 h-6 bg-white/20 rounded" />}>
               <LanguageSwitcher />
