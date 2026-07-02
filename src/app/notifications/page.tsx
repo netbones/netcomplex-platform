@@ -35,7 +35,7 @@ export default function NotificationsPage() {
     fetch(endpoint)
       .then(res => res.json())
       .then(data => {
-        setNotifications(data);
+        setNotifications(data.data || []);
         setLoading(false);
       })
       .catch(() => setLoading(false));
