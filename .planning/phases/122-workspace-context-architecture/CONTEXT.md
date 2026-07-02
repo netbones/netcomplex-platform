@@ -13,9 +13,9 @@
 
 ---
 
-## ⚠️ MANDATORY: Feature Branch Required
+## ⚠️ MANDATORY: Feature Branch Required + DavDev Review Gate
 
-**This phase MUST be executed within a dedicated feature branch branched from `dev`.**
+**This phase MUST be executed within a dedicated feature branch branched from `dev`.** It MUST NOT be merged back to `dev` without express authorisation from **DavDev** after human review of the pull request.
 
 The `dev` branch has active GSD workflow gating (pre-commit hooks, state checks, Steiger enforcement) that will block or interfere with this phase's exploratory architectural work. Do not commit directly to `dev`.
 
@@ -23,8 +23,19 @@ The `dev` branch has active GSD workflow gating (pre-commit hooks, state checks,
 
 1. Create branch: `git checkout -b phase-122-workspace-context` from `dev`
 2. Execute all P1a-1 through P1a-6 steps on the feature branch
-3. Run quality gates on the feature branch before merging back
-4. Merge to `dev` via standard PR/rebase workflow when complete
+3. Run quality gates on the feature branch before requesting merge
+4. **STOP. Do not merge.** Submit a pull request for `phase-122-workspace-context` → `dev`
+5. **Wait for express authorisation from DavDev** after he reviews the PR
+6. Only after DavDev explicitly approves the PR may the merge proceed — and only if he instructs the merge
+
+### Hard Stop — No Merge Without DavDev Authorisation
+
+- **The agent MUST NOT attempt to merge `phase-122-workspace-context` into `dev`.**
+- The agent MUST NOT run `git merge`, `gh pr merge`, `wt merge`, or any equivalent command targeting `dev` for this phase.
+- The agent MUST NOT push the branch directly to `dev` under any circumstances.
+- The agent MUST open a pull request (`gh pr create`) and stop there.
+- DavDev's review of the PR is a **hard gate** — the workflow cannot proceed past it without his explicit "approved" or "merge it" instruction.
+- If the agent is asked to "ship", "finish", "complete", or "close out" this phase, the agent MUST request DavDev's review of the PR first and wait. The phase is not complete until DavDev signs off.
 
 ### Rationale
 
@@ -32,6 +43,8 @@ The `dev` branch has active GSD workflow gating (pre-commit hooks, state checks,
 - Steiger FSD checks on `dev` may fail during intermediate WIP states
 - Separate branch prevents blocking other contributors' work on `dev`
 - Enables squashing intermediate commits into clean history on merge
+- This phase alters core navigation surfaces (WorkspaceContext as the runtime lens for rendering) — human review of the impact on existing SpaceChrome / SpaceLauncher / 11 layout.tsx consumers is **mandatory** before release
+- DavDev is the project owner and the only authorised reviewer for this architectural change
 
 ---
 
