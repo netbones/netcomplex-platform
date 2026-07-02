@@ -7,6 +7,7 @@ import superjson from 'superjson';
 import { Toaster } from 'sonner';
 import { authClient, trpc } from '@api/client';
 import { TooltipProvider } from '@shared/ui';
+import { WorkspaceContextProvider } from '@features/workspace';
 
 import '@shared/lib/i18n';
 import * as React from 'react';
@@ -47,8 +48,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
-          <Toaster position="top-right" />
-          {children}
+          <WorkspaceContextProvider>
+            <Toaster position="top-right" />
+            {children}
+          </WorkspaceContextProvider>
         </TooltipProvider>
       </QueryClientProvider>
     </trpc.Provider>
