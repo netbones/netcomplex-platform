@@ -48,10 +48,13 @@ describe('useWorkspaceContext', () => {
   it('returns the initial value when provider is given `initial`', () => {
     const initial = makePersonalContext('u1');
 
-    const wrapper = ({ children }: { children: React.ReactNode }) =>
-      React.createElement(WorkspaceContextProvider, { initial }, children);
+    const Wrapper = ({ children }: { children: React.ReactNode }) => (
+      <WorkspaceContextProvider initial={initial}>{children}</WorkspaceContextProvider>
+    );
 
-    const { result } = renderHook(() => useWorkspaceContext(), { wrapper });
+    const { result } = renderHook(() => useWorkspaceContext(), {
+      wrapper: Wrapper,
+    });
 
     expect(result.current).toEqual(initial);
     expect(result.current?.workspaceId).toBe('personal:u1');
@@ -61,18 +64,24 @@ describe('useWorkspaceContext', () => {
 
 describe('WorkspaceContextProvider', () => {
   it('renders children without crashing', () => {
-    const wrapper = ({ children }: { children: React.ReactNode }) =>
-      React.createElement(WorkspaceContextProvider, null, children);
+    const Wrapper = ({ children }: { children: React.ReactNode }) => (
+      <WorkspaceContextProvider>{children}</WorkspaceContextProvider>
+    );
 
-    const { result } = renderHook(() => useWorkspaceContext(), { wrapper });
+    const { result } = renderHook(() => useWorkspaceContext(), {
+      wrapper: Wrapper,
+    });
     expect(result.current).toBeNull(); // no initial → null
   });
 
   it('defaults to null when no `initial` prop', () => {
-    const wrapper = ({ children }: { children: React.ReactNode }) =>
-      React.createElement(WorkspaceContextProvider, null, children);
+    const Wrapper = ({ children }: { children: React.ReactNode }) => (
+      <WorkspaceContextProvider>{children}</WorkspaceContextProvider>
+    );
 
-    const { result } = renderHook(() => useWorkspaceContext(), { wrapper });
+    const { result } = renderHook(() => useWorkspaceContext(), {
+      wrapper: Wrapper,
+    });
     expect(result.current).toBeNull();
   });
 });
@@ -96,11 +105,12 @@ describe('P-04 — unmount + remount (D-08 uncached)', () => {
 
     for (const initial of initials) {
       // Mount with this initial
-      const wrapper = ({ children }: { children: React.ReactNode }) =>
-        React.createElement(WorkspaceContextProvider, { initial }, children);
+      const Wrapper = ({ children }: { children: React.ReactNode }) => (
+        <WorkspaceContextProvider initial={initial}>{children}</WorkspaceContextProvider>
+      );
 
       const { result, unmount } = renderHook(() => useWorkspaceContext(), {
-        wrapper,
+        wrapper: Wrapper,
       });
 
       expect(result.current).toEqual(initial);
@@ -110,7 +120,7 @@ describe('P-04 — unmount + remount (D-08 uncached)', () => {
 
       // Re-mount with the same initial — must return SAME value
       const { result: result2 } = renderHook(() => useWorkspaceContext(), {
-        wrapper,
+        wrapper: Wrapper,
       });
 
       expect(result2.current).toEqual(initial);
@@ -119,12 +129,11 @@ describe('P-04 — unmount + remount (D-08 uncached)', () => {
 
   it('P-04: after unmount, a fresh mount with different initial returns the new value', () => {
     // Mount with personal
-    const Wrapper1 = ({ children }: { children: React.ReactNode }) =>
-      React.createElement(
-        WorkspaceContextProvider,
-        { initial: makePersonalContext('u1') },
-        children
-      );
+    const Wrapper1 = ({ children }: { children: React.ReactNode }) => (
+      <WorkspaceContextProvider initial={makePersonalContext('u1')}>
+        {children}
+      </WorkspaceContextProvider>
+    );
 
     const { unmount } = renderHook(() => useWorkspaceContext(), {
       wrapper: Wrapper1,
@@ -133,8 +142,11 @@ describe('P-04 — unmount + remount (D-08 uncached)', () => {
     unmount();
 
     // Mount fresh with property — should get the property value, not stale personal
-    const Wrapper2 = ({ children }: { children: React.ReactNode }) =>
-      React.createElement(WorkspaceContextProvider, { initial: makePropertyContext() }, children);
+    const Wrapper2 = ({ children }: { children: React.ReactNode }) => (
+      <WorkspaceContextProvider initial={makePropertyContext()}>
+        {children}
+      </WorkspaceContextProvider>
+    );
 
     const { result: result2 } = renderHook(() => useWorkspaceContext(), {
       wrapper: Wrapper2,

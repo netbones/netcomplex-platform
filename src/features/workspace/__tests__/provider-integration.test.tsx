@@ -1,5 +1,5 @@
 /**
- * Provider Integration Test (RED phase)
+ * Provider Integration Test (GREEN phase)
  *
  * Validates the full provider → consumer → setter round-trip:
  *   1. Provider mounts → child reads context via useWorkspaceContext()
@@ -53,7 +53,11 @@ function Consumer() {
 
 describe('Provider Integration', () => {
   it('renders null context when no initial provided', () => {
-    render(React.createElement(WorkspaceContextProvider, null, React.createElement(Consumer)));
+    render(
+      <WorkspaceContextProvider>
+        <Consumer />
+      </WorkspaceContextProvider>
+    );
 
     expect(screen.getByTestId('workspace-id').textContent).toBe('null');
     expect(screen.getByTestId('workspace-type').textContent).toBe('null');
@@ -67,7 +71,9 @@ describe('Provider Integration', () => {
     };
 
     render(
-      React.createElement(WorkspaceContextProvider, { initial }, React.createElement(Consumer))
+      <WorkspaceContextProvider initial={initial}>
+        <Consumer />
+      </WorkspaceContextProvider>
     );
 
     expect(screen.getByTestId('workspace-id').textContent).toBe('personal:u1');
@@ -82,7 +88,9 @@ describe('Provider Integration', () => {
     };
 
     render(
-      React.createElement(WorkspaceContextProvider, { initial }, React.createElement(Consumer))
+      <WorkspaceContextProvider initial={initial}>
+        <Consumer />
+      </WorkspaceContextProvider>
     );
 
     // Before switch
