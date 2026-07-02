@@ -88,8 +88,8 @@ function isTenantRoute(pathname: string): boolean {
 
 function isPlatformRoute(pathname: string): boolean {
   return (
-    pathname === '/' ||
     pathname === '/home' ||
+    pathname.startsWith('/features') ||
     pathname.startsWith('/admin/platform') ||
     pathname.startsWith('/platform') ||
     pathname.startsWith('/pricing') ||

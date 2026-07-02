@@ -195,7 +195,14 @@ export const auth = betterAuth({
     // previews, localhost ports, custom domains).
     ...(process.env.NODE_ENV === 'production'
       ? []
-      : ['http://localhost:3001', 'https://localhost:3000']),
+      : [
+          'http://localhost:3001',
+          'http://localhost:3002',
+          'https://localhost:3000',
+          'http://app.netbones.co.za',
+          'http://soralia.netbones.co.za',
+          'http://soralia.co.za',
+        ]),
   ],
   databaseHooks: {
     user: {

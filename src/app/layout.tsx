@@ -23,6 +23,8 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const headersList = await headers();
   const locale = headersList.get('x-locale') || 'en';
+  const plane = headersList.get('x-plane') || 'tenant';
+  const isTenant = plane === 'tenant';
   return (
     <html lang={locale}>
       <head>
@@ -41,9 +43,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <PostHogPageView />
           </Suspense>
           <Providers>
-            <Header />
+            {isTenant && <Header />}
             <Suspense fallback={null}>{children}</Suspense>
-            <Footer />
+            {isTenant && <Footer />}
           </Providers>
         </PostHogProvider>
       </body>
