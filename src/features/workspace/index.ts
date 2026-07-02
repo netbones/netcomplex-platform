@@ -14,5 +14,12 @@ export { WorkspaceContextProvider, useWorkspaceContext } from './model/workspace
 // Pure resolver + error class (NOT 'use client' — testable in isolation)
 export { resolveWorkspaceContext, WorkspaceResolveError } from './model/resolve-workspace-context';
 
+// Atomoc switch hook (P1a-03) — 5-step contract: resolve → replace → navigate → render → notify
+export { useSwitchWorkspace } from './model/switch-workspace';
+export type { SwitchWorkspaceFn, SwitchWorkspaceOptions } from './model/switch-workspace';
+
+// Deep-link target inference (D-07) — pure URL → WorkspaceTarget parser
+export { inferWorkspaceTarget } from './model/infer-target';
+
 // Re-export domain types from entities layer for consumer convenience
 export type { WorkspaceContext, WorkspaceTarget, WorkspaceType } from '@entities/workspace';

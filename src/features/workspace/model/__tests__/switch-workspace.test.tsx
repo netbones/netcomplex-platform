@@ -74,11 +74,12 @@ vi.mock('next/navigation', () => ({
 }));
 
 // ═══════════════════════════════════════════════════════════════
+// Static import — workspace-context.tsx exists from 122-02
+import { WorkspaceContextProvider } from '../../model/workspace-context';
+
 // Dynamic imports after mocks are installed
 // ═══════════════════════════════════════════════════════════════
 
-// These will fail at this RED stage — switch-workspace.ts doesn't exist yet
-// We use `await import` to get the actual hooks once implemented
 async function importSwitchWorkspace() {
   return await import('../switch-workspace');
 }
@@ -132,19 +133,19 @@ function createWrapper() {
   };
 }
 
-async function createWrapperWithProvider() {
-  const { WorkspaceContextProvider } = await import('../../model/workspace-context');
+function createWrapperWithProvider() {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
 
-  return function Wrapper({ children }: { children: React.ReactNode }) {
-    return React.createElement(
-      QueryClientProvider,
-      { client: queryClient },
-      React.createElement(WorkspaceContextProvider, { initial: makePersonalContext() }, children)
-    );
-  };
+  const Wrapper = ({ children }: { children: React.ReactNode }) => (
+    <QueryClientProvider client={queryClient}>
+      <WorkspaceContextProvider initial={makePersonalContext()}>
+        {children}
+      </WorkspaceContextProvider>
+    </QueryClientProvider>
+  );
+  return Wrapper;
 }
 
 // ═══════════════════════════════════════════════════════════════

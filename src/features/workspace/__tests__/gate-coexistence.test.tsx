@@ -133,33 +133,32 @@ function makeDelegation(overrides: Partial<DelegationListItem> = {}): Delegation
   };
 }
 
+// Static import — workspace-context.tsx exists from 122-02
+import { WorkspaceContextProvider } from '../model/workspace-context';
+
 async function importSwitchWorkspace() {
   return await import('../model/switch-workspace');
 }
 
-async function createWrapperWithProvider() {
-  const { WorkspaceContextProvider } = await import('../model/workspace-context');
+function createWrapperWithProvider() {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
 
-  return function Wrapper({ children }: { children: React.ReactNode }) {
-    return React.createElement(
-      QueryClientProvider,
-      { client: queryClient },
-      React.createElement(
-        WorkspaceContextProvider,
-        {
-          initial: {
-            workspaceId: 'personal:u1',
-            workspaceType: 'PERSONAL',
-            permissions: ['profile:read', 'settings:manage'],
-          },
-        },
-        children
-      )
-    );
-  };
+  const Wrapper = ({ children }: { children: React.ReactNode }) => (
+    <QueryClientProvider client={queryClient}>
+      <WorkspaceContextProvider
+        initial={{
+          workspaceId: 'personal:u1',
+          workspaceType: 'PERSONAL',
+          permissions: ['profile:read', 'settings:manage'],
+        }}
+      >
+        {children}
+      </WorkspaceContextProvider>
+    </QueryClientProvider>
+  );
+  return Wrapper;
 }
 
 // ═══════════════════════════════════════════════════════════════
