@@ -1,16 +1,17 @@
 import {
-  db,
-  invitations,
-  tenants,
-  users,
   apiCreated,
   apiSuccess,
   apiUnauthorized,
+  db,
   getSessionAndRole,
+  invitations,
+  notDeleted,
   now,
   rateLimitByIP,
   sendEmail,
   templates,
+  tenants,
+  users,
 } from '@api/server';
 
 import { eq, and, isNull, desc } from 'drizzle-orm';
@@ -30,7 +31,7 @@ export async function GET(request: Request) {
   const invitationList = await db
     .select()
     .from(invitations)
-    .where(and(eq(invitations.tenantId, tenantId), isNull(invitations.deletedAt)))
+    .where(and(eq(invitations.tenantId, tenantId), notDeleted(invitations)))
     .orderBy(desc(invitations.createdAt));
   return apiSuccess(invitationList);
 }

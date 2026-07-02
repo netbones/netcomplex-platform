@@ -303,9 +303,11 @@ export const conversationProcedures = {
         FROM "Conversation" c
         JOIN "ConversationParticipant" cp ON cp."conversationId" = c.id
         JOIN "user" u ON u.id = cp."userId"
+        LEFT JOIN "Message" m ON m."conversationId" = c.id
         WHERE c.type = 'DIRECT'
         AND c."tenantId" = ${tenantId}
         AND cp."userId" IN ${sql`${input.participantIds}`}
+        AND m."deletedAt" IS NULL
         GROUP BY c.id
         HAVING COUNT(DISTINCT cp."userId") = 2
       `)) as { rows: Record<string, unknown>[] };

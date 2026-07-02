@@ -1,19 +1,20 @@
 import {
-  auth,
-  db,
   announcements,
-  users,
-  profiles,
-  notifications,
-  resources,
-  revalidateDashboard,
-  now,
   apiCreated,
+  apiForbidden,
+  apiInternalError,
   apiSuccess,
   apiUnauthorized,
-  apiInternalError,
-  apiForbidden,
   apiValidationError,
+  auth,
+  db,
+  notDeleted,
+  notifications,
+  now,
+  profiles,
+  resources,
+  revalidateDashboard,
+  users,
   withErrorHandler,
 } from '@api/server';
 
@@ -89,7 +90,7 @@ export const GET = withErrorHandler(async (request: Request) => {
   const nowDate = now();
 
   // Build conditions array
-  const conditions = [eq(announcements.tenantId, tenantId), isNull(announcements.deletedAt)];
+  const conditions = [eq(announcements.tenantId, tenantId), notDeleted(announcements)];
 
   if (priorityParam && validPriorities.includes(priorityParam as AnnouncementPriority)) {
     conditions.push(eq(announcements.priority, priorityParam));

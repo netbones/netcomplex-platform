@@ -1,18 +1,19 @@
 import { createId } from '@shared/lib/id';
 import {
-  auth,
-  db,
-  communityMerits,
-  notifications,
-  apiUnauthorized,
-  apiForbidden,
   apiCreated,
   apiError,
+  apiForbidden,
   apiSuccess,
+  apiUnauthorized,
+  auth,
+  communityMerits,
+  db,
+  notDeleted,
+  notifications,
   now,
-  writeAuditLog,
-  withErrorHandler,
   rateLimitByUser,
+  withErrorHandler,
+  writeAuditLog,
 } from '@api/server';
 import { and, eq, isNull, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
@@ -44,7 +45,7 @@ export const GET = withErrorHandler(async (request: Request) => {
   const limit = Math.min(parseInt(searchParams.get('limit') || '50', 10), 100);
   const offset = parseInt(searchParams.get('offset') || '0', 10);
 
-  const conditions = [eq(communityMerits.tenantId, tenantId), isNull(communityMerits.deletedAt)];
+  const conditions = [eq(communityMerits.tenantId, tenantId), notDeleted(communityMerits)];
 
   if (status && ['ACTIVE', 'DISPUTED', 'UPHELD', 'OVERTURNED'].includes(status)) {
     conditions.push(

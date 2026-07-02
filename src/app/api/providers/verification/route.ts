@@ -4,9 +4,10 @@ import {
   apiInternalError,
   apiNotFound,
   apiSuccess,
+  db,
+  notDeleted,
   requireAnyPermission,
   serviceProviders,
-  db,
 } from '@api/server';
 import {
   requireProviderAccess,
@@ -94,7 +95,7 @@ export async function PATCH(request: NextRequest) {
         and(
           eq(serviceProviders.tenantId, tenantId),
           eq(serviceProviders.id, body.providerId),
-          isNull(serviceProviders.deletedAt)
+          notDeleted(serviceProviders)
         )
       )
       .limit(1);

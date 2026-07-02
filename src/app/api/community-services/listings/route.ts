@@ -1,15 +1,16 @@
 import { NextRequest } from 'next/server';
 import {
-  auth,
-  db,
-  communityServiceListings,
-  users,
-  communityServiceReviews,
   apiInternalError,
+  apiNotFound,
   apiSuccess,
   apiUnauthorized,
-  apiNotFound,
+  auth,
+  communityServiceListings,
+  communityServiceReviews,
+  db,
+  notDeleted,
   now,
+  users,
 } from '@api/server';
 
 import { assertModuleEnabled } from '@entities/tenant/server';
@@ -86,12 +87,12 @@ export async function GET(request: NextRequest) {
         ? and(
             eq(communityServiceListings.id, id),
             eq(communityServiceListings.tenantId, tenantId),
-            isNull(communityServiceListings.deletedAt)
+            notDeleted(communityServiceListings)
           )
         : and(
             eq(communityServiceListings.slug, slug!),
             eq(communityServiceListings.tenantId, tenantId),
-            isNull(communityServiceListings.deletedAt)
+            notDeleted(communityServiceListings)
           );
       // Drizzle query
       const [listing] = await db
@@ -167,7 +168,7 @@ export async function GET(request: NextRequest) {
     // Build where conditions for list query
     const conditions = [
       eq(communityServiceListings.tenantId, tenantId),
-      isNull(communityServiceListings.deletedAt),
+      notDeleted(communityServiceListings),
     ];
 
     // For public listing queries, only show published+active.

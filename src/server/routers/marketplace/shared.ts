@@ -1,5 +1,12 @@
 import { z } from 'zod';
-import { db, settings, communityServiceListings, communityServiceReviews, now } from '@api/server';
+import {
+  communityServiceListings,
+  communityServiceReviews,
+  db,
+  notDeleted,
+  now,
+  settings,
+} from '@api/server';
 import { TRPCError } from '@trpc/server';
 import { eq, and, isNull, sql } from 'drizzle-orm';
 
@@ -250,7 +257,7 @@ export async function getTenantListing(listingId: string, tenantId: string) {
       and(
         eq(communityServiceListings.id, listingId),
         eq(communityServiceListings.tenantId, tenantId),
-        isNull(communityServiceListings.deletedAt)
+        notDeleted(communityServiceListings)
       )
     );
   if (!listing) {

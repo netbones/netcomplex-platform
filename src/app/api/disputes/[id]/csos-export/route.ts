@@ -1,19 +1,20 @@
 import {
-  auth,
-  apiUnauthorized,
   apiForbidden,
   apiNotFound,
+  apiUnauthorized,
+  auth,
   db,
   disputeCases,
   disputeEvents,
   disputeEvidences,
-  disputeMessages,
   disputeMessageVersions,
+  disputeMessages,
+  notDeleted,
+  now,
+  rateLimitByKey,
   settings,
   users,
-  now,
   withErrorHandler,
-  rateLimitByKey,
 } from '@api/server';
 import { hasPermission } from '@shared/lib';
 import { eq, and, isNull, asc, gte, inArray, sql } from 'drizzle-orm';
@@ -62,11 +63,7 @@ export const GET = withErrorHandler(
       .select()
       .from(disputeCases)
       .where(
-        and(
-          eq(disputeCases.id, id),
-          eq(disputeCases.tenantId, tenantId),
-          isNull(disputeCases.deletedAt)
-        )
+        and(eq(disputeCases.id, id), eq(disputeCases.tenantId, tenantId), notDeleted(disputeCases))
       )
       .limit(1);
 
@@ -135,7 +132,7 @@ export const GET = withErrorHandler(
         and(
           eq(disputeEvidences.disputeId, id),
           eq(disputeEvidences.tenantId, tenantId),
-          isNull(disputeEvidences.deletedAt)
+          notDeleted(disputeEvidences)
         )
       );
 
@@ -148,7 +145,7 @@ export const GET = withErrorHandler(
           eq(disputeMessages.disputeId, id),
           eq(disputeMessages.tenantId, tenantId),
           eq(disputeMessages.isInternal, false),
-          isNull(disputeMessages.deletedAt)
+          notDeleted(disputeMessages)
         )
       )
       .orderBy(asc(disputeMessages.createdAt));

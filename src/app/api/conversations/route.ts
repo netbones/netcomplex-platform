@@ -8,6 +8,7 @@ import {
   apiSuccess,
   apiUnauthorized,
   now,
+  notDeleted,
   withErrorHandler,
 } from '@api/server';
 
@@ -90,7 +91,7 @@ export const GET = withErrorHandler(async (request: Request) => {
           mediaUrl: messages.mediaUrl,
         })
         .from(messages)
-        .where(eq(messages.conversationId, conv.id))
+        .where(and(eq(messages.conversationId, conv.id), notDeleted(messages)))
         .orderBy(desc(messages.createdAt))
         .limit(1);
 

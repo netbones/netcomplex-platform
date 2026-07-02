@@ -1,11 +1,12 @@
 import {
-  db,
-  maintenanceTeams,
-  requireAnyPermission,
-  apiSuccess,
   apiCreated,
   apiError,
+  apiSuccess,
+  db,
+  maintenanceTeams,
+  notDeleted,
   now,
+  requireAnyPermission,
   withErrorHandler,
 } from '@api/server';
 
@@ -30,7 +31,7 @@ export const GET = withErrorHandler(async (request: Request) => {
   const { searchParams } = new URL(request.url);
   const isActiveFilter = searchParams.get('isActive');
 
-  const conditions = [eq(maintenanceTeams.tenantId, tenantId), isNull(maintenanceTeams.deletedAt)];
+  const conditions = [eq(maintenanceTeams.tenantId, tenantId), notDeleted(maintenanceTeams)];
 
   if (isActiveFilter === 'true') {
     conditions.push(eq(maintenanceTeams.isActive, true));

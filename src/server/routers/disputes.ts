@@ -1,16 +1,17 @@
 import { z } from 'zod';
 import {
-  router,
-  tenantProcedure,
-  privilegedProcedure,
   db,
   disputeCases,
   disputeEvents,
   disputeMessages,
+  notDeleted,
+  now,
+  privilegedProcedure,
+  rateLimitByUser,
   revalidateAdminChanges,
   revalidateDashboard,
-  now,
-  rateLimitByUser,
+  router,
+  tenantProcedure,
   toEnvelope,
 } from '@api/server';
 
@@ -79,7 +80,7 @@ async function getTenantDispute(disputeId: string, tenantId: string) {
       and(
         eq(disputeCases.id, disputeId),
         eq(disputeCases.tenantId, tenantId),
-        isNull(disputeCases.deletedAt)
+        notDeleted(disputeCases)
       )
     )
     .limit(1);
@@ -111,7 +112,7 @@ export const disputesRouter = router({
 
     const conditions: (SQL | undefined)[] = [
       eq(disputeCases.tenantId, ctx.tenantId),
-      isNull(disputeCases.deletedAt),
+      notDeleted(disputeCases),
     ];
 
     if (!canViewAll) {
@@ -355,7 +356,7 @@ export const disputesRouter = router({
       const conditions = [
         eq(disputeMessages.disputeId, input.disputeId),
         eq(disputeMessages.tenantId, ctx.tenantId),
-        isNull(disputeMessages.deletedAt),
+        notDeleted(disputeMessages),
       ];
 
       if (party && !mod) {

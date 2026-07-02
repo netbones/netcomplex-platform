@@ -14,6 +14,7 @@ import {
   providerReputations,
   communityServiceListings,
   users,
+  notDeleted,
   type SessionAndRole,
 } from './server';
 import { hasPermission } from '@shared/lib';
@@ -97,7 +98,7 @@ export async function getProviderRecordForUser(
       and(
         eq(serviceProviders.tenantId, tenantId),
         eq(serviceProviders.email, userEmail),
-        isNull(serviceProviders.deletedAt)
+        notDeleted(serviceProviders)
       )
     )
     .limit(1);
@@ -116,7 +117,7 @@ export async function hasProviderListingsForUser(
       and(
         eq(communityServiceListings.tenantId, tenantId),
         eq(communityServiceListings.providerId, userId),
-        isNull(communityServiceListings.deletedAt)
+        notDeleted(communityServiceListings)
       )
     );
 

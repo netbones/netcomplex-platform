@@ -18,6 +18,7 @@ import { tenantAchievements } from '@schema/tenant-achievements';
 import { userAchievements } from '@schema/user-achievements';
 import { userAchievementProgresses } from '@schema/user-achievement-progresses';
 import { createId } from '@shared/lib/id';
+import { notDeleted } from '@api/server';
 
 const IdInput = z.object({ id: z.string() });
 
@@ -81,7 +82,12 @@ export const achievementsRouter = router({
             eq(tenantAchievements.tenantId, tenantId)
           )
         )
-        .where(or(isNull(tenantAchievements.enabled), eq(tenantAchievements.enabled, true)));
+        .where(
+          and(
+            or(isNull(tenantAchievements.enabled), eq(tenantAchievements.enabled, true)),
+            notDeleted(achievementDefinitions)
+          )
+        );
 
       return toEnvelope(
         rows.map(r =>
@@ -127,7 +133,7 @@ export const achievementsRouter = router({
             eq(tenantAchievements.tenantId, tenantId)
           )
         )
-        .where(and(eq(achievementDefinitions.id, input.id)))
+        .where(and(eq(achievementDefinitions.id, input.id), notDeleted(achievementDefinitions)))
         .limit(1);
 
       if (!row) {

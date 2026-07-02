@@ -5,10 +5,11 @@ import {
   apiNotFound,
   apiSuccess,
   db,
+  notDeleted,
   paymentTransactions,
-  providerReputations,
   providerLegalAgreements,
   providerMerits,
+  providerReputations,
   providerSubscriptions,
   requireAnyPermission,
   serviceProviders,
@@ -45,7 +46,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
         and(
           eq(serviceProviders.tenantId, tenantId),
           eq(serviceProviders.id, id),
-          isNull(serviceProviders.deletedAt)
+          notDeleted(serviceProviders)
         )
       )
       .limit(1);

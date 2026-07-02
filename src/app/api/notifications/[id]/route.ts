@@ -1,4 +1,12 @@
-import { auth, db, notifications, apiSuccess, apiUnauthorized, apiNotFound } from '@api/server';
+import {
+  auth,
+  db,
+  notifications,
+  apiSuccess,
+  apiUnauthorized,
+  apiNotFound,
+  notDeleted,
+} from '@api/server';
 import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 
@@ -18,7 +26,8 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
       and(
         eq(notifications.id, id),
         eq(notifications.tenantId, tenantId),
-        eq(notifications.userId, session.user.id)
+        eq(notifications.userId, session.user.id),
+        notDeleted(notifications)
       )
     )
     .limit(1);

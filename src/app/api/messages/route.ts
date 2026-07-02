@@ -1,11 +1,4 @@
 import {
-  auth,
-  revalidateConversations,
-  db,
-  messages,
-  users,
-  premiumSeats,
-  conversationParticipants,
   apiCreated,
   apiError,
   apiForbidden,
@@ -13,8 +6,16 @@ import {
   apiSuccess,
   apiUnauthorized,
   apiValidationError,
+  auth,
+  conversationParticipants,
+  db,
+  messages,
+  notDeleted,
   now,
+  premiumSeats,
   rateLimitByUser,
+  revalidateConversations,
+  users,
 } from '@api/server';
 
 import { createClient } from '@supabase/supabase-js';
@@ -131,7 +132,7 @@ export async function GET(request: Request) {
     .where(
       and(
         eq(messages.conversationId, conversationId),
-        isNull(messages.deletedAt),
+        notDeleted(messages),
         or(isNull(messages.expiresAt), gt(messages.expiresAt, now()))
       )
     )

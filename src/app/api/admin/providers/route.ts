@@ -5,6 +5,7 @@ import {
   apiInternalError,
   apiSuccess,
   db,
+  notDeleted,
   paymentTransactions,
   providerReputations,
   providerVerifications,
@@ -36,7 +37,7 @@ export async function GET(request: NextRequest) {
     const limit = parsePositiveInt(searchParams.get('limit'), 20, { min: 1, max: 50 });
     const offset = (page - 1) * limit;
 
-    const filters = [eq(serviceProviders.tenantId, tenantId), isNull(serviceProviders.deletedAt)];
+    const filters = [eq(serviceProviders.tenantId, tenantId), notDeleted(serviceProviders)];
 
     if (search) {
       filters.push(
@@ -126,7 +127,7 @@ export async function GET(request: NextRequest) {
           eq(providerVerifications.providerId, serviceProviders.id)
         )
       )
-      .where(and(eq(serviceProviders.tenantId, tenantId), isNull(serviceProviders.deletedAt)))
+      .where(and(eq(serviceProviders.tenantId, tenantId), notDeleted(serviceProviders)))
       .groupBy(sql`coalesce(${providerVerifications.status}::text, 'PENDING')`);
 
     const [revenueSummary] = await db

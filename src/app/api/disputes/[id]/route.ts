@@ -1,18 +1,19 @@
 import {
-  auth,
+  apiConflict,
+  apiForbidden,
+  apiInternalError,
+  apiNotFound,
   apiSuccess,
   apiUnauthorized,
-  apiForbidden,
-  apiNotFound,
-  apiConflict,
-  apiInternalError,
   apiValidationError,
+  auth,
   db,
   disputeCases,
   disputeEvents,
-  users,
-  revalidateDashboard,
+  notDeleted,
   now,
+  revalidateDashboard,
+  users,
   withErrorHandler,
 } from '@api/server';
 
@@ -65,11 +66,7 @@ export const GET = withErrorHandler(
       .select()
       .from(disputeCases)
       .where(
-        and(
-          eq(disputeCases.id, id),
-          eq(disputeCases.tenantId, tenantId),
-          isNull(disputeCases.deletedAt)
-        )
+        and(eq(disputeCases.id, id), eq(disputeCases.tenantId, tenantId), notDeleted(disputeCases))
       )
       .limit(1);
 
@@ -126,11 +123,7 @@ export const PATCH = withErrorHandler(
       .select()
       .from(disputeCases)
       .where(
-        and(
-          eq(disputeCases.id, id),
-          eq(disputeCases.tenantId, tenantId),
-          isNull(disputeCases.deletedAt)
-        )
+        and(eq(disputeCases.id, id), eq(disputeCases.tenantId, tenantId), notDeleted(disputeCases))
       )
       .limit(1);
 

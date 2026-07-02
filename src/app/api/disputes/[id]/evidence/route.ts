@@ -1,20 +1,21 @@
 import {
-  auth,
   apiCreated,
-  apiUnauthorized,
-  apiForbidden,
-  apiNotFound,
-  apiInternalError,
-  apiValidationError,
   apiError,
+  apiForbidden,
+  apiInternalError,
+  apiNotFound,
+  apiUnauthorized,
+  apiValidationError,
+  auth,
   db,
   disputeCases,
-  disputeEvidences,
   disputeEvents,
-  users,
+  disputeEvidences,
+  notDeleted,
+  now,
   rateLimitByUser,
   uploadImage,
-  now,
+  users,
   withErrorHandler,
 } from '@api/server';
 
@@ -74,11 +75,7 @@ export const POST = withErrorHandler(
       .select()
       .from(disputeCases)
       .where(
-        and(
-          eq(disputeCases.id, id),
-          eq(disputeCases.tenantId, tenantId),
-          isNull(disputeCases.deletedAt)
-        )
+        and(eq(disputeCases.id, id), eq(disputeCases.tenantId, tenantId), notDeleted(disputeCases))
       )
       .limit(1);
 

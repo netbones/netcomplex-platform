@@ -1,4 +1,4 @@
-import { db, properties, households } from '@api/server';
+import { db, households, notDeleted, properties } from '@api/server';
 import { eq, and, isNull } from 'drizzle-orm';
 import type { MaintenanceRoutingContext } from './types';
 
@@ -36,7 +36,7 @@ export async function resolveRoutingType(
       and(
         eq(households.propertyId, propertyId),
         eq(households.status, 'ACTIVE'),
-        isNull(households.deletedAt)
+        notDeleted(households)
       )
     )
     .orderBy(households.createdAt)

@@ -1,18 +1,19 @@
 import {
-  auth,
-  apiSuccess,
   apiCreated,
-  apiUnauthorized,
   apiForbidden,
-  apiNotFound,
   apiInternalError,
+  apiNotFound,
+  apiSuccess,
+  apiUnauthorized,
   apiValidationError,
+  auth,
   db,
   disputeCases,
   disputeMessages,
-  users,
-  rateLimitByUser,
+  notDeleted,
   now,
+  rateLimitByUser,
+  users,
   withErrorHandler,
 } from '@api/server';
 
@@ -73,11 +74,7 @@ export const GET = withErrorHandler(
       .select()
       .from(disputeCases)
       .where(
-        and(
-          eq(disputeCases.id, id),
-          eq(disputeCases.tenantId, tenantId),
-          isNull(disputeCases.deletedAt)
-        )
+        and(eq(disputeCases.id, id), eq(disputeCases.tenantId, tenantId), notDeleted(disputeCases))
       )
       .limit(1);
 
@@ -101,7 +98,7 @@ export const GET = withErrorHandler(
     const conditions = [
       eq(disputeMessages.disputeId, id),
       eq(disputeMessages.tenantId, tenantId),
-      isNull(disputeMessages.deletedAt),
+      notDeleted(disputeMessages),
     ];
 
     // Parties only see non-internal messages
@@ -161,11 +158,7 @@ export const POST = withErrorHandler(
       .select()
       .from(disputeCases)
       .where(
-        and(
-          eq(disputeCases.id, id),
-          eq(disputeCases.tenantId, tenantId),
-          isNull(disputeCases.deletedAt)
-        )
+        and(eq(disputeCases.id, id), eq(disputeCases.tenantId, tenantId), notDeleted(disputeCases))
       )
       .limit(1);
 

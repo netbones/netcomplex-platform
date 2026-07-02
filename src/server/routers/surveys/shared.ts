@@ -1,18 +1,19 @@
 import { z } from 'zod';
 import {
-  router,
-  publicProcedure,
-  protectedProcedure,
-  privilegedProcedure,
-  rateLimitMiddleware,
   db,
-  surveys,
-  questions,
-  responses,
-  surveySections,
   externalSurveys,
-  revalidateAdminChanges,
+  notDeleted,
   now,
+  privilegedProcedure,
+  protectedProcedure,
+  publicProcedure,
+  questions,
+  rateLimitMiddleware,
+  responses,
+  revalidateAdminChanges,
+  router,
+  surveySections,
+  surveys,
   tenantProcedure,
 } from '@api/server';
 import { TRPCError } from '@trpc/server';
@@ -188,9 +189,7 @@ export async function getTenantSurvey(surveyId: string, tenantId: string) {
   const [survey] = await db
     .select()
     .from(surveys)
-    .where(
-      and(eq(surveys.id, surveyId), eq(surveys.tenantId, tenantId), isNull(surveys.deletedAt))
-    );
+    .where(and(eq(surveys.id, surveyId), eq(surveys.tenantId, tenantId), notDeleted(surveys)));
   if (!survey) {
     throw new TRPCError({ code: 'NOT_FOUND', message: 'Survey not found' });
   }

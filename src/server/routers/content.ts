@@ -335,7 +335,7 @@ export const contentRouter = router({
               eq(groupMembers.groupId, input.groupId),
               eq(groupMembers.userId, ctx.userId),
               eq(groupMembers.tenantId, tenantId),
-              isNull(groupMembers.deletedAt)
+              notDeleted(groupMembers)
             )
           )
           .limit(1);
@@ -550,9 +550,7 @@ export const contentRouter = router({
     const [content] = await db
       .select({ id: contents.id })
       .from(contents)
-      .where(
-        and(eq(contents.id, input.id), eq(contents.tenantId, tenantId), isNull(contents.deletedAt))
-      )
+      .where(and(eq(contents.id, input.id), eq(contents.tenantId, tenantId), notDeleted(contents)))
       .limit(1);
 
     if (!content) {
@@ -608,7 +606,7 @@ export const contentRouter = router({
         WHEN 'low' THEN 3
         ELSE 4 END`;
 
-      const conditions = [eq(announcements.tenantId, tenantId), isNull(announcements.deletedAt)];
+      const conditions = [eq(announcements.tenantId, tenantId), notDeleted(announcements)];
 
       if (input?.priority) {
         conditions.push(eq(announcements.priority, input.priority));
@@ -695,7 +693,7 @@ export const contentRouter = router({
             and(
               eq(resources.id, input.resourceId),
               eq(resources.tenantId, tenantId),
-              isNull(resources.deletedAt)
+              notDeleted(resources)
             )
           )
           .limit(1);
@@ -847,7 +845,7 @@ export const contentRouter = router({
             and(
               eq(resources.id, input.resourceId),
               eq(resources.tenantId, tenantId),
-              isNull(resources.deletedAt)
+              notDeleted(resources)
             )
           )
           .limit(1);

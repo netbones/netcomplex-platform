@@ -7,9 +7,10 @@ import {
   apiNotFound,
   withErrorHandler,
   bursaries,
+  notDeleted,
 } from '@api/server';
 
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
 
@@ -32,7 +33,11 @@ export const GET = withErrorHandler(
   async (_request: Request, { params }: { params: { id: string } }) => {
     const { tenantId } = await withTenant();
 
-    const [row] = await db.select().from(bursaries).where(eq(bursaries.id, params.id)).limit(1);
+    const [row] = await db
+      .select()
+      .from(bursaries)
+      .where(and(eq(bursaries.id, params.id), notDeleted(bursaries)))
+      .limit(1);
 
     if (!row || row.tenantId !== tenantId) {
       return apiNotFound('Bursary not found');
@@ -55,7 +60,7 @@ export const PATCH = withErrorHandler(
     const [existing] = await db
       .select()
       .from(bursaries)
-      .where(eq(bursaries.id, params.id))
+      .where(and(eq(bursaries.id, params.id), notDeleted(bursaries)))
       .limit(1);
 
     if (!existing || existing.tenantId !== tenantId) {
@@ -91,7 +96,7 @@ export const DELETE = withErrorHandler(
     const [existing] = await db
       .select()
       .from(bursaries)
-      .where(eq(bursaries.id, params.id))
+      .where(and(eq(bursaries.id, params.id), notDeleted(bursaries)))
       .limit(1);
 
     if (!existing || existing.tenantId !== tenantId) {

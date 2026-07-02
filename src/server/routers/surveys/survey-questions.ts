@@ -16,7 +16,7 @@ import {
   requireContentPermission,
   getTenantSurvey,
 } from './shared';
-import { toEnvelope } from '@api/server';
+import { notDeleted, toEnvelope } from '@api/server';
 import { questionDto } from '@server/dto';
 import { createId } from '@shared/lib/id';
 
@@ -98,7 +98,7 @@ export const surveyQuestionProcedures = {
             eq(questions.id, input.questionId),
             eq(questions.surveyId, input.surveyId),
             eq(questions.tenantId, tenantId),
-            isNull(questions.deletedAt)
+            notDeleted(questions)
           )
         )
         .limit(1);

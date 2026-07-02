@@ -7,9 +7,10 @@ import {
   apiSuccess,
   apiUnauthorized,
   db,
-  serviceProviders,
+  notDeleted,
   providerVerifications,
   sendEmail,
+  serviceProviders,
   writeAuditLog,
 } from '@api/server';
 import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
@@ -55,7 +56,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       and(
         eq(serviceProviders.tenantId, tenantId),
         eq(serviceProviders.id, id),
-        isNull(serviceProviders.deletedAt)
+        notDeleted(serviceProviders)
       )
     )
     .limit(1);

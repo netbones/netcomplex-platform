@@ -1,15 +1,16 @@
 import {
-  auth,
-  db,
-  resources,
-  users,
-  revalidateContent,
   apiCreated,
   apiError,
   apiForbidden,
   apiSuccess,
   apiUnauthorized,
+  auth,
+  db,
+  notDeleted,
   now,
+  resources,
+  revalidateContent,
+  users,
   withErrorHandler,
 } from '@api/server';
 
@@ -119,7 +120,7 @@ export const GET = withErrorHandler(async (request: Request) => {
   const categoryFilter = categoryParam ? eq(resources.category, categoryParam as never) : undefined;
 
   // Build combined WHERE clause
-  const conditions = [eq(resources.tenantId, tenantId), isNull(resources.deletedAt)];
+  const conditions = [eq(resources.tenantId, tenantId), notDeleted(resources)];
   if (visibilityFilter) conditions.push(visibilityFilter);
   if (adminVisibilityFilter) conditions.push(adminVisibilityFilter);
   if (categoryFilter) conditions.push(categoryFilter);

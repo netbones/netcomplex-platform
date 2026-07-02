@@ -1,12 +1,13 @@
 import {
-  auth,
-  db,
-  users,
-  resources,
-  apiSuccess,
   apiCreated,
   apiForbidden,
+  apiSuccess,
   apiValidationError,
+  auth,
+  db,
+  notDeleted,
+  resources,
+  users,
   withErrorHandler,
 } from '@api/server';
 
@@ -40,7 +41,7 @@ export const GET = withErrorHandler(async () => {
       and(
         eq(resources.tenantId, tenantId),
         eq(resources.category, 'EDUCATION'),
-        isNull(resources.deletedAt)
+        notDeleted(resources)
       )
     )
     .orderBy(desc(resources.createdAt));

@@ -1,11 +1,12 @@
 import { z } from 'zod';
 import {
-  router,
-  protectedProcedure,
-  privilegedProcedure,
-  rateLimitMiddleware,
   db,
+  notDeleted,
   notifications,
+  privilegedProcedure,
+  protectedProcedure,
+  rateLimitMiddleware,
+  router,
 } from '@api/server';
 import { TRPCError } from '@trpc/server';
 import { eq, and, desc, inArray, isNull } from 'drizzle-orm';
@@ -42,7 +43,7 @@ export const notificationsRouter = router({
       const conditions = [
         eq(notifications.userId, ctx.userId),
         eq(notifications.tenantId, ctx.tenantId!),
-        isNull(notifications.deletedAt),
+        notDeleted(notifications),
       ];
 
       if (input?.unread) {
@@ -145,7 +146,7 @@ export const notificationsRouter = router({
           .set({ read: true, readAt: now })
           .where(
             and(
-              isNull(notifications.deletedAt),
+              notDeleted(notifications),
               eq(notifications.id, input.id),
               eq(notifications.userId, ctx.userId),
               eq(notifications.tenantId, ctx.tenantId!)
@@ -157,7 +158,7 @@ export const notificationsRouter = router({
           .set({ read: true, readAt: now })
           .where(
             and(
-              isNull(notifications.deletedAt),
+              notDeleted(notifications),
               inArray(notifications.id, input.ids),
               eq(notifications.userId, ctx.userId),
               eq(notifications.tenantId, ctx.tenantId!)
@@ -169,7 +170,7 @@ export const notificationsRouter = router({
           .from(notifications)
           .where(
             and(
-              isNull(notifications.deletedAt),
+              notDeleted(notifications),
               eq(notifications.userId, ctx.userId),
               eq(notifications.tenantId, ctx.tenantId!),
               eq(notifications.read, false)
