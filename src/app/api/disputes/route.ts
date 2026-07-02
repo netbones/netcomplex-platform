@@ -14,7 +14,7 @@ import {
 import { hasPermission, apiLogger } from '@shared/lib';
 import { disputeCreateSchema } from '@entities/dispute';
 import { generateDisputeReference } from '@entities/dispute/server';
-import { eq, and, isNull, desc } from 'drizzle-orm';
+import { eq, and, isNull, desc, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { ALL_DISPUTE_CATEGORIES, ALL_DISPUTE_STATUSES } from '@entities/dispute';
 import { createId } from '@shared/lib/id';
@@ -93,13 +93,22 @@ export async function GET(request: Request) {
     );
   }
 
-  const disputes = await db
-    .select()
+  const rows = await db
+    .select({
+      ...disputeCases,
+      complainantName: sql`${users.name}`.as('complainantName'),
+    })
     .from(disputeCases)
+    .leftJoin(users, eq(disputeCases.complainantId, users.id))
     .where(and(...filters))
     .orderBy(desc(disputeCases.createdAt))
     .limit(limit)
     .offset(offset);
+
+  const disputes = rows.map(r => ({
+    ...r,
+    complainantName: r.complainantName ?? undefined,
+  }));
 
   return apiSuccess(disputes);
 }

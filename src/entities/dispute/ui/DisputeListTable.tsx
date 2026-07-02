@@ -12,9 +12,8 @@ import { formatDate } from '@shared/lib';
 
 /* ── Helpers ───────────────────────────────────────────── */
 
-function getComplainantLabel(_dispute: DisputeCaseDTO): string {
-  // The API includes complainant info; fallback to "Resident"
-  return 'Resident';
+function getComplainantLabel(dispute: DisputeCaseDTO): string {
+  return dispute.complainantName ?? 'Resident';
 }
 
 /* ── Component ─────────────────────────────────────────── */
