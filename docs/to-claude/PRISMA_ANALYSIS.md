@@ -425,4 +425,4 @@ This analysis was snapshotted before the Senior Engineer Audit (2026-06-25). The
 | S4-3 (Sprint 4)   | Missing `SurveySection` back-link on Survey                                                                 | Added `sections SurveySection[]` relation |
 | S5-7 (Sprint 5)   | Missing indexes: `Content(tenantId)`, `Event(date)`                                                         | Added `@@index` declarations              |
 
-Remaining open: Drizzle config mismatch, tenant-id orphan risk, model duplication, denormalized aggregates, soft-delete inconsistency.
+Remaining open: model duplication (seat polymorphism, invoice/payment overlap), denormalized aggregates drift risk, soft-delete inconsistency policy.
