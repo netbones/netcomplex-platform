@@ -23,3 +23,7 @@ export { inferWorkspaceTarget } from './model/infer-target';
 
 // Re-export domain types from entities layer for consumer convenience
 export type { WorkspaceContext, WorkspaceTarget, WorkspaceType } from '@entities/workspace';
+
+// Workspace prefs stores (P1a-04 — WS-04 Recent/Pinned snapshots)
+export { useWorkspaceRecentStore, useWorkspacePinnedStore } from './model/workspace-prefs';
+export type { WorkspaceSnapshot } from './model/workspace-prefs';
