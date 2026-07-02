@@ -1,8 +1,8 @@
 # BD Issue Tracker
 
 > **Last updated:** 2026-07-02 (Session 15)
-> **Total remaining:** 44 issues
-> **Closed this session:** 6 (`0orq`, `7a02`, `gb5p`, `tbtr`, `2pxb`, `owuh`)
+> **Total remaining:** 43 issues
+> **Closed this session:** 7 (`0orq`, `7a02`, `gb5p`, `tbtr`, `2pxb`, `owuh`, `bnxu`)
 > **Created this session:** 21 (`5z3g`, `0orq`, `7a02`, `gb5p`, `tbtr`, `7tqj`, `sioz`, `g8c3`, `2pxb`, `8rve`, `owuh`, `h9o4`, `e8hs`, `tkt5`, `ee5p`, `3m0h`, `qzll`, `axh6`, `vukt`, `c3zg`, `bnxu`)
 > **Note:** BD is for quick fixes and small tasks. **Any BD issue touching 5+ files across multiple FSD slices, or requiring new directories/types, is GSD territory — escalate it.**
 
@@ -188,7 +188,7 @@ Phase 47 is now M5b (anchor tenant launch) because dWallet is the **headline sel
 | `axh6`  | task    | DTO schemas duplicated across src/server/dto/ and src/shared/api/dto/   | ○      | API_REVIEW.md finding #7  |
 | `vukt`  | task    | Barrel file: src/shared/api/server/index.ts at 234 lines tight coupling | ○      | API_REVIEW.md finding #8  |
 | `c3zg`  | task    | Only ~10% of tRPC procedures OpenAPI-exported (24 of 235+)              | ○      | API_REVIEW.md finding #9  |
-| `bnxu`  | task    | CI missing redocly lint enforcement for OpenAPI spec                    | ○      | API_REVIEW.md finding #10 |
+| `bnxu`  | task    | CI missing redocly lint enforcement for OpenAPI spec                    | ✅     | API_REVIEW.md finding #10 |
 
 ---
 

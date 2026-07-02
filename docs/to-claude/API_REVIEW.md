@@ -313,7 +313,7 @@ The governance document is thorough and well-structured, covering:
 7. **Two DTO locations** — DTO schemas exist in both `src/server/dto/` (domain DTOs derived from Drizzle) and `src/shared/api/dto/` (shared API DTOs), with some overlap.
 8. **Massive barrel file** — `src/shared/api/server/index.ts` at 234 lines re-exports everything. This is convenient but creates tight coupling and slow type-checking.
 9. **Only ~10% of tRPC procedures are OpenAPI-exported** — 24 of 235+ procedures have `.meta({ openapi })`. This is by design (internal-only procedures vs. external contracts) but limits the reach of the canonical contract flow.
-10. **No CI enforcement of `npx redocly lint`** — Documented as required but not visibly enforced in the codebase.
+   ~~10. **No CI enforcement of `npx redocly lint`** — Documented as required but not visibly enforced in the codebase.~~ → ✅ RESOLVED: Added `pnpm api:lint` to `.husky/pre-commit` [soralia-village-bnxu].
 
 ---
 
@@ -326,4 +326,4 @@ This analysis was snapshotted before the Senior Engineer Audit (2026-06-25). The
 | T1 (Sprint 1)                    | No CORS configuration            | `addCorsHeaders()` in `src/middleware.ts` + OPTIONS handler |
 | S5-1 to S5-6, S6-2 (Sprints 5–6) | TypeScript errors in REST routes | Path aliases, `Promise<params>`, import/export fixes        |
 
-Issues #2–#10 tracked as BD issues (2026-07-02): #2=[soralia-village-e8hs], #3=[soralia-village-tkt5], #4=[soralia-village-ee5p], #5=[soralia-village-3m0h], #6=[soralia-village-qzll], #7=[soralia-village-axh6], #8=[soralia-village-vukt], #9=[soralia-village-c3zg], #10=[soralia-village-bnxu].
+Issues #2–#9 tracked as BD issues (2026-07-02): #2=[soralia-village-e8hs], #3=[soralia-village-tkt5], #4=[soralia-village-ee5p], #5=[soralia-village-3m0h], #6=[soralia-village-qzll], #7=[soralia-village-axh6], #8=[soralia-village-vukt], #9=[soralia-village-c3zg]. #10 resolved: added `pnpm api:lint` to `.husky/pre-commit` [soralia-village-bnxu].
