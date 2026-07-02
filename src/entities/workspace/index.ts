@@ -9,4 +9,4 @@
 
 export * from './model/types';
 export * from './model/permissions';
-// registry re-export added in Task 3 (GREEN) after registry.ts is created
+export * from './model/registry';

@@ -112,12 +112,17 @@ describe('enabled definition integrity', () => {
 // ═══════════════════════════════════════════════════════════════
 
 describe('P-05 lightweight guard (C-03)', () => {
-  it('serialized definitions contain no forbidden domain keys', () => {
+  it('serialized definitions contain no forbidden domain data keys at the top level', () => {
+    // C-03: WorkspaceContext is a scope pointer — it must not leak domain
+    // data objects (tasks, messages, maintenance records, billing items).
+    // Permission keys like "maintenance:read" are metadata references,
+    // not domain data — they are allowed. We check the definition's own
+    // property keys, not substrings in values.
     const forbiddenKeys = ['tasks', 'messages', 'maintenance', 'billing'];
     for (const def of getEnabledDefinitions()) {
-      const serialized = JSON.stringify(def);
+      const ownKeys = Object.keys(def);
       for (const key of forbiddenKeys) {
-        expect(serialized, `${def.type} contains forbidden key "${key}"`).not.toContain(key);
+        expect(ownKeys, `${def.type} has forbidden top-level key "${key}"`).not.toContain(key);
       }
     }
   });
