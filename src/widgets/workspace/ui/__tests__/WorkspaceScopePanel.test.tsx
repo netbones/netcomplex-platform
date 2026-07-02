@@ -7,7 +7,7 @@
  *
  * RED: Stub returns null → ALL assertions FAIL on first run.
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 import type { WorkspaceContext, WorkspaceType } from '@entities/workspace';
@@ -168,9 +168,9 @@ describe('WorkspaceScopePanel', () => {
 
   it('renders loading skeleton when workspace context is null (resolving)', () => {
     mockUseWorkspaceContext.mockReturnValue(null);
-    const { container } = render(<WorkspaceScopePanel />);
-    // When null, stub returns null → no content; GREEN should render LoadingSkeleton
-    expect(container.firstChild).toBeNull();
+    render(<WorkspaceScopePanel />);
+    // GREEN renders LoadingSkeleton (role="status" aria-label="Loading")
+    expect(screen.getByRole('status', { name: 'Loading' })).toBeDefined();
   });
 
   // ── AUTOMATION never renders (D-11) ───────────────────────
@@ -263,9 +263,9 @@ describe('WorkspaceScopePanel', () => {
 
       it(`shows permissions "${permsText}"`, () => {
         render(<WorkspaceScopePanel />);
-        // Check that each permission label appears
+        // Use regex for substring match (RTL exact-string default requires full text match)
         for (const part of permsText.split(', ')) {
-          const el = screen.queryByText(part);
+          const el = screen.queryByText(new RegExp(part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
           expect(el).not.toBeNull();
         }
       });
@@ -365,7 +365,7 @@ describe('WorkspaceScopePanel', () => {
       mockUseDelegations.mockReturnValue({ data: [], isLoading: false });
 
       render(<WorkspaceScopePanel />);
-      expect(screen.queryByText('—No permissions—')).not.toBeNull();
+      expect(screen.queryByText(/—No permissions—/)).not.toBeNull();
     });
 
     it('renders "Expires: Never" when expiresAt is null', () => {
