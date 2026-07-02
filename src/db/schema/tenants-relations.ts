@@ -28,6 +28,32 @@ import { resources } from './resources';
 import { serviceBookings } from './service-bookings';
 import { soloSeats } from './solo-seats';
 import { standardSeats } from './standard-seats';
+import { billingAdjustments } from './billing-adjustments';
+import { billingEvents } from './billing-events';
+import { billingPlans } from './billing-plans';
+import { bursaryFields } from './bursary-fields';
+import { communityServiceInquiries } from './community-service-inquiries';
+import { communityServiceListings } from './community-service-listings';
+import { communityServiceReviews } from './community-service-reviews';
+import { coupons } from './coupons';
+import { couponRedemptions } from './coupon-redemptions';
+import { maintenanceCategories } from './maintenance-categories';
+import { maintenanceRequests } from './maintenance-requests';
+import { maintenanceTeams } from './maintenance-teams';
+import { paymentTransactions } from './payment-transactions';
+import { providerCharges } from './provider-charges';
+import { providerInvoices } from './provider-invoices';
+import { providerLegalAgreements } from './provider-legal-agreements';
+import { providerMerits } from './provider-merits';
+import { providerReputations } from './provider-reputations';
+import { providerSubscriptions } from './provider-subscriptions';
+import { providerVerifications } from './provider-verifications';
+import { revenueRecords } from './revenue-records';
+import { serviceProviders } from './service-providers';
+import { supports } from './supports';
+import { tenantInvoices } from './tenant-invoices';
+import { tenantPayments } from './tenant-payments';
+import { tenantSubscriptions } from './tenant-subscriptions';
 import { assistSessions } from './assist-sessions';
 import { tenantAchievements } from './tenant-achievements';
 import { tenantModules } from './tenant-modules';
@@ -71,6 +97,56 @@ export const tenantsRelations = relations(tenants, helpers => ({
   ServiceBooking: helpers.many(serviceBookings, { relationName: 'ServiceBookingToTenant' }),
   SoloSeat: helpers.many(soloSeats, { relationName: 'SoloSeatToTenant' }),
   StandardSeat: helpers.many(standardSeats, { relationName: 'StandardSeatToTenant' }),
+  BillingAdjustment: helpers.many(billingAdjustments, {
+    relationName: 'BillingAdjustmentToTenant',
+  }),
+  BillingEvent: helpers.many(billingEvents, { relationName: 'BillingEventToTenant' }),
+  BillingPlan: helpers.many(billingPlans, { relationName: 'BillingPlanToTenant' }),
+  BursaryField: helpers.many(bursaryFields, { relationName: 'BursaryFieldToTenant' }),
+  CommunityServiceInquiry: helpers.many(communityServiceInquiries, {
+    relationName: 'CommunityServiceInquiryToTenant',
+  }),
+  CommunityServiceListing: helpers.many(communityServiceListings, {
+    relationName: 'CommunityServiceListingToTenant',
+  }),
+  CommunityServiceReview: helpers.many(communityServiceReviews, {
+    relationName: 'CommunityServiceReviewToTenant',
+  }),
+  Coupon: helpers.many(coupons, { relationName: 'CouponToTenant' }),
+  CouponRedemption: helpers.many(couponRedemptions, { relationName: 'CouponRedemptionToTenant' }),
+  MaintenanceCategory: helpers.many(maintenanceCategories, {
+    relationName: 'MaintenanceCategoryToTenant',
+  }),
+  MaintenanceRequest: helpers.many(maintenanceRequests, {
+    relationName: 'MaintenanceRequestToTenant',
+  }),
+  MaintenanceTeam: helpers.many(maintenanceTeams, { relationName: 'MaintenanceTeamToTenant' }),
+  PaymentTransaction: helpers.many(paymentTransactions, {
+    relationName: 'PaymentTransactionToTenant',
+  }),
+  ProviderCharge: helpers.many(providerCharges, { relationName: 'ProviderChargeToTenant' }),
+  ProviderInvoice: helpers.many(providerInvoices, { relationName: 'ProviderInvoiceToTenant' }),
+  ProviderLegalAgreement: helpers.many(providerLegalAgreements, {
+    relationName: 'ProviderLegalAgreementToTenant',
+  }),
+  ProviderMerit: helpers.many(providerMerits, { relationName: 'ProviderMeritToTenant' }),
+  ProviderReputation: helpers.many(providerReputations, {
+    relationName: 'ProviderReputationToTenant',
+  }),
+  ProviderSubscription: helpers.many(providerSubscriptions, {
+    relationName: 'ProviderSubscriptionToTenant',
+  }),
+  ProviderVerification: helpers.many(providerVerifications, {
+    relationName: 'ProviderVerificationToTenant',
+  }),
+  RevenueRecord: helpers.many(revenueRecords, { relationName: 'RevenueRecordToTenant' }),
+  ServiceProvider: helpers.many(serviceProviders, { relationName: 'ServiceProviderToTenant' }),
+  Support: helpers.many(supports, { relationName: 'SupportToTenant' }),
+  TenantInvoice: helpers.many(tenantInvoices, { relationName: 'TenantToTenantInvoice' }),
+  TenantPayment: helpers.many(tenantPayments, { relationName: 'TenantToTenantPayment' }),
+  TenantSubscription: helpers.many(tenantSubscriptions, {
+    relationName: 'TenantToTenantSubscription',
+  }),
   assistSessions: helpers.many(assistSessions, { relationName: 'AssistSessionToTenant' }),
   tenantAchievements: helpers.many(tenantAchievements, {
     relationName: 'TenantToTenantAchievement',

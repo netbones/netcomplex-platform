@@ -1,5 +1,6 @@
 import { relations } from 'drizzle-orm';
 import { maintenanceRequests } from './maintenance-requests';
+import { tenants } from './tenants';
 import { internalMaintenanceNotes } from './internal-maintenance-notes';
 import { serviceProviders } from './service-providers';
 import { maintenanceTeams } from './maintenance-teams';
@@ -9,6 +10,11 @@ import { requestHistories } from './request-histories';
 import { requestNotes } from './request-notes';
 
 export const maintenanceRequestsRelations = relations(maintenanceRequests, helpers => ({
+  Tenant: helpers.one(tenants, {
+    relationName: 'MaintenanceRequestToTenant',
+    fields: [maintenanceRequests.tenantId],
+    references: [tenants.id],
+  }),
   internalNotes: helpers.many(internalMaintenanceNotes, {
     relationName: 'InternalMaintenanceNoteToMaintenanceRequest',
   }),

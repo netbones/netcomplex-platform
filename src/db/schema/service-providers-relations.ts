@@ -1,5 +1,6 @@
 import { relations } from 'drizzle-orm';
 import { serviceProviders } from './service-providers';
+import { tenants } from './tenants';
 import { maintenanceRequests } from './maintenance-requests';
 import { paymentTransactions } from './payment-transactions';
 import { providerCharges } from './provider-charges';
@@ -15,6 +16,11 @@ import { addresses } from './addresses';
 import { users } from './users';
 
 export const serviceProvidersRelations = relations(serviceProviders, helpers => ({
+  Tenant: helpers.one(tenants, {
+    relationName: 'ServiceProviderToTenant',
+    fields: [serviceProviders.tenantId],
+    references: [tenants.id],
+  }),
   assignments: helpers.many(maintenanceRequests, { relationName: 'ProviderAssignments' }),
   transactions: helpers.many(paymentTransactions, {
     relationName: 'PaymentTransactionToServiceProvider',

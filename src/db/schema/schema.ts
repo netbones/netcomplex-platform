@@ -150,6 +150,7 @@ import * as eventAttendeesRelations from './event-attendees-relations';
 import * as bookingsRelations from './bookings-relations';
 import * as maintenanceRequestsRelations from './maintenance-requests-relations';
 import * as maintenanceTeamsRelations from './maintenance-teams-relations';
+import * as maintenanceCategoriesRelations from './maintenance-categories-relations';
 import * as bursaryFieldsRelations from './bursary-fields-relations';
 import * as requestNotesRelations from './request-notes-relations';
 import * as internalMaintenanceNotesRelations from './internal-maintenance-notes-relations';
@@ -171,6 +172,7 @@ import * as billingPlansRelations from './billing-plans-relations';
 import * as tenantSubscriptionsRelations from './tenant-subscriptions-relations';
 import * as tenantInvoicesRelations from './tenant-invoices-relations';
 import * as tenantPaymentsRelations from './tenant-payments-relations';
+import * as billingAdjustmentsRelations from './billing-adjustments-relations';
 import * as billingEventsRelations from './billing-events-relations';
 import * as couponsRelations from './coupons-relations';
 import * as couponRedemptionsRelations from './coupon-redemptions-relations';
@@ -365,6 +367,7 @@ export const schema = {
   ...bookingsRelations,
   ...maintenanceRequestsRelations,
   ...maintenanceTeamsRelations,
+  ...maintenanceCategoriesRelations,
   ...bursaryFieldsRelations,
   ...requestNotesRelations,
   ...internalMaintenanceNotesRelations,
@@ -386,6 +389,7 @@ export const schema = {
   ...tenantSubscriptionsRelations,
   ...tenantInvoicesRelations,
   ...tenantPaymentsRelations,
+  ...billingAdjustmentsRelations,
   ...billingEventsRelations,
   ...couponsRelations,
   ...couponRedemptionsRelations,
