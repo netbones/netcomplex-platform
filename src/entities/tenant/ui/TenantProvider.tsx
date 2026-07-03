@@ -11,6 +11,8 @@ interface TenantInfo {
   id: string;
   name: string;
   slug: string;
+  tagline: string;
+  description: string;
   primaryColor: string;
   accentColor: string;
   secondaryColor: string;
@@ -33,6 +35,8 @@ export function TenantProvider({ tenant, children }: TenantProviderProps) {
       id: tenant.id || '',
       name: tenant.name || FALLBACK_NAME,
       slug: tenant.slug || '',
+      tagline: tenant.tagline || '',
+      description: tenant.description || '',
       primaryColor: tenant.primaryColor || '#4F46E5',
       accentColor: tenant.accentColor || '#F59E0B',
       secondaryColor: tenant.secondaryColor || '#10B981',
@@ -47,6 +51,8 @@ export function TenantProvider({ tenant, children }: TenantProviderProps) {
     id: tenant.id || '',
     name: tenant.name || FALLBACK_NAME,
     slug: tenant.slug || '',
+    tagline: tenant.tagline || '',
+    description: tenant.description || '',
     primaryColor: tenant.primaryColor || '#4F46E5',
     accentColor: tenant.accentColor || '#F59E0B',
     secondaryColor: tenant.secondaryColor || '#10B981',

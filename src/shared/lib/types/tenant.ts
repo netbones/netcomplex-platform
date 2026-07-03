@@ -22,6 +22,8 @@ export interface Tenant {
   customDomain: string | null;
   logoUrl: string | null;
   faviconUrl: string | null;
+  tagline: string | null;
+  description: string | null;
   primaryColor: string;
   accentColor: string | null;
   secondaryColor: string | null;

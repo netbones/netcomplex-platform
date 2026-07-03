@@ -98,6 +98,8 @@ function toTenant(row: Record<string, unknown>): Tenant {
     customDomain: row.customDomain as string | null,
     logoUrl: row.logoUrl as string | null,
     faviconUrl: row.faviconUrl as string | null,
+    tagline: row.tagline as string | null,
+    description: row.description as string | null,
     primaryColor: row.primaryColor as string,
     accentColor: row.accentColor as string | null,
     secondaryColor: row.secondaryColor as string | null,

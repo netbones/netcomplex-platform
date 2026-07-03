@@ -1,7 +1,7 @@
 {
   "app": {
     "name": "{{tenantName}}",
-    "tagline": "Uluhlu lwabamelwane"
+    "tagline": "{{tagline}}"
   },
   "nav": {
     "home": "Ikaya",
@@ -58,7 +58,7 @@
     "groups": "AmaQela anomDla"
   },
   "footer": {
-    "description": "Umphakathi wokuhlala eKapa, onikezela ngobomi bokuhlala kwanamagosa anobulungisa.",
+    "description": "{{description}}",
     "quickLinks": "Iilinks ezikhawulezayo",
     "services": "Iinkonzo",
     "contactUs": "Xhulumana Nathi",

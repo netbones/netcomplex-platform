@@ -265,6 +265,7 @@ export function Header() {
   const { data: session, isPending } = authClient.useSession();
   const tenant = useTenant();
   const tenantName = tenant?.name || 'Netcomplex Demo Village';
+  const tenantTagline = tenant?.tagline || 'A Community of Neighbors';
 
   useEffect(() => {
     setMounted(true);
@@ -350,7 +351,9 @@ export function Header() {
               <h1 className="text-2xl font-bold">
                 {mounted ? t('app.name', { tenantName }) : 'Loading...'}
               </h1>
-              <p className="text-xs opacity-75">{mounted ? t('app.tagline') : ''}</p>
+              <p className="text-xs opacity-75">
+                {mounted ? t('app.tagline', { tagline: tenantTagline }) : ''}
+              </p>
             </div>
           </Link>
 

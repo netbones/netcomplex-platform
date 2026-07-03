@@ -17,6 +17,9 @@ export function Footer() {
   const { data: session } = authClient.useSession();
   const tenant = useTenant();
   const tenantName = tenant?.name || 'Netcomplex Demo Village';
+  const tenantDescription =
+    tenant?.description ||
+    'A premier residential community in Cape Town, offering modern living with exceptional amenities and services.';
 
   useEffect(() => {
     setMounted(true);
@@ -56,10 +59,14 @@ export function Footer() {
               />
               <div>
                 <h3 className="text-xl font-bold">{t('app.name', { tenantName })}</h3>
-                <p className="text-sm text-gray-300">{t('app.tagline')}</p>
+                <p className="text-sm text-gray-300">
+                  {t('app.tagline', { tagline: tenant?.tagline || 'A Community of Neighbors' })}
+                </p>
               </div>
             </div>
-            <p className="text-gray-300 text-sm mb-4">{t('footer.description')}</p>
+            <p className="text-gray-300 text-sm mb-4">
+              {t('footer.description', { description: tenantDescription })}
+            </p>
           </div>
 
           <div>

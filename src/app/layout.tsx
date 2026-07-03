@@ -33,6 +33,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         id: raw.id,
         name: raw.name,
         slug: raw.slug,
+        tagline: raw.tagline ?? 'A Community of Neighbors',
+        description:
+          raw.description ??
+          'A premier residential community in Cape Town, offering modern living with exceptional amenities and services.',
         primaryColor: raw.primaryColor,
         accentColor: raw.accentColor ?? '#F59E0B',
         secondaryColor: raw.secondaryColor ?? '#10B981',
@@ -44,6 +48,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         id: '',
         name: 'Netcomplex',
         slug: '',
+        tagline: 'A Community of Neighbors',
+        description:
+          'A premier residential community in Cape Town, offering modern living with exceptional amenities and services.',
         primaryColor: '#4F46E5',
         accentColor: '#F59E0B',
         secondaryColor: '#10B981',

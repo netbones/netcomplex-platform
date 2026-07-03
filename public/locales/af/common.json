@@ -1,7 +1,7 @@
 {
   "app": {
     "name": "{{tenantName}}",
-    "tagline": "'n Gemeenskap van bure"
+    "tagline": "{{tagline}}"
   },
   "nav": {
     "home": "Tuis",
@@ -58,7 +58,7 @@
     "groups": "Belangegroepe"
   },
   "footer": {
-    "description": "'n Eerste residensiële gemeenskap in Kaapstad, wat moderne lewe bied met uitsonderlike geriewe en dienste.",
+    "description": "{{description}}",
     "quickLinks": "Vinnige Skakels",
     "services": "Dienste",
     "contactUs": "Kontak Ons",

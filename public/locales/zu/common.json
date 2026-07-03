@@ -1,7 +1,7 @@
 {
   "app": {
     "name": "{{tenantName}}",
-    "tagline": "Umphakathi wabamelwane"
+    "tagline": "{{tagline}}"
   },
   "nav": {
     "home": "Ikaya",
@@ -58,7 +58,7 @@
     "groups": "AmaQembu aneNtandokazi"
   },
   "footer": {
-    "description": "Umphakathi wokuhlala eTheku, onikezela ngobomi bokuhlala kwanamasevisi anokuhlanganiswa.",
+    "description": "{{description}}",
     "quickLinks": "Izixhumanisi zokushesha",
     "services": "Amasevisi",
     "contactUs": "Sithintele",
