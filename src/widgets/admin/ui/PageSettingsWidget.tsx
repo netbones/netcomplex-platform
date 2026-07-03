@@ -168,7 +168,7 @@ export function PageSettingsWidget({ initialFlags }: PageFlagsWidgetProps) {
     {
       value: 'default',
       label: 'Default Content',
-      description: 'Built-in Soralia conservation content',
+      description: 'Built-in conservation content',
     },
     { value: 'managed', label: 'Managed Content', description: 'Content managed via CMS' },
     {

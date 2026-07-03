@@ -11,7 +11,7 @@ interface ContactSettings {
   office?: string;
 }
 
-/** Default contact numbers for Soralia Village */
+/** Default contact numbers (fallback) */
 const defaultContacts: ContactSettings = {
   emergency: '+27 21 555-HELP',
   security: '+27 21 555-SAFE',

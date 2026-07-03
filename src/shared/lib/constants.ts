@@ -1,10 +1,10 @@
 /**
- * Application constants for Soralia Village Community Portal.
+ * Application constants.
  * Centralized configuration for app metadata, map settings, roles, and UI constants.
  */
 
-/** Application name */
-export const APP_NAME = 'Soralia Village';
+/** Application name (generic fallback — use i18n t('app.name') for runtime tenant name) */
+export const APP_NAME = 'Netcomplex Demo Village';
 /** Application tagline */
 export const APP_TAGLINE = 'A Community of Neighbors';
 
@@ -214,7 +214,7 @@ export const RESIDENT_TYPES = {
 } as const;
 export type ResidentType = keyof typeof RESIDENT_TYPES;
 
-/** Streets in Soralia Village */
+/** Streets (default fallback — use map.streets setting for tenant-specific data) */
 export const STREETS = [
   'Pagoda Rd',
   'Wild Almond Rd',

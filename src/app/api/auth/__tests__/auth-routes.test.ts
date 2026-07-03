@@ -90,10 +90,10 @@ vi.mock('@api/server', () => ({
 // Mock tenant config
 vi.mock('@entities/tenant', () => ({
   tenantConfig: {
-    defaultSlug: 'soralia',
+    defaultSlug: '',
     auth: {
-      issuer: 'Soralia Village',
-      cookiePrefix: 'soralia',
+      issuer: 'Netcomplex',
+      cookiePrefix: 'netcomplex',
       allowedHosts: ['localhost:3000'],
     },
   },
