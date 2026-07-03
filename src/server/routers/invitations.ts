@@ -218,13 +218,14 @@ export const invitationsRouter = router({
 
       void sendEmail({
         to: input.email,
-        subject: templates.teamInvitation.subject,
+        subject: templates.teamInvitation.subject(tenant?.name),
         html: templates.teamInvitation.getHtml(
           input.name,
           inviter?.name || 'A community member',
-          tenant?.name || 'Soralia Village',
+          tenant?.name || 'Netcomplex',
           acceptUrl,
-          input.role
+          input.role,
+          tenant?.name || 'Netcomplex'
         ),
       }).catch(err => {
         inviteLogger.error({ email: input.email }, 'Failed to send invitation email', err);
@@ -430,7 +431,7 @@ export const invitationsRouter = router({
         invitation: {
           ...invitation,
           expiresAt: invitation.expiresAt?.toISOString() ?? null,
-          tenantName: tenant?.name || 'Soralia Village',
+          tenantName: tenant?.name || 'Netcomplex',
           tenantSlug: tenant?.slug,
           inviterName: inviter?.name || 'A community member',
         },
@@ -511,13 +512,14 @@ export const invitationsRouter = router({
 
       void sendEmail({
         to: invitation.email,
-        subject: templates.teamInvitation.subject,
+        subject: templates.teamInvitation.subject(tenant?.name),
         html: templates.teamInvitation.getHtml(
           invitation.name,
           inviter?.name || 'A community member',
-          tenant?.name || 'Soralia Village',
+          tenant?.name || 'Netcomplex',
           acceptUrl,
-          invitation.role
+          invitation.role,
+          tenant?.name || 'Netcomplex'
         ),
       }).catch(err => {
         inviteLogger.error(

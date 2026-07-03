@@ -6,9 +6,11 @@ interface BookingConfirmationParams {
   price: string;
   serviceImage?: string;
   listingUrl: string;
+  tenantName?: string;
 }
 
 export function getBookingConfirmationHtml(params: BookingConfirmationParams): string {
+  const tenant = params.tenantName || 'Netcomplex';
   const imageHtml = params.serviceImage
     ? `<img src="${params.serviceImage}" alt="${params.serviceName}" style="max-width:100%;border-radius:8px;margin-bottom:16px;" />`
     : '';
@@ -18,12 +20,12 @@ export function getBookingConfirmationHtml(params: BookingConfirmationParams): s
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Booking Confirmed – Soralia Village</title>
+  <title>Booking Confirmed \u2013 ${tenant}</title>
 </head>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #F3F4F6; margin: 0; padding: 0;">
   <div style="max-width: 600px; margin: 0 auto; padding: 24px;">
     <div style="text-align: center; padding: 24px 0;">
-      <h1 style="color: #4F46E5; font-size: 24px; margin: 0;">Soralia Village</h1>
+      <h1 style="color: #4F46E5; font-size: 24px; margin: 0;">${tenant}</h1>
     </div>
 
     <div style="background-color: #FFFFFF; border-radius: 12px; padding: 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
@@ -62,7 +64,7 @@ export function getBookingConfirmationHtml(params: BookingConfirmationParams): s
     </div>
 
     <div style="text-align: center; padding: 24px 0; color: #9CA3AF; font-size: 12px;">
-      <p>This is an automated message from Soralia Village. Please do not reply to this email.</p>
+      <p>This is an automated message from ${tenant}. Please do not reply to this email.</p>
     </div>
   </div>
 </body>
@@ -75,20 +77,22 @@ interface InquiryReceivedParams {
   inquirerName: string;
   message?: string;
   listingUrl: string;
+  tenantName?: string;
 }
 
 export function getInquiryReceivedHtml(params: InquiryReceivedParams): string {
+  const tenant = params.tenantName || 'Netcomplex';
   return `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>New Inquiry – Soralia Village</title>
+  <title>New Inquiry \u2013 ${tenant}</title>
 </head>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #F3F4F6; margin: 0; padding: 0;">
   <div style="max-width: 600px; margin: 0 auto; padding: 24px;">
     <div style="text-align: center; padding: 24px 0;">
-      <h1 style="color: #4F46E5; font-size: 24px; margin: 0;">Soralia Village</h1>
+      <h1 style="color: #4F46E5; font-size: 24px; margin: 0;">${tenant}</h1>
     </div>
 
     <div style="background-color: #FFFFFF; border-radius: 12px; padding: 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
@@ -109,7 +113,7 @@ export function getInquiryReceivedHtml(params: InquiryReceivedParams): string {
     </div>
 
     <div style="text-align: center; padding: 24px 0; color: #9CA3AF; font-size: 12px;">
-      <p>This is an automated message from Soralia Village. Please do not reply to this email.</p>
+      <p>This is an automated message from ${tenant}. Please do not reply to this email.</p>
     </div>
   </div>
 </body>
@@ -121,20 +125,22 @@ interface PaymentReceivedParams {
   amount: string;
   transactionId: string;
   listingUrl: string;
+  tenantName?: string;
 }
 
 export function getPaymentReceivedHtml(params: PaymentReceivedParams): string {
+  const tenant = params.tenantName || 'Netcomplex';
   return `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Payment Received – Soralia Village</title>
+  <title>Payment Received \u2013 ${tenant}</title>
 </head>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #F3F4F6; margin: 0; padding: 0;">
   <div style="max-width: 600px; margin: 0 auto; padding: 24px;">
     <div style="text-align: center; padding: 24px 0;">
-      <h1 style="color: #4F46E5; font-size: 24px; margin: 0;">Soralia Village</h1>
+      <h1 style="color: #4F46E5; font-size: 24px; margin: 0;">${tenant}</h1>
     </div>
 
     <div style="background-color: #FFFFFF; border-radius: 12px; padding: 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
@@ -147,7 +153,7 @@ export function getPaymentReceivedHtml(params: PaymentReceivedParams): string {
         <table style="width:100%; border-collapse: collapse;">
           <tr>
             <td style="padding: 8px 12px; color: #6B7280; font-size: 14px;">Service</td>
-            <td style="padding: 8px 12px; color: #111827; font-size: 14px; font-weight: 600;">${params.serviceName}</td>
+            <td style="padding: 8px 12px; color: #111827; font-size: 14px;">${params.serviceName}</td>
           </tr>
           <tr>
             <td style="padding: 8px 12px; color: #6B7280; font-size: 14px;">Amount</td>
@@ -164,7 +170,7 @@ export function getPaymentReceivedHtml(params: PaymentReceivedParams): string {
     </div>
 
     <div style="text-align: center; padding: 24px 0; color: #9CA3AF; font-size: 12px;">
-      <p>This is an automated message from Soralia Village. Please do not reply to this email.</p>
+      <p>This is an automated message from ${tenant}. Please do not reply to this email.</p>
     </div>
   </div>
 </body>

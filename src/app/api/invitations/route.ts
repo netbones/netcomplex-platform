@@ -90,13 +90,14 @@ export async function POST(request: Request) {
   // Send invitation email (non-blocking)
   void sendEmail({
     to: body.email,
-    subject: templates.teamInvitation.subject,
+    subject: templates.teamInvitation.subject(tenant?.name),
     html: templates.teamInvitation.getHtml(
       body.name,
       inviter?.name || 'A community member',
-      tenant?.name || 'Soralia Village',
+      tenant?.name || 'Netcomplex',
       acceptUrl,
-      body.role ?? 'RESIDENT'
+      body.role ?? 'RESIDENT',
+      tenant?.name || 'Netcomplex'
     ),
   }).catch(error => {
     apiLogger.error({ invitationId: invitation.id, error }, 'Failed to send invitation email');

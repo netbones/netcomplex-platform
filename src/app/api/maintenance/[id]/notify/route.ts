@@ -43,7 +43,8 @@ export const POST = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;
 
-    const { tenantId } = await withTenant();
+    const { tenantId, tenantSlug } = await withTenant();
+    const tenantName = tenantSlug || 'Netcomplex';
 
     const authData = await getSessionAndRole(request);
     if (!authData) {
@@ -107,7 +108,7 @@ export const POST = withErrorHandler(
 </head>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
   <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
-    <h2 style="color: #4F46E5; margin: 0 0 16px 0;">Soralia Village - Maintenance Update</h2>
+    <h2 style="color: #4F46E5; margin: 0 0 16px 0;">${tenantName} - Maintenance Update</h2>
     <p style="color: #374151; font-size: 16px; margin: 0 0 16px 0;">${message}</p>
     <div style="background: white; padding: 16px; border-radius: 8px; margin: 16px 0;">
       <p style="margin: 8px 0; color: #6b7280; font-size: 14px;">
@@ -124,7 +125,7 @@ export const POST = withErrorHandler(
       </p>
     </div>
     <p style="color: #9ca3af; font-size: 12px; margin: 16px 0 0 0;">
-      Log in to your Soralia Village portal to view full details and track progress.
+      Log in to your ${tenantName} portal to view full details and track progress.
     </p>
   </div>
 </body>

@@ -51,7 +51,7 @@ export const GET = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;
 
-    const { tenantId } = await withTenant();
+    const { tenantId, tenantSlug } = await withTenant();
 
     const authData = await getSessionAndRole(request);
     if (!authData) {
@@ -232,7 +232,7 @@ export const GET = withErrorHandler(
         exportedBy: authData.userId,
       },
       tenant: {
-        name: 'Soralia Village',
+        name: tenantSlug || 'Netcomplex',
         csosRegNo,
       },
     });
