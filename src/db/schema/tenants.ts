@@ -13,6 +13,7 @@ export const tenants = pgTable('Tenant', {
   address: text('address'),
   telephone: text('telephone'),
   email: text('email'),
+  governanceLabel: text('governanceLabel'),
   primaryColor: text('primaryColor').default('#4F46E5').notNull(),
   accentColor: text('accentColor'),
   secondaryColor: text('secondaryColor'),

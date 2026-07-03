@@ -27,6 +27,7 @@ export interface Tenant {
   address: string | null;
   telephone: string | null;
   email: string | null;
+  governanceLabel: string | null;
   primaryColor: string;
   accentColor: string | null;
   secondaryColor: string | null;

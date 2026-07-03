@@ -16,6 +16,7 @@ interface TenantInfo {
   address: string;
   telephone: string;
   email: string;
+  governanceLabel: string;
   primaryColor: string;
   accentColor: string;
   secondaryColor: string;
@@ -43,6 +44,7 @@ export function TenantProvider({ tenant, children }: TenantProviderProps) {
       address: tenant.address || '',
       telephone: tenant.telephone || '',
       email: tenant.email || '',
+      governanceLabel: tenant.governanceLabel || 'Homeowners Association',
       primaryColor: tenant.primaryColor || '#4F46E5',
       accentColor: tenant.accentColor || '#F59E0B',
       secondaryColor: tenant.secondaryColor || '#10B981',
@@ -62,6 +64,7 @@ export function TenantProvider({ tenant, children }: TenantProviderProps) {
     address: tenant.address || '',
     telephone: tenant.telephone || '',
     email: tenant.email || '',
+    governanceLabel: tenant.governanceLabel || 'Homeowners Association',
     primaryColor: tenant.primaryColor || '#4F46E5',
     accentColor: tenant.accentColor || '#F59E0B',
     secondaryColor: tenant.secondaryColor || '#10B981',

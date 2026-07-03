@@ -34,6 +34,7 @@ export const SOLARIS_HEIGHTS: TenantSeedData = {
     address: '42 Beach Road, Cape Town, 8001',
     telephone: '+27 21 555 0200',
     email: 'info@solarisheights.co.za',
+    governanceLabel: 'Body Corporate',
     ticketPrefix: 'SLH',
   },
 

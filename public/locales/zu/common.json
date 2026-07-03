@@ -78,7 +78,7 @@
     "terms": "Imigomo yenkonzo",
     "guidelines": "Imiyalelo yomphakathi",
     "contact": "Thintana",
-    "copyright": "{{tenantName}} Homeowners Association. Onke amagunya agcinwe."
+    "copyright": "{{tenantName}} {{governanceLabel}}. Onke amagunya agcinwe."
   },
   "home": {
     "ourCommunity": "Umphakathi wethu",

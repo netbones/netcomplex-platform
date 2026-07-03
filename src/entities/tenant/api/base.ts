@@ -103,6 +103,7 @@ function toTenant(row: Record<string, unknown>): Tenant {
     address: row.address as string | null,
     telephone: row.telephone as string | null,
     email: row.email as string | null,
+    governanceLabel: row.governanceLabel as string | null,
     primaryColor: row.primaryColor as string,
     accentColor: row.accentColor as string | null,
     secondaryColor: row.secondaryColor as string | null,

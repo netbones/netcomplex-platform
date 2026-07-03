@@ -14,5 +14,6 @@ export const tenant: TenantInput = {
   address: '1 Protea Road, Muizenberg, Cape Town, 7945',
   telephone: '+27 21 555 0100',
   email: 'info@soraliavillage.co.za',
+  governanceLabel: 'Homeowners Association',
   ticketPrefix: 'SRV',
 };

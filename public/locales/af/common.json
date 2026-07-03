@@ -78,7 +78,7 @@
     "terms": "Diensvoorwaardes",
     "guidelines": "Gemeenskapsriglyne",
     "contact": "Kontak",
-    "copyright": "{{tenantName}} Huiseienaarsvereniging. Alle regte voorbehou."
+    "copyright": "{{tenantName}} {{governanceLabel}}. Alle regte voorbehou."
   },
   "home": {
     "ourCommunity": "Ons Gemeenskap",

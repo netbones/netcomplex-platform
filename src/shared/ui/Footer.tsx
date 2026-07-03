@@ -21,6 +21,7 @@ export function Footer() {
   const tenantAddress = tenant?.address || 'Cape Town, South Africa';
   const tenantTelephone = tenant?.telephone || '';
   const tenantEmail = tenant?.email || '';
+  const governanceLabel = tenant?.governanceLabel || 'Homeowners Association';
 
   useEffect(() => {
     setMounted(true);
@@ -146,7 +147,8 @@ export function Footer() {
         {/* Simplified emergency section... */}
         <div className="border-t border-gray-600 pt-8 mt-8">
           <p className="text-center text-sm text-gray-400">
-            &copy; {new Date().getFullYear()} {t('footer.copyright', { tenantName })}
+            &copy; {new Date().getFullYear()}{' '}
+            {t('footer.copyright', { tenantName, governanceLabel })}
           </p>
         </div>
       </div>

@@ -78,7 +78,7 @@
     "terms": "Terms of Service",
     "guidelines": "Community Guidelines",
     "contact": "Contact",
-    "copyright": "{{tenantName}} Homeowners Association. All rights reserved."
+    "copyright": "{{tenantName}} {{governanceLabel}}. All rights reserved."
   },
   "toast": {
     "created": "{{entity}} created",

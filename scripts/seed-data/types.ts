@@ -53,6 +53,8 @@ export interface TenantInput {
   telephone?: string;
   /** Contact email address. */
   email?: string;
+  /** Governance entity label, e.g. "Homeowners Association", "Body Corporate". */
+  governanceLabel?: string;
   /** Letter prefix used for ticket numbers, e.g. "SRV" → SRV-2026-0001. */
   ticketPrefix: string;
 }

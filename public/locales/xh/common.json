@@ -78,7 +78,7 @@
     "terms": "Imigaqo-nkqubo yenkonzo",
     "guidelines": "Imiyalelo yoluntu",
     "contact": "Xhulumana",
-    "copyright": "{{tenantName}} Homeowners Association. Onke amagunya agcinwe."
+    "copyright": "{{tenantName}} {{governanceLabel}}. Onke amagunya agcinwe."
   },
   "home": {
     "ourCommunity": "Uluhlu lwethu",

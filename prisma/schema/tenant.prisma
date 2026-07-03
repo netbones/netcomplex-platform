@@ -19,6 +19,7 @@ model Tenant {
   address                 String?
   telephone               String?
   email                   String?
+  governanceLabel         String?
   customCss               String?
   active                  Boolean                   @default(true)
   subscriptionTier        String                    @default("basic")
