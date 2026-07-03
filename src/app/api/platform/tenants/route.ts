@@ -67,17 +67,9 @@ export async function POST(request: NextRequest) {
 
     // Step 1: Create admin user via Better Auth (handles password hashing)
     // We do this first because Better Auth handles its own internal transaction
-    const origin = request.headers.get('origin') || `http://localhost:3000`;
     const authResponse = await fetch(`${BETTER_AUTH_URL}/api/auth/sign-up/email`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Origin: origin,
-        'x-forwarded-for': request.headers.get('x-forwarded-for') || '',
-        'x-forwarded-host':
-          request.headers.get('x-forwarded-host') || request.headers.get('host') || '',
-        'x-forwarded-proto': request.headers.get('x-forwarded-proto') || 'https',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         email: body.admin.email,
         password: body.admin.password,
