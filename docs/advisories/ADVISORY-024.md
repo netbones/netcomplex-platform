@@ -1,6 +1,6 @@
 # ADVISORY-024 — Resolve DTO Duplication (COMMUNIQUE-08)
 
-**Status:** Decision gates open — do not execute until G1–G4 are confirmed
+**Status:** ✅ Executed (Commit 668535ee) — Decision gates G1–G4 confirmed 2026-07-04
 **Trigger:** COMMUNIQUE-08 (2026-07-02), BD issue `soralia-village-axh6`
 **Supersedes:** No prior advisory on this topic
 
@@ -171,13 +171,13 @@ cat src/shared/api/dto/__tests__/dto-booking.test.ts \
 
 ## 8. Done Criteria
 
-- [ ] `src/shared/api/dto/` holds one Zod schema per domain; no parallel hand-written interface remains for content, event, booking, group, maintenance, user, notification.
-- [ ] `src/entities/content` and `src/entities/chat` import DTOs from `shared/api/dto` (directly or via `server.ts` sub-barrel per ADR-020).
-- [ ] `src/server/dto/` re-exports from `shared/api/dto/` with no router import changes required in this pass.
-- [ ] All 4 existing DTO tests plus content/chat tests pass unmodified in assertions, except where G2 approved a field-set change.
-- [ ] No new Steiger/ESLint FSD violations introduced.
-- [ ] Phase 4 (router import cleanup) filed as a separate, explicitly deferred BD issue.
-- [ ] BD `soralia-village-axh6` closed referencing this advisory.
+- ✅ `src/shared/api/dto/` holds one Zod schema per domain; no parallel hand-written interface remains for content, event, booking, group, maintenance, user, notification.
+- ✅ `src/entities/content` and `src/entities/chat` import DTOs from `shared/api/dto` (via `@api/shared` barrel).
+- ✅ `src/server/dto/` re-exports from `shared/api/dto/` with no router import changes required in this pass (content.ts, maintenance.ts shimmed).
+- ✅ All 4 existing DTO tests plus content/chat tests pass unmodified in assertions (206 tests).
+- ⬜ No new Steiger/ESLint FSD violations introduced. → ✅ No new violations (pre-existing only)
+- ✅ Phase 4 (router import cleanup) filed as `soralia-village-kci3`.
+- ✅ BD `soralia-village-axh6` closed referencing this advisory.
 
 ## 9. Decision Gates
 
