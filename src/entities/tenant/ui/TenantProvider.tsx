@@ -2,10 +2,10 @@
 
 import { useEffect } from 'react';
 import { TenantStyles } from './TenantStyles';
-import { useTenantActions } from '../api/context';
+import { useTenantStore } from '../api/context';
 import type { Tenant } from '@shared/lib';
 
-const FALLBACK_NAME = 'Netcomplex Demo Village';
+const FALLBACK_NAME = 'Netcomplex';
 
 interface TenantInfo {
   id: string;
@@ -25,7 +25,8 @@ interface TenantProviderProps {
 }
 
 export function TenantProvider({ tenant, children }: TenantProviderProps) {
-  const { setTenant, setLoading } = useTenantActions();
+  const setTenant = useTenantStore(state => state.setTenant);
+  const setLoading = useTenantStore(state => state.setLoading);
 
   useEffect(() => {
     setTenant({

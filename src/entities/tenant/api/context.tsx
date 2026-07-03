@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { useShallow } from 'zustand/react/shallow';
 import type { Tenant } from '@shared/lib';
 
 interface TenantState {
@@ -26,8 +27,10 @@ export const useTenantLoading = (): boolean => {
 };
 
 export const useTenantActions = () => {
-  return useTenantStore(state => ({
-    setTenant: state.setTenant,
-    setLoading: state.setLoading,
-  }));
+  return useTenantStore(
+    useShallow(state => ({
+      setTenant: state.setTenant,
+      setLoading: state.setLoading,
+    }))
+  );
 };
