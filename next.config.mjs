@@ -15,7 +15,14 @@ const nextConfig = {
   serverExternalPackages: ['pino', 'ioredis'],
 
   // Allow cross-origin dev requests for HMR
-  allowedDevOrigins: ['app.netbones.co.za'],
+  allowedDevOrigins: [
+    'app.netbones.co.za',
+    'soralia.netbones.co.za',
+    'soralia.co.za',
+    'soralia.org',
+    'soralia.com',
+    'solaris.co.za',
+  ],
 
   // Enable Partial Prerendering for better performance
   // Note: cacheComponents incompatible with dynamic = 'force-dynamic'

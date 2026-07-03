@@ -201,6 +201,8 @@ export const auth = betterAuth({
           'https://localhost:3000',
           'http://app.netbones.co.za',
           'http://soralia.netbones.co.za',
+          'http://soralia.co.za',
+          'http://solaris.co.za',
         ]),
   ],
   databaseHooks: {

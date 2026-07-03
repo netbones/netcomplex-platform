@@ -1456,6 +1456,7 @@ Plans:
 **Goal:** Establish the `WorkspaceContext` frontend abstraction as the runtime lens for rendering the entire platform — decoupling UI behaviour from `Role` and identity details. Ships the frontend precondition for the `Principal` backend refactor (Phase 1d).
 
 **Status:** Planning Complete — 9 plans in 7 waves (6 core + 3 gap closure from UAT: WS-01..WS-06 covered)
+**Status:** Planning Complete — 9 plans in 7 waves (6 core + 3 gap closure from UAT: WS-01..WS-06 covered)
 
 **Milestone:** M5+ — Post-Launch Architecture Evolution
 
@@ -1475,6 +1476,9 @@ Plans:
 | P1a-4 | 122-04 | Hierarchical workspace selector — registry-driven tree (Personal/Provider/Owner) with search/recent  |
 | P1a-5 | 122-05 | Empty states — welcome surface for zero-delegation users (onboarding + marketplace + learn)          |
 | P1a-6 | 122-06 | Workspace scope panel — first-class workspace object (scope, delegator, permissions, expiry)         |
+| GC-1  | 122-07 | Gap closure — wire EmptyWorkspaceState into SpaceChrome dashboard shell                              |
+| GC-2  | 122-08 | Gap closure — wire WorkspaceScopePanel into SpaceChrome as persistent identity bar                   |
+| GC-3  | 122-09 | Gap closure — seed notification records with property links for NotificationLink E2E testing         |
 | GC-1  | 122-07 | Gap closure — wire EmptyWorkspaceState into SpaceChrome dashboard shell                              |
 | GC-2  | 122-08 | Gap closure — wire WorkspaceScopePanel into SpaceChrome as persistent identity bar                   |
 | GC-3  | 122-09 | Gap closure — seed notification records with property links for NotificationLink E2E testing         |
