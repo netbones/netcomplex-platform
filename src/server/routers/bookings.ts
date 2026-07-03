@@ -27,7 +27,7 @@ import {
   createBooking as entityCreateBooking,
 } from '@entities/booking/server';
 
-import { toBookingDTO } from '@api/shared';
+import { toBookingDTO } from '@api/server';
 
 // ──────────────────────────────────────────
 // Input schemas

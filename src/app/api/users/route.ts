@@ -21,7 +21,7 @@ import { eq, and, or, asc, ilike, count, ne, sql, inArray } from 'drizzle-orm';
 
 import type { SQL } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
-import { toUserDTO } from '@api/shared';
+import { toUserDTO } from '@api/server';
 import { createId } from '@shared/lib/id';
 export const maxDuration = 8;
 
