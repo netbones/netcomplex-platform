@@ -1,5 +1,5 @@
 {
-  "title": "iNdawo yoKugcina iSoralia",
+  "title": "iNdawo yoKugcina {{tenantName}}",
   "subtitle": "Ukugcina ilifa lethu elikhulu leStrandveld Wetland yaseMzantsi Afrika kwixesha elizayo",
   "stats": {
     "endemicFlora": "iFlora endiyileyo",

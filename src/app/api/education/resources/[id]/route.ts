@@ -1,3 +1,4 @@
+import { NextRequest } from 'next/server';
 import {
   auth,
   db,
@@ -16,7 +17,7 @@ import { hasPermission } from '@shared/lib';
 
 export const maxDuration = 8;
 
-async function getSessionAndRole(request: Request) {
+async function getSessionAndRole(request: NextRequest) {
   const session = await auth.api.getSession({ headers: request.headers });
   if (!session?.user?.id) return null;
 
@@ -30,15 +31,14 @@ async function getSessionAndRole(request: Request) {
 }
 
 export const GET = withErrorHandler(
-  async (_request: Request, { params }: { params: { id: string } }) => {
+  async (_request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params;
     const { tenantId } = await withTenant();
 
     const [row] = await db
       .select()
       .from(resources)
-      .where(
-        and(eq(resources.id, params.id), eq(resources.category, 'EDUCATION'), notDeleted(resources))
-      )
+      .where(and(eq(resources.id, id), eq(resources.category, 'EDUCATION'), notDeleted(resources)))
       .limit(1);
 
     if (!row || row.tenantId !== tenantId) {
@@ -50,7 +50,8 @@ export const GET = withErrorHandler(
 );
 
 export const PATCH = withErrorHandler(
-  async (request: Request, { params }: { params: { id: string } }) => {
+  async (request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params;
     const authData = await getSessionAndRole(request);
     if (!authData || !hasPermission(authData.role, 'admin')) {
       return apiForbidden();
@@ -62,9 +63,7 @@ export const PATCH = withErrorHandler(
     const [existing] = await db
       .select()
       .from(resources)
-      .where(
-        and(eq(resources.id, params.id), eq(resources.category, 'EDUCATION'), notDeleted(resources))
-      )
+      .where(and(eq(resources.id, id), eq(resources.category, 'EDUCATION'), notDeleted(resources)))
       .limit(1);
 
     if (!existing || existing.tenantId !== tenantId) {
@@ -80,15 +79,16 @@ export const PATCH = withErrorHandler(
     if (body.mediaType !== undefined) updates.mediaType = body.mediaType;
     if (body.featured !== undefined) updates.featured = body.featured;
 
-    await db.update(resources).set(updates).where(eq(resources.id, params.id));
+    await db.update(resources).set(updates).where(eq(resources.id, id));
 
-    const [updated] = await db.select().from(resources).where(eq(resources.id, params.id)).limit(1);
+    const [updated] = await db.select().from(resources).where(eq(resources.id, id)).limit(1);
     return apiSuccess(updated);
   }
 );
 
 export const DELETE = withErrorHandler(
-  async (request: Request, { params }: { params: { id: string } }) => {
+  async (request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params;
     const authData = await getSessionAndRole(request);
     if (!authData || !hasPermission(authData.role, 'admin')) {
       return apiForbidden();
@@ -99,16 +99,14 @@ export const DELETE = withErrorHandler(
     const [existing] = await db
       .select()
       .from(resources)
-      .where(
-        and(eq(resources.id, params.id), eq(resources.category, 'EDUCATION'), notDeleted(resources))
-      )
+      .where(and(eq(resources.id, id), eq(resources.category, 'EDUCATION'), notDeleted(resources)))
       .limit(1);
 
     if (!existing || existing.tenantId !== tenantId) {
       return apiNotFound('Resource not found');
     }
 
-    await db.update(resources).set({ deletedAt: new Date() }).where(eq(resources.id, params.id));
+    await db.update(resources).set({ deletedAt: new Date() }).where(eq(resources.id, id));
     return apiSuccess({ deleted: true });
   }
 );

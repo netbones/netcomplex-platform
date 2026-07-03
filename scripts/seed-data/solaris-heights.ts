@@ -1972,6 +1972,40 @@ export const SOLARIS_HEIGHTS: TenantSeedData = {
         ],
       }),
     },
+    // Phase 1 — tenant branding & map settings (ADVISORY-026)
+    {
+      id: 'slh-setting-branding-tagline',
+      key: 'branding.tagline',
+      value: 'Modern city living, community at heart',
+    },
+    {
+      id: 'slh-setting-branding-footer-copy',
+      key: 'branding.footer_copy',
+      value:
+        'A 3-block high-rise condominium in the Cape Flats, with shared amenities and a body corporate that keeps things running smoothly.',
+    },
+    {
+      id: 'slh-setting-branding-social-links',
+      key: 'branding.social_links',
+      value: JSON.stringify({
+        facebook: 'https://facebook.com/solarisheights',
+        instagram: 'https://instagram.com/solarisheights',
+      }),
+    },
+    {
+      id: 'slh-setting-map-center',
+      key: 'map.center',
+      value: JSON.stringify({ lat: -33.9985, lng: 18.5675, zoom: 15 }),
+    },
+    {
+      id: 'slh-setting-map-streets',
+      key: 'map.streets',
+      value: JSON.stringify([
+        { name: 'Block A', coords: [-33.9985, 18.5675] },
+        { name: 'Block B', coords: [-33.9988, 18.568] },
+        { name: 'Block C', coords: [-33.9991, 18.5685] },
+      ]),
+    },
   ],
 
   subscriptionTiers: [],

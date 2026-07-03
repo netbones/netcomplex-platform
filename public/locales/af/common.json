@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "Soralia Village",
+    "name": "{{tenantName}}",
     "tagline": "'n Gemeenskap van bure"
   },
   "nav": {
@@ -75,7 +75,7 @@
     "terms": "Diensvoorwaardes",
     "guidelines": "Gemeenskapsriglyne",
     "contact": "Kontak",
-    "copyright": "Soralia Village Huiseienaarsvereniging. Alle regte voorbehou."
+    "copyright": "{{tenantName}} Huiseienaarsvereniging. Alle regte voorbehou."
   },
   "home": {
     "ourCommunity": "Ons Gemeenskap",

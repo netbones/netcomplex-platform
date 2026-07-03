@@ -1,5 +1,5 @@
 {
-  "title": "INdawo yokugcina iSoralia",
+  "title": "INdawo yokugcina {{tenantName}}",
   "subtitle": "Kugcinwa ilifa lethu elibalulekile leStrandveld Wetland yaseNingizimu Afrika ngabantu basethunjini",
   "stats": {
     "endemicFlora": "uhlobo lwezitshalo ezihlala lapha",

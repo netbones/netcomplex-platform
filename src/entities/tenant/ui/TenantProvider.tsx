@@ -1,6 +1,11 @@
 'use client';
 
+import { useEffect } from 'react';
 import { TenantStyles } from './TenantStyles';
+import { useTenantActions } from '../api/context';
+import type { Tenant } from '@shared/lib';
+
+const FALLBACK_NAME = 'Netcomplex Demo Village';
 
 interface TenantInfo {
   id: string;
@@ -20,10 +25,27 @@ interface TenantProviderProps {
 }
 
 export function TenantProvider({ tenant, children }: TenantProviderProps) {
+  const { setTenant, setLoading } = useTenantActions();
+
+  useEffect(() => {
+    setTenant({
+      id: tenant.id || '',
+      name: tenant.name || FALLBACK_NAME,
+      slug: tenant.slug || '',
+      primaryColor: tenant.primaryColor || '#4F46E5',
+      accentColor: tenant.accentColor || '#F59E0B',
+      secondaryColor: tenant.secondaryColor || '#10B981',
+      logoUrl: tenant.logoUrl || '',
+      faviconUrl: tenant.faviconUrl || '',
+      fontFamily: tenant.fontFamily || 'Inter',
+    } as Tenant);
+    setLoading(false);
+  }, [tenant, setTenant, setLoading]);
+
   const tenantInfo = {
     id: tenant.id || '',
-    name: tenant.name || 'Soralia Village',
-    slug: tenant.slug || 'soralia',
+    name: tenant.name || FALLBACK_NAME,
+    slug: tenant.slug || '',
     primaryColor: tenant.primaryColor || '#4F46E5',
     accentColor: tenant.accentColor || '#F59E0B',
     secondaryColor: tenant.secondaryColor || '#10B981',

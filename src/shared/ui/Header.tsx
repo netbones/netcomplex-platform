@@ -12,6 +12,7 @@ import { type PlatformPageFlags } from '@shared/lib';
 import { NAV_REGISTRY, isNavItemVisible } from '@/shared/lib/nav';
 import { Wallet } from 'lucide-react';
 import { MobileMenu } from './MobileMenu';
+import { useTenant } from '@entities/tenant';
 
 function TeaserLink({
   href,
@@ -262,6 +263,8 @@ export function Header() {
   const { refetch } = usePageFlags();
   const { t } = useTranslation('common');
   const { data: session, isPending } = authClient.useSession();
+  const tenant = useTenant();
+  const tenantName = tenant?.name || 'Netcomplex Demo Village';
 
   useEffect(() => {
     setMounted(true);
@@ -339,12 +342,14 @@ export function Header() {
         <div className="flex justify-between items-center">
           <Link href="/" className="flex items-center space-x-3">
             <img
-              src="/logo.png"
-              alt="Soralia Village Logo"
+              src={tenant?.logoUrl || '/logo.png'}
+              alt={`${tenantName} Logo`}
               className="w-16 h-16 rounded-full bg-white p-2 border-2 border-white shadow-lg object-cover"
             />
             <div>
-              <h1 className="text-2xl font-bold">{mounted ? t('app.name') : 'Loading...'}</h1>
+              <h1 className="text-2xl font-bold">
+                {mounted ? t('app.name', { tenantName }) : 'Loading...'}
+              </h1>
               <p className="text-xs opacity-75">{mounted ? t('app.tagline') : ''}</p>
             </div>
           </Link>

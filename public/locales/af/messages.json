@@ -1,5 +1,5 @@
 {
-  "welcome": "Welkom by Soralia Village",
+  "welcome": "Welkom by {{tenantName}}",
   "welcomeBack": "Welkom terug, {{name}}!",
   "loginRequired": "Teken asseblief aan om voort te gaan",
   "loginSuccess": "U is suksesvol aangeteken",

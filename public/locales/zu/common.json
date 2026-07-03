@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "Soralia Village",
+    "name": "{{tenantName}}",
     "tagline": "Umphakathi wabamelwane"
   },
   "nav": {
@@ -75,7 +75,7 @@
     "terms": "Imigomo yenkonzo",
     "guidelines": "Imiyalelo yomphakathi",
     "contact": "Thintana",
-    "copyright": "I-Soralia Village Homeowners Association. Onke amagunya agcinwe."
+    "copyright": "{{tenantName}} Homeowners Association. Onke amagunya agcinwe."
   },
   "home": {
     "ourCommunity": "Umphakathi wethu",

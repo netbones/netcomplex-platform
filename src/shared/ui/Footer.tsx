@@ -7,6 +7,7 @@ import { useContactSettings } from '@/shared/lib/hooks/useContactSettings';
 import { useGateContext } from '@features/gate';
 import { NAV_REGISTRY, isNavItemVisible } from '@/shared/lib/nav';
 import { authClient } from '@api/client';
+import { useTenant } from '@entities/tenant';
 
 export function Footer() {
   const [mounted, setMounted] = useState(false);
@@ -14,6 +15,8 @@ export function Footer() {
   const { contacts } = useContactSettings();
   const ctx = useGateContext();
   const { data: session } = authClient.useSession();
+  const tenant = useTenant();
+  const tenantName = tenant?.name || 'Netcomplex Demo Village';
 
   useEffect(() => {
     setMounted(true);
@@ -47,12 +50,12 @@ export function Footer() {
           <div>
             <div className="flex items-center space-x-3 mb-4">
               <img
-                src="/logo.png"
-                alt="Soralia Village Logo"
+                src={tenant?.logoUrl || '/logo.png'}
+                alt={`${tenantName} Logo`}
                 className="w-12 h-12 rounded-full bg-white p-1 shadow-md object-cover"
               />
               <div>
-                <h3 className="text-xl font-bold">{t('app.name')}</h3>
+                <h3 className="text-xl font-bold">{t('app.name', { tenantName })}</h3>
                 <p className="text-sm text-gray-300">{t('app.tagline')}</p>
               </div>
             </div>
@@ -119,7 +122,7 @@ export function Footer() {
             <h4 className="text-lg font-semibold mb-4">{t('footer.contactUs')}</h4>
             <div className="space-y-3 text-sm text-gray-300">
               <p>
-                {t('app.name')}
+                {t('app.name', { tenantName })}
                 <br />
                 Cape Town, South Africa
               </p>
@@ -129,8 +132,8 @@ export function Footer() {
               >
                 {contacts.emergency}
               </a>
-              <a href="mailto:info@soralia.co.za" className="block hover:text-soralia-accent">
-                info@soralia.co.za
+              <a href="mailto:info@netcomplex.co.za" className="block hover:text-soralia-accent">
+                info@netcomplex.co.za
               </a>
             </div>
           </div>

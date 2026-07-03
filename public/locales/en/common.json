@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "Soralia Village",
+    "name": "{{tenantName}}",
     "tagline": "A Community of Neighbors"
   },
   "nav": {
@@ -75,7 +75,7 @@
     "terms": "Terms of Service",
     "guidelines": "Community Guidelines",
     "contact": "Contact",
-    "copyright": "Soralia Village Homeowners Association. All rights reserved."
+    "copyright": "{{tenantName}} Homeowners Association. All rights reserved."
   },
   "toast": {
     "created": "{{entity}} created",

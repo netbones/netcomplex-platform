@@ -7,6 +7,7 @@ export * from './api/features/registry';
 export * from './api/tenant';
 export * from './model/types';
 export * from './schema';
+export { useTenant, useTenantLoading, useTenantActions, useTenantStore } from './api/context';
 
 export type {
   CategoryConfig,
