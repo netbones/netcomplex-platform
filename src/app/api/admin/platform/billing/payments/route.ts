@@ -4,7 +4,7 @@ import { apiSuccess, apiInternalError, db } from '@api/server';
 import { logError } from '@shared/lib';
 import { tenantPayments } from '@schema/tenant-payments';
 import { tenants } from '@schema/tenants';
-import { eq, desc, and, lt } from 'drizzle-orm';
+import { eq, desc, and, lt, isNull } from 'drizzle-orm';
 
 export const maxDuration = 8;
 
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     const cursor = searchParams.get('cursor') || undefined;
     const limit = Math.min(parseInt(searchParams.get('limit') || '20', 10), 100);
 
-    const filters: Array<ReturnType<typeof eq>> = [];
+    const filters: import('drizzle-orm').SQL[] = [isNull(tenantPayments.deletedAt)];
 
     if (tenantIdFilter) {
       filters.push(eq(tenantPayments.tenantId, tenantIdFilter));
@@ -57,6 +57,7 @@ export async function GET(request: NextRequest) {
         invoiceUrl: tenantPayments.invoiceUrl,
         couponId: tenantPayments.couponId,
         createdAt: tenantPayments.createdAt,
+        deletedAt: tenantPayments.deletedAt,
         tenantName: tenants.name,
       })
       .from(tenantPayments)

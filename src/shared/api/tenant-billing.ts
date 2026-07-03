@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { and, desc, eq, inArray } from 'drizzle-orm';
+import { and, desc, eq, inArray, isNull } from 'drizzle-orm';
 
 import { db, now } from './server';
 import { billingPlans } from '@schema/billing-plans';
@@ -876,7 +876,7 @@ export async function markTransactionCompletedByReference(
   const [payment] = await db
     .select()
     .from(tenantPayments)
-    .where(eq(tenantPayments.externalRef, reference))
+    .where(and(eq(tenantPayments.externalRef, reference), isNull(tenantPayments.deletedAt)))
     .limit(1);
 
   if (!payment) {
@@ -987,7 +987,7 @@ export async function markTransactionFailedByReference(
   const [payment] = await db
     .select()
     .from(tenantPayments)
-    .where(eq(tenantPayments.externalRef, reference))
+    .where(and(eq(tenantPayments.externalRef, reference), isNull(tenantPayments.deletedAt)))
     .limit(1);
 
   if (!payment) {
@@ -1064,7 +1064,7 @@ export async function getTenantBillingSnapshot(tenantId: string) {
   const payments = await db
     .select()
     .from(tenantPayments)
-    .where(eq(tenantPayments.tenantId, tenantId))
+    .where(and(eq(tenantPayments.tenantId, tenantId), isNull(tenantPayments.deletedAt)))
     .orderBy(desc(tenantPayments.createdAt))
     .limit(10);
 
