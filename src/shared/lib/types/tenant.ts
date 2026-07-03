@@ -24,6 +24,9 @@ export interface Tenant {
   faviconUrl: string | null;
   tagline: string | null;
   description: string | null;
+  address: string | null;
+  telephone: string | null;
+  email: string | null;
   primaryColor: string;
   accentColor: string | null;
   secondaryColor: string | null;

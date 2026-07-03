@@ -13,6 +13,9 @@ interface TenantInfo {
   slug: string;
   tagline: string;
   description: string;
+  address: string;
+  telephone: string;
+  email: string;
   primaryColor: string;
   accentColor: string;
   secondaryColor: string;
@@ -37,6 +40,9 @@ export function TenantProvider({ tenant, children }: TenantProviderProps) {
       slug: tenant.slug || '',
       tagline: tenant.tagline || '',
       description: tenant.description || '',
+      address: tenant.address || '',
+      telephone: tenant.telephone || '',
+      email: tenant.email || '',
       primaryColor: tenant.primaryColor || '#4F46E5',
       accentColor: tenant.accentColor || '#F59E0B',
       secondaryColor: tenant.secondaryColor || '#10B981',
@@ -53,6 +59,9 @@ export function TenantProvider({ tenant, children }: TenantProviderProps) {
     slug: tenant.slug || '',
     tagline: tenant.tagline || '',
     description: tenant.description || '',
+    address: tenant.address || '',
+    telephone: tenant.telephone || '',
+    email: tenant.email || '',
     primaryColor: tenant.primaryColor || '#4F46E5',
     accentColor: tenant.accentColor || '#F59E0B',
     secondaryColor: tenant.secondaryColor || '#10B981',

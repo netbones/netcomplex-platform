@@ -37,6 +37,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         description:
           raw.description ??
           'A premier residential community in Cape Town, offering modern living with exceptional amenities and services.',
+        address: raw.address ?? 'Cape Town, South Africa',
+        telephone: raw.telephone ?? '',
+        email: raw.email ?? '',
         primaryColor: raw.primaryColor,
         accentColor: raw.accentColor ?? '#F59E0B',
         secondaryColor: raw.secondaryColor ?? '#10B981',
@@ -51,6 +54,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         tagline: 'A Community of Neighbors',
         description:
           'A premier residential community in Cape Town, offering modern living with exceptional amenities and services.',
+        address: 'Cape Town, South Africa',
+        telephone: '',
+        email: '',
         primaryColor: '#4F46E5',
         accentColor: '#F59E0B',
         secondaryColor: '#10B981',
