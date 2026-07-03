@@ -12,7 +12,7 @@ import {
   users,
 } from '@api/server';
 import { toEnvelope } from '@api/server';
-import { listingDto } from '@server/dto';
+import { listingDto } from '@api/server';
 import { TRPCError } from '@trpc/server';
 import { hasPermission } from '@shared/lib';
 import { eq, and, desc, isNull, sql, ilike, or, ne } from 'drizzle-orm';

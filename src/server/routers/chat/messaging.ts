@@ -1,5 +1,5 @@
 import { notDeleted, rateLimitMiddleware, toEnvelope } from '@api/server';
-import { messageDto, unreadCountsDto } from '@server/dto';
+import { messageDto, unreadCountsDto } from '@api/server';
 import {
   z,
   tenantProcedure,

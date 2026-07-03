@@ -15,7 +15,7 @@ import {
   toEnvelope,
 } from '@api/server';
 
-import { disputeCaseDto, disputeEventDto, disputeMessageDto } from '@server/dto';
+import { disputeCaseDto, disputeEventDto, disputeMessageDto } from '@api/server';
 
 import { TRPCError } from '@trpc/server';
 import { hasPermission } from '@shared/lib';

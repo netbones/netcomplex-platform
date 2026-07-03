@@ -20,6 +20,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 const PLATFORM_DOMAIN = 'app.netbones.co.za';
 const DEFAULT_TENANT_SLUG = 'soralia';
+
 const SUPPORTED_LOCALES = ['en', 'af', 'xh', 'zu'] as const;
 const DEFAULT_LOCALE = 'en';
 const LOCALE_COOKIE = 'i18n-locale';
@@ -178,6 +179,9 @@ export async function middleware(request: NextRequest) {
 
   const hostWithoutPort = host.split(':')[0] || '';
   const subdomain = hostWithoutPort.split('.')[0] || '';
+  // Subdomain extraction works for *.netbones.co.za (subdomain = slug).
+  // Bare custom domains (soralia.org, solaris.co.za, etc.) are resolved
+  // server-side by getTenantByDomain() in withTenant() / getCurrentTenant().
   const inferredTenantSlug = isLocalhost ? DEFAULT_TENANT_SLUG : subdomain || DEFAULT_TENANT_SLUG;
 
   const isApiRoute = pathname.startsWith('/api/');

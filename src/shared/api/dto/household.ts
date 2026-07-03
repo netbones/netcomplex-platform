@@ -1,65 +1,68 @@
-import type { InferSelectModel } from 'drizzle-orm';
+import { createSelectSchema } from 'drizzle-zod';
+import { z } from 'zod/v4';
 import { households, profiles } from '../db';
 
-// API-safe household shape
-export interface HouseholdDTO {
-  id: string;
-  propertyId: string;
-  organizationId: string | null;
-  occupancyType: string;
-  status: string;
-  moveInDate: string | null;
-  moveOutDate: string | null;
-  createdAt: string;
-  updatedAt: string;
+const dateSchema = z
+  .date()
+  .nullable()
+  .transform(d => (d ? d.toISOString() : new Date().toISOString()));
+const nullableDateSchema = z
+  .date()
+  .nullable()
+  .transform(d => (d ? d.toISOString() : null));
+
+export const householdDto = createSelectSchema(households, {
+  moveInDate: nullableDateSchema,
+  moveOutDate: nullableDateSchema,
+  createdAt: dateSchema,
+  updatedAt: dateSchema,
+}).pick({
+  id: true,
+  propertyId: true,
+  organizationId: true,
+  occupancyType: true,
+  status: true,
+  moveInDate: true,
+  moveOutDate: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const profileDto = createSelectSchema(profiles, {
+  occupantSince: nullableDateSchema,
+  createdAt: dateSchema,
+}).pick({
+  id: true,
+  displayName: true,
+  profileAddress: true,
+  avatar: true,
+  occupantImage: true,
+  rentalImage: true,
+  residencyType: true,
+  householdRole: true,
+  isPublic: true,
+  occupantSince: true,
+  userId: true,
+  status: true,
+  createdAt: true,
+});
+
+export const householdProfileDto = householdDto.extend({
+  profiles: z.array(profileDto),
+});
+
+export type HouseholdDto = z.infer<typeof householdDto>;
+export type ProfileDto = z.infer<typeof profileDto>;
+export type HouseholdProfileDto = z.infer<typeof householdProfileDto>;
+
+export type HouseholdDTO = HouseholdDto;
+export type ProfileDTO = ProfileDto;
+export type HouseholdProfileDTO = HouseholdProfileDto;
+
+export function toHouseholdDTO(row: z.input<typeof householdDto>): HouseholdDto {
+  return householdDto.parse(row);
 }
 
-// Household with resident profiles attached
-export interface HouseholdProfileDTO extends HouseholdDTO {
-  profiles: ProfileDTO[];
-}
-
-// Profile shape for inclusion within household data
-export interface ProfileDTO {
-  id: string;
-  displayName: string;
-  profileAddress: string;
-  userId: string | null;
-  avatar: string | null;
-  householdRole: string;
-  residencyType: string;
-  isPublic: boolean;
-  occupantSince: string;
-  status: string;
-}
-
-// Maps a Drizzle household row to HouseholdDTO
-export function toHouseholdDTO(household: InferSelectModel<typeof households>): HouseholdDTO {
-  return {
-    id: household.id,
-    propertyId: household.propertyId,
-    organizationId: household.organizationId || null,
-    occupancyType: household.occupancyType,
-    status: household.status,
-    moveInDate: household.moveInDate?.toISOString() ?? null,
-    moveOutDate: household.moveOutDate?.toISOString() ?? null,
-    createdAt: household.createdAt?.toISOString() ?? new Date().toISOString(),
-    updatedAt: household.updatedAt?.toISOString() ?? new Date().toISOString(),
-  };
-}
-
-// Maps a Drizzle profile row to ProfileDTO
-export function toProfileDTO(profile: InferSelectModel<typeof profiles>): ProfileDTO {
-  return {
-    id: profile.id,
-    displayName: profile.displayName,
-    profileAddress: profile.profileAddress,
-    userId: profile.userId || null,
-    avatar: profile.avatar || null,
-    householdRole: profile.householdRole,
-    residencyType: profile.residencyType,
-    isPublic: profile.isPublic,
-    occupantSince: profile.occupantSince?.toISOString() ?? new Date().toISOString(),
-    status: profile.status,
-  };
+export function toProfileDTO(row: z.input<typeof profileDto>): ProfileDto {
+  return profileDto.parse(row);
 }

@@ -6,3 +6,4 @@
 
 export { buildContentConditions, resolveLocale, transformContentForLocale } from './services';
 export { listContent, createContent } from './api/route';
+export { toContentDTO, toPublicContentDTO } from '@api/server';

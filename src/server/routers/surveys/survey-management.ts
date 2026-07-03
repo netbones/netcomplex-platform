@@ -27,7 +27,7 @@ import {
   getTenantSurvey,
 } from './shared';
 import { notDeleted, toEnvelope } from '@api/server';
-import { surveyDto, responseDto } from '@server/dto';
+import { surveyDto, responseDto } from '@api/server';
 import { createId } from '@shared/lib/id';
 
 export const surveyManagementProcedures = {

@@ -1,48 +1,45 @@
-import type { InferSelectModel } from 'drizzle-orm';
+import { createSelectSchema } from 'drizzle-zod';
+import { z } from 'zod/v4';
 import { groups } from '../db';
 
-// API-safe group shape
-export interface GroupDTO {
-  id: string;
-  name: string;
-  description: string | null;
-  category: string;
-  image: string | null;
-  color: string;
-  isPublic: boolean;
-  accessType: string;
-  residentFilter: string;
-  isActive: boolean;
-  ownerId: string;
-  createdAt: string;
-  updatedAt: string;
+const dateSchema = z
+  .date()
+  .nullable()
+  .transform(d => (d ? d.toISOString() : new Date().toISOString()));
+
+export const groupDto = createSelectSchema(groups, {
+  createdAt: dateSchema,
+  updatedAt: dateSchema,
+}).pick({
+  id: true,
+  name: true,
+  description: true,
+  category: true,
+  image: true,
+  color: true,
+  isPublic: true,
+  accessType: true,
+  residentFilter: true,
+  isActive: true,
+  ownerId: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const groupDetailDto = groupDto.extend({
+  memberCount: z.number().optional(),
+});
+
+export type GroupDto = z.infer<typeof groupDto>;
+export type GroupDetailDto = z.infer<typeof groupDetailDto>;
+
+export type GroupDTO = GroupDto;
+export type GroupDetailDTO = GroupDetailDto;
+
+export function toGroupDTO(row: z.input<typeof groupDto>): GroupDto {
+  return groupDto.parse(row);
 }
 
-// Detailed group with additional context
-export interface GroupDetailDTO extends GroupDTO {
-  memberCount?: number;
-}
-
-// Maps a Drizzle group row to GroupDTO
-export function toGroupDTO(group: InferSelectModel<typeof groups>): GroupDTO {
-  return {
-    id: group.id,
-    name: group.name,
-    description: group.description || null,
-    category: group.category,
-    image: group.image || null,
-    color: group.color,
-    isPublic: group.isPublic,
-    accessType: group.accessType,
-    residentFilter: group.residentFilter,
-    isActive: group.isActive,
-    ownerId: group.ownerId,
-    createdAt: group.createdAt?.toISOString() ?? new Date().toISOString(),
-    updatedAt: group.updatedAt?.toISOString() ?? new Date().toISOString(),
-  };
-}
-
-// Maps an array of Drizzle group rows to GroupDTO[]
-export function toGroupDTOs(groupRows: InferSelectModel<typeof groups>[]): GroupDTO[] {
-  return groupRows.map(toGroupDTO);
+export function toGroupDTOs(rows: z.input<typeof groupDto>[]): GroupDto[] {
+  return rows.map(row => groupDto.parse(row));
 }

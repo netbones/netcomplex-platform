@@ -11,7 +11,7 @@ import {
 import { TRPCError } from '@trpc/server';
 import { eq, and, desc, inArray, isNull } from 'drizzle-orm';
 import { toEnvelope } from '@api/server';
-import { notificationDto } from '@server/dto';
+import { notificationDto } from '@api/server';
 import { createId } from '@shared/lib/id';
 
 const notificationTypeEnum = z.enum(['info', 'warning', 'success', 'error']);

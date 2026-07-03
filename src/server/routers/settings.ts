@@ -14,7 +14,7 @@ import { hasPermission } from '@shared/lib';
 import { eq, and } from 'drizzle-orm';
 import { validateSettingValue } from '@shared/lib/settings/validation';
 import { toEnvelope } from '@api/server';
-import { settingDto } from '@server/dto';
+import { settingDto } from '@api/server';
 import { notDeleted } from '@api/server';
 
 const SettingByKeyInput = z.object({ key: z.string() });

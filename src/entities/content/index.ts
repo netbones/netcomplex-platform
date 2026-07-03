@@ -3,5 +3,4 @@ export type { ContentFormData, GroupFormData, AnnouncementFormData } from './sch
 
 export { canManageContent, canManageOwnContent } from './permissions';
 
-export { toContentDTO, toPublicContentDTO } from './dto';
-export type { ContentDTO, PublicContentDTO } from './dto';
+export type { ContentDTO, PublicContentDTO } from '@api/server';

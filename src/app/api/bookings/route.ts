@@ -16,7 +16,7 @@ import { assertModuleEnabled } from '@entities/tenant/server';
 
 import { hasPermission } from '@shared/lib';
 import { bookingSchema } from '@entities/booking';
-import { toBookingDTO } from '@api/shared';
+import { toBookingDTO } from '@api/server';
 
 import { apiLogger } from '@shared/lib';
 

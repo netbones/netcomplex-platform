@@ -1,48 +1,45 @@
-import { z } from 'zod';
+import { createSelectSchema } from 'drizzle-zod';
+import { z } from 'zod/v4';
+import { competitions } from '../db';
 
-// ──────────────────────────────────────────
-// Enum types
-// ──────────────────────────────────────────
+const dateSchema = z.date().transform(d => d.toISOString());
 
-export const CompetitionTypeEnum = z.enum(['RAFFLE', 'PHOTO', 'SCORE']);
-export type CompetitionType = z.infer<typeof CompetitionTypeEnum>;
-
-export const EntryStatusEnum = z.enum(['JOINED', 'WITHDRAWN', 'WINNER', 'RUNNER_UP']);
-export type EntryStatus = z.infer<typeof EntryStatusEnum>;
-
-// ──────────────────────────────────────────
-// Public Competition DTO
-// ──────────────────────────────────────────
-
-export const CompetitionDTO = z.object({
-  id: z.string(),
-  title: z.string(),
-  description: z.string().nullable(),
-  rules: z.string().nullable(),
-  prizeInfo: z.string().nullable(),
-  type: CompetitionTypeEnum,
-  startDate: z.string(), // ISO string
-  endDate: z.string(), // ISO string
-  status: z.enum(['DRAFT', 'ACTIVE', 'ENDED', 'CANCELLED']),
-  entryCount: z.number(),
-  maxParticipants: z.number().nullable(),
-  winnersCount: z.number(),
-  image: z.string().nullable(),
-  participantCount: z.number().optional(), // computed count of JOINED entries
+export const competitionDto = createSelectSchema(competitions, {
+  startDate: dateSchema,
+  endDate: dateSchema,
+  createdAt: dateSchema,
+  updatedAt: dateSchema,
+}).pick({
+  id: true,
+  title: true,
+  description: true,
+  rules: true,
+  prizeInfo: true,
+  type: true,
+  startDate: true,
+  endDate: true,
+  status: true,
+  entryCount: true,
+  maxParticipants: true,
+  winnersCount: true,
+  image: true,
+  createdAt: true,
+  updatedAt: true,
 });
 
-export type CompetitionDTO = z.infer<typeof CompetitionDTO>;
+const CompetitionTypeEnum = z.enum(['RAFFLE', 'PHOTO', 'SCORE']);
+const EntryStatusEnum = z.enum(['JOINED', 'WITHDRAWN', 'WINNER', 'RUNNER_UP']);
 
-// ──────────────────────────────────────────
-// Participant DTO
-// ──────────────────────────────────────────
+export const CompetitionDTO = competitionDto.extend({
+  participantCount: z.number().optional(),
+});
 
 export const ParticipantDTO = z.object({
-  id: z.string(), // CompetitionEntry id
+  id: z.string(),
   userId: z.string(),
   name: z.string(),
   avatar: z.string().nullable(),
-  joinedAt: z.string(), // ISO string
+  joinedAt: z.string(),
   status: EntryStatusEnum,
   submissionUrl: z.string().nullable(),
   submissionText: z.string().nullable(),
@@ -51,25 +48,13 @@ export const ParticipantDTO = z.object({
   prize: z.string().nullable(),
 });
 
-export type ParticipantDTO = z.infer<typeof ParticipantDTO>;
-
-// ──────────────────────────────────────────
-// Winner DTO (public winner info)
-// ──────────────────────────────────────────
-
 export const WinnerDTO = z.object({
   userId: z.string(),
   name: z.string(),
   avatar: z.string().nullable(),
   prize: z.string().nullable(),
-  rank: z.string().optional(), // 'WINNER' or 'RUNNER_UP'
+  rank: z.string().optional(),
 });
-
-export type WinnerDTO = z.infer<typeof WinnerDTO>;
-
-// ──────────────────────────────────────────
-// tRPC Input Schemas
-// ──────────────────────────────────────────
 
 export const JoinCompetitionInput = z.object({
   competitionId: z.string(),
@@ -97,3 +82,10 @@ export const MarkWinnerInput = z.object({
   entryId: z.string(),
   prize: z.string().optional(),
 });
+
+export type CompetitionDto = z.infer<typeof competitionDto>;
+export type CompetitionType = z.infer<typeof CompetitionTypeEnum>;
+export type EntryStatus = z.infer<typeof EntryStatusEnum>;
+export type CompetitionDTO = z.infer<typeof CompetitionDTO>;
+export type ParticipantDTO = z.infer<typeof ParticipantDTO>;
+export type WinnerDTO = z.infer<typeof WinnerDTO>;

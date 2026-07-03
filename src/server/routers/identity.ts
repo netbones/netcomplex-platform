@@ -36,7 +36,7 @@ import {
   standardSeatDto,
   agentAccessDto,
   suspensionDto,
-} from '@server/dto';
+} from '@api/server';
 
 import { TRPCError } from '@trpc/server';
 import { hasPermission } from '@shared/lib';

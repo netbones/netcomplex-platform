@@ -16,7 +16,7 @@ import {
 
 import { toEnvelope } from '@api/server';
 
-import { groupDto, groupDetailDto } from '@server/dto';
+import { groupDto, groupDetailDto } from '@api/server';
 
 import { TRPCError } from '@trpc/server';
 import { hasPermission } from '@shared/lib';

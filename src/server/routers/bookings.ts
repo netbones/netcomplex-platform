@@ -13,7 +13,7 @@ import {
 
 import { toEnvelope } from '@api/server';
 
-import { bookingDto } from '@server/dto';
+import { bookingDto } from '@api/server';
 
 import { TRPCError } from '@trpc/server';
 import { hasPermission } from '@shared/lib';
@@ -27,7 +27,7 @@ import {
   createBooking as entityCreateBooking,
 } from '@entities/booking/server';
 
-import { toBookingDTO } from '@api/shared';
+import { toBookingDTO } from '@api/server';
 
 // ──────────────────────────────────────────
 // Input schemas
