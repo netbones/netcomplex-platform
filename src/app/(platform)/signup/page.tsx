@@ -28,8 +28,8 @@ export default function SignupPage() {
       try {
         const response = await fetch('/api/pricing');
         if (response.ok) {
-          const data = await response.json();
-          setPlans(data.plans);
+          const { data: body } = await response.json();
+          setPlans(body.plans);
         }
       } catch (error) {
         log.error({}, 'Failed to fetch pricing plans', error);
