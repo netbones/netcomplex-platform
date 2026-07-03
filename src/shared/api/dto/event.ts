@@ -1,61 +1,53 @@
-import type { InferSelectModel } from 'drizzle-orm';
+import { createSelectSchema } from 'drizzle-zod';
+import { z } from 'zod/v4';
 import { events } from '../db';
 
-// API-safe event shape
-export interface EventDTO {
-  id: string;
-  title: string;
-  description: string;
-  date: string;
-  location: string;
-  organizer: string;
-  image: string | null;
-  isPublic: boolean;
-  createdAt: string;
-  updatedAt: string;
+const dateSchema = z
+  .date()
+  .nullable()
+  .transform(d => (d ? d.toISOString() : new Date().toISOString()));
+
+export const eventDto = createSelectSchema(events, {
+  date: dateSchema,
+  createdAt: dateSchema,
+  updatedAt: dateSchema,
+}).pick({
+  id: true,
+  title: true,
+  description: true,
+  date: true,
+  location: true,
+  organizer: true,
+  image: true,
+  isPublic: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const publicEventDto = eventDto.pick({
+  id: true,
+  title: true,
+  description: true,
+  date: true,
+  location: true,
+  organizer: true,
+  image: true,
+});
+
+export type EventDto = z.infer<typeof eventDto>;
+export type PublicEventDto = z.infer<typeof publicEventDto>;
+
+export type EventDTO = EventDto;
+export type PublicEventDTO = PublicEventDto;
+
+export function toEventDTO(row: z.input<typeof eventDto>): EventDto {
+  return eventDto.parse(row);
 }
 
-// Public-facing event shape (no internal fields)
-export interface PublicEventDTO {
-  id: string;
-  title: string;
-  description: string;
-  date: string;
-  location: string;
-  organizer: string;
-  image: string | null;
+export function toEventDTOs(rows: z.input<typeof eventDto>[]): EventDto[] {
+  return rows.map(row => eventDto.parse(row));
 }
 
-// Maps a Drizzle event row to EventDTO
-export function toEventDTO(event: InferSelectModel<typeof events>): EventDTO {
-  return {
-    id: event.id,
-    title: event.title,
-    description: event.description,
-    date: event.date?.toISOString() ?? new Date().toISOString(),
-    location: event.location,
-    organizer: event.organizer,
-    image: event.image || null,
-    isPublic: event.isPublic,
-    createdAt: event.createdAt?.toISOString() ?? new Date().toISOString(),
-    updatedAt: event.updatedAt?.toISOString() ?? new Date().toISOString(),
-  };
-}
-
-// Maps an array of Drizzle event rows to EventDTO[]
-export function toEventDTOs(eventRows: InferSelectModel<typeof events>[]): EventDTO[] {
-  return eventRows.map(toEventDTO);
-}
-
-// Maps a Drizzle event row to PublicEventDTO
-export function toPublicEventDTO(event: InferSelectModel<typeof events>): PublicEventDTO {
-  return {
-    id: event.id,
-    title: event.title,
-    description: event.description,
-    date: event.date?.toISOString() ?? new Date().toISOString(),
-    location: event.location,
-    organizer: event.organizer,
-    image: event.image || null,
-  };
+export function toPublicEventDTO(row: z.input<typeof publicEventDto>): PublicEventDto {
+  return publicEventDto.parse(row);
 }

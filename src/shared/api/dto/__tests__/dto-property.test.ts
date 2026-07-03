@@ -109,12 +109,11 @@ describe('toPropertyDTO', () => {
     expect(parsed.getTime()).toBeLessThanOrEqual(Date.now() + 1000);
   });
 
-  it('handles empty string homeImage by returning null', () => {
+  it('preserves empty string homeImage as empty string', () => {
     const row = makeMockRow({ homeImage: '' });
     const result = toPropertyDTO(row);
 
-    // '' || null evaluates to null
-    expect(result.homeImage).toBeNull();
+    expect(result.homeImage).toBe('');
   });
 });
 
@@ -178,11 +177,11 @@ describe('toPropertySummaryDTO', () => {
     expect(result.homeImage).toBeNull();
   });
 
-  it('handles empty string homeImage as null', () => {
+  it('preserves empty string homeImage as empty string', () => {
     const row = makeMockRow({ homeImage: '' });
     const result = toPropertySummaryDTO(row);
 
-    expect(result.homeImage).toBeNull();
+    expect(result.homeImage).toBe('');
   });
 
   it('returns PropertySummaryDTO type-compatible shape', () => {

@@ -1,39 +1,44 @@
-import type { InferSelectModel } from 'drizzle-orm';
+import { createSelectSchema } from 'drizzle-zod';
+import { z } from 'zod/v4';
 import { messages } from '../db';
 
-// API-safe message shape
-export interface MessageDTO {
-  id: string;
-  conversationId: string;
-  senderId: string;
-  content: string;
-  type: string;
-  messageVersion: number;
-  payload: Record<string, unknown> | null;
-  mediaUrl: string | null;
-  deletedAt: string | null;
-  createdAt: string;
-  expiresAt: string | null;
+const dateSchema = z
+  .date()
+  .nullable()
+  .transform(d => (d ? d.toISOString() : new Date().toISOString()));
+const nullableDateSchema = z
+  .date()
+  .nullable()
+  .transform(d => (d ? d.toISOString() : null));
+
+export const messageDto = createSelectSchema(messages, {
+  deletedAt: nullableDateSchema,
+  expiresAt: nullableDateSchema,
+  createdAt: dateSchema,
+  payload: z.unknown().nullable().default(null),
+  mediaUrl: z.string().nullable().default(null),
+  messageVersion: z.number().default(1),
+}).pick({
+  id: true,
+  conversationId: true,
+  senderId: true,
+  content: true,
+  type: true,
+  messageVersion: true,
+  payload: true,
+  mediaUrl: true,
+  deletedAt: true,
+  createdAt: true,
+  expiresAt: true,
+});
+
+export type MessageDto = z.infer<typeof messageDto>;
+export type MessageDTO = MessageDto;
+
+export function toMessageDTO(row: z.input<typeof messageDto>): MessageDto {
+  return messageDto.parse(row);
 }
 
-// Maps a Drizzle message row to MessageDTO
-export function toMessageDTO(message: InferSelectModel<typeof messages>): MessageDTO {
-  return {
-    id: message.id,
-    conversationId: message.conversationId,
-    senderId: message.senderId,
-    content: message.content,
-    type: message.type,
-    messageVersion: message.messageVersion ?? 1,
-    payload: (message.payload as Record<string, unknown>) ?? null,
-    mediaUrl: message.mediaUrl || null,
-    deletedAt: message.deletedAt?.toISOString() ?? null,
-    createdAt: message.createdAt?.toISOString() ?? new Date().toISOString(),
-    expiresAt: message.expiresAt?.toISOString() ?? null,
-  };
-}
-
-// Maps an array of Drizzle message rows to MessageDTO[]
-export function toMessageDTOs(messageRows: InferSelectModel<typeof messages>[]): MessageDTO[] {
-  return messageRows.map(toMessageDTO);
+export function toMessageDTOs(rows: z.input<typeof messageDto>[]): MessageDto[] {
+  return rows.map(row => messageDto.parse(row));
 }

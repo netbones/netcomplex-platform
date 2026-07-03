@@ -1,57 +1,56 @@
-import type { InferSelectModel } from 'drizzle-orm';
+import { createSelectSchema } from 'drizzle-zod';
+import { z } from 'zod/v4';
 import { users } from '../db';
 
-// API-safe user shape — never exposes internal fields
-export interface UserDTO {
-  id: string;
-  name: string;
-  email: string;
-  image: string | null;
-  role: string;
-  isActive: boolean;
-  profileSlug: string | null;
-  isPublic: boolean;
-  createdAt: string;
-  updatedAt: string;
+const dateSchema = z
+  .date()
+  .nullable()
+  .transform(d => (d ? d.toISOString() : new Date().toISOString()));
+
+export const userDto = createSelectSchema(users, {
+  email: z.string().optional(),
+  phone: z.string().nullable().optional(),
+  avatar: z.string().nullable(),
+  profileSlug: z.string().nullable().optional(),
+  createdAt: dateSchema,
+  updatedAt: dateSchema,
+}).pick({
+  id: true,
+  name: true,
+  email: true,
+  image: true,
+  avatar: true,
+  role: true,
+  isActive: true,
+  isPublic: true,
+  profileSlug: true,
+  phone: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const userSummaryDto = userDto.pick({
+  id: true,
+  name: true,
+  image: true,
+  role: true,
+  profileSlug: true,
+});
+
+export type UserDto = z.infer<typeof userDto>;
+export type UserSummaryDto = z.infer<typeof userSummaryDto>;
+
+export type UserDTO = UserDto;
+export type UserSummaryDTO = UserSummaryDto;
+
+export function toUserDTO(row: z.input<typeof userDto>): UserDto {
+  return userDto.parse(row);
 }
 
-// Lightweight user summary for listings and references
-export interface UserSummaryDTO {
-  id: string;
-  name: string;
-  image: string | null;
-  role: string;
-  profileSlug: string | null;
+export function toUserDTOs(rows: z.input<typeof userDto>[]): UserDto[] {
+  return rows.map(row => userDto.parse(row));
 }
 
-// Maps a Drizzle user row to UserDTO
-export function toUserDTO(user: InferSelectModel<typeof users>): UserDTO {
-  return {
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    image: user.image || null,
-    role: user.role,
-    isActive: user.isActive,
-    profileSlug: user.profileSlug || null,
-    isPublic: user.isPublic,
-    createdAt: user.createdAt?.toISOString() ?? new Date().toISOString(),
-    updatedAt: user.updatedAt?.toISOString() ?? new Date().toISOString(),
-  };
-}
-
-// Maps an array of Drizzle user rows to UserDTO[]
-export function toUserDTOs(userRows: InferSelectModel<typeof users>[]): UserDTO[] {
-  return userRows.map(toUserDTO);
-}
-
-// Maps a Drizzle user row to UserSummaryDTO
-export function toUserSummaryDTO(user: InferSelectModel<typeof users>): UserSummaryDTO {
-  return {
-    id: user.id,
-    name: user.name,
-    image: user.image || null,
-    role: user.role,
-    profileSlug: user.profileSlug || null,
-  };
+export function toUserSummaryDTO(row: z.input<typeof userSummaryDto>): UserSummaryDto {
+  return userSummaryDto.parse(row);
 }

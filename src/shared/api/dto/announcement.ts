@@ -1,43 +1,42 @@
-import type { InferSelectModel } from 'drizzle-orm';
+import { createSelectSchema } from 'drizzle-zod';
+import { z } from 'zod/v4';
 import { announcements } from '../db';
 
-// API-safe announcement shape
-export interface AnnouncementDTO {
-  id: string;
-  title: string;
-  content: string;
-  author: string;
-  priority: string;
-  targetFilter: string;
-  targetRoles: string[];
-  resourceId: string | null;
-  expiresAt: string | null;
-  createdAt: string;
-  updatedAt: string;
+const dateSchema = z
+  .date()
+  .nullable()
+  .transform(d => (d ? d.toISOString() : new Date().toISOString()));
+const nullableDateSchema = z
+  .date()
+  .nullable()
+  .transform(d => (d ? d.toISOString() : null));
+
+export const announcementDto = createSelectSchema(announcements, {
+  createdAt: dateSchema,
+  updatedAt: dateSchema,
+  expiresAt: nullableDateSchema,
+  targetRoles: z.preprocess(val => (val == null ? [] : val) as string[], z.array(z.string())),
+}).pick({
+  id: true,
+  title: true,
+  content: true,
+  author: true,
+  priority: true,
+  targetFilter: true,
+  targetRoles: true,
+  resourceId: true,
+  createdAt: true,
+  updatedAt: true,
+  expiresAt: true,
+});
+
+export type AnnouncementDto = z.infer<typeof announcementDto>;
+export type AnnouncementDTO = AnnouncementDto;
+
+export function toAnnouncementDTO(row: z.input<typeof announcementDto>): AnnouncementDto {
+  return announcementDto.parse(row);
 }
 
-// Maps a Drizzle announcement row to AnnouncementDTO
-export function toAnnouncementDTO(
-  announcement: InferSelectModel<typeof announcements>
-): AnnouncementDTO {
-  return {
-    id: announcement.id,
-    title: announcement.title as string,
-    content: announcement.content,
-    author: announcement.author,
-    priority: announcement.priority,
-    targetFilter: announcement.targetFilter,
-    targetRoles: announcement.targetRoles || [],
-    resourceId: announcement.resourceId || null,
-    expiresAt: announcement.expiresAt?.toISOString() ?? null,
-    createdAt: announcement.createdAt?.toISOString() ?? new Date().toISOString(),
-    updatedAt: announcement.updatedAt?.toISOString() ?? new Date().toISOString(),
-  };
-}
-
-// Maps an array of Drizzle announcement rows to AnnouncementDTO[]
-export function toAnnouncementDTOs(
-  announcementRows: InferSelectModel<typeof announcements>[]
-): AnnouncementDTO[] {
-  return announcementRows.map(toAnnouncementDTO);
+export function toAnnouncementDTOs(rows: z.input<typeof announcementDto>[]): AnnouncementDto[] {
+  return rows.map(row => announcementDto.parse(row));
 }

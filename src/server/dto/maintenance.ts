@@ -1,30 +1,15 @@
-import { z } from 'zod';
+// ── Shim: re-exports from shared/api/dto (ADR-024) ──
+export { maintenanceRequestDto, maintenanceSummaryDto } from '@/shared/api/dto/maintenance';
+export type { MaintenanceRequestDto, MaintenanceSummaryDto } from '@/shared/api/dto/maintenance';
 
-const dateSchema = z.date().transform(d => d.toISOString());
+// Locally defined schemas not yet in shared/api/dto
+import { z } from 'zod/v4';
+import { maintenanceRequestDto } from '@/shared/api/dto/maintenance';
 
-export const maintenanceRequestDto = z.object({
-  id: z.string(),
-  propertyId: z.string().nullable(),
-  userId: z.string(),
-  category: z.string(),
-  priority: z.string(),
-  description: z.string(),
-  status: z.string(),
-  images: z.array(z.string()),
-  assignedTo: z.string().nullable(),
-  vendor: z.string().nullable(),
-  scheduledDate: dateSchema.nullable(),
-  estimatedCost: z.number().nullable(),
-  actualCost: z.number().nullable(),
-  resolution: z.string().nullable(),
-  completedAt: dateSchema.nullable(),
-  ticketNumber: z.string(),
-  preferredDate: dateSchema.nullable(),
-  preferredTime: z.string().nullable(),
-  routingType: z.string(),
-  createdAt: dateSchema,
-  updatedAt: dateSchema,
-});
+const dateSchema = z
+  .date()
+  .nullable()
+  .transform(d => (d ? d.toISOString() : null));
 
 export const maintenanceRequestDetailDto = maintenanceRequestDto.extend({
   user: z
@@ -47,5 +32,4 @@ export const maintenanceRequestDetailDto = maintenanceRequestDto.extend({
   assignedProvider: z.unknown().nullable().optional(),
 });
 
-export type MaintenanceRequestDto = z.infer<typeof maintenanceRequestDto>;
 export type MaintenanceRequestDetailDto = z.infer<typeof maintenanceRequestDetailDto>;
