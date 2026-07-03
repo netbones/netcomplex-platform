@@ -31,6 +31,9 @@ export const SOLARIS_HEIGHTS: TenantSeedData = {
     tagline: 'Modern city living, community at heart',
     description:
       'A 3-block high-rise condominium of up to 150 units in the Cape Flats, with shared amenities and a body corporate that keeps things running smoothly.',
+    address: '42 Beach Road, Cape Town, 8001',
+    telephone: '+27 21 555 0200',
+    email: 'info@solarisheights.co.za',
     ticketPrefix: 'SLH',
   },
 

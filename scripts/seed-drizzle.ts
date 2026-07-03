@@ -181,6 +181,11 @@ async function seedTenant(data: TenantSeedData): Promise<void> {
       subscriptionTier: data.tenant.subscriptionTier,
       tier: data.tenant.tier,
       featureFlags: data.tenant.featureFlags,
+      tagline: data.tenant.tagline ?? null,
+      description: data.tenant.description ?? null,
+      address: data.tenant.address ?? null,
+      telephone: data.tenant.telephone ?? null,
+      email: data.tenant.email ?? null,
       maxPages: 10,
       pageCount: 0,
       active: true,
@@ -194,6 +199,11 @@ async function seedTenant(data: TenantSeedData): Promise<void> {
         active: true,
         tier: data.tenant.tier,
         subscriptionTier: data.tenant.subscriptionTier,
+        tagline: data.tenant.tagline ?? null,
+        description: data.tenant.description ?? null,
+        address: data.tenant.address ?? null,
+        telephone: data.tenant.telephone ?? null,
+        email: data.tenant.email ?? null,
       },
     })
     .returning();
