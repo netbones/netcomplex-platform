@@ -69,7 +69,10 @@ export async function POST(request: NextRequest) {
     // We do this first because Better Auth handles its own internal transaction
     const authResponse = await fetch(`${BETTER_AUTH_URL}/api/auth/sign-up/email`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        Origin: BETTER_AUTH_URL,
+      },
       body: JSON.stringify({
         email: body.admin.email,
         password: body.admin.password,
