@@ -12,7 +12,7 @@ import {
   users,
 } from '@api/server';
 import { toEnvelope } from '@api/server';
-import { agentProfileDto } from '@api/shared';
+import { agentProfileDto } from '@api/server';
 
 import { TRPCError } from '@trpc/server';
 

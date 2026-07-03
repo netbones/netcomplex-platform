@@ -11,7 +11,7 @@ import {
   desc,
 } from './shared';
 import { toEnvelope } from '@api/server';
-import { externalSurveyDto, responseDto } from '@api/shared';
+import { externalSurveyDto, responseDto } from '@api/server';
 import { createId } from '@shared/lib/id';
 
 export const externalSurveyProcedures = {

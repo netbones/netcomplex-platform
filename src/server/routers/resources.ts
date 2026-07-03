@@ -14,7 +14,7 @@ import {
   toEnvelope,
 } from '@api/server';
 
-import { resourceDto } from '@api/shared';
+import { resourceDto } from '@api/server';
 
 import { TRPCError } from '@trpc/server';
 import { eq, and, desc, inArray, sql } from 'drizzle-orm';

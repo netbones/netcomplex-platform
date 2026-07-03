@@ -7,7 +7,7 @@ import {
   revalidateAdminChanges,
 } from '@api/server';
 import { toEnvelope } from '@api/server';
-import { achievementDto, achievementProgressDto } from '@api/shared';
+import { achievementDto, achievementProgressDto } from '@api/server';
 
 import { TRPCError } from '@trpc/server';
 import { hasPermission } from '@shared/lib';

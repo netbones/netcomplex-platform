@@ -1,5 +1,5 @@
 import { notDeleted, toEnvelope } from '@api/server';
-import { maintenanceRequestDto, maintenanceRequestDetailDto } from '@api/shared';
+import { maintenanceRequestDto, maintenanceRequestDetailDto } from '@api/server';
 import {
   z,
   tenantProcedure,

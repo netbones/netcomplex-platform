@@ -13,7 +13,7 @@ import {
   writeAuditLog,
 } from '@api/server';
 import { toEnvelope } from '@api/server';
-import { meritDto } from '@api/shared';
+import { meritDto } from '@api/server';
 
 import { TRPCError } from '@trpc/server';
 import { hasPermission } from '@shared/lib';

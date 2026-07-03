@@ -1,5 +1,5 @@
 import { toEnvelope } from '@api/server';
-import { conversationDto } from '@api/shared';
+import { conversationDto } from '@api/server';
 import {
   z,
   tenantProcedure,

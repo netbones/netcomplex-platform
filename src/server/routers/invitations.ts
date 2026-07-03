@@ -15,7 +15,7 @@ import {
   users,
 } from '@api/server';
 import { toEnvelope } from '@api/server';
-import { invitationDto } from '@api/shared';
+import { invitationDto } from '@api/server';
 
 import { TRPCError } from '@trpc/server';
 import { hasPermission, createComponentLogger } from '@shared/lib';
