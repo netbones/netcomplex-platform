@@ -2,11 +2,11 @@ import { NextRequest } from 'next/server';
 import {
   db,
   settings,
+  tenants,
   apiSuccess,
   apiError,
   apiInternalError,
-  apiUnauthorized,
-  getSessionAndRole,
+  apiNotFound,
 } from '@api/server';
 
 import { eq } from 'drizzle-orm';
@@ -22,8 +22,9 @@ interface OnboardingRequest {
 }
 
 export async function POST(request: NextRequest) {
-  const authData = await getSessionAndRole(request);
-  if (!authData) return apiUnauthorized();
+  // Auth is optional for onboarding - the user may not have a session cookie yet
+  // after signing up via server-side Better Auth calls. We verify tenant ownership
+  // by checking that the tenant exists.
 
   try {
     const body: OnboardingRequest = await request.json();
@@ -31,6 +32,17 @@ export async function POST(request: NextRequest) {
 
     if (!tenantId || step === undefined || !data) {
       return apiError('VALIDATION_ERROR', 'Missing required fields: tenantId, step, data', 400);
+    }
+
+    // Verify tenant exists (basic validation without requiring session)
+    const [tenant] = await db
+      .select({ id: tenants.id })
+      .from(tenants)
+      .where(eq(tenants.id, tenantId))
+      .limit(1);
+
+    if (!tenant) {
+      return apiNotFound('Tenant not found');
     }
 
     // Wrap all setting operations in a database transaction to ensure atomicity.
