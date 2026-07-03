@@ -105,12 +105,16 @@ export function useSignupForm() {
 
       if (!res.ok) {
         const responseData = await res.json();
-        throw new Error(responseData.error || 'Failed to create community');
+        const msg =
+          typeof responseData.error === 'string'
+            ? responseData.error
+            : responseData.error?.message || 'Failed to create community';
+        throw new Error(msg);
       }
 
       // Redirect to onboarding wizard with the new tenant id
       const responseData = await res.json();
-      const { tenantId } = responseData;
+      const tenantId = responseData.data?.tenantId;
       router.push(`/platform/onboarding/${tenantId}`);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to create community';
