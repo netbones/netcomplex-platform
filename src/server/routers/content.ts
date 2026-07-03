@@ -23,7 +23,7 @@ import {
   settings,
   toEnvelope,
 } from '@api/server';
-import { contentDto, announcementDto } from '@server/dto';
+import { contentDto, announcementDto } from '@api/shared';
 
 import { TRPCError } from '@trpc/server';
 import {

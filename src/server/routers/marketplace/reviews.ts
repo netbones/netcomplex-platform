@@ -10,7 +10,7 @@ import {
   revalidateAdminChanges,
 } from '@api/server';
 import { toEnvelope } from '@api/server';
-import { reviewDto } from '@server/dto';
+import { reviewDto } from '@api/shared';
 import { TRPCError } from '@trpc/server';
 import { eq, and, desc, sql } from 'drizzle-orm';
 import { ListReviewsInput, CreateReviewInput, updateListingRating } from './shared';

@@ -8,7 +8,7 @@ import {
   now,
 } from '@api/server';
 import { toEnvelope } from '@api/server';
-import { serviceBookingDto } from '@server/dto';
+import { serviceBookingDto } from '@api/shared';
 import { TRPCError } from '@trpc/server';
 import { eq, and, or, desc, ne, sql } from 'drizzle-orm';
 import {

@@ -17,7 +17,7 @@ import {
 
 import { toEnvelope } from '@api/server';
 
-import { eventDto } from '@server/dto';
+import { eventDto } from '@api/shared';
 
 import { TRPCError } from '@trpc/server';
 import { requireContentPermission } from './content';

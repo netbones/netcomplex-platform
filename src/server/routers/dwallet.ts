@@ -13,7 +13,7 @@ import {
   toEnvelope,
 } from '@api/server';
 
-import { walletTransactionDto, consentDto, payoutDto } from '@server/dto';
+import { walletTransactionDto, consentDto, payoutDto } from '@api/shared';
 
 import { TRPCError } from '@trpc/server';
 import { rateLimitByUser } from '@api/server';

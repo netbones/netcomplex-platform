@@ -35,13 +35,16 @@ export const profileDto = createSelectSchema(profiles, {
   id: true,
   displayName: true,
   profileAddress: true,
-  userId: true,
   avatar: true,
-  householdRole: true,
+  occupantImage: true,
+  rentalImage: true,
   residencyType: true,
+  householdRole: true,
   isPublic: true,
   occupantSince: true,
+  userId: true,
   status: true,
+  createdAt: true,
 });
 
 export const householdProfileDto = householdDto.extend({

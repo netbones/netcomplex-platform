@@ -13,7 +13,7 @@ import {
 
 import { toEnvelope } from '@api/server';
 
-import { bookingDto } from '@server/dto';
+import { bookingDto } from '@api/shared';
 
 import { TRPCError } from '@trpc/server';
 import { hasPermission } from '@shared/lib';

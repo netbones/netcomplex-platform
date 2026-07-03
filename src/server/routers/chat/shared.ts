@@ -14,7 +14,7 @@ import {
   revalidateConversations,
 } from '@api/server';
 import { toEnvelope } from '@api/server';
-import { conversationDto, conversationDetailDto, messageDto, unreadCountsDto } from '@server/dto';
+import { conversationDto, conversationDetailDto, messageDto, unreadCountsDto } from '@api/shared';
 
 import { TRPCError } from '@trpc/server';
 import { hasPermission } from '@shared/lib';

@@ -1,6 +1,6 @@
 import { tenantProcedure, db, maintenanceRequests, bookings, now } from '@api/server';
 import { toEnvelope } from '@api/server';
-import { urgencyDto } from '@server/dto';
+import { urgencyDto } from '@api/shared';
 import { TRPCError } from '@trpc/server';
 import { eq, and, gte, lte, count } from 'drizzle-orm';
 import { createComponentLogger } from '@shared/lib';
