@@ -45,6 +45,12 @@ export const authClient = new Proxy<AuthClientType>({} as AuthClientType, {
   },
 }) as AuthClientType;
 
+export const signIn = ((...args: Parameters<AuthClientType['signIn']>) =>
+  getClient().signIn(...args)) as AuthClientType['signIn'];
+
+export const signUp = ((...args: Parameters<AuthClientType['signUp']>) =>
+  getClient().signUp(...args)) as AuthClientType['signUp'];
+
 export const signOut = ((...args: Parameters<AuthClientType['signOut']>) =>
   getClient().signOut(...args)) as AuthClientType['signOut'];
 
