@@ -3,6 +3,7 @@ import {
   db,
   settings,
   apiSuccess,
+  apiError,
   apiInternalError,
   apiUnauthorized,
   getSessionAndRole,
@@ -29,10 +30,7 @@ export async function POST(request: NextRequest) {
     const { tenantId, step, data } = body;
 
     if (!tenantId || step === undefined || !data) {
-      return apiSuccess(
-        { error: 'Missing required fields: tenantId, step, data' },
-        { status: 400 }
-      );
+      return apiError('VALIDATION_ERROR', 'Missing required fields: tenantId, step, data', 400);
     }
 
     // Wrap all setting operations in a database transaction to ensure atomicity.

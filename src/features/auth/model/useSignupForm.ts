@@ -115,7 +115,7 @@ export function useSignupForm() {
       // Redirect to onboarding wizard with the new tenant id
       const responseData = await res.json();
       const tenantId = responseData.data?.tenantId;
-      router.push(`/platform/onboarding/${tenantId}`);
+      router.push(`/onboarding/${tenantId}`);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to create community';
       setError(message);

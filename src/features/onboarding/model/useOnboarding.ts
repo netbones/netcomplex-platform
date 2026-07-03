@@ -55,7 +55,12 @@ export function useOnboarding(tenantId: string) {
 
         if (!res.ok) {
           const errorData = await res.json();
-          throw new Error(errorData.error || 'Failed to save onboarding progress');
+          const msg =
+            errorData?.error?.message ||
+            errorData?.error ||
+            errorData?.message ||
+            'Failed to save onboarding progress';
+          throw new Error(typeof msg === 'string' ? msg : 'Failed to save onboarding progress');
         }
 
         setFormData(prev => ({ ...prev, ...data }));
