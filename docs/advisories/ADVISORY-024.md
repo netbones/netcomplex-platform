@@ -1,19 +1,21 @@
 # ADVISORY-024 — Resolve DTO Duplication (COMMUNIQUE-08)
 
-**Status:** ✅ Executed (Commit 668535ee) — Decision gates G1–G4 confirmed 2026-07-04
+**Status:** ✅ Executed (Commit 668535ee, 2026-07-03) — Decision gates G1–G4 confirmed 2026-07-03
 **Trigger:** COMMUNIQUE-08 (2026-07-02), BD issue `soralia-village-axh6`
 **Supersedes:** No prior advisory on this topic
 
 ---
 
-## 1. Problem Statement
+## 1. Problem Statement (original state, pre-execution)
 
-Two independent DTO systems describe the same domain shapes:
+> **Note:** This section describes the state _before_ ADR-024 was executed (commit 668535ee, 2026-07-03). It is retained for historical context. See §8 for the executed end-state.
+
+Two independent DTO systems described the same domain shapes:
 
 - `src/server/dto/` — 13 files, Zod schemas via `createSelectSchema()` (drizzle-zod), consumed by 20+ tRPC routers.
 - `src/shared/api/dto/` — 15 files, hand-written `interface` + `toXxxDTO()` mappers, consumed by 4 files under `src/entities/content` and `src/entities/chat` (plus their `__tests__`).
 
-Field selections for the same domain (content, event, booking, group, maintenance, user, notification) are maintained twice, by hand, with no guarantee of parity. REST route handlers use neither and build response shapes inline. COMMUNIQUE-08 asks for a consolidation decision.
+Field selections for the same domain (content, event, booking, group, maintenance, user, notification) were maintained twice, by hand, with no guarantee of parity. REST route handlers used neither and built response shapes inline. COMMUNIQUE-08 asked for a consolidation decision.
 
 ## 2. Root Cause Analysis
 
@@ -175,7 +177,7 @@ cat src/shared/api/dto/__tests__/dto-booking.test.ts \
 - ✅ `src/entities/content` and `src/entities/chat` import DTOs from `shared/api/dto` (via `@api/shared` barrel).
 - ✅ `src/server/dto/` re-exports from `shared/api/dto/` with no router import changes required in this pass (content.ts, maintenance.ts shimmed).
 - ✅ All 4 existing DTO tests plus content/chat tests pass unmodified in assertions (206 tests).
-- ⬜ No new Steiger/ESLint FSD violations introduced. → ✅ No new violations (pre-existing only)
+- ✅ No new Steiger/ESLint FSD violations introduced (pre-existing only).
 - ✅ Phase 4 (router import cleanup) filed as `soralia-village-kci3`.
 - ✅ BD `soralia-village-axh6` closed referencing this advisory.
 
@@ -187,6 +189,6 @@ cat src/shared/api/dto/__tests__/dto-booking.test.ts \
 
 **G3 — Shim vs. immediate router migration.** Confirm Phase 3 (shim, zero router churn) is acceptable for this pass, with Phase 4 (direct router repoint + shim deletion) deferred to a separate tracked issue rather than executed now. _Awaiting DavDev confirmation._
 
-**G4 — Client-bundle gating.** If discovery step 5 shows content/chat DTO usage is reachable from a client-bundled barrel, confirm whether to gate behind `server.ts` (ADR-020 pattern) now, or accept the Zod runtime addition to the client bundle as a known, accepted cost. _Blocking, pending discovery output._
+**G4 — Client-bundle gating.** If discovery step 5 shows content/chat DTO usage is reachable from a client-bundled barrel, confirm whether to gate behind `server.ts` (ADR-020 pattern) now, or accept the Zod runtime addition to the client bundle as a known, accepted cost. _Resolved by ADVISORY-025 (commit 64eab618)._
 
 No phase beyond discovery executes until G1–G4 are resolved.
