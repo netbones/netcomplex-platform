@@ -84,12 +84,13 @@ vi.mock('@api/server', () => ({
       })
   ),
   rateLimitByIP: (...args: unknown[]) => mocks.mockRateLimitByIP(...args) as Response | null,
+  rateLimitByKey: (...args: unknown[]) => mocks.mockRateLimitByIP(...args) as Response | null,
   verifyTurnstile: (...args: unknown[]) => mocks.mockVerifyTurnstile(...args) as Promise<boolean>,
   sendEmail: vi.fn(),
   templates: {
     welcome: {
       getHtml: vi.fn(() => '<html></html>'),
-      subject: 'Welcome!',
+      subject: vi.fn(() => 'Welcome!'),
     },
   },
 }));
@@ -134,6 +135,15 @@ afterEach(() => {
 });
 
 describe('Health API', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-06-21T12:00:00Z'));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('returns 200 with status ok', async () => {
     const response = await getHealth();
     const body = await response.json();
