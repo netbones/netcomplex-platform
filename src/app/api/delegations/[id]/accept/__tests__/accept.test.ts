@@ -220,7 +220,7 @@ describe('POST /api/delegations/[id]/accept', () => {
     mocks.dbMock.update.mockImplementation(() => makeUpdateChain([]));
     mocks.dbMock.insert.mockImplementation(() => makeInsertChain([]));
 
-    const response = await POST(makeReq(), { params: { id: 'del-1' } });
+    const response = await POST(makeReq(), { params: Promise.resolve({ id: 'del-1' }) });
 
     expect(response.status).toBe(200);
     const json = await response.json();
@@ -236,7 +236,7 @@ describe('POST /api/delegations/[id]/accept', () => {
     const delegationChain = makeSelectChain([setupDelegation({ agentId: 'provider-1' })]);
     mocks.dbMock.select.mockImplementation(() => delegationChain);
 
-    const response = await POST(makeReq(), { params: { id: 'del-1' } });
+    const response = await POST(makeReq(), { params: Promise.resolve({ id: 'del-1' }) });
     expect(response.status).toBe(403);
   });
 
@@ -254,7 +254,7 @@ describe('POST /api/delegations/[id]/accept', () => {
       return profileChain;
     });
 
-    const response = await POST(makeReq(), { params: { id: 'del-1' } });
+    const response = await POST(makeReq(), { params: Promise.resolve({ id: 'del-1' }) });
     expect(response.status).toBe(403);
   });
 
@@ -265,7 +265,7 @@ describe('POST /api/delegations/[id]/accept', () => {
     const delegationChain = makeSelectChain([setupDelegation({ status: 'ACTIVE' })]);
     mocks.dbMock.select.mockImplementation(() => delegationChain);
 
-    const response = await POST(makeReq(), { params: { id: 'del-1' } });
+    const response = await POST(makeReq(), { params: Promise.resolve({ id: 'del-1' }) });
     expect(response.status).toBe(409);
   });
 
@@ -279,7 +279,7 @@ describe('POST /api/delegations/[id]/accept', () => {
     mocks.dbMock.select.mockImplementation(() => delegationChain);
     mocks.dbMock.update.mockImplementation(() => makeUpdateChain([]));
 
-    const response = await POST(makeReq(), { params: { id: 'del-1' } });
+    const response = await POST(makeReq(), { params: Promise.resolve({ id: 'del-1' }) });
     expect(response.status).toBe(410);
   });
 });

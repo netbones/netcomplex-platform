@@ -5,9 +5,11 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { authClient } from '@api/client';
 import { useTurnstile } from '@shared/ui';
+import { useTenant } from '@entities/tenant';
 
 export default function SignInPage() {
   const router = useRouter();
+  const tenant = useTenant();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -51,7 +53,9 @@ export default function SignInPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold text-center mb-6">Sign In to Soralia Village</h1>
+        <h1 className="text-2xl font-bold text-center mb-6">
+          Sign In to {tenant?.name || 'Netcomplex'}
+        </h1>
 
         {error && <div className="bg-red-50 text-red-600 p-3 rounded mb-4 text-sm">{error}</div>}
 

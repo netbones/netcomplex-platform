@@ -1538,6 +1538,7 @@ model TenantPayment {
   invoiceUrl     String?
   couponId       String?
   createdAt      DateTime           @default(now())
+  deletedAt      DateTime?
   subscription   TenantSubscription @relation(fields: [subscriptionId], references: [id])
 
   @@index([tenantId])

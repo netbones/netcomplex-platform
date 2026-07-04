@@ -1,3 +1,4 @@
+import { NextRequest } from 'next/server';
 import {
   auth,
   db,
@@ -16,7 +17,7 @@ import { hasPermission } from '@shared/lib';
 
 export const maxDuration = 8;
 
-async function getSessionAndRole(request: Request) {
+async function getSessionAndRole(request: NextRequest) {
   const session = await auth.api.getSession({ headers: request.headers });
   if (!session?.user?.id) return null;
 
@@ -30,13 +31,14 @@ async function getSessionAndRole(request: Request) {
 }
 
 export const GET = withErrorHandler(
-  async (_request: Request, { params }: { params: { id: string } }) => {
+  async (_request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params;
     const { tenantId } = await withTenant();
 
     const [row] = await db
       .select()
       .from(bursaries)
-      .where(and(eq(bursaries.id, params.id), notDeleted(bursaries)))
+      .where(and(eq(bursaries.id, id), notDeleted(bursaries)))
       .limit(1);
 
     if (!row || row.tenantId !== tenantId) {
@@ -48,7 +50,8 @@ export const GET = withErrorHandler(
 );
 
 export const PATCH = withErrorHandler(
-  async (request: Request, { params }: { params: { id: string } }) => {
+  async (request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params;
     const authData = await getSessionAndRole(request);
     if (!authData || !hasPermission(authData.role, 'admin')) {
       return apiForbidden();
@@ -60,7 +63,7 @@ export const PATCH = withErrorHandler(
     const [existing] = await db
       .select()
       .from(bursaries)
-      .where(and(eq(bursaries.id, params.id), notDeleted(bursaries)))
+      .where(and(eq(bursaries.id, id), notDeleted(bursaries)))
       .limit(1);
 
     if (!existing || existing.tenantId !== tenantId) {
@@ -77,15 +80,16 @@ export const PATCH = withErrorHandler(
     if (body.deadline !== undefined) updates.deadline = new Date(body.deadline);
     if (body.status !== undefined) updates.status = body.status;
 
-    await db.update(bursaries).set(updates).where(eq(bursaries.id, params.id));
+    await db.update(bursaries).set(updates).where(eq(bursaries.id, id));
 
-    const [updated] = await db.select().from(bursaries).where(eq(bursaries.id, params.id)).limit(1);
+    const [updated] = await db.select().from(bursaries).where(eq(bursaries.id, id)).limit(1);
     return apiSuccess(updated);
   }
 );
 
 export const DELETE = withErrorHandler(
-  async (request: Request, { params }: { params: { id: string } }) => {
+  async (request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params;
     const authData = await getSessionAndRole(request);
     if (!authData || !hasPermission(authData.role, 'admin')) {
       return apiForbidden();
@@ -96,14 +100,14 @@ export const DELETE = withErrorHandler(
     const [existing] = await db
       .select()
       .from(bursaries)
-      .where(and(eq(bursaries.id, params.id), notDeleted(bursaries)))
+      .where(and(eq(bursaries.id, id), notDeleted(bursaries)))
       .limit(1);
 
     if (!existing || existing.tenantId !== tenantId) {
       return apiNotFound('Bursary not found');
     }
 
-    await db.update(bursaries).set({ deletedAt: new Date() }).where(eq(bursaries.id, params.id));
+    await db.update(bursaries).set({ deletedAt: new Date() }).where(eq(bursaries.id, id));
     return apiSuccess({ deleted: true });
   }
 );

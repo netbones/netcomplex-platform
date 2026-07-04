@@ -1,5 +1,5 @@
 {
-  "welcome": "Welcome to Soralia Village",
+  "welcome": "Welcome to {{tenantName}}",
   "welcomeBack": "Welcome back, {{name}}!",
   "loginRequired": "Please log in to continue",
   "loginSuccess": "You have been logged in successfully",

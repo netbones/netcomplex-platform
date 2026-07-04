@@ -22,6 +22,12 @@ export interface Tenant {
   customDomain: string | null;
   logoUrl: string | null;
   faviconUrl: string | null;
+  tagline: string | null;
+  description: string | null;
+  address: string | null;
+  telephone: string | null;
+  email: string | null;
+  governanceLabel: string | null;
   primaryColor: string;
   accentColor: string | null;
   secondaryColor: string | null;

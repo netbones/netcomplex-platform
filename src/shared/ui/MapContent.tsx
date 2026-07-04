@@ -3,6 +3,8 @@
 import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { useMapSettings } from '@shared/lib/hooks/useMapSettings';
+import { useTenant } from '@entities/tenant';
 
 const fixLeafletIcons = () => {
   delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })._getIconUrl;
@@ -16,13 +18,16 @@ const fixLeafletIcons = () => {
 export default function MapContent() {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
+  const { center, streets } = useMapSettings();
+  const tenant = useTenant();
+  const tenantName = tenant?.name || 'Netcomplex Demo Village';
 
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
 
     fixLeafletIcons();
 
-    const map = L.map(mapRef.current).setView([-34.09165, 18.483269], 16);
+    const map = L.map(mapRef.current).setView([center.lat, center.lng], center.zoom);
     mapInstanceRef.current = map;
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -30,17 +35,8 @@ export default function MapContent() {
       maxZoom: 19,
     }).addTo(map);
 
-    const streets: { name: string; coords: [number, number] }[] = [
-      { name: 'Pagoda Rd', coords: [-34.09165, 18.483269] },
-      { name: 'Wild Almond Rd', coords: [-34.09025, 18.483569] },
-      { name: 'Silkypuff Street', coords: [-34.0907, 18.483869] },
-      { name: 'Beechwood Rd', coords: [-34.09131, 18.483569] },
-      { name: 'Sugarbrush Rd', coords: [-34.09164, 18.483369] },
-      { name: 'Conebrush Rd', coords: [-34.09101, 18.483769] },
-    ];
-
     streets.forEach(street => {
-      L.marker(street.coords).addTo(map).bindPopup(`<b>${street.name}</b><br>Soralia Village`);
+      L.marker(street.coords).addTo(map).bindPopup(`<b>${street.name}</b><br>${tenantName}`);
     });
 
     return () => {
@@ -49,7 +45,7 @@ export default function MapContent() {
         mapInstanceRef.current = null;
       }
     };
-  }, []);
+  }, [center, streets, tenantName]);
 
   return (
     <div className="h-full w-full relative z-0">

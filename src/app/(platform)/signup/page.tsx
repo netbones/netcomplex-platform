@@ -28,8 +28,8 @@ export default function SignupPage() {
       try {
         const response = await fetch('/api/pricing');
         if (response.ok) {
-          const data = await response.json();
-          setPlans(data.plans);
+          const { data: body } = await response.json();
+          setPlans(body.plans);
         }
       } catch (error) {
         log.error({}, 'Failed to fetch pricing plans', error);
@@ -101,8 +101,8 @@ export default function SignupPage() {
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">Select Plan</label>
               {plansLoading ? (
-                <div className="grid md:grid-cols-2 gap-4">
-                  {[...Array(2)].map((_, i) => (
+                <div className="grid md:grid-cols-3 gap-4">
+                  {[...Array(3)].map((_, i) => (
                     <div key={i} className="border-2 rounded-lg p-4 animate-pulse">
                       <div className="h-5 bg-slate-200 rounded mb-2"></div>
                       <div className="h-4 bg-slate-200 rounded w-2/3"></div>
@@ -110,8 +110,8 @@ export default function SignupPage() {
                   ))}
                 </div>
               ) : (
-                <div className="grid md:grid-cols-2 gap-4">
-                  {plans.slice(0, 2).map(plan => (
+                <div className="grid md:grid-cols-3 gap-4">
+                  {plans.map(plan => (
                     <label
                       key={plan.id}
                       className={`border-2 rounded-lg p-4 cursor-pointer transition-colors ${

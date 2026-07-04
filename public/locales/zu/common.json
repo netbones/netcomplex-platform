@@ -1,7 +1,7 @@
 {
   "app": {
-    "name": "Soralia Village",
-    "tagline": "Umphakathi wabamelwane"
+    "name": "{{tenantName}}",
+    "tagline": "{{tagline}}"
   },
   "nav": {
     "home": "Ikaya",
@@ -58,10 +58,13 @@
     "groups": "AmaQembu aneNtandokazi"
   },
   "footer": {
-    "description": "Umphakathi wokuhlala eTheku, onikezela ngobomi bokuhlala kwanamasevisi anokuhlanganiswa.",
+    "description": "{{description}}",
     "quickLinks": "Izixhumanisi zokushesha",
     "services": "Amasevisi",
     "contactUs": "Sithintele",
+    "address": "{{address}}",
+    "telephone": "{{telephone}}",
+    "email": "{{email}}",
     "maintenance": "Ukunakekelwa",
     "security": "Ukuvikela",
     "landscaping": "Ukuhlela",
@@ -75,7 +78,7 @@
     "terms": "Imigomo yenkonzo",
     "guidelines": "Imiyalelo yomphakathi",
     "contact": "Thintana",
-    "copyright": "I-Soralia Village Homeowners Association. Onke amagunya agcinwe."
+    "copyright": "{{tenantName}} {{governanceLabel}}. Onke amagunya agcinwe."
   },
   "home": {
     "ourCommunity": "Umphakathi wethu",

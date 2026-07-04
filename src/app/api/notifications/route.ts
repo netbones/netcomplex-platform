@@ -343,7 +343,7 @@ async function sendEmailNotificationIfEnabled(
         await updateDeliveryStatus(notificationId, 'SENDING');
         await sendEmail({
           to: user.email,
-          subject: `Soralia Village: ${title}`,
+          subject: templates.emailNotification.subject(),
           html,
         });
         await updateDeliveryStatus(notificationId, 'SENT');

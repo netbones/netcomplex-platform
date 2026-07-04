@@ -1,5 +1,5 @@
 {
-  "welcome": "Siyakwemukela eSoralia Village",
+  "welcome": "Siyakwemukela e{{tenantName}}",
   "welcomeBack": "Siyakwemukela futhi, {{name}}!",
   "loginRequired": "Sicela ufake ukungena ukuqhubeka",
   "loginSuccess": "Ungene ngempumelelo",

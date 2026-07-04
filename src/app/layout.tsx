@@ -6,6 +6,8 @@ import { Metadata, Viewport } from 'next';
 import { headers } from 'next/headers';
 import { Header } from '@shared/ui';
 import { Footer } from '@shared/ui';
+import { getCurrentTenant } from '@entities/tenant/server';
+import { TenantProvider } from '@entities/tenant';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,8 +18,8 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'Soralia Village Community Directory',
-  description: 'A premier residential community in Cape Town',
+  title: 'Netcomplex Community Platform',
+  description: 'Multi-tenant community management platform',
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
@@ -25,6 +27,45 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const locale = headersList.get('x-locale') || 'en';
   const plane = headersList.get('x-plane') || 'tenant';
   const isTenant = plane === 'tenant';
+  const raw = await getCurrentTenant();
+  const tenant = raw
+    ? {
+        id: raw.id,
+        name: raw.name,
+        slug: raw.slug,
+        tagline: raw.tagline ?? 'A Community of Neighbors',
+        description:
+          raw.description ??
+          'A premier residential community in Cape Town, offering modern living with exceptional amenities and services.',
+        address: raw.address ?? 'Cape Town, South Africa',
+        telephone: raw.telephone ?? '',
+        email: raw.email ?? '',
+        governanceLabel: raw.governanceLabel ?? 'Homeowners Association',
+        primaryColor: raw.primaryColor,
+        accentColor: raw.accentColor ?? '#F59E0B',
+        secondaryColor: raw.secondaryColor ?? '#10B981',
+        logoUrl: raw.logoUrl ?? '',
+        faviconUrl: raw.faviconUrl ?? '',
+        fontFamily: raw.fontFamily ?? 'Inter',
+      }
+    : {
+        id: '',
+        name: 'Netcomplex',
+        slug: '',
+        tagline: 'A Community of Neighbors',
+        description:
+          'A premier residential community in Cape Town, offering modern living with exceptional amenities and services.',
+        address: 'Cape Town, South Africa',
+        telephone: '',
+        email: '',
+        governanceLabel: 'Homeowners Association',
+        primaryColor: '#4F46E5',
+        accentColor: '#F59E0B',
+        secondaryColor: '#10B981',
+        logoUrl: '',
+        faviconUrl: '',
+        fontFamily: 'Inter',
+      };
   return (
     <html lang={locale}>
       <head>
@@ -42,11 +83,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <Suspense fallback={null}>
             <PostHogPageView />
           </Suspense>
-          <Providers>
-            {isTenant && <Header />}
-            <Suspense fallback={null}>{children}</Suspense>
-            {isTenant && <Footer />}
-          </Providers>
+          <TenantProvider tenant={tenant}>
+            <Providers>
+              {isTenant && <Header />}
+              <Suspense fallback={null}>{children}</Suspense>
+              {isTenant && <Footer />}
+            </Providers>
+          </TenantProvider>
         </PostHogProvider>
       </body>
     </html>

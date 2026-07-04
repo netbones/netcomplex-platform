@@ -1349,3 +1349,52 @@ The `prisma-generator-drizzle` tool does **not** translate Prisma-level `@defaul
 _More ADRs will be added as we make architectural decisions. Use the template above to propose new ADRs._
 
 ---
+
+## ADR-025: Seat/Invoice/Payment Model Duplication — Accepted Debt Disposition
+
+**Status:** Accepted
+
+**Date:** 2026-07-03
+
+### Context
+
+COMMUNIQUE-10 (2026-07-03) identified three Prisma model clusters with 10–14 identical fields each: PremiumSeat/SoloSeat/StandardSeat (Cluster A), TenantInvoice/ProviderInvoice (Cluster B), and TenantPayment/PaymentTransaction (Cluster C). The communique presented five options (A–E) ranging from full consolidation to do nothing, and asked which path to take.
+
+### Decision
+
+The three clusters are treated **separately** because they represent different kinds of duplication:
+
+1. **Cluster A (Seats) — Accept as intentional.** The three seat models are domain-distinct products sharing implementation, not duplicated concepts:
+   - StandardSeat = property ownership, required, 1-per-household, tied to a Property
+   - SoloSeat = liberation from household constraints, optional upgrade path
+   - PremiumSeat = portfolio consolidation across multiple properties (pricing tier)
+
+   The cardinality asymmetry (`user.premiumSeat` singular vs `user.soloSeat[]`/`user.standardSeat[]` array) is load-bearing — a user can have exactly zero or one Premium Seat but multiple Standard/Solo Seats. A unified `Seat` model with `enum SeatType` would push this rule into application code, losing type safety at the schema level. **No consolidation.**
+
+2. **Cluster B (Invoices) — Defer.** The polymorphic `subscriptionId` FK (pointing to either `TenantSubscription` or `ProviderSubscription`) exists regardless of whether the tables are merged. Consolidation would still require two nullable FKs + a CHECK constraint — the same complexity cost as leaving them separate. **Deferred indefinitely; documented in Conflict Register.**
+
+3. **Cluster C (Payments) — Fix the real bug, avoid consolidation.** `TenantPayment` is missing `deletedAt` while `PaymentTransaction` has it — a genuine soft-delete gap fixable as a one-column migration. Full table consolidation is HIGH complexity/risk (3 child-model FK chains) and not justified by the `couponId` differentiator. **Add `deletedAt` to TenantPayment as standalone fix; no table merge.**
+
+**Referenced documents:** ADVISORY-027 (detailed analysis and gate disposition), COMMUNIQUE-10 (initial findings).
+
+### Consequences
+
+#### Positive
+
+- Avoids a 3–4 day, high-rollback-risk migration window for purely cosmetic consolidation
+- Seats retain schema-level cardinality enforcement (singular premium vs array solo/standard)
+- The actual correctness gap (`TenantPayment.deletedAt`) is fixed independently, not blocked on a consolidation debate
+- Conflict Register entries (C8, C9) pre-empt re-litigation in future audits
+
+#### Negative
+
+- Cluster B duplication persists — querying a unified financial ledger across tenant and provider billing requires UNION queries
+- Any new seat variant would add a 4th separate table (trigger condition documented in Conflict Register)
+- Future PRISMA_ANALYSIS.md audits may re-flag these three clusters if Conflict Register entries are not maintained
+
+### Related
+
+- COMMUNIQUE-10: Initial model duplication assessment
+- ADVISORY-027: Response with per-cluster analysis and gate disposition
+- BD issue `soralia-village-sioz`: Assessment and tracking
+- `UBIQUITOUS_LANGUAGE.md` Conflict Register: Entries C8 (Seat field overlap), C9 (Invoice/Payment field overlap)

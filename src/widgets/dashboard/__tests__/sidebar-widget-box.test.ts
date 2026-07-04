@@ -273,18 +273,18 @@ describe('TagCloudWidget', () => {
 });
 
 describe('tenantConfig location', () => {
-  it('has default Soralia Village coordinates', () => {
+  it('has default coordinates', () => {
     const tenantConfig = {
       location: {
         latitude: 26.6619,
         longitude: -80.6128,
-        name: 'Soralia Village',
+        name: 'Netcomplex Demo Village',
       },
     };
 
     expect(tenantConfig.location.latitude).toBe(26.6619);
     expect(tenantConfig.location.longitude).toBe(-80.6128);
-    expect(tenantConfig.location.name).toBe('Soralia Village');
+    expect(tenantConfig.location.name).toBe('Netcomplex Demo Village');
   });
 
   it('can be overridden with custom location', () => {

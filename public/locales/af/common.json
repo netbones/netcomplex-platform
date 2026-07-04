@@ -1,7 +1,7 @@
 {
   "app": {
-    "name": "Soralia Village",
-    "tagline": "'n Gemeenskap van bure"
+    "name": "{{tenantName}}",
+    "tagline": "{{tagline}}"
   },
   "nav": {
     "home": "Tuis",
@@ -58,10 +58,13 @@
     "groups": "Belangegroepe"
   },
   "footer": {
-    "description": "'n Eerste residensiële gemeenskap in Kaapstad, wat moderne lewe bied met uitsonderlike geriewe en dienste.",
+    "description": "{{description}}",
     "quickLinks": "Vinnige Skakels",
     "services": "Dienste",
     "contactUs": "Kontak Ons",
+    "address": "{{address}}",
+    "telephone": "{{telephone}}",
+    "email": "{{email}}",
     "maintenance": "Instandhouding",
     "security": "Sekuriteit",
     "landscaping": "Landskap",
@@ -75,7 +78,7 @@
     "terms": "Diensvoorwaardes",
     "guidelines": "Gemeenskapsriglyne",
     "contact": "Kontak",
-    "copyright": "Soralia Village Huiseienaarsvereniging. Alle regte voorbehou."
+    "copyright": "{{tenantName}} {{governanceLabel}}. Alle regte voorbehou."
   },
   "home": {
     "ourCommunity": "Ons Gemeenskap",

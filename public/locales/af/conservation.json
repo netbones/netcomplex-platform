@@ -1,6 +1,6 @@
 {
-  "title": "Soralia Natuurreservaat",
-  "subtitle": "Bewaar我们的 unieke Suid-Afrikaanse Strandveld Wetland-erfenis vir toekomstige generasies",
+  "title": "{{tenantName}} Natuurreservaat",
+  "subtitle": "Bewaar unieke Suid-Afrikaanse Strandveld Wetland-erfenis vir toekomstige generasies",
   "stats": {
     "endemicFlora": "Endemiese Flora",
     "endemicFloraDesc": "Meer as 150 inheemse plantspesies",

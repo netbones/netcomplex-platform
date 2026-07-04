@@ -33,7 +33,7 @@ import {
 } from './auth-schemas';
 
 /**
- * Better Auth configuration for Soralia Village.
+ * Better Auth configuration.
  * Configured with Drizzle adapter, two-factor auth, organization support, and passkey.
  * Uses tenantConfig for environment-specific settings.
  *
@@ -97,7 +97,7 @@ export const auth = betterAuth({
     sendVerificationEmail: async ({ user, url }) => {
       sendEmail({
         to: user.email,
-        subject: templates.verifyEmail.subject,
+        subject: templates.verifyEmail.subject(),
         html: templates.verifyEmail.getHtml(user.name || '', url),
       }).catch(err =>
         authLogger.error({ err, email: user.email }, 'Verification email send failed')
@@ -153,19 +153,19 @@ export const auth = betterAuth({
         if (type === 'forget-password') {
           sendEmail({
             to: email,
-            subject: templates.passwordResetOtp.subject,
+            subject: templates.passwordResetOtp.subject(),
             html: templates.passwordResetOtp.getHtml(otp),
           }).catch(err => authLogger.error({ err, email }, 'OTP email send failed'));
         } else if (type === 'email-verification') {
           sendEmail({
             to: email,
-            subject: 'Your Soralia Village verification code',
+            subject: `Your Netcomplex verification code`,
             html: `<p>Your verification code is: <strong>${otp}</strong></p><p>This code expires in 5 minutes.</p>`,
           }).catch(err => authLogger.error({ err, email }, 'OTP verification email send failed'));
         } else if (type === 'sign-in') {
           sendEmail({
             to: email,
-            subject: 'Your Soralia Village sign-in code',
+            subject: `Your Netcomplex sign-in code`,
             html: `<p>Your sign-in code is: <strong>${otp}</strong></p><p>This code expires in 5 minutes.</p>`,
           }).catch(err => authLogger.error({ err, email }, 'OTP sign-in email send failed'));
         }

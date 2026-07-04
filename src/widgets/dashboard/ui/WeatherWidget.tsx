@@ -13,7 +13,7 @@ const log = createComponentLogger('WeatherWidget');
  * Used by: SidebarWidgetBox (type: 'weather')
  *
  * Fetches real weather from Open-Meteo API (no API key required).
- * Uses tenant location from config or defaults to Soralia Village coordinates.
+ * Uses tenant location from config or falls back to defaults.
  * --------------
  */
 

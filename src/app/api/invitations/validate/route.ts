@@ -87,7 +87,7 @@ export const GET = withErrorHandler(async (request: Request) => {
   return apiSuccess({
     invitation: {
       ...invitation,
-      tenantName: tenant?.name || 'Soralia Village',
+      tenantName: tenant?.name || 'Netcomplex',
       tenantSlug: tenant?.slug,
       inviterName: inviter?.name || 'A community member',
     },

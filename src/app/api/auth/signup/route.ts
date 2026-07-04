@@ -219,7 +219,7 @@ async function sendWelcomeEmail(email: string, name: string) {
 
     await sendEmail({
       to: email,
-      subject: templates.welcome.subject,
+      subject: templates.welcome.subject(),
       html,
     });
   } catch {

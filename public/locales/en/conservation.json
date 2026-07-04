@@ -1,5 +1,5 @@
 {
-  "title": "Soralia Nature Reserve",
+  "title": "{{tenantName}} Nature Reserve",
   "subtitle": "Preserving our unique South African Strandveld Wetland heritage for future generations",
   "stats": {
     "endemicFlora": "Endemic Flora",

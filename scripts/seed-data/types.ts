@@ -47,6 +47,14 @@ export interface TenantInput {
   tagline?: string;
   /** Short description, used in directory listings. */
   description?: string;
+  /** Physical street address. */
+  address?: string;
+  /** Contact telephone number. */
+  telephone?: string;
+  /** Contact email address. */
+  email?: string;
+  /** Governance entity label, e.g. "Homeowners Association", "Body Corporate". */
+  governanceLabel?: string;
   /** Letter prefix used for ticket numbers, e.g. "SRV" → SRV-2026-0001. */
   ticketPrefix: string;
 }

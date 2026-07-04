@@ -16,7 +16,7 @@ import {
 describe('constants', () => {
   describe('APP_NAME', () => {
     it('is defined correctly', () => {
-      expect(APP_NAME).toBe('Soralia Village');
+      expect(APP_NAME).toBe('Netcomplex Demo Village');
     });
   });
 

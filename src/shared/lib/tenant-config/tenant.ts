@@ -5,19 +5,19 @@
 
 export const tenantConfig = {
   // Default tenant slug for local development
-  defaultSlug: process.env.LOCAL_TENANT_SLUG || 'soralia',
+  defaultSlug: process.env.LOCAL_TENANT_SLUG || '',
 
   // Location for weather widgets (e.g., WeatherWidget uses Open-Meteo API)
   location: {
     latitude: parseFloat(process.env.TENANT_LATITUDE || '26.6619'),
     longitude: parseFloat(process.env.TENANT_LONGITUDE || '-80.6128'),
-    name: process.env.TENANT_LOCATION_NAME || 'Soralia Village',
+    name: process.env.TENANT_LOCATION_NAME || 'Netcomplex Demo Village',
   },
 
   // Auth configuration
   auth: {
-    cookiePrefix: process.env.AUTH_COOKIE_PREFIX || 'soralia',
-    issuer: 'Soralia Village',
+    cookiePrefix: process.env.AUTH_COOKIE_PREFIX || 'netcomplex',
+    issuer: process.env.AUTH_ISSUER || 'Netcomplex',
     // Allow dev origins in development, configurable in production
     allowedHosts:
       process.env.NODE_ENV === 'production'
