@@ -947,6 +947,40 @@ NEXT_PUBLIC_VERCEL_URL=""
 
 ---
 
+## Time & Cost Attribution
+
+Every commit MUST carry a `Refs: bd-<id>` trailer for time/cost tracking:
+
+```
+fix: correct RLS GUC name from app.role to app.user_role
+
+Refs: bd-4a6
+```
+
+### TIME_LOG.csv
+
+Human time is logged in `docs/TIME_LOG.csv` (one row per session, keyed by bd ID):
+
+```csv
+date,bd_id,bucket,person,agent_tool,duration_minutes,description,gsd_phase
+```
+
+**Buckets:** `advisory` | `execution` | `review` | `research` | `discussion`
+
+Agent execution rows use `duration_minutes=0` — actual cost is reconciled per-harness from that tool's own usage log.
+
+### Rollup
+
+```bash
+just time-report    # or: npx tsx scripts/summarize-time-log.ts
+```
+
+Outputs `docs/reports/TIME_SUMMARY.md`.
+
+Full advisory: `docs/advisories/ADVISORY-SPECIAL-TIME-TRACKING.md`
+
+---
+
 ## Documentation Practices
 
 ### Architectural Decisions

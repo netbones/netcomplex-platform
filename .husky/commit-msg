@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+COMMIT_MSG_FILE="$1"
+
+if grep -qE '^Refs: bd-' "$COMMIT_MSG_FILE"; then
+  exit 0
+fi
+
+cat >&2 <<EOF
+  ⚠  commit-msg: No Refs: bd-<id> trailer found.
+
+  Every commit should reference a bd issue for time/cost attribution.
+  Add a trailer to your commit message:
+
+    Refs: bd-<id>
+
+  This is a warning only — commits are not blocked.
+  See: docs/advisories/ADVISORY-SPECIAL-TIME-TRACKING.md
+EOF
+
+exit 0

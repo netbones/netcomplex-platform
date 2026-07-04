@@ -112,6 +112,9 @@ clean_all: clean
 
 # Report
 
+time-report:
+    npx tsx scripts/summarize-time-log.ts
+
 tree:
     tree -I node_modules > tree.md 2>&1
 
