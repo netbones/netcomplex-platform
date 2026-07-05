@@ -176,6 +176,7 @@ describe('Mapping completeness', () => {
 
     it('should only reference valid PlatformPageFlags keys or null', () => {
       const sampleFlags: PlatformPageFlags = {
+        'agent-gateway': true,
         campaign: true,
         conservation: 'default',
         conservationExternalUrl: '',
@@ -250,6 +251,7 @@ describe('Mapping completeness', () => {
 // ============================================
 
 const ALL_FLAGS_ENABLED: PlatformPageFlags = {
+  'agent-gateway': true,
   campaign: true,
   conservation: 'default',
   conservationExternalUrl: '',

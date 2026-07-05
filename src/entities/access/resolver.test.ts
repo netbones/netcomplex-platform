@@ -16,6 +16,7 @@ import type { PlatformPageFlags } from '@shared/lib';
 
 /** All-flags-on default for testing Layer 3 (feature flags). */
 const ALL_FLAGS_ON: PlatformPageFlags = {
+  'agent-gateway': true,
   campaign: true,
   conservation: 'default',
   conservationExternalUrl: '',

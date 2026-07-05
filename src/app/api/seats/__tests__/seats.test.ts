@@ -178,7 +178,7 @@ describe('Seats API', () => {
     mocks.session = { user: { id: 'user-1', role: 'admin' } };
     mocks.authMock.api.getSession.mockResolvedValue(mocks.session);
     mocks.hasPermission.mockReturnValue(true);
-    mocks.mockAddressReserve.mockReturnValue({ id: 'addr-1' });
+    mocks.mockAddressReserve.mockReturnValue(Promise.resolve({ id: 'addr-1' }));
     // Restore default update mock (resetAllMocks clears it)
     mocks.dbMock.update.mockImplementation(() => ({
       set: vi.fn(() => ({

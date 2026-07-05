@@ -200,7 +200,8 @@ export const privilegedProcedure = tenantProcedure.use(async ({ ctx, next }) => 
   return next({ ctx });
 });
 
-export function rateLimitMiddleware(config: RateLimitConfig) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function rateLimitMiddleware(config: RateLimitConfig): any {
   return protectedProcedure.use(async ({ ctx, next }) => {
     const result = await rateLimitByUser(ctx.userId, config);
     if (result) {

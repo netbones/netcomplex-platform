@@ -9,6 +9,7 @@ import {
 import type { PlatformPageFlags } from '@entities/tenant/server';
 
 const defaultFlags: PlatformPageFlags = {
+  'agent-gateway': true,
   campaign: true,
   conservation: 'default',
   conservationExternalUrl: '',

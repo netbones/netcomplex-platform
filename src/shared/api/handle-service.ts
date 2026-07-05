@@ -45,7 +45,8 @@ export class HandleNotFoundError extends Error {
 // ---------------------------------------------------------------------------
 
 export class HandleService {
-  private db: NodePgDatabase<DbSchema>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private db: any;
 
   constructor(tx?: NodePgDatabase<DbSchema>) {
     this.db = tx ?? db;
@@ -128,7 +129,7 @@ export class HandleService {
         tenantId,
         handle,
         addressId,
-        status: 'ACTIVE' as string,
+        status: 'ACTIVE' as 'ACTIVE' | 'RESERVED' | 'RELEASED',
         createdAt: now,
       })
       .returning();

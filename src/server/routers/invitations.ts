@@ -31,7 +31,7 @@ const CreateInvitationInput = z.object({
   name: z.string().min(1),
   street: z.string().optional(),
   unit: z.string().optional(),
-  residencyType: z.enum(['OWNER', 'TENANT', 'OCCUPANT']).optional().default('OWNER'),
+  residencyType: z.enum(['FAMILY', 'RENTER', 'OWNER']).optional().default('OWNER'),
   role: z.enum(['RESIDENT', 'ASSOCIATE', 'GROUP_ADMIN', 'PROVIDER']).optional().default('RESIDENT'),
   organizationId: z.string().optional(),
 });

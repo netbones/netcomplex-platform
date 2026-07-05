@@ -170,7 +170,7 @@ export const achievementsRouter = router({
       const [existing] = await db
         .select()
         .from(achievementDefinitions)
-        .where(eq(achievementDefinitions.id, input.id))
+        .where(eq(achievementDefinitions.key, input.key))
         .limit(1);
 
       if (existing) {

@@ -1,4 +1,4 @@
-import { notDeleted, rateLimitMiddleware, toEnvelope } from '@api/server';
+import { notDeleted, rateLimitMiddleware } from '@api/server';
 import { messageDto, unreadCountsDto } from '@api/server';
 import {
   z,
@@ -44,28 +44,31 @@ export const messagingProcedures = {
       })
     )
     .output(
-      z.array(
-        z.object({
-          id: z.string(),
-          conversationId: z.string(),
-          senderId: z.string(),
-          content: z.string(),
-          type: z.string(),
-          messageVersion: z.number(),
-          payload: z.unknown().nullable(),
-          mediaUrl: z.string().nullable(),
-          createdAt: z.date(),
-          expiresAt: z.date().nullable(),
-          deletedAt: z.date().nullable(),
-          sender: z
-            .object({
-              id: z.string(),
-              name: z.string().nullable(),
-              avatar: z.string().nullable(),
-            })
-            .nullable(),
-        })
-      )
+      z.object({
+        messages: z.array(
+          z.object({
+            id: z.string(),
+            conversationId: z.string(),
+            senderId: z.string(),
+            content: z.string(),
+            type: z.string(),
+            messageVersion: z.number(),
+            payload: z.unknown().nullable(),
+            mediaUrl: z.string().nullable(),
+            createdAt: z.date(),
+            expiresAt: z.date().nullable(),
+            deletedAt: z.date().nullable(),
+            sender: z
+              .object({
+                id: z.string(),
+                name: z.string().nullable(),
+                avatar: z.string().nullable(),
+              })
+              .nullable(),
+          })
+        ),
+        hasMore: z.boolean(),
+      })
     )
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
@@ -113,10 +116,10 @@ export const messagingProcedures = {
       const hasMore = rows.length > input.limit;
       const messages_ = rows.slice(0, input.limit);
 
-      return toEnvelope({
-        messages: messages_.map(r => messageDto.parse(r)),
+      return {
+        messages: messages_,
         hasMore,
-      });
+      };
     }),
 
   /**
@@ -196,12 +199,10 @@ export const messagingProcedures = {
 
       revalidateConversations();
 
-      return toEnvelope(
-        messageDto.parse({
-          ...newMessage,
-          sender: senderInfo,
-        })
-      );
+      return {
+        ...newMessage,
+        sender: senderInfo,
+      };
     }),
 
   /**
@@ -229,7 +230,7 @@ export const messagingProcedures = {
 
       revalidateConversations();
 
-      return toEnvelope({ success: true });
+      return { success: true };
     }),
 
   /**
@@ -340,7 +341,7 @@ export const messagingProcedures = {
       const unreadAnnouncements = extractCount(unreadAnnouncementsResult);
       const pendingNotifications = extractCount(pendingNotificationsResult);
 
-      return toEnvelope({
+      return {
         commandBar: {
           unreadDirect,
           unreadGroup,
@@ -351,7 +352,7 @@ export const messagingProcedures = {
           announcements: unreadAnnouncements,
           notifications: pendingNotifications,
         },
-      });
+      };
     }),
 
   /**
@@ -495,12 +496,10 @@ export const messagingProcedures = {
         totalUnread += unreadCount;
       }
 
-      return toEnvelope(
-        unreadCountsDto.parse({
-          unreadCounts,
-          totalUnread,
-        })
-      );
+      return {
+        unreadCounts,
+        totalUnread,
+      };
     }),
 
   /**
@@ -532,6 +531,6 @@ export const messagingProcedures = {
           )
         );
 
-      return toEnvelope({ success: true });
+      return { success: true };
     }),
 };

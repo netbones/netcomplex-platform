@@ -38,6 +38,28 @@ import {
   suspensionDto,
 } from '@api/server';
 
+// Zod v4 DTOs (from drizzle-zod) are incompatible with Zod v3's ZodTypeAny constraint
+// used by tRPC's output validation. Cast to any for output schema references.
+// The runtime validation still uses the v4 DTOs via .parse() calls.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const pDto = propertyDto as any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const uDto = userDto as any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const prDto = profileDto as any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const aDto = albumDto as any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const sDto = seatDto as any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const psDto = premiumSeatDto as any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const ssDto = standardSeatDto as any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const aaDto = agentAccessDto as any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const susDto = suspensionDto as any;
+
 import { TRPCError } from '@trpc/server';
 import { hasPermission } from '@shared/lib';
 
@@ -91,10 +113,10 @@ export const identityRouter = router({
       toEnvelopeSchema(
         z.object({
           properties: z.array(
-            propertyDto.extend({
+            pDto.extend({
               tenantId: z.string(),
               updatedAt: z.date(),
-              standardSeats: z.array(standardSeatDto.passthrough()),
+              standardSeats: z.array(ssDto.passthrough()),
               activeHousehold: z
                 .object({
                   id: z.string(),
@@ -204,7 +226,7 @@ export const identityRouter = router({
           ownerId: z.string().nullable(),
           createdAt: z.date(),
           updatedAt: z.date(),
-          standardSeats: z.array(standardSeatDto.passthrough()),
+          standardSeats: z.array(ssDto.passthrough()),
           activeHousehold: z
             .object({
               id: z.string(),
@@ -216,10 +238,10 @@ export const identityRouter = router({
               moveOutDate: z.date().nullable(),
               createdAt: z.date(),
               updatedAt: z.date(),
-              profiles: z.array(profileDto.passthrough()),
+              profiles: z.array(prDto.passthrough()),
             })
             .nullable(),
-          soloSeats: z.array(seatDto.passthrough()),
+          soloSeats: z.array(sDto.passthrough()),
         })
       )
     )
@@ -270,7 +292,8 @@ export const identityRouter = router({
       }
 
       return toEnvelope({
-        ...propertyDto.parse(property),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ...(propertyDto.parse(property) as any),
         tenantId: property.tenantId,
         updatedAt: property.updatedAt,
         standardSeats: standardSeatsData,
@@ -302,7 +325,7 @@ export const identityRouter = router({
         ownerId: z.string().optional(),
       })
     )
-    .output(toEnvelopeSchema(propertyDto))
+    .output(toEnvelopeSchema(pDto))
     .mutation(async ({ input, ctx }) => {
       const [existing] = await ctx.db
         .select()
@@ -362,7 +385,7 @@ export const identityRouter = router({
       toEnvelopeSchema(
         z.object({
           users: z.array(
-            userDto.extend({
+            uDto.extend({
               phone: z.string().nullable(),
               interests: z.array(z.string()),
               avatar: z.string().nullable(),
@@ -737,7 +760,7 @@ export const identityRouter = router({
     .output(
       toEnvelopeSchema(
         z.array(
-          propertyDto.extend({
+          pDto.extend({
             tenantId: z.string(),
             updatedAt: z.date(),
             activeHousehold: z
@@ -751,10 +774,10 @@ export const identityRouter = router({
                 moveOutDate: z.date().nullable(),
                 createdAt: z.date(),
                 updatedAt: z.date(),
-                profiles: z.array(profileDto.passthrough()),
+                profiles: z.array(prDto.passthrough()),
               })
               .nullable(),
-            standardSeats: z.array(standardSeatDto.passthrough()),
+            standardSeats: z.array(ssDto.passthrough()),
           })
         )
       )
@@ -872,7 +895,7 @@ export const identityRouter = router({
         residencyType: z.enum(['FAMILY', 'RENTER', 'OWNER']).default('FAMILY'),
       })
     )
-    .output(toEnvelopeSchema(profileDto.passthrough()))
+    .output(toEnvelopeSchema(prDto.passthrough()))
     .mutation(async ({ input, ctx }) => {
       const { householdId, displayName, householdRole, residencyType } = input;
 
@@ -953,7 +976,7 @@ export const identityRouter = router({
         showPhone: z.boolean().optional(),
       })
     )
-    .output(toEnvelopeSchema(profileDto.passthrough()))
+    .output(toEnvelopeSchema(prDto.passthrough()))
     .mutation(async ({ input, ctx }) => {
       const { id, ...data } = input;
       const [profile] = await ctx.db.select().from(profiles).where(eq(profiles.id, id));
@@ -1018,10 +1041,10 @@ export const identityRouter = router({
                 moveOutDate: z.date().nullable(),
                 createdAt: z.date(),
                 updatedAt: z.date(),
-                property: propertyDto.nullable(),
+                property: pDto.nullable(),
               })
               .nullable(),
-            user: userDto.nullable(),
+            user: uDto.nullable(),
           })
           .nullable()
       )
@@ -1078,7 +1101,7 @@ export const identityRouter = router({
             organizationId: z.string().nullable(),
             createdAt: z.date(),
             updatedAt: z.date(),
-            property: propertyDto.nullable(),
+            property: pDto.nullable(),
           })
           .nullable()
       )
@@ -1108,7 +1131,7 @@ export const identityRouter = router({
     .meta({
       openapi: { method: 'GET', path: '/my/agent-accesses', tags: ['Agent Access'], protect: true },
     })
-    .output(toEnvelopeSchema(z.array(agentAccessDto.passthrough())))
+    .output(toEnvelopeSchema(z.array(aaDto.passthrough())))
     .query(async ({ ctx }) => {
       const rows = await ctx.db
         .select()
@@ -1130,7 +1153,7 @@ export const identityRouter = router({
       },
     })
     .input(z.object({ propertyId: z.string() }))
-    .output(toEnvelopeSchema(z.array(agentAccessDto.passthrough())))
+    .output(toEnvelopeSchema(z.array(aaDto.passthrough())))
     .query(async ({ input, ctx }) => {
       const rows = await ctx.db
         .select()
@@ -1156,7 +1179,7 @@ export const identityRouter = router({
       },
     })
     .input(z.object({ userId: z.string() }))
-    .output(toEnvelopeSchema(z.object({ suspensions: z.array(suspensionDto.passthrough()) })))
+    .output(toEnvelopeSchema(z.object({ suspensions: z.array(susDto.passthrough()) })))
     .query(async ({ input, ctx }) => {
       const suspensions = await ctx.db
         .select()
@@ -1202,7 +1225,7 @@ export const identityRouter = router({
         endDate: z.string().nullable().optional(),
       })
     )
-    .output(toEnvelopeSchema(suspensionDto.passthrough()))
+    .output(toEnvelopeSchema(susDto.passthrough()))
     .mutation(async ({ input, ctx }) => {
       // Verify target user exists within the same tenant
       const [targetUser] = await ctx.db
@@ -1379,7 +1402,7 @@ export const identityRouter = router({
         protect: true,
       },
     })
-    .output(toEnvelopeSchema(z.object({ albums: z.array(albumDto) })))
+    .output(toEnvelopeSchema(z.object({ albums: z.array(aDto) })))
     .query(async ({ ctx }) => {
       const userAlbums = await ctx.db
         .select()
@@ -1407,7 +1430,7 @@ export const identityRouter = router({
       },
     })
     .input(z.object({ id: z.string() }))
-    .output(toEnvelopeSchema(albumDto.nullable()))
+    .output(toEnvelopeSchema(aDto.nullable()))
     .query(async ({ input, ctx }) => {
       const [album] = await ctx.db
         .select()
@@ -1447,7 +1470,7 @@ export const identityRouter = router({
         mediaIds: z.array(z.string()).default([]),
       })
     )
-    .output(toEnvelopeSchema(z.object({ albums: z.array(albumDto) })))
+    .output(toEnvelopeSchema(z.object({ albums: z.array(aDto) })))
     .mutation(async ({ input, ctx }) => {
       // Check album limit (max 3 per user)
       const existingAlbums = await ctx.db
@@ -1511,7 +1534,7 @@ export const identityRouter = router({
         mediaIds: z.array(z.string()).optional(),
       })
     )
-    .output(toEnvelopeSchema(z.object({ albums: z.array(albumDto) })))
+    .output(toEnvelopeSchema(z.object({ albums: z.array(aDto) })))
     .mutation(async ({ input, ctx }) => {
       const ts = now();
       const { id, ...data } = input;
@@ -1561,7 +1584,7 @@ export const identityRouter = router({
       },
     })
     .input(z.object({ id: z.string() }))
-    .output(toEnvelopeSchema(z.object({ albums: z.array(albumDto) })))
+    .output(toEnvelopeSchema(z.object({ albums: z.array(aDto) })))
     .mutation(async ({ input, ctx }) => {
       const ts = now();
 
@@ -1602,7 +1625,7 @@ export const identityRouter = router({
         protect: true,
       },
     })
-    .output(toEnvelopeSchema(z.object({ albums: z.array(albumDto.passthrough()) })))
+    .output(toEnvelopeSchema(z.object({ albums: z.array(aDto.passthrough()) })))
     .query(async ({ ctx }) => {
       const publicAlbums = await ctx.db
         .select({
@@ -1645,8 +1668,8 @@ export const identityRouter = router({
     .output(
       toEnvelopeSchema(
         z.object({
-          solo: seatDto.passthrough().nullable(),
-          premium: premiumSeatDto.passthrough().nullable(),
+          solo: sDto.passthrough().nullable(),
+          premium: psDto.passthrough().nullable(),
         })
       )
     )
@@ -1683,8 +1706,8 @@ export const identityRouter = router({
     .output(
       toEnvelopeSchema(
         z.object({
-          soloSeats: z.array(seatDto.passthrough()),
-          premiumSeats: z.array(premiumSeatDto.passthrough()),
+          soloSeats: z.array(sDto.passthrough()),
+          premiumSeats: z.array(psDto.passthrough()),
         })
       )
     )

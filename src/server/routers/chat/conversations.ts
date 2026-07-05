@@ -1,5 +1,3 @@
-import { toEnvelope } from '@api/server';
-import { conversationDto } from '@api/server';
 import {
   z,
   tenantProcedure,
@@ -92,7 +90,7 @@ export const conversationProcedures = {
       const conversationIds = userConversations.map(c => c.id);
 
       if (conversationIds.length === 0) {
-        return toEnvelope([]);
+        return [];
       }
 
       const allParticipants = await db
@@ -145,16 +143,15 @@ export const conversationProcedures = {
         }
       }
 
-      return toEnvelope(
-        userConversations.map(conv => {
-          const latest = latestByConv.get(conv.id);
-          return conversationDto.parse({
-            ...conv,
-            participants: participantsByConv.get(conv.id) || [],
-            messages: latest ? [latest] : [],
-          });
-        })
-      );
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return userConversations.map((conv): any => {
+        const latest = latestByConv.get(conv.id);
+        return {
+          ...conv,
+          participants: participantsByConv.get(conv.id) || [],
+          messages: latest ? [latest] : [],
+        };
+      });
     }),
 
   /**
@@ -268,13 +265,11 @@ export const conversationProcedures = {
         .leftJoin(users, eq(conversationParticipants.userId, users.id))
         .where(eq(conversationParticipants.conversationId, conversationId));
 
-      return toEnvelope(
-        conversationDto.parse({
-          ...createdConversation!,
-          participants,
-          messages: [],
-        })
-      );
+      return {
+        ...createdConversation!,
+        participants,
+        messages: [],
+      };
     }),
 
   /**
@@ -314,7 +309,7 @@ export const conversationProcedures = {
 
       const validConversation = existing.rows?.length ? existing.rows[0] : null;
       if (validConversation) {
-        return toEnvelope({ conversation: validConversation });
+        return { conversation: validConversation };
       }
 
       const conversationId = createId();
@@ -354,6 +349,6 @@ export const conversationProcedures = {
         GROUP BY c.id
       `)) as { rows: Record<string, unknown>[] };
 
-      return toEnvelope({ conversation: result.rows?.[0] ?? {} });
+      return { conversation: result.rows?.[0] ?? {} };
     }),
 };

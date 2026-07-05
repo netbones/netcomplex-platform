@@ -276,7 +276,7 @@ describe('POST /api/properties/[id]/delegate', () => {
     const request = makeReq({
       body: { providerId: 'provider-1', scopes: ['maintenance:read', 'maintenance:coordinate'] },
     });
-    const response = await POST(request, { params: { id: 'prop-1' } });
+    const response = await POST(request, { params: Promise.resolve({ id: 'prop-1' }) });
 
     expect(response.status).toBe(201);
     const json = await response.json();
@@ -344,7 +344,7 @@ describe('POST /api/properties/[id]/delegate', () => {
         ],
       },
     });
-    const response = await POST(request, { params: { id: 'prop-1' } });
+    const response = await POST(request, { params: Promise.resolve({ id: 'prop-1' }) });
     expect(response.status).toBe(201);
   });
 
@@ -366,7 +366,7 @@ describe('POST /api/properties/[id]/delegate', () => {
     const request = makeReq({
       body: { providerId: 'provider-1', scopes: ['maintenance:read'] },
     });
-    const response = await POST(request, { params: { id: 'prop-1' } });
+    const response = await POST(request, { params: Promise.resolve({ id: 'prop-1' }) });
     expect(response.status).toBe(403);
   });
 
@@ -422,7 +422,7 @@ describe('POST /api/properties/[id]/delegate', () => {
       ]);
     });
 
-    const response = await POST(request, { params: { id: 'prop-1' } });
+    const response = await POST(request, { params: Promise.resolve({ id: 'prop-1' }) });
     expect(response.status).toBe(409);
   });
 
@@ -443,7 +443,7 @@ describe('POST /api/properties/[id]/delegate', () => {
     const request = makeReq({
       body: { providerId: 'provider-1', scopes: ['VIEW_LISTING', 'MANAGE_OCCUPANCY'] },
     });
-    const response = await POST(request, { params: { id: 'prop-1' } });
+    const response = await POST(request, { params: Promise.resolve({ id: 'prop-1' }) });
     expect(response.status).toBe(400);
   });
 
@@ -487,7 +487,7 @@ describe('POST /api/properties/[id]/delegate', () => {
     const request = makeReq({
       body: { providerId: 'provider-1', scopes: ['maintenance:read'] },
     });
-    const response = await POST(request, { params: { id: 'prop-1' } });
+    const response = await POST(request, { params: Promise.resolve({ id: 'prop-1' }) });
 
     expect(response.status).toBe(201);
     expect(logDelegationAction).toHaveBeenCalledWith(

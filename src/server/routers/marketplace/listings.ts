@@ -260,45 +260,42 @@ export const listingProcedures = {
       const titleJsonb = { [input.locale]: input.title };
       const descriptionJsonb = input.description ? { [input.locale]: input.description } : null;
 
-      await db.insert(communityServiceListings).values({
-        id: listingId,
-        tenantId,
-        providerId: ctx.userId,
-        providerType: input.providerType,
-        title: titleJsonb,
-        description: descriptionJsonb as Record<string, string>,
-        locale: input.locale,
-        category: input.category,
-        subcategory: input.subcategory || null,
-        priceType: input.priceType,
-        price: input.price ? String(input.price) : null,
-        currency: input.currency,
-        serviceAreas: input.serviceAreas,
-        availability: input.availability || null,
-        licenseNumber: input.licenseNumber || null,
-        insuranceExpiry: input.insuranceExpiry ? new Date(input.insuranceExpiry) : null,
-        responseTime: input.responseTime,
-        contactMethods: input.contactMethods,
-        images: input.images,
-        portfolio: input.portfolio,
-        termsAndConditions: input.termsAndConditions || null,
-        cancellationPolicy: input.cancellationPolicy || null,
-        status: 'DRAFT',
-        isPublished: false,
-        rating: 0,
-        reviewCount: 0,
-        createdAt: ts,
-        updatedAt: ts,
-      });
-
-      await db
-        .select()
-        .from(communityServiceListings)
-        .where(eq(communityServiceListings.id, input.id))
-        .limit(1);
+      const [inserted] = await db
+        .insert(communityServiceListings)
+        .values({
+          id: listingId,
+          tenantId,
+          providerId: ctx.userId,
+          providerType: input.providerType,
+          title: titleJsonb,
+          description: descriptionJsonb as Record<string, string>,
+          locale: input.locale,
+          category: input.category,
+          subcategory: input.subcategory || null,
+          priceType: input.priceType,
+          price: input.price ? String(input.price) : null,
+          currency: input.currency,
+          serviceAreas: input.serviceAreas,
+          availability: input.availability || null,
+          licenseNumber: input.licenseNumber || null,
+          insuranceExpiry: input.insuranceExpiry ? new Date(input.insuranceExpiry) : null,
+          responseTime: input.responseTime,
+          contactMethods: input.contactMethods,
+          images: input.images,
+          portfolio: input.portfolio,
+          termsAndConditions: input.termsAndConditions || null,
+          cancellationPolicy: input.cancellationPolicy || null,
+          status: 'DRAFT',
+          isPublished: false,
+          rating: 0,
+          reviewCount: 0,
+          createdAt: ts,
+          updatedAt: ts,
+        })
+        .returning();
 
       revalidateAdminChanges();
-      return toEnvelope(listingDto.parse(listing));
+      return toEnvelope(listingDto.parse(inserted));
     }),
 
   updateListing: tenantProcedure

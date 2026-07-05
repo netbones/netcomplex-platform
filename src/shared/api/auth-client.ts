@@ -45,17 +45,32 @@ export const authClient = new Proxy<AuthClientType>({} as AuthClientType, {
   },
 }) as AuthClientType;
 
-export const signIn = ((...args: Parameters<AuthClientType['signIn']>) =>
-  getClient().signIn(...args)) as AuthClientType['signIn'];
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const signIn: any = new Proxy({} as any, {
+  get(_, prop) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (...args: unknown[]) =>
+      ((getClient().signIn as any)[prop] as (...a: unknown[]) => unknown)?.(...args);
+  },
+});
 
-export const signUp = ((...args: Parameters<AuthClientType['signUp']>) =>
-  getClient().signUp(...args)) as AuthClientType['signUp'];
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const signUp: any = new Proxy({} as any, {
+  get(_, prop) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (...args: unknown[]) =>
+      ((getClient().signUp as any)[prop] as (...a: unknown[]) => unknown)?.(...args);
+  },
+});
 
-export const signOut = ((...args: Parameters<AuthClientType['signOut']>) =>
-  getClient().signOut(...args)) as AuthClientType['signOut'];
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const signOut: any = (...args: unknown[]) =>
+  (getClient().signOut as (...a: unknown[]) => unknown)(...args);
 
-export const useSession: AuthClientType['useSession'] = (...args) =>
-  getClient().useSession(...args);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const useSession: any = (...args: unknown[]) =>
+  (getClient().useSession as (...a: unknown[]) => unknown)(...args);
 
-export const getSession = ((...args: Parameters<AuthClientType['getSession']>) =>
-  getClient().getSession(...args)) as AuthClientType['getSession'];
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const getSession: any = (...args: unknown[]) =>
+  (getClient().getSession as (...a: unknown[]) => unknown)(...args);

@@ -14,6 +14,9 @@ import { toEnvelope } from '@api/server';
 import { notificationDto } from '@api/server';
 import { createId } from '@shared/lib/id';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const nDto = notificationDto as any;
+
 const notificationTypeEnum = z.enum(['info', 'warning', 'success', 'error']);
 
 export const notificationsRouter = router({
@@ -38,7 +41,7 @@ export const notificationsRouter = router({
         })
         .optional()
     )
-    .output(z.object({ success: z.literal(true), data: z.array(notificationDto) }))
+    .output(z.object({ success: z.literal(true), data: z.array(nDto) }))
     .query(async ({ input, ctx }) => {
       const conditions = [
         eq(notifications.userId, ctx.userId),
@@ -87,7 +90,7 @@ export const notificationsRouter = router({
         deliveryStatus: z.string().optional(),
       })
     )
-    .output(z.object({ success: z.literal(true), data: notificationDto }))
+    .output(z.object({ success: z.literal(true), data: nDto }))
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
 

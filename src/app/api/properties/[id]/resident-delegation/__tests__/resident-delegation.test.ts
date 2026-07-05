@@ -165,7 +165,7 @@ describe('POST /api/properties/[id]/resident-delegation', () => {
     ]);
 
     const req = createRequest('POST', { profileId: 'profile-1', scopes: ['maintenance:create'] });
-    const res = await POST(req, { params: { id: 'prop-1' } });
+    const res = await POST(req, { params: Promise.resolve({ id: 'prop-1' }) });
 
     expect(res.status).toBe(201);
     // Verify Drizzle chain was used (not Prisma findFirst/findMany)
@@ -196,7 +196,7 @@ describe('POST /api/properties/[id]/resident-delegation', () => {
     ]);
 
     const req = createRequest('GET');
-    const res = await GET(req, { params: { id: 'prop-1' } });
+    const res = await GET(req, { params: Promise.resolve({ id: 'prop-1' }) });
 
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -215,7 +215,7 @@ describe('POST /api/properties/[id]/resident-delegation', () => {
     ]);
 
     const req = createRequest('DELETE', { delegationId: 'del-1' });
-    const res = await DELETE(req, { params: { id: 'prop-1' } });
+    const res = await DELETE(req, { params: Promise.resolve({ id: 'prop-1' }) });
 
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -229,7 +229,7 @@ describe('POST /api/properties/[id]/resident-delegation', () => {
     ]);
 
     const getReq = createRequest('GET');
-    const getRes = await GET(getReq, { params: { id: 'prop-1' } });
+    const getRes = await GET(getReq, { params: Promise.resolve({ id: 'prop-1' }) });
     expect(getRes.status).toBe(200);
     const getBody = await getRes.json();
     expect(getBody.data).toHaveLength(0);
@@ -243,7 +243,7 @@ describe('POST /api/properties/[id]/resident-delegation', () => {
     ]);
 
     const req = createRequest('POST', { profileId: 'profile-1', scopes: ['maintenance:create'] });
-    const res = await POST(req, { params: { id: 'prop-1' } });
+    const res = await POST(req, { params: Promise.resolve({ id: 'prop-1' }) });
 
     expect(res.status).toBe(403);
   });
@@ -256,7 +256,7 @@ describe('POST /api/properties/[id]/resident-delegation', () => {
     ]);
 
     const req = createRequest('POST', { profileId: 'profile-1', scopes: ['financials:read'] });
-    const res = await POST(req, { params: { id: 'prop-1' } });
+    const res = await POST(req, { params: Promise.resolve({ id: 'prop-1' }) });
 
     expect(res.status).toBe(400);
     const body = await res.json();
@@ -288,7 +288,7 @@ describe('POST /api/properties/[id]/resident-delegation', () => {
     ]);
 
     const req = createRequest('GET');
-    const res = await GET(req, { params: { id: 'prop-1' } });
+    const res = await GET(req, { params: Promise.resolve({ id: 'prop-1' }) });
 
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -305,7 +305,7 @@ describe('POST /api/properties/[id]/resident-delegation', () => {
     ]);
 
     const req = createRequest('DELETE', { delegationId: 'del-1' });
-    const res = await DELETE(req, { params: { id: 'prop-1' } });
+    const res = await DELETE(req, { params: Promise.resolve({ id: 'prop-1' }) });
 
     expect(res.status).toBe(403);
   });
@@ -319,7 +319,7 @@ describe('POST /api/properties/[id]/resident-delegation', () => {
     ]);
 
     const delReq = createRequest('DELETE', { delegationId: 'del-1' });
-    const delRes = await DELETE(delReq, { params: { id: 'prop-1' } });
+    const delRes = await DELETE(delReq, { params: Promise.resolve({ id: 'prop-1' }) });
     expect(delRes.status).toBe(200);
 
     // GET: verify no active delegations remain
@@ -330,7 +330,7 @@ describe('POST /api/properties/[id]/resident-delegation', () => {
     ]);
 
     const getReq = createRequest('GET');
-    const getRes = await GET(getReq, { params: { id: 'prop-1' } });
+    const getRes = await GET(getReq, { params: Promise.resolve({ id: 'prop-1' }) });
     expect(getRes.status).toBe(200);
     const getBody = await getRes.json();
     expect(getBody.data).toHaveLength(0);
@@ -358,7 +358,7 @@ describe('POST /api/properties/[id]/resident-delegation', () => {
     const req = createRequest('GET');
     // Override session to ADMIN after createRequest sets it to RESIDENT
     mocks.sessionResult = { userId: 'admin-1', role: 'ADMIN' };
-    const res = await GET(req, { params: { id: 'prop-1' } });
+    const res = await GET(req, { params: Promise.resolve({ id: 'prop-1' }) });
 
     expect(res.status).toBe(200);
     const body = await res.json();

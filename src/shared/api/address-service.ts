@@ -299,7 +299,17 @@ export class AddressService {
       .from(addresses)
       .where(
         and(
-          eq(addresses.ownerType, ownerType),
+          eq(
+            addresses.ownerType,
+            ownerType as
+              | 'SYSTEM'
+              | 'PROVIDER'
+              | 'PROFILE'
+              | 'PROPERTY'
+              | 'STANDARD_SEAT'
+              | 'SOLO_SEAT'
+              | 'PREMIUM_SEAT'
+          ),
           eq(addresses.ownerId, ownerId),
           eq(addresses.tenantId, tenantId)
         )

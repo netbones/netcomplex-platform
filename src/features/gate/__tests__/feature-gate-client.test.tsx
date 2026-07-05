@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, renderHook } from '@testing-library/react';
@@ -157,10 +158,10 @@ describe('useGateContext', () => {
     mockUsePageFlags.mockReturnValue({
       flags: null,
       isLoading: true,
-      refetch: async () => {},
+      refetch: vi.fn() as any,
       error: null,
     });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     mockUseSession.mockReturnValue({ data: null } as any);
 
     const { result } = renderHook(() => useGateContext());
@@ -172,9 +173,9 @@ describe('useGateContext', () => {
       flags: null,
       isLoading: false,
       error: new Error('fetch failed'),
-      refetch: async () => {},
+      refetch: vi.fn() as any,
     });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     mockUseSession.mockReturnValue({ data: null } as any);
 
     const { result } = renderHook(() => useGateContext());
@@ -185,10 +186,10 @@ describe('useGateContext', () => {
     mockUsePageFlags.mockReturnValue({
       flags: null,
       isLoading: false,
-      refetch: async () => {},
+      refetch: vi.fn() as any,
       error: null,
     });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     mockUseSession.mockReturnValue({ data: null } as any);
 
     const { result } = renderHook(() => useGateContext());
@@ -200,12 +201,11 @@ describe('useGateContext', () => {
     mockUsePageFlags.mockReturnValue({
       flags,
       isLoading: false,
-      refetch: async () => {},
+      refetch: vi.fn() as any,
       error: null,
     });
     mockUseSession.mockReturnValue({
       data: { user: { id: 'u1', role: 'ADMIN' } },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
 
     const { result } = renderHook(() => useGateContext());
@@ -217,12 +217,11 @@ describe('useGateContext', () => {
     mockUsePageFlags.mockReturnValue({
       flags,
       isLoading: false,
-      refetch: async () => {},
+      refetch: vi.fn() as any,
       error: null,
     });
     mockUseSession.mockReturnValue({
       data: { user: { id: 'u1' } },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
 
     const { result } = renderHook(() => useGateContext());
@@ -234,10 +233,10 @@ describe('useGateContext', () => {
     mockUsePageFlags.mockReturnValue({
       flags,
       isLoading: false,
-      refetch: async () => {},
+      refetch: vi.fn() as any,
       error: null,
     });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     mockUseSession.mockReturnValue({ data: null } as any);
 
     const { result } = renderHook(() => useGateContext());
@@ -258,10 +257,10 @@ describe('useCanAccess', () => {
     mockUsePageFlags.mockReturnValue({
       flags: null,
       isLoading: true,
-      refetch: async () => {},
+      refetch: vi.fn() as any,
       error: null,
     });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     mockUseSession.mockReturnValue({ data: null } as any);
 
     const { result } = renderHook(() => useCanAccess('bookings'));
@@ -273,12 +272,11 @@ describe('useCanAccess', () => {
     mockUsePageFlags.mockReturnValue({
       flags,
       isLoading: false,
-      refetch: async () => {},
+      refetch: vi.fn() as any,
       error: null,
     });
     mockUseSession.mockReturnValue({
       data: { user: { id: 'u1', role: 'RESIDENT' } },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
 
     const { result } = renderHook(() => useCanAccess('bookings'));
@@ -290,12 +288,11 @@ describe('useCanAccess', () => {
     mockUsePageFlags.mockReturnValue({
       flags,
       isLoading: false,
-      refetch: async () => {},
+      refetch: vi.fn() as any,
       error: null,
     });
     mockUseSession.mockReturnValue({
       data: { user: { id: 'u1', role: 'RESIDENT' } },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
 
     const { result } = renderHook(() => useCanAccess('bookings'));
@@ -316,10 +313,10 @@ describe('GateGuard', () => {
     mockUsePageFlags.mockReturnValue({
       flags: null,
       isLoading: true,
-      refetch: async () => {},
+      refetch: vi.fn() as any,
       error: null,
     });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     mockUseSession.mockReturnValue({ data: null } as any);
 
     render(
@@ -337,12 +334,11 @@ describe('GateGuard', () => {
     mockUsePageFlags.mockReturnValue({
       flags,
       isLoading: false,
-      refetch: async () => {},
+      refetch: vi.fn() as any,
       error: null,
     });
     mockUseSession.mockReturnValue({
       data: { user: { id: 'u1', role: 'RESIDENT' } },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
 
     render(
@@ -359,12 +355,11 @@ describe('GateGuard', () => {
     mockUsePageFlags.mockReturnValue({
       flags,
       isLoading: false,
-      refetch: async () => {},
+      refetch: vi.fn() as any,
       error: null,
     });
     mockUseSession.mockReturnValue({
       data: { user: { id: 'u1', role: 'RESIDENT' } },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
 
     render(
@@ -382,12 +377,11 @@ describe('GateGuard', () => {
     mockUsePageFlags.mockReturnValue({
       flags,
       isLoading: false,
-      refetch: async () => {},
+      refetch: vi.fn() as any,
       error: null,
     });
     mockUseSession.mockReturnValue({
       data: { user: { id: 'u1', role: 'RESIDENT' } },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
 
     const { container } = render(
@@ -405,12 +399,11 @@ describe('GateGuard', () => {
     mockUsePageFlags.mockReturnValue({
       flags,
       isLoading: false,
-      refetch: async () => {},
+      refetch: vi.fn() as any,
       error: null,
     });
     mockUseSession.mockReturnValue({
       data: { user: { id: 'u1', role: 'RESIDENT' } },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
 
     render(
@@ -428,12 +421,11 @@ describe('GateGuard', () => {
     mockUsePageFlags.mockReturnValue({
       flags,
       isLoading: false,
-      refetch: async () => {},
+      refetch: vi.fn() as any,
       error: null,
     });
     mockUseSession.mockReturnValue({
       data: { user: { id: 'u1', role: 'RESIDENT' } },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
 
     render(
