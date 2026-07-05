@@ -5,10 +5,10 @@ import {
   serviceProviders,
   users,
   properties,
+  toMaintenanceRequestDTO,
 } from '@api/server';
 
 import { eq, desc, and, sql, inArray } from 'drizzle-orm';
-import { toMaintenanceRequestDTO } from '@api/shared';
 
 /**
  * Pure function that formats a ticket number string.

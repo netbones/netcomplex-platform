@@ -19,7 +19,13 @@ import type {
   ServicesPageConfig,
 } from './services-config.types';
 
-export type { CategoryConfig, EmergencyContactConfig, HourConfig, AdditionalServiceConfig };
+export type {
+  CategoryConfig,
+  EmergencyContactConfig,
+  HourConfig,
+  AdditionalServiceConfig,
+  ServicesPageConfig,
+};
 
 const log = createComponentLogger('services-config');
 

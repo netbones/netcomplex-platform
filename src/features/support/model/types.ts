@@ -1,4 +1,4 @@
-import type { SupportTarget } from '@entities/dwallet';
+import type { SupportTarget } from './schema';
 
 export interface SupportRecord {
   id: string;

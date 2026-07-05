@@ -21,8 +21,14 @@ export const maintenanceRequestDto = z.object({
   assignedTo: z.string().nullable(),
   vendor: z.string().nullable(),
   scheduledDate: nullableDateSchema,
-  estimatedCost: z.number().nullable(),
-  actualCost: z.number().nullable(),
+  estimatedCost: z
+    .union([z.number(), z.string()])
+    .nullable()
+    .transform(v => (v === null ? null : Number(v))),
+  actualCost: z
+    .union([z.number(), z.string()])
+    .nullable()
+    .transform(v => (v === null ? null : Number(v))),
   resolution: z.string().nullable(),
   completedAt: nullableDateSchema,
   ticketNumber: z.string(),

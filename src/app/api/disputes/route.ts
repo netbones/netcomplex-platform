@@ -13,6 +13,7 @@ import {
 } from '@api/server';
 
 import { hasPermission, apiLogger } from '@shared/lib';
+import { getTableColumns } from 'drizzle-orm';
 import { disputeCreateSchema } from '@entities/dispute';
 import { generateDisputeReference } from '@entities/dispute/server';
 import { eq, and, isNull, desc, sql } from 'drizzle-orm';
@@ -96,7 +97,7 @@ export async function GET(request: Request) {
 
   const rows = await db
     .select({
-      ...disputeCases,
+      ...getTableColumns(disputeCases),
       complainantName: sql`${users.name}`.as('complainantName'),
     })
     .from(disputeCases)

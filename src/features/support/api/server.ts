@@ -5,7 +5,10 @@ import { createComponentLogger } from '@shared/lib';
 import { eq, and, sql } from 'drizzle-orm';
 import { createId } from '@shared/lib/id';
 
-import type { SupportTarget } from '@entities/dwallet';
+import type { SupportTarget } from '../model/schema';
+
+export { supportTargetSchema, createSupportSchema } from '../model/schema';
+export type { SupportTarget } from '../model/schema';
 
 const logger = createComponentLogger('support-service');
 
@@ -36,9 +39,7 @@ export interface SupportServiceResult {
  * Throws if sender == recipient, sender balance is insufficient, or either
  * wallet is not ACTIVE.
  */
-export async function createSupport(
-  params: CreateSupportParams
-): Promise<SupportServiceResult> {
+export async function createSupport(params: CreateSupportParams): Promise<SupportServiceResult> {
   const {
     tenantId,
     senderUserId,

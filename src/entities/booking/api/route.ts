@@ -1,5 +1,5 @@
 import * as bookingService from '../services';
-import { toBookingDTO } from '@api/shared';
+import { toBookingDTO } from '@api/server';
 
 /**
  * Lists bookings for a tenant with optional filtering.

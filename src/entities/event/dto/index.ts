@@ -1,2 +1,2 @@
-export { toEventDTO, toEventDTOs, toPublicEventDTO } from '@api/shared';
-export type { EventDTO, PublicEventDTO } from '@api/shared';
+export { toEventDTO, toEventDTOs, toPublicEventDTO } from '@api/server';
+export type { EventDTO, PublicEventDTO } from '@api/server';

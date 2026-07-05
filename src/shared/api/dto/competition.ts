@@ -27,8 +27,8 @@ export const competitionDto = createSelectSchema(competitions, {
   updatedAt: true,
 });
 
-const CompetitionTypeEnum = z.enum(['RAFFLE', 'PHOTO', 'SCORE']);
-const EntryStatusEnum = z.enum(['JOINED', 'WITHDRAWN', 'WINNER', 'RUNNER_UP']);
+export const CompetitionTypeEnum = z.enum(['RAFFLE', 'PHOTO', 'SCORE']);
+export const EntryStatusEnum = z.enum(['JOINED', 'WITHDRAWN', 'WINNER', 'RUNNER_UP']);
 
 export const CompetitionDTO = competitionDto.extend({
   participantCount: z.number().optional(),

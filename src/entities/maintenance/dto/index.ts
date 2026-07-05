@@ -2,5 +2,5 @@ export {
   toMaintenanceRequestDTO,
   toMaintenanceRequestDTOs,
   toMaintenanceSummaryDTO,
-} from '@api/shared';
-export type { MaintenanceRequestDTO, MaintenanceSummaryDTO } from '@api/shared';
+} from '@api/server';
+export type { MaintenanceRequestDTO, MaintenanceSummaryDTO } from '@api/server';

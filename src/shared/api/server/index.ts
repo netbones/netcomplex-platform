@@ -45,6 +45,7 @@ export {
   questions,
   responses,
   surveySections,
+  supports,
   externalSurveys,
   invitations,
   bookings,

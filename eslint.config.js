@@ -42,9 +42,14 @@ export default [
               message:
                 'Use public API from @entities/<slice> instead of deep imports. For server-only exports, use @entities/<slice>/server.',
             },
+            // Block deep imports from features except for the server.ts
+            // sub-barrel pattern (mirrors ADR-020 for entities).
+            // @features/<slice>/server is the canonical public API for
+            // server-only feature exports.
             {
-              group: ['@features/*/*'],
-              message: 'Use public API from @features/<slice> instead of deep imports.',
+              regex: '^@features/[^/]+/(?!server$)[^/@]',
+              message:
+                'Use public API from @features/<slice> instead of deep imports. For server-only exports, use @features/<slice>/server.',
             },
             {
               group: ['@widgets/*/*'],
@@ -97,8 +102,9 @@ export default [
               message: 'Use public API from @shared instead of deep imports.',
             },
             {
-              group: ['@features/*/*'],
-              message: 'Use public API from @features/<slice> instead of deep imports.',
+              regex: '^@features/[^/]+/(?!server$)[^/@]',
+              message:
+                'Use public API from @features/<slice> instead of deep imports. For server-only exports, use @features/<slice>/server.',
             },
             {
               group: ['@widgets/*/*'],

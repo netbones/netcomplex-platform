@@ -60,8 +60,8 @@ export function MarketplaceListingsPage() {
   // D-16: 44x44px touch targets on all interactive elements
   return (
     <PullToRefresh
-      onRefresh={() => {
-        void refetch();
+      onRefresh={async () => {
+        await refetch();
       }}
     >
       <div className="pb-[env(safe-area-inset-bottom,16px)]">

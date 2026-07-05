@@ -1,5 +1,5 @@
 import * as eventsService from '../services';
-import { toEventDTO } from '@api/shared';
+import { toEventDTO } from '@api/server';
 import { createId } from '@shared/lib/id';
 
 /**
