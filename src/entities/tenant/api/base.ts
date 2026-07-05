@@ -57,6 +57,7 @@ import {
   responses,
 } from '@api/server';
 import { createId } from '@shared/lib/id';
+import { dbLogger } from '@shared/lib';
 
 export type { Tenant };
 
@@ -87,7 +88,37 @@ const getCurrentTenantImpl = async (): Promise<Tenant | undefined> => {
   return getTenantBySlug(localTenantSlug);
 };
 
-export const getCurrentTenant = getCurrentTenantImpl;
+/**
+ * Connection-resilient wrapper around {@link getCurrentTenantImpl}.
+ *
+ * `getCurrentTenant` is called from the root and auth layouts — both already
+ * handle a `undefined` return by rendering a default fallback tenant. The raw
+ * impl, however, lets a transient DB failure (e.g. pg pool connection
+ * timeout, Supavisor blip) throw, which Next.js surfaces as a 500 for the
+ * entire layout. That turns a brief upstream hiccup into a hard outage for
+ * every page.
+ *
+ * This wrapper catches connection-class errors, logs them via `dbLogger`, and
+ * returns `undefined` so the caller's fallback tenant kicks in. Non-connection
+ * errors (programming bugs, bad schema) still propagate so they surface in dev.
+ */
+export const getCurrentTenant = async (): Promise<Tenant | undefined> => {
+  try {
+    return await getCurrentTenantImpl();
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    const looksLikeConnectionError =
+      /connection timeout|connection terminated|terminat|ECONNRESET|ECONNREFUSED|ENOTFOUND|ETIMEDOUT|getaddrinfo|socket hang up/i.test(
+        msg
+      );
+    if (!looksLikeConnectionError) throw err;
+    dbLogger.warn(
+      { err: msg, slug: process.env.LOCAL_TENANT_SLUG || 'soralia' },
+      'Tenant lookup failed (DB connection error) — degrading to default tenant'
+    );
+    return undefined;
+  }
+};
 
 // Type helper to convert Drizzle result to Tenant
 function toTenant(row: Record<string, unknown>): Tenant {
