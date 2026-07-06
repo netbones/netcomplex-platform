@@ -212,7 +212,10 @@ export function MaintenancePage() {
             items={[{ label: t('nav.home'), href: '/' }, { label: t('nav.maintenance') }]}
           />
           <div className="flex justify-between items-center mb-8">
-            <h1 className="text-4xl font-bold text-soralia-primary">{t('maintenance:title')}</h1>
+            <h1 className="text-4xl font-bold text-soralia-primary flex items-center gap-3">
+              <img src="/platform/maintenance.svg" alt="" className="w-10 h-10" />
+              {t('maintenance:title')}
+            </h1>
             <button
               onClick={() => setShowForm(!showForm)}
               className="bg-soralia-primary text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition"
