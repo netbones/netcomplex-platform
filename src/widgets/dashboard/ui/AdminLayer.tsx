@@ -224,6 +224,9 @@ export function AdminLayer() {
 
       {/* Section: Domain Grid — grouped by category */}
       <section aria-label="Management domains">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          {tx('domains.heading', 'Management Domains')}
+        </h2>
         <AdminDomainGrid urgency={urgency} tx={tx} />
       </section>
 
