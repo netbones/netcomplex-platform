@@ -113,6 +113,7 @@ model Tenant {
   MaintenanceCategory     MaintenanceCategory[]
   MaintenanceRequest      MaintenanceRequest[]
   MaintenanceTeam         MaintenanceTeam[]
+  MaintenanceTeamMember   MaintenanceTeamMember[]
   PaymentTransaction      PaymentTransaction[]
   ProviderCharge          ProviderCharge[]
   ProviderInvoice         ProviderInvoice[]

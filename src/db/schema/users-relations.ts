@@ -25,6 +25,7 @@ import { eventAttendees } from './event-attendees';
 import { groups } from './groups';
 import { groupMembers } from './group-members';
 import { groupMembershipRequests } from './group-membership-requests';
+import { maintenanceTeamMembers } from './maintenance-team-members';
 import { internalMaintenanceNotes } from './internal-maintenance-notes';
 import { invitations } from './invitations';
 import { maintenanceRequests } from './maintenance-requests';
@@ -111,6 +112,9 @@ export const usersRelations = relations(users, helpers => ({
   GroupMember: helpers.many(groupMembers, { relationName: 'GroupMemberTouser' }),
   GroupMembershipRequest: helpers.many(groupMembershipRequests, {
     relationName: 'GroupMembershipRequestTouser',
+  }),
+  MaintenanceTeamMember: helpers.many(maintenanceTeamMembers, {
+    relationName: 'MaintenanceTeamMemberTouser',
   }),
   InternalMaintenanceNote: helpers.many(internalMaintenanceNotes, {
     relationName: 'InternalMaintenanceNoteTouser',

@@ -97,6 +97,7 @@ import { resourceVersions } from '@schema/resource-versions';
 import { competitions } from '@schema/competitions';
 import { competitionEntries } from '@schema/competition-entries';
 import { maintenanceTeams } from '@schema/maintenance-teams';
+import { maintenanceTeamMembers } from '@schema/maintenance-team-members';
 import { serviceProviders } from '@schema/service-providers';
 import { maintenanceCategories } from '@schema/maintenance-categories';
 import { bursaryFields } from '@schema/bursary-fields';
@@ -209,6 +210,7 @@ const dbSchema = {
   competitions,
   competitionEntries,
   maintenanceTeams,
+  maintenanceTeamMembers,
   serviceProviders,
   maintenanceCategories,
   bursaryFields,
@@ -447,6 +449,7 @@ export {
   competitions,
   competitionEntries,
   maintenanceTeams,
+  maintenanceTeamMembers,
   serviceProviders,
   maintenanceCategories,
   requestNotes,

@@ -65,6 +65,8 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.dwallet': 'dWallet',
   'domains.descriptions.dwallet': 'Community value distribution and payout management',
   'domains.descriptions.adminBookings': 'Manage bookable facilities and settings',
+  'domains.teams': 'Teams',
+  'domains.descriptions.teams': 'Manage in-house maintenance teams',
 };
 
 function DomainCard({ domain, badge }: { domain: AdminDomainDef; badge: number }) {

@@ -133,6 +133,13 @@ export const ADMIN_DOMAIN_DEFINITIONS: AdminDomainDef[] = [
     icon: '/platform/system.svg',
     description: 'Platform configuration and health',
   },
+  {
+    id: 'teams',
+    labelKey: 'domains.teams',
+    descriptionKey: 'domains.descriptions.teams',
+    icon: '/platform/teams-blue.svg',
+    description: 'Manage in-house maintenance teams',
+  },
 ];
 
 /**
@@ -162,6 +169,7 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.system': 'System',
   'domains.services': 'Services',
   'domains.education': 'Education Portal',
+  'domains.teams': 'Teams',
   'domains.descriptions.users': 'Manage community members and roles',
   'domains.descriptions.maintenance': 'Maintenance request management and analytics',
   'domains.descriptions.content': 'Content publishing and moderation',
@@ -177,6 +185,7 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.descriptions.services': 'Configure the public services page',
   'domains.descriptions.adminBookings': 'Manage bookable facilities and settings',
   'domains.descriptions.education': 'Manage education portal content',
+  'domains.descriptions.teams': 'Manage in-house maintenance teams',
 };
 
 export function AdminSubLauncher() {

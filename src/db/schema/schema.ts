@@ -41,6 +41,7 @@ import * as eventAttendees from './event-attendees';
 import * as bookings from './bookings';
 import * as maintenanceRequests from './maintenance-requests';
 import * as maintenanceTeams from './maintenance-teams';
+import * as maintenanceTeamMembers from './maintenance-team-members';
 import * as maintenanceCategories from './maintenance-categories';
 import * as bursaryFields from './bursary-fields';
 import * as requestNotes from './request-notes';
@@ -151,6 +152,7 @@ import * as eventAttendeesRelations from './event-attendees-relations';
 import * as bookingsRelations from './bookings-relations';
 import * as maintenanceRequestsRelations from './maintenance-requests-relations';
 import * as maintenanceTeamsRelations from './maintenance-teams-relations';
+import * as maintenanceTeamMembersRelations from './maintenance-team-members-relations';
 import * as maintenanceCategoriesRelations from './maintenance-categories-relations';
 import * as bursaryFieldsRelations from './bursary-fields-relations';
 import * as requestNotesRelations from './request-notes-relations';
@@ -262,6 +264,7 @@ export const schema = {
   ...bookings,
   ...maintenanceRequests,
   ...maintenanceTeams,
+  ...maintenanceTeamMembers,
   ...maintenanceCategories,
   ...bursaryFields,
   ...requestNotes,
@@ -372,6 +375,7 @@ export const schema = {
   ...bookingsRelations,
   ...maintenanceRequestsRelations,
   ...maintenanceTeamsRelations,
+  ...maintenanceTeamMembersRelations,
   ...maintenanceCategoriesRelations,
   ...bursaryFieldsRelations,
   ...requestNotesRelations,

@@ -78,6 +78,7 @@ export {
   competitionEntries,
   contentLikes,
   maintenanceTeams,
+  maintenanceTeamMembers,
   serviceProviders,
   maintenanceCategories,
   bursaryFields,

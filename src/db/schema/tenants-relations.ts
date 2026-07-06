@@ -73,6 +73,7 @@ import { couponRedemptions } from './coupon-redemptions';
 import { maintenanceCategories } from './maintenance-categories';
 import { maintenanceRequests } from './maintenance-requests';
 import { maintenanceTeams } from './maintenance-teams';
+import { maintenanceTeamMembers } from './maintenance-team-members';
 import { paymentTransactions } from './payment-transactions';
 import { providerCharges } from './provider-charges';
 import { providerInvoices } from './provider-invoices';
@@ -199,6 +200,9 @@ export const tenantsRelations = relations(tenants, helpers => ({
     relationName: 'MaintenanceRequestToTenant',
   }),
   MaintenanceTeam: helpers.many(maintenanceTeams, { relationName: 'MaintenanceTeamToTenant' }),
+  MaintenanceTeamMember: helpers.many(maintenanceTeamMembers, {
+    relationName: 'MaintenanceTeamMemberToTenant',
+  }),
   PaymentTransaction: helpers.many(paymentTransactions, {
     relationName: 'PaymentTransactionToTenant',
   }),

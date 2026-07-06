@@ -153,6 +153,7 @@ model user {
   Group                                                 Group[]
   GroupMember                                           GroupMember[]
   GroupMembershipRequest                                GroupMembershipRequest[]
+  MaintenanceTeamMember                                 MaintenanceTeamMember[]
   InternalMaintenanceNote                               InternalMaintenanceNote[]
   invitation                                            Invitation[]
   maintenanceRequestsAsLandlord                         MaintenanceRequest[]      @relation("MaintenanceRequest_landlord")
@@ -1009,18 +1010,35 @@ model MaintenanceRequest {
 }
 
 model MaintenanceTeam {
-  id          String               @id @default(cuid())
+  id          String                   @id @default(cuid())
   tenantId    String
-  Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  Tenant      Tenant                   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   name        String
   trade       String
   contactName String?
-  isActive    Boolean              @default(true)
-  createdAt   DateTime             @default(now())
-  updatedAt   DateTime             @updatedAt
+  isActive    Boolean                  @default(true)
+  createdAt   DateTime                 @default(now())
+  updatedAt   DateTime                 @updatedAt
   deletedAt   DateTime?
-  assignments MaintenanceRequest[] @relation("TeamAssignments")
+  assignments MaintenanceRequest[]     @relation("TeamAssignments")
+  members     MaintenanceTeamMember[]
 
+  @@index([tenantId])
+}
+
+model MaintenanceTeamMember {
+  id        String          @id @default(cuid())
+  tenantId  String
+  teamId    String
+  userId    String
+  createdAt DateTime        @default(now())
+  team      MaintenanceTeam @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user      user            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Tenant    Tenant          @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+
+  @@unique([teamId, userId])
+  @@index([teamId])
+  @@index([userId])
   @@index([tenantId])
 }
 
