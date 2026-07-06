@@ -1,4 +1,5 @@
 import { pgTable, text, boolean, timestamp } from 'drizzle-orm/pg-core';
+import { providerEmploymentTypeEnum } from './provider-employment-type-enum';
 
 export const serviceProviders = pgTable('ServiceProvider', {
   id: text('id').primaryKey(),
@@ -9,6 +10,7 @@ export const serviceProviders = pgTable('ServiceProvider', {
   email: text('email'),
   trade: text('trade').notNull(),
   isActive: boolean('isActive').default(true).notNull(),
+  employmentType: providerEmploymentTypeEnum('employmentType').default('EXTERNAL').notNull(),
   createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
   updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull(),
   deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }),

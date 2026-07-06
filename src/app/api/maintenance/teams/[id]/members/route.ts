@@ -8,6 +8,7 @@ import {
   notDeleted,
   now,
   requireAnyPermission,
+  serviceProviders,
   withErrorHandler,
 } from '@api/server';
 
@@ -116,7 +117,31 @@ export const POST = withErrorHandler(
       })
       .returning();
 
-    return apiCreated(member[0]);
+    const existingProvider = await db
+      .select()
+      .from(serviceProviders)
+      .where(and(eq(serviceProviders.userId, userId), eq(serviceProviders.tenantId, tenantId)))
+      .limit(1);
+
+    let providerCreated = false;
+
+    if (existingProvider.length === 0) {
+      const ts = now();
+      await db.insert(serviceProviders).values({
+        id: createId(),
+        tenantId,
+        userId,
+        companyName: `In-house ${team[0].trade.toLowerCase()} team`,
+        trade: team[0].trade,
+        isActive: true,
+        employmentType: 'IN_HOUSE',
+        createdAt: ts,
+        updatedAt: ts,
+      });
+      providerCreated = true;
+    }
+
+    return apiCreated({ member: member[0], providerCreated });
   }
 );
 

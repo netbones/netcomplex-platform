@@ -22,7 +22,16 @@ import { withTenant, getPlatformPageFlags } from '@entities/tenant/server';
 import { getProviderRecordForUser } from '@/shared/api/provider-platform';
 import { createComponentLogger } from '@shared/lib';
 
-import { apiError, apiSuccess, getSessionAndRole, requireNotSuspended } from '@api/server';
+import {
+  apiError,
+  apiSuccess,
+  getSessionAndRole,
+  requireNotSuspended,
+  db,
+  serviceProviders,
+  notDeleted,
+} from '@api/server';
+import { eq, and } from 'drizzle-orm';
 
 import { resolvePageAccess } from '@entities/access';
 import type { AccessContext, AccessInput } from '@entities/access';
@@ -76,15 +85,33 @@ function parseCaller(request: NextRequest): AccessInput {
 /**
  * Resolve provider record existence for the authenticated user.
  *
- * Checks the serviceProviders table for a record matching the user's email
- * within the current tenant. Returns a boolean indicating existence.
+ * Checks the serviceProviders table for a record matching the user within the
+ * current tenant. Matches by userId first (in-house providers), then by email
+ * (self-registered providers). Returns a boolean indicating existence.
  */
 async function resolveProviderExists(
   tenantId: string,
+  userId: string | null | undefined,
   userEmail: string | null | undefined
 ): Promise<boolean> {
-  const record = await getProviderRecordForUser(tenantId, userEmail);
-  return record !== null;
+  const emailRecord = await getProviderRecordForUser(tenantId, userEmail);
+  if (emailRecord) return true;
+
+  if (!userId) return false;
+
+  const [userIdRecord] = await db
+    .select({ id: serviceProviders.id })
+    .from(serviceProviders)
+    .where(
+      and(
+        eq(serviceProviders.tenantId, tenantId),
+        eq(serviceProviders.userId, userId),
+        notDeleted(serviceProviders)
+      )
+    )
+    .limit(1);
+
+  return userIdRecord !== undefined;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -121,7 +148,11 @@ export async function GET(request: NextRequest) {
     const { suspended: isSuspended } = await requireNotSuspended(request);
 
     // Resolve provider record
-    const providerRecordExists = await resolveProviderExists(tenantId, auth.session.user.email);
+    const providerRecordExists = await resolveProviderExists(
+      tenantId,
+      auth.userId,
+      auth.session.user.email
+    );
 
     // Build access context
     const flags = await getPlatformPageFlags(tenantId);

@@ -1128,6 +1128,7 @@ model ServiceProvider {
   email           String?
   trade           String
   isActive        Boolean                  @default(true)
+  employmentType  ProviderEmploymentType  @default(EXTERNAL)
   createdAt       DateTime                 @default(now())
   updatedAt       DateTime                 @updatedAt
   deletedAt       DateTime?
@@ -2768,6 +2769,11 @@ enum PriceType {
 enum ProviderType {
   COMMUNITY
   THIRD_PARTY
+}
+
+enum ProviderEmploymentType {
+  IN_HOUSE
+  EXTERNAL
 }
 
 enum ProviderMeritType {
