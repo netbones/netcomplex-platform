@@ -7,6 +7,10 @@ import { useLocalStorage } from 'usehooks-ts';
 import { ServicesCommandBar, type ServicesCommandBarUrgency } from './ServicesCommandBar';
 import { SERVICES_DOMAIN_DEFINITIONS, type ServicesDomainDef } from './ServicesSubLauncher';
 
+const SERVICES_ROUTE_OVERRIDES: Record<string, string> = {
+  disputes: '/disputes/new',
+};
+
 const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.maintenance': 'Maintenance',
   'domains.bookings': 'Bookings',
@@ -28,6 +32,8 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.descriptions.marketplace': 'Browse and book community service providers',
   'domains.education': 'Education Portal',
   'domains.descriptions.education': 'Bursaries, scholarships, and free learning resources',
+  'domains.disputes': 'Disputes',
+  'domains.descriptions.disputes': 'File and track community disputes',
 };
 
 // ═══════════════════════════════════════════════════════════════
@@ -48,7 +54,7 @@ function DomainCard({ domain, badge }: { domain: ServicesDomainDef; badge: numbe
 
   return (
     <Link
-      href={`/dashboard/services/${domain.id}`}
+      href={SERVICES_ROUTE_OVERRIDES[domain.id] ?? `/dashboard/services/${domain.id}`}
       className="group relative flex items-start gap-3 p-3 bg-white rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md transition-all border border-gray-100"
     >
       <div className="flex-shrink-0 w-10 h-10">

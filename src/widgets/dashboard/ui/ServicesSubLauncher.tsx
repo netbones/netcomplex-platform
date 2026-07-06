@@ -83,6 +83,13 @@ export const SERVICES_DOMAIN_DEFINITIONS: ServicesDomainDef[] = [
     description: 'Chat, announcements, and messaging',
   },
   {
+    id: 'disputes',
+    labelKey: 'domains.disputes',
+    descriptionKey: 'domains.descriptions.disputes',
+    icon: '/platform/communication.svg',
+    description: 'File and track community disputes',
+  },
+  {
     id: 'marketplace',
     labelKey: 'domains.marketplace',
     descriptionKey: 'domains.descriptions.marketplace',
