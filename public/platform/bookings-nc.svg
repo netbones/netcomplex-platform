@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
+  <defs>
+    <!-- Frosted glass background card matching watermarked_img_7325610948174909979.png -->
+    <linearGradient id="glassBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#F3EFE3" stop-opacity="0.75"/>
+    </linearGradient>
+    <!-- Left-side Metallic Corporate Navy Gradient -->
+    <linearGradient id="netNavy" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+    <!-- Right-side Metallic Anchor Gold Gradient -->
+    <linearGradient id="netGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EAB308"/>
+      <stop offset="100%" stop-color="#A16207"/>
+    </linearGradient>
+    <!-- Soft dark shadow for layout depth over the cream canvas -->
+    <filter id="softShadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="1" dy="2.5" stdDeviation="2" flood-color="#0F172A" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+
+  <!-- Container Base Card (True alpha transparency outside the border radius) -->
+  <rect width="64" height="64" rx="16" fill="url(#glassBg)" stroke="#E2E8F0" stroke-width="1" />
+
+  <!-- Graphics Group matching the exact calendar design in watermarked_img_7325610948174909979.png -->
+  <g filter="url(#softShadow)" transform="translate(14, 14)">
+    <!-- Bisected Calendar Base Body -->
+    <!-- Left Side Split (Navy) -->
+    <path d="M6,8 H18 V32 H6 C4.9,32 4,31.1 4,30 V10 C4,8.9 4.9,8 6,8 Z" fill="url(#netNavy)" />
+    <!-- Right Side Split (Gold) -->
+    <path d="M18,8 H30 C31.1,8 32,8.9 32,10 V30 C32,31.1 31.1,32 30,32 H18 Z" fill="url(#netGold)" />
+
+    <!-- Top Binder Rings -->
+    <!-- Left Ring (Navy) -->
+    <path d="M9,4 C9,2.9 9.9,2 11,2 C12.1,2 13,2.9 13,4 V10 H9 Z" fill="url(#netNavy)" opacity="0.9" />
+    <!-- Right Ring (Gold) -->
+    <path d="M23,4 C23,2.9 23.9,2 25,2 C26.1,2 27,2.9 27,4 V10 H23 Z" fill="url(#netGold)" opacity="0.9" />
+
+    <!-- Top Header Banner Segment Divider -->
+    <line x1="4" y1="14" x2="18" y2="14" stroke="#FFFFFF" stroke-width="1" opacity="0.2" />
+    <line x1="18" y1="14" x2="32" y2="14" stroke="#FFFFFF" stroke-width="1" opacity="0.4" />
+
+    <!-- Calendar Date Grid Blocks - Navy Side -->
+    <rect x="7" y="18" width="3" height="3" fill="#FFFFFF" opacity="0.2" rx="0.5" />
+    <rect x="12" y="18" width="3" height="3" fill="#FFFFFF" opacity="0.2" rx="0.5" />
+    <rect x="7" y="24" width="3" height="3" fill="#FFFFFF" opacity="0.2" rx="0.5" />
+    <rect x="12" y="24" width="3" height="3" fill="#FFFFFF" opacity="0.2" rx="0.5" />
+
+    <!-- Center Column Grid Blocks (Split Visibility) -->
+    <rect x="17" y="18" width="2" height="3" fill="#FFFFFF" opacity="0.2" />
+    <rect x="19" y="18" width="1" height="3" fill="#FFFFFF" opacity="0.4" />
+    <rect x="17" y="24" width="2" height="3" fill="#FFFFFF" opacity="0.2" />
+    <rect x="19" y="24" width="1" height="3" fill="#FFFFFF" opacity="0.4" />
+
+    <!-- Calendar Date Grid Blocks - Gold Side -->
+    <rect x="22" y="18" width="3" height="3" fill="#FFFFFF" opacity="0.5" rx="0.5" />
+    <rect x="27" y="18" width="3" height="3" fill="#FFFFFF" opacity="0.5" rx="0.5" />
+    <rect x="22" y="24" width="3" height="3" fill="#FFFFFF" opacity="0.5" rx="0.5" />
+    <rect x="27" y="24" width="3" height="3" fill="#FFFFFF" opacity="0.5" rx="0.5" />
+  </g>
+</svg>

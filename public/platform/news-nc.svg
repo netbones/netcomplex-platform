@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
+  <defs>
+    <!-- Frosted glass background card matching watermarked_img_7325610948174909979.png -->
+    <linearGradient id="glassBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#F3EFE3" stop-opacity="0.75"/>
+    </linearGradient>
+    <!-- Left-side Metallic Corporate Navy Gradient -->
+    <linearGradient id="netNavy" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+    <!-- Right-side Metallic Anchor Gold Gradient -->
+    <linearGradient id="netGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EAB308"/>
+      <stop offset="100%" stop-color="#A16207"/>
+    </linearGradient>
+    <!-- Soft dark shadow for layout depth over the cream canvas -->
+    <filter id="softShadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="1" dy="2.5" stdDeviation="2" flood-color="#0F172A" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+
+  <!-- Container Base Card (Margins maintain true alpha transparency outside corners) -->
+  <rect width="64" height="64" rx="16" fill="url(#glassBg)" stroke="#E2E8F0" stroke-width="1" />
+
+  <!-- Graphics Group -->
+  <g filter="url(#softShadow)" transform="translate(14, 15)">
+    <!-- Back Folded Newspaper Sheet (Shadow Depth Layer) -->
+    <path d="M6,6 H32 V32 H6 Z" fill="url(#netNavy)" opacity="0.25" />
+
+    <!-- Main Folded Newspaper Front Page - Left Split (Navy) -->
+    <path d="M2,4 H18 V34 H4 C2.9,34 2,33.1 2,32 Z" fill="url(#netNavy)" />
+    
+    <!-- Main Folded Newspaper Front Page - Right Split (Gold) -->
+    <path d="M18,4 H32 C33.1,4 34,4.9 34,6 V32 C34,33.1 33.1,34 32,34 H18 Z" fill="url(#netGold)" />
+
+    <!-- Newspaper Masthead Grid Accents (Simulated Headline Text) -->
+    <rect x="5" y="8" width="10" height="3" fill="#FFFFFF" opacity="0.3" />
+    <rect x="18" y="8" width="11" height="3" fill="#FFFFFF" opacity="0.4" />
+    
+    <!-- Body Text Content Lines - Navy Side -->
+    <line x1="5" y1="16" x2="15" y2="16" stroke="#FFFFFF" stroke-width="1.5" opacity="0.2" />
+    <line x1="5" y1="20" x2="13" y2="20" stroke="#FFFFFF" stroke-width="1.5" opacity="0.2" />
+    <line x1="5" y1="24" x2="15" y2="24" stroke="#FFFFFF" stroke-width="1.5" opacity="0.2" />
+    <line x1="5" y1="28" x2="11" y2="28" stroke="#FFFFFF" stroke-width="1.5" opacity="0.2" />
+
+    <!-- Body Text Content Lines - Gold Side -->
+    <line x1="19" y1="16" x2="30" y2="16" stroke="#FFFFFF" stroke-width="1.5" opacity="0.4" />
+    <line x1="19" y1="20" x2="27" y2="20" stroke="#FFFFFF" stroke-width="1.5" opacity="0.4" />
+    <line x1="19" y1="24" x2="30" y2="24" stroke="#FFFFFF" stroke-width="1.5" opacity="0.4" />
+    <line x1="19" y1="28" x2="25" y2="28" stroke="#FFFFFF" stroke-width="1.5" opacity="0.4" />
+    
+    <!-- Floating Live Announcement Badge Accent -->
+    <circle cx="31" cy="5" r="4.5" fill="url(#netNavy)" />
+    <circle cx="31" cy="5" r="2" fill="#FFFFFF" />
+  </g>
+</svg>

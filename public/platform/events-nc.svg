@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
+  <defs>
+    <!-- Frosted glass background card matching watermarked_img_7325610948174909979.png -->
+    <linearGradient id="glassBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#F3EFE3" stop-opacity="0.75"/>
+    </linearGradient>
+    <!-- Left-side Metallic Corporate Navy Gradient -->
+    <linearGradient id="netNavy" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+    <!-- Right-side Metallic Anchor Gold Gradient -->
+    <linearGradient id="netGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EAB308"/>
+      <stop offset="100%" stop-color="#A16207"/>
+    </linearGradient>
+    <!-- Soft dark shadow for layout depth over the cream canvas -->
+    <filter id="softShadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="1" dy="2.5" stdDeviation="2" flood-color="#0F172A" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+
+  <!-- Container Base Card (True alpha transparency outside the border radius) -->
+  <rect width="64" height="64" rx="16" fill="url(#glassBg)" stroke="#E2E8F0" stroke-width="1" />
+
+  <!-- Graphics Group matching the exact community rosette design in watermarked_img_7325610948174909979.png -->
+  <g filter="url(#softShadow)" transform="translate(14, 14)">
+    <g>
+      <!-- Left Split (Corporate Navy) -->
+      <g clip-path="url(#leftHalf)">
+        <!-- Outer Rosette Ring/Petal Structure -->
+        <path d="M18,3 C21.5,3 24.5,5.5 25.7,9 C28.7,7.5 32.5,8.5 34.3,11.5 C36.1,14.5 35.4,18.4 32.8,20.6 C35,23.2 34.6,27.1 31.9,29.2 C29.2,31.3 25.3,30.8 23.2,28.2 C20.3,30.6 15.7,30.6 12.8,28.2 C10.7,30.8 6.8,31.3 4.1,29.2 C1.4,27.1 1,23.2 3.2,20.6 C0.6,18.4 -0.1,14.5 1.7,11.5 C3.5,8.5 7.3,7.5 10.3,9 C11.5,5.5 14.5,3 18,3 Z" fill="url(#netNavy)" />
+        <!-- Concentric Inner Center Detailing -->
+        <circle cx="18" cy="17" r="4.5" stroke="#FFFFFF" stroke-width="1.2" fill="none" opacity="0.3" />
+        <circle cx="18" cy="17" r="1.5" fill="#FFFFFF" opacity="0.4" />
+      </g>
+      
+      <!-- Right Split (Anchor Gold) -->
+      <g clip-path="url(#rightHalf)">
+        <!-- Outer Rosette Ring/Petal Structure -->
+        <path d="M18,3 C21.5,3 24.5,5.5 25.7,9 C28.7,7.5 32.5,8.5 34.3,11.5 C36.1,14.5 35.4,18.4 32.8,20.6 C35,23.2 34.6,27.1 31.9,29.2 C29.2,31.3 25.3,30.8 23.2,28.2 C20.3,30.6 15.7,30.6 12.8,28.2 C10.7,30.8 6.8,31.3 4.1,29.2 C1.4,27.1 1,23.2 3.2,20.6 C0.6,18.4 -0.1,14.5 1.7,11.5 C3.5,8.5 7.3,7.5 10.3,9 C11.5,5.5 14.5,3 18,3 Z" fill="url(#netGold)" />
+        <!-- Concentric Inner Center Detailing -->
+        <circle cx="18" cy="17" r="4.5" stroke="#FFFFFF" stroke-width="1.2" fill="none" opacity="0.5" />
+        <circle cx="18" cy="17" r="1.5" fill="#FFFFFF" opacity="0.7" />
+      </g>
+    </g>
+  </g>
+
+  <!-- Split masking paths to bisect the rosette architecture perfectly -->
+  <clipPath id="leftHalf">
+    <rect x="-10" y="-10" width="28" height="60" />
+  </clipPath>
+  <clipPath id="rightHalf">
+    <rect x="18" y="-10" width="40" height="60" />
+  </clipPath>
+</svg>

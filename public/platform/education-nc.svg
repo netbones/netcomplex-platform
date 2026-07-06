@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
+  <defs>
+    <linearGradient id="glassBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#F3EFE3" stop-opacity="0.75"/>
+    </linearGradient>
+    <linearGradient id="netNavy" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+    <linearGradient id="netGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EAB308"/>
+      <stop offset="100%" stop-color="#A16207"/>
+    </linearGradient>
+    <filter id="softShadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="1" dy="2.5" stdDeviation="2" flood-color="#0F172A" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+
+  <!-- Container Base Card -->
+  <rect width="64" height="64" rx="16" fill="url(#glassBg)" stroke="#E2E8F0" stroke-width="1" />
+
+  <!-- Graphics Group matching watermarked_img_7325610948174909979.png -->
+  <g filter="url(#softShadow)" transform="translate(13, 14)">
+    <!-- Open Book Ledger Base Left (Navy) -->
+    <path d="M2,28 C10,24 19,27 19,27 V15 C19,15 10,12 2,16 Z" fill="url(#netNavy)" opacity="0.85" />
+    <!-- Open Book Ledger Base Right (Gold) -->
+    <path d="M19,27 C19,27 28,24 36,28 V16 C28,12 19,15 19,15 Z" fill="url(#netGold)" opacity="0.85" />
+
+    <!-- Graduation Cap Cap/Mortarboard Left Side -->
+    <path d="M19,2 L1,8 L19,14 Z" fill="url(#netNavy)" />
+    <!-- Graduation Cap Cap/Mortarboard Right Side -->
+    <path d="M19,2 L37,8 L19,14 Z" fill="url(#netGold)" />
+    
+    <!-- Skullcap Base Support Underneath -->
+    <path d="M8,11.5 V14 C8,17.5 13,19.5 19,19.5 V11.5 Z" fill="url(#netNavy)" opacity="0.9" />
+    <path d="M19,11.5 V19.5 C25,19.5 30,17.5 30,14 V11.5 Z" fill="url(#netGold)" opacity="0.9" />
+
+    <!-- Hanging Cap Tassel Highlight -->
+    <path d="M19,8 L29,12 V17" fill="none" stroke="url(#netGold)" stroke-width="1.2" stroke-linecap="round"/>
+    <circle cx="29" cy="17.5" r="1" fill="#EAB308" />
+  </g>
+</svg>

@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
+  <defs>
+    <!-- Frosted glass background card matching watermarked_img_7325610948174909979.png -->
+    <linearGradient id="glassBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#F3EFE3" stop-opacity="0.75"/>
+    </linearGradient>
+    <!-- Left-side Metallic Navy Gradient -->
+    <linearGradient id="netNavy" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+    <!-- Right-side Metallic Gold Gradient -->
+    <linearGradient id="netGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EAB308"/>
+      <stop offset="100%" stop-color="#A16207"/>
+    </linearGradient>
+    <filter id="softShadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="1" dy="2.5" stdDeviation="2" flood-color="#0F172A" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+
+  <!-- Container Base Card -->
+  <rect width="64" height="64" rx="16" fill="url(#glassBg)" stroke="#E2E8F0" stroke-width="1" />
+
+  <!-- Graphics Group -->
+  <g filter="url(#softShadow)" transform="translate(13, 14)">
+    <!-- Archway Pillars / Structural Left Side (Navy) -->
+    <path d="M2,30 V12 C2,6 8,4 19,4 V30 Z" fill="url(#netNavy)" />
+    <!-- Archway Pillars / Structural Right Side (Gold) -->
+    <path d="M19,4 C30,4 36,6 36,12 V30 H19 Z" fill="url(#netGold)" />
+
+    <!-- Protected Community Home Silhouette Core -->
+    <path d="M12,22 L19,16 V26 H12 Z" fill="#FFFFFF" opacity="0.25" />
+    <path d="M19,16 L26,22 H19 Z" fill="#FFFFFF" opacity="0.4" />
+
+    <!-- Active Security Boom Gate Bar -->
+    <rect x="4" y="21" width="15" height="3" fill="url(#netGold)" opacity="0.9" />
+    <rect x="19" y="21" width="13" height="3" fill="url(#netNavy)" opacity="0.9" />
+  </g>
+</svg>

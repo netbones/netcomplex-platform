@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
+  <defs>
+    <!-- Card container matching the clean white dashboard blocks in 2026-07-06_17-53.jpg -->
+    <linearGradient id="netComplexBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#F9F7F1" />
+    </linearGradient>
+    
+    <!-- Primary Corporate Navy Gradient -->
+    <linearGradient id="netComplexNavy" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E3A8A" />
+      <stop offset="60%" stop-color="#0F172A" />
+      <stop offset="100%" stop-color="#020617" />
+    </linearGradient>
+    
+    <!-- Anchor Accent Gold Gradient from 2026-07-06_17-53_1.png -->
+    <linearGradient id="netComplexGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EAB308" />
+      <stop offset="50%" stop-color="#CA8A04" />
+      <stop offset="100%" stop-color="#854D0E" />
+    </linearGradient>
+    
+    <!-- Soft dark shadow for depth over the cream canvas -->
+    <filter id="netComplexShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="1.5" dy="3" stdDeviation="2.5" flood-color="#0F172A" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- Container Base Card -->
+  <rect width="64" height="64" rx="16" fill="url(#netComplexBg)" stroke="#E2E8F0" stroke-width="1" />
+
+  <!-- Teams Graphics Group -->
+  <g filter="url(#netComplexShadow)" transform="translate(11, 14)">
+    <!-- Background Crew Member Left -->
+    <g opacity="0.4" transform="translate(0, 2)">
+      <circle cx="10" cy="6" r="4.5" fill="url(#netComplexNavy)" />
+      <path d="M2,16.5 C2,13 5.5,12 10,12 C14.5,12 18,13 18,16.5 V21 H2 Z" fill="url(#netComplexNavy)" />
+    </g>
+
+    <!-- Background Crew Member Right -->
+    <g opacity="0.4" transform="translate(22, 2)">
+      <circle cx="10" cy="6" r="4.5" fill="url(#netComplexNavy)" />
+      <path d="M2,16.5 C2,13 5.5,12 10,12 C14.5,12 18,13 18,16.5 V21 H2 Z" fill="url(#netComplexNavy)" />
+    </g>
+
+    <!-- Foreground Lead / Dispatch Profile in Brand Gold -->
+    <g transform="translate(9, 5)">
+      <circle cx="12" cy="7" r="5.5" fill="url(#netComplexGold)" />
+      <path d="M2,20 C2,15.5 6.5,14 12,14 C17.5,14 22,15.5 22,20 V25 H2 Z" fill="url(#netComplexGold)" />
+      <!-- Contrast Element -->
+      <circle cx="12" cy="18" r="1.5" fill="#FFFFFF" opacity="0.9" />
+    </g>
+  </g>
+</svg>

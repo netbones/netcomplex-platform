@@ -3,34 +3,24 @@
 import { useState } from 'react';
 import { useSafeTranslation } from '@shared/lib';
 import { SectionLayout } from '@shared/ui';
-import {
-  Users,
-  Wrench,
-  Calendar,
-  Megaphone,
-  BarChart3,
-  Heart,
-  Flower,
-  Bitcoin,
-  ChevronDown,
-  HatGlassesIcon,
-  MagnetIcon,
-  School,
-} from 'lucide-react';
+import { Users, BarChart3, Megaphone, ChevronDown, HatGlassesIcon } from 'lucide-react';
 
-const featureIcons = [
-  Users,
-  Wrench,
-  Calendar,
-  Megaphone,
-  BarChart3,
-  Heart,
-  Flower,
-  Bitcoin,
-  Megaphone,
-  HatGlassesIcon,
-  MagnetIcon,
-  School,
+const featureIcons: Array<
+  | { type: 'lucide'; Icon: React.ComponentType<{ className?: string }> }
+  | { type: 'svg'; src: string; alt: string }
+> = [
+  { type: 'lucide', Icon: Users },
+  { type: 'svg', src: '/platform/maintenance-nc.svg', alt: 'Maintenance' },
+  { type: 'svg', src: '/platform/bookings-nc.svg', alt: 'Bookings' },
+  { type: 'svg', src: '/platform/news-nc.svg', alt: 'Community Content' },
+  { type: 'lucide', Icon: BarChart3 },
+  { type: 'svg', src: '/platform/teams-nc.svg', alt: 'Affinity Groups' },
+  { type: 'svg', src: '/platform/events-nc.svg', alt: 'Events' },
+  { type: 'svg', src: '/platform/dwallet-nc.svg', alt: 'Web3 Digital Identity' },
+  { type: 'lucide', Icon: Megaphone },
+  { type: 'lucide', Icon: HatGlassesIcon },
+  { type: 'svg', src: '/platform/marketplace-nc.svg', alt: 'Marketplace' },
+  { type: 'svg', src: '/platform/education-nc.svg', alt: 'Education' },
 ];
 
 const featureColors = [
@@ -79,7 +69,7 @@ export function FeaturesSection() {
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
         {featuresList.map((feature, idx) => {
-          const Icon = featureIcons[idx];
+          const iconSpec = featureIcons[idx];
           const color = featureColors[idx];
           const isExpanded = expandedCard === idx;
           return (
@@ -91,7 +81,11 @@ export function FeaturesSection() {
                 <div
                   className={`w-12 h-12 rounded-xl ${color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}
                 >
-                  <Icon className="w-6 h-6" />
+                  {iconSpec.type === 'lucide' ? (
+                    <iconSpec.Icon className="w-6 h-6" />
+                  ) : (
+                    <img src={iconSpec.src} alt={iconSpec.alt} className="w-8 h-8" />
+                  )}
                 </div>
                 <h3 className="text-xl font-semibold text-lapis-deep mb-2 group-hover:text-gold-vein transition-colors duration-300">
                   {feature.title}
