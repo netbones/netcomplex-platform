@@ -16,7 +16,7 @@ export default function AboutPage() {
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
               {ready ? tx('about.title', 'About NetComplex') : 'About NetComplex'}
             </h1>
-            <p className="text-xl text-lapis-azure/80 max-w-2xl mx-auto">
+            <p className="text-xl text-white/80 max-w-2xl mx-auto">
               {ready
                 ? tx(
                     'about.subtitle',
