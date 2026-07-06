@@ -83,6 +83,26 @@
       }
     ]
   },
+  "about": {
+    "title": "About NetComplex",
+    "subtitle": "A community informatics platform built to connect neighbours, streamline operations, and enhance life in residential communities.",
+    "storyTitle": "Our Story",
+    "storyP1": "NetComplex was born from a simple observation: residential communities were being managed with spreadsheets, email notices, and disjointed, social-media tools. Residents had no central place to connect, communicate, or collaborate.",
+    "storyP2": "We built NetComplex to change that. What started as a solution for a single community in Cape Town has grown into a platform that serves residential complexes of all sizes across South Africa and the World.",
+    "storyP3": "Today, NetComplex powers communities with tools for communication, maintenance, bookings, events, and governance — all in one place. We're on a mission to make every complex a connected community.",
+    "valuesTitle": "What We Believe",
+    "value1Title": "Community First",
+    "value1Desc": "Every feature we build starts with the same question: does this empower households, liberate your neighbours and bring communities together?",
+    "value2Title": "Modular Simplicity",
+    "value2Desc": "Powerful tools don't have to be complicated. We design for clarity and responsiveness so every resident can participate. Choose your modules, embrace your customisations.",
+    "value3Title": "Localisation First",
+    "value3Desc": "Built in South Africa for diverse African communities. We understand the unique linguistic dynamics of residential living on our continent and beyond.",
+    "builtByTitle": "Built by Netbones Africa",
+    "builtByDesc": "Netbones Africa is a South African technology company focused on community informatics. We believe that technology should bring people together, not push them apart. Our team is passionate about building tools that make residential living better for everyone — residents, management, and staff alike.",
+    "builtByLink": "Visit netbones.co.za",
+    "ctaTitle": "Join the Communities Using NetComplex",
+    "ctaDesc": "Start your 14-day free trial and see what a connected community looks like."
+  },
   "cta": {
     "title": "Ikompleks Yakho, Exhunyiwe",
     "description": "Joyina amawaka amaphakathi aguqula indlela abamelwane baxhumana ngayo, benxibelelana, futhi baphumelela. I-NetComplex iyenza kube lula ukwakha umphakathi onesibindi esixhunyiwe.",
