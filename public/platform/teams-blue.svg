@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
+  <defs>
+    <!-- Standardized panel background card glow -->
+    <linearGradient id="bgGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E8ECFD" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#F3F1FB" stop-opacity="0.9"/>
+    </linearGradient>
+    <!-- Deep indigo-to-purple primary gradient for the lead foreground user -->
+    <linearGradient id="teamPrimaryBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A5B4FC" />
+      <stop offset="50%" stop-color="#6366F1" />
+      <stop offset="100%" stop-color="#4338CA" />
+    </linearGradient>
+    <!-- High-visibility cyan/teal accent for background supporting crew members -->
+    <linearGradient id="teamAccentBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22D3EE" />
+      <stop offset="100%" stop-color="#0891B2" />
+    </linearGradient>
+    <!-- Drop shadow filter for consistent 3D panel depth -->
+    <filter id="dropShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="1.5" dy="3" stdDeviation="2.5" flood-color="#4338CA" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Container Base Card -->
+  <rect width="64" height="64" rx="16" fill="url(#bgGlow)" />
+
+  <!-- Teams Graphics Group -->
+  <g filter="url(#dropShadow)" transform="translate(11, 14)">
+    <!-- Background Crew Member Left -->
+    <g opacity="0.65" transform="translate(0, 2)">
+      <circle cx="10" cy="6" r="4.5" fill="url(#teamAccentBlue)" />
+      <path d="M2,16.5 C2,13 5.5,12 10,12 C14.5,12 18,13 18,16.5 V21 H2 Z" fill="url(#teamAccentBlue)" />
+    </g>
+
+    <!-- Background Crew Member Right (Offset) -->
+    <g opacity="0.65" transform="translate(22, 2)">
+      <circle cx="10" cy="6" r="4.5" fill="url(#teamAccentBlue)" />
+      <path d="M2,16.5 C2,13 5.5,12 10,12 C14.5,12 18,13 18,16.5 V21 H2 Z" fill="url(#teamAccentBlue)" />
+    </g>
+
+    <!-- Foreground Lead / Dispatch Profile (Centered & Scaled) -->
+    <g transform="translate(9, 5)">
+      <circle cx="12" cy="7" r="5.5" fill="url(#teamPrimaryBlue)" />
+      <path d="M2,20 C2,15.5 6.5,14 12,14 C17.5,14 22,15.5 22,20 V25 H2 Z" fill="url(#teamPrimaryBlue)" />
+      <!-- High-visibility contrast chest badge -->
+      <circle cx="12" cy="18" r="1.5" fill="#FFFFFF" opacity="0.95" />
+    </g>
+  </g>
+</svg>
