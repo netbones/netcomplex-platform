@@ -8,7 +8,12 @@ import { authClient } from '@api/client';
 import { useAdminUrgency } from '@features/admin';
 import { ErrorBoundary } from '@shared/ui';
 import { AdminCommandBar, type CommandBarUrgency } from './AdminCommandBar';
-import { ADMIN_DOMAIN_DEFINITIONS, type AdminDomainDef } from './AdminSubLauncher';
+import {
+  ADMIN_DOMAIN_DEFINITIONS,
+  ADMIN_DOMAIN_CATEGORIES,
+  groupDomainsByCategory,
+  type AdminDomainDef,
+} from './AdminSubLauncher';
 
 // Domain ID → actual admin route override for domains whose page name differs
 const ADMIN_ROUTE_OVERRIDES: Record<string, string> = {
@@ -49,6 +54,7 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.providers': 'Providers',
   'domains.bookings': 'Bookings',
   'domains.services': 'Services',
+  'domains.dwallet': 'dWallet',
   'domains.descriptions.users': 'Manage community members and roles',
   'domains.descriptions.maintenance': 'Maintenance request management and analytics',
   'domains.descriptions.content': 'Content publishing and moderation',
@@ -62,12 +68,54 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.descriptions.system': 'Platform configuration and health',
   'domains.descriptions.providers': 'Provider management, revenue, and moderation',
   'domains.descriptions.services': 'Configure the public services page',
-  'domains.dwallet': 'dWallet',
   'domains.descriptions.dwallet': 'Community value distribution and payout management',
   'domains.descriptions.adminBookings': 'Manage bookable facilities and settings',
   'domains.teams': 'Teams',
   'domains.descriptions.teams': 'Manage in-house maintenance teams',
+  'domains.categories.community': 'Community Engagement & Growth',
+  'domains.categories.operations': 'Operational & Facility Management',
+  'domains.categories.financial': 'Financial & Ecosystem Infrastructure',
+  'domains.categories.system': 'System Administration',
 };
+
+// ── Grouped domain grid ──
+
+function AdminDomainGrid({
+  urgency,
+  tx,
+}: {
+  urgency: UrgencyResponse;
+  tx: ReturnType<typeof useSafeTranslation>['tx'];
+}) {
+  const grouped = groupDomainsByCategory(ADMIN_DOMAIN_DEFINITIONS);
+
+  return (
+    <div className="space-y-6">
+      {ADMIN_DOMAIN_CATEGORIES.map(cat => {
+        const domains = grouped[cat.id];
+        if (domains.length === 0) return null;
+        return (
+          <div key={cat.id}>
+            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
+              {tx(cat.labelKey, DOMAIN_FALLBACKS[cat.labelKey] || cat.description)}
+            </h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+              {domains.map(domain => (
+                <DomainCard
+                  key={domain.id}
+                  domain={domain}
+                  badge={urgency.domainBadges[domain.id] ?? 0}
+                />
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── DomainCard ──
 
 function DomainCard({ domain, badge }: { domain: AdminDomainDef; badge: number }) {
   const { tx } = useSafeTranslation('admin');
@@ -174,20 +222,9 @@ export function AdminLayer() {
         />
       </section>
 
-      {/* Section: Domain Grid (3-col → 5-col responsive) */}
+      {/* Section: Domain Grid — grouped by category */}
       <section aria-label="Management domains">
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">
-          {tx('domains.heading', 'Management Domains')}
-        </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-          {ADMIN_DOMAIN_DEFINITIONS.map(domain => (
-            <DomainCard
-              key={domain.id}
-              domain={domain}
-              badge={urgency.domainBadges[domain.id] ?? 0}
-            />
-          ))}
-        </div>
+        <AdminDomainGrid urgency={urgency} tx={tx} />
       </section>
 
       {/* Section: Activity Stream (lazy-loaded) */}

@@ -2,24 +2,47 @@
 
 import Link from 'next/link';
 import { useSafeTranslation } from '@shared/lib';
-/**
- * Admin management domain definition.
- * Each domain maps to admin widgets rendered on the /dashboard/admin/[domain] page.
- */
+
+export type AdminDomainCategory = 'community' | 'operations' | 'financial' | 'system';
+
+export interface AdminDomainCategoryMeta {
+  id: AdminDomainCategory;
+  labelKey: string;
+  description: string;
+}
+
 export interface AdminDomainDef {
   id: string;
   labelKey: string;
   descriptionKey: string;
   icon: string;
   description: string;
+  category: AdminDomainCategory;
 }
 
-/**
- * Admin management domains.
- * These mirror the Admin Dashboard tab inventory defined in
- * docs/architecture/NAVIGATION_GOVERNANCE.md.
- * When adding a new admin domain, update both this constant AND the governance doc.
- */
+export const ADMIN_DOMAIN_CATEGORIES: AdminDomainCategoryMeta[] = [
+  {
+    id: 'community',
+    labelKey: 'domains.categories.community',
+    description: 'Community Engagement & Growth',
+  },
+  {
+    id: 'operations',
+    labelKey: 'domains.categories.operations',
+    description: 'Operational & Facility Management',
+  },
+  {
+    id: 'financial',
+    labelKey: 'domains.categories.financial',
+    description: 'Financial & Ecosystem Infrastructure',
+  },
+  {
+    id: 'system',
+    labelKey: 'domains.categories.system',
+    description: 'System Administration',
+  },
+];
+
 export const ADMIN_DOMAIN_DEFINITIONS: AdminDomainDef[] = [
   {
     id: 'users',
@@ -27,20 +50,7 @@ export const ADMIN_DOMAIN_DEFINITIONS: AdminDomainDef[] = [
     descriptionKey: 'domains.descriptions.users',
     icon: '/platform/users.svg',
     description: 'Manage community members and roles',
-  },
-  {
-    id: 'maintenance',
-    labelKey: 'domains.maintenance',
-    descriptionKey: 'domains.descriptions.maintenance',
-    icon: '/platform/maintenance.svg',
-    description: 'Maintenance request management and analytics',
-  },
-  {
-    id: 'content',
-    labelKey: 'domains.content',
-    descriptionKey: 'domains.descriptions.content',
-    icon: '/platform/content.svg',
-    description: 'Content publishing and moderation',
+    category: 'community',
   },
   {
     id: 'events',
@@ -48,6 +58,7 @@ export const ADMIN_DOMAIN_DEFINITIONS: AdminDomainDef[] = [
     descriptionKey: 'domains.descriptions.events',
     icon: '/platform/events.svg',
     description: 'Community event management',
+    category: 'community',
   },
   {
     id: 'competitions',
@@ -55,20 +66,7 @@ export const ADMIN_DOMAIN_DEFINITIONS: AdminDomainDef[] = [
     descriptionKey: 'domains.descriptions.competitions',
     icon: '/platform/competitions.svg',
     description: 'Competition setup and results',
-  },
-  {
-    id: 'resources',
-    labelKey: 'domains.resources',
-    descriptionKey: 'domains.descriptions.resources',
-    icon: '/platform/resources.svg',
-    description: 'Community resource management',
-  },
-  {
-    id: 'surveys',
-    labelKey: 'domains.surveys',
-    descriptionKey: 'domains.descriptions.surveys',
-    icon: '/platform/surveys.svg',
-    description: 'Survey creation and results',
+    category: 'community',
   },
   {
     id: 'announcements',
@@ -76,6 +74,15 @@ export const ADMIN_DOMAIN_DEFINITIONS: AdminDomainDef[] = [
     descriptionKey: 'domains.descriptions.announcements',
     icon: '/platform/announcements.svg',
     description: 'Announcement creation and management',
+    category: 'community',
+  },
+  {
+    id: 'surveys',
+    labelKey: 'domains.surveys',
+    descriptionKey: 'domains.descriptions.surveys',
+    icon: '/platform/surveys.svg',
+    description: 'Survey creation and results',
+    category: 'community',
   },
   {
     id: 'merits',
@@ -83,6 +90,7 @@ export const ADMIN_DOMAIN_DEFINITIONS: AdminDomainDef[] = [
     descriptionKey: 'domains.descriptions.merits',
     icon: '/platform/merits.svg',
     description: 'Community merit management and disputes',
+    category: 'community',
   },
   {
     id: 'achievements',
@@ -90,6 +98,23 @@ export const ADMIN_DOMAIN_DEFINITIONS: AdminDomainDef[] = [
     descriptionKey: 'domains.descriptions.achievements',
     icon: '/platform/achievements.svg',
     description: 'Achievement configuration and catalog',
+    category: 'community',
+  },
+  {
+    id: 'maintenance',
+    labelKey: 'domains.maintenance',
+    descriptionKey: 'domains.descriptions.maintenance',
+    icon: '/platform/maintenance.svg',
+    description: 'Maintenance request management and analytics',
+    category: 'operations',
+  },
+  {
+    id: 'teams',
+    labelKey: 'domains.teams',
+    descriptionKey: 'domains.descriptions.teams',
+    icon: '/platform/users.svg',
+    description: 'Manage in-house maintenance teams',
+    category: 'operations',
   },
   {
     id: 'bookings',
@@ -97,6 +122,7 @@ export const ADMIN_DOMAIN_DEFINITIONS: AdminDomainDef[] = [
     descriptionKey: 'domains.descriptions.adminBookings',
     icon: '/platform/bookings.svg',
     description: 'Manage bookable facilities and settings',
+    category: 'operations',
   },
   {
     id: 'services',
@@ -104,13 +130,15 @@ export const ADMIN_DOMAIN_DEFINITIONS: AdminDomainDef[] = [
     descriptionKey: 'domains.descriptions.services',
     icon: '/platform/services.svg',
     description: 'Configure the public services page',
+    category: 'operations',
   },
   {
-    id: 'providers',
-    labelKey: 'domains.providers',
-    descriptionKey: 'domains.descriptions.providers',
-    icon: '/platform/providers.svg',
-    description: 'Provider management, revenue, and moderation',
+    id: 'resources',
+    labelKey: 'domains.resources',
+    descriptionKey: 'domains.descriptions.resources',
+    icon: '/platform/resources.svg',
+    description: 'Community resource management',
+    category: 'operations',
   },
   {
     id: 'dwallet',
@@ -118,6 +146,23 @@ export const ADMIN_DOMAIN_DEFINITIONS: AdminDomainDef[] = [
     descriptionKey: 'domains.descriptions.dwallet',
     icon: '/platform/wallet-blue.svg',
     description: 'Community value distribution and payout management',
+    category: 'financial',
+  },
+  {
+    id: 'providers',
+    labelKey: 'domains.providers',
+    descriptionKey: 'domains.descriptions.providers',
+    icon: '/platform/providers.svg',
+    description: 'Provider management, revenue, and moderation',
+    category: 'financial',
+  },
+  {
+    id: 'content',
+    labelKey: 'domains.content',
+    descriptionKey: 'domains.descriptions.content',
+    icon: '/platform/content.svg',
+    description: 'Content publishing and moderation',
+    category: 'financial',
   },
   {
     id: 'education',
@@ -125,6 +170,7 @@ export const ADMIN_DOMAIN_DEFINITIONS: AdminDomainDef[] = [
     descriptionKey: 'domains.descriptions.education',
     icon: '/platform/education-red.svg',
     description: 'Manage education portal content',
+    category: 'financial',
   },
   {
     id: 'system',
@@ -132,26 +178,25 @@ export const ADMIN_DOMAIN_DEFINITIONS: AdminDomainDef[] = [
     descriptionKey: 'domains.descriptions.system',
     icon: '/platform/system.svg',
     description: 'Platform configuration and health',
-  },
-  {
-    id: 'teams',
-    labelKey: 'domains.teams',
-    descriptionKey: 'domains.descriptions.teams',
-    icon: '/platform/teams-blue.svg',
-    description: 'Manage in-house maintenance teams',
+    category: 'system',
   },
 ];
 
-/**
- * AdminSubLauncher — icon-grid sub-launcher for admin management domains.
- *
- * Renders as a 3-column responsive grid of management domain cards.
- * Each card shows an icon + label + description and links to
- * /dashboard/admin/[domain].
- *
- * This is rendered BELOW the admin overview widgets (stats, activity, quick-links)
- * on the admin space page.
- */
+export function groupDomainsByCategory(
+  domains: AdminDomainDef[]
+): Record<AdminDomainCategory, AdminDomainDef[]> {
+  const grouped: Record<AdminDomainCategory, AdminDomainDef[]> = {
+    community: [],
+    operations: [],
+    financial: [],
+    system: [],
+  };
+  for (const domain of domains) {
+    grouped[domain.category].push(domain);
+  }
+  return grouped;
+}
+
 const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.heading': 'Management Domains',
   'domains.users': 'Users',
@@ -170,6 +215,7 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.services': 'Services',
   'domains.education': 'Education Portal',
   'domains.teams': 'Teams',
+  'domains.bookings': 'Bookings',
   'domains.descriptions.users': 'Manage community members and roles',
   'domains.descriptions.maintenance': 'Maintenance request management and analytics',
   'domains.descriptions.content': 'Content publishing and moderation',
@@ -186,10 +232,16 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.descriptions.adminBookings': 'Manage bookable facilities and settings',
   'domains.descriptions.education': 'Manage education portal content',
   'domains.descriptions.teams': 'Manage in-house maintenance teams',
+  'domains.descriptions.providers': 'Provider management, revenue, and moderation',
+  'domains.categories.community': 'Community Engagement & Growth',
+  'domains.categories.operations': 'Operational & Facility Management',
+  'domains.categories.financial': 'Financial & Ecosystem Infrastructure',
+  'domains.categories.system': 'System Administration',
 };
 
 export function AdminSubLauncher() {
   const { tx } = useSafeTranslation('admin');
+  const grouped = groupDomainsByCategory(ADMIN_DOMAIN_DEFINITIONS);
 
   const handleUsersClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -201,61 +253,72 @@ export function AdminSubLauncher() {
   };
 
   return (
-    <div className="mt-8">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">
-        {tx('domains.heading', 'Management Domains')}
-      </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {ADMIN_DOMAIN_DEFINITIONS.map(domain => {
-          if (domain.id === 'users') {
-            return (
-              <button
-                key={domain.id}
-                onClick={handleUsersClick}
-                className="group flex items-start gap-4 p-4 bg-white rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md transition-all border border-gray-100 text-left w-full"
-                type="button"
-              >
-                <div className="flex-shrink-0 w-10 h-10">
-                  <img src={domain.icon} alt="" className="w-full h-full" />
-                </div>
-                <div className="min-w-0">
-                  <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition">
-                    {tx(domain.labelKey, DOMAIN_FALLBACKS[domain.labelKey] || domain.labelKey)}
-                  </h3>
-                  <p className="text-xs text-gray-500 mt-1 line-clamp-2">
-                    {tx(
-                      domain.descriptionKey,
-                      DOMAIN_FALLBACKS[domain.descriptionKey] || domain.descriptionKey
-                    )}
-                  </p>
-                </div>
-              </button>
-            );
-          }
-          return (
-            <Link
-              key={domain.id}
-              href={`/admin/${domain.id}`}
-              className="group flex items-start gap-4 p-4 bg-white rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md transition-all border border-gray-100"
-            >
-              <div className="flex-shrink-0 w-10 h-10">
-                <img src={domain.icon} alt="" className="w-full h-full" />
-              </div>
-              <div className="min-w-0">
-                <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition">
-                  {tx(domain.labelKey, DOMAIN_FALLBACKS[domain.labelKey] || domain.labelKey)}
-                </h3>
-                <p className="text-xs text-gray-500 mt-1 line-clamp-2">
-                  {tx(
-                    domain.descriptionKey,
-                    DOMAIN_FALLBACKS[domain.descriptionKey] || domain.descriptionKey
-                  )}
-                </p>
-              </div>
-            </Link>
-          );
-        })}
-      </div>
+    <div className="mt-8 space-y-8">
+      {ADMIN_DOMAIN_CATEGORIES.map(cat => {
+        const domains = grouped[cat.id];
+        if (domains.length === 0) return null;
+        return (
+          <section key={cat.id}>
+            <h2 className="text-base font-semibold text-gray-900 mb-3">
+              {tx(cat.labelKey, DOMAIN_FALLBACKS[cat.labelKey] || cat.description)}
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {domains.map(domain => {
+                if (domain.id === 'users') {
+                  return (
+                    <button
+                      key={domain.id}
+                      onClick={handleUsersClick}
+                      className="group flex items-start gap-4 p-4 bg-white rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md transition-all border border-gray-100 text-left w-full"
+                      type="button"
+                    >
+                      <div className="flex-shrink-0 w-10 h-10">
+                        <img src={domain.icon} alt="" className="w-full h-full" />
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition">
+                          {tx(
+                            domain.labelKey,
+                            DOMAIN_FALLBACKS[domain.labelKey] || domain.labelKey
+                          )}
+                        </h3>
+                        <p className="text-xs text-gray-500 mt-1 line-clamp-2">
+                          {tx(
+                            domain.descriptionKey,
+                            DOMAIN_FALLBACKS[domain.descriptionKey] || domain.descriptionKey
+                          )}
+                        </p>
+                      </div>
+                    </button>
+                  );
+                }
+                return (
+                  <Link
+                    key={domain.id}
+                    href={`/admin/${domain.id}`}
+                    className="group flex items-start gap-4 p-4 bg-white rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md transition-all border border-gray-100"
+                  >
+                    <div className="flex-shrink-0 w-10 h-10">
+                      <img src={domain.icon} alt="" className="w-full h-full" />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition">
+                        {tx(domain.labelKey, DOMAIN_FALLBACKS[domain.labelKey] || domain.labelKey)}
+                      </h3>
+                      <p className="text-xs text-gray-500 mt-1 line-clamp-2">
+                        {tx(
+                          domain.descriptionKey,
+                          DOMAIN_FALLBACKS[domain.descriptionKey] || domain.descriptionKey
+                        )}
+                      </p>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        );
+      })}
     </div>
   );
 }
