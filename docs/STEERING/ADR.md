@@ -1398,3 +1398,87 @@ The three clusters are treated **separately** because they represent different k
 - ADVISORY-027: Response with per-cluster analysis and gate disposition
 - BD issue `soralia-village-sioz`: Assessment and tracking
 - `UBIQUITOUS_LANGUAGE.md` Conflict Register: Entries C8 (Seat field overlap), C9 (Invoice/Payment field overlap)
+
+---
+
+## ADR-026: Zod v3/v4 Dual-Import with Cast Bridge
+
+**Status:** Accepted
+
+**Date:** 2026-07
+
+### Context
+
+The project uses two consumers of Zod that import from different API surfaces of the same package:
+
+| Dependency                | Import     | API | Purpose                                              |
+| ------------------------- | ---------- | --- | ---------------------------------------------------- |
+| tRPC (`@trpc/server@^11`) | `"zod"`    | v3  | Procedure `.input()` / `.output()` type constraints  |
+| drizzle-zod (`^0.8.3`)    | `"zod/v4"` | v4  | Generates DTO schemas from Drizzle table definitions |
+
+Zod >=3.24 ships both APIs in a single package: `import { z } from 'zod'` gives v3 types, `import { z } from 'zod/v4'` gives v4 types. `drizzle-zod` internally resolves to `zod/v4`, producing schemas typed as `ZodObject<...>` from the v4 type tree. tRPC's `ZodTypeAny` constraint references the v3 type tree. The two are structurally incompatible — a v4 `ZodObject` cannot satisfy the v3 `ZodTypeAny` constraint.
+
+When a v4 DTO is referenced inside a tRPC `.output()` declaration (e.g., `z.array(propertyDto)` or `propertyDto.extend({...})`), TypeScript reports:
+
+```
+Type 'ZodObject<...>' is not assignable to parameter of type 'ZodTypeAny'.
+  Type 'ZodObject<...>' is missing the following properties from type 'ZodType<any, any, any>':
+  _type, _parse, _getType, _getOrReturnCtx, and 7 more.
+```
+
+As of July 2026, this produced 37 type errors in `identity.ts` alone, plus additional errors in `notifications.ts` and other router files.
+
+### Decision
+
+**Maintain the dual-import pattern (tRPC → `"zod"`, DTOs → `"zod/v4"`) and bridge the incompatibility with `as any` cast aliases at the router layer.**
+
+A file-local alias is declared for each v4 DTO used in output schemas:
+
+```typescript
+import { propertyDto, standardSeatDto } from '@api/server';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const pDto = propertyDto as any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const ssDto = standardSeatDto as any;
+```
+
+The cast alias is used in `.output()` schema positions; `.parse()` calls at runtime continue using the original v4 DTO directly.
+
+**Why not migrate everything to one side?**
+
+| Option                                       | Assessment                                                                                                                                                                                                        |
+| -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Switch tRPC routers to `"zod/v4"` imports    | Does not fix the type error — tRPC's internal `ZodTypeAny` type definition references the v3 tree regardless of which `z` the router imports                                                                      |
+| Switch DTOs to `"zod"` (v3) imports          | Would require forking `drizzle-zod` to change its internal import path. DTOs lose v4 features (Codecs, bidirectional transforms). Increases maintenance burden                                                    |
+| Wait for tRPC to support `zod/v4` natively   | tRPC PR [#7073](https://github.com/trpc/trpc/pull/7073) (opened Dec 2025) adds the needed type bridge (`ParseFn<TOutput, TInput>`, `getEncodeFn`) but remains unmerged after 6+ months with no committed timeline |
+| Drop `drizzle-zod` and hand-write DTOs in v3 | Eliminates the conflict entirely but loses column-drift protection (DTOs would no longer be derived from the Drizzle schema)                                                                                      |
+
+**Re-evaluation trigger:** When tRPC merges PR [#7073](https://github.com/trpc/trpc/pull/7073) (or equivalent `ZodTypeAny` v4 compatibility), drop all cast aliases and unify on `"zod/v4"` for both DTOs and router schemas.
+
+**Fallback (if PR #7073 remains stale into 2027):** Consider generating DTOs with `"zod"` (v3) import by forking or patching `drizzle-zod`'s import resolution. This sacrifices Codec support but eliminates the cast bridge entirely.
+
+### Consequences
+
+#### Positive
+
+- Build compiles with zero errors; the `as any` casts are bounded to schema declaration sites only
+- Runtime behavior is unaffected — `.parse()` calls use the original v4 DTOs with full validation
+- No forking or patching of upstream dependencies required
+- Reversible: when tRPC adds v4 support, the cast aliases can be deleted in a single cleanup pass
+
+#### Negative
+
+- `as any` casts suppress type checking on the bridged schema references, meaning a v3/v4 shape mismatch would surface at runtime rather than compile time
+- Each router file that uses v4 DTOs in `.output()` must maintain its own cast alias block
+- Adds ~9 lines of boilerplate per affected file
+- The Renovate zod-to-v4 bump PR ([#7143](https://github.com/trpc/trpc/pull/7143)) was closed/abandoned, confirming that upstream does not yet consider v4 adoption ready for consumers
+
+### Related
+
+- tRPC PR [#7073](https://github.com/trpc/trpc/pull/7073): Adds `ParseFn<TOutput, TInput>` generics — the type bridge needed for v4 Codec support
+- tRPC issue [#6978](https://github.com/trpc/trpc/issues/6978): Feature request for binding procedure return type to output parser input type
+- Phase 120 PLAN.md Pitfall 2: _"DTOs use zod/v4, routers use zod (v3). Mixing them causes type errors."_
+- Phase 120-02 SUMMARY.md: Acknowledged 33 pre-existing v3/v4 errors in `identity.ts`
+- `src/server/routers/identity.ts`: Reference implementation of the cast alias pattern
+- `src/server/routers/notifications.ts`: Second router using the cast alias pattern
