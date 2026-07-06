@@ -57,7 +57,7 @@ export function PageSettingsWidget({ initialFlags }: PageFlagsWidgetProps) {
         setTimeout(() => setSaved(false), 2000);
       } else {
         const body = await res.json().catch(() => ({}));
-        setError(body?.error || body?.message || `Failed to save ${key}`);
+        setError(body?.error?.message || body?.message || `Failed to save ${key}`);
       }
     } catch (err) {
       log.error({}, 'Failed to update flag', err);

@@ -135,7 +135,7 @@ export default function AdminSystemPage() {
       if (res.ok) {
         const body = await res.json();
         const data = body.success ? body.data : body;
-        setActivities(data.items ?? []);
+        setActivities(Array.isArray(data?.items) ? data.items : []);
       }
     } catch {
       /* silent — activity is non-critical */
