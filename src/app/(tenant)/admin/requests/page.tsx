@@ -432,14 +432,14 @@ export default function AdminRequestsPage() {
 
   return (
     <ErrorBoundary>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 overflow-x-hidden">
         <Breadcrumbs
           items={[{ label: 'Admin', href: '/admin' }, { label: 'Maintenance Requests' }]}
         />
 
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <img src="/platform/maintenance.svg" alt="" className="w-10 h-10" />
+        <div className="flex justify-between items-center mb-6 flex-wrap gap-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center gap-3">
+            <img src="/platform/maintenance.svg" alt="" className="w-8 h-8 sm:w-10 sm:h-10" />
             Maintenance Requests
           </h1>
           <div className="text-sm text-gray-500">

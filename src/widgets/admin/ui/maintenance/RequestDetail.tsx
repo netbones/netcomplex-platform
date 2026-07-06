@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import type {
   MaintenanceRequest,
   BoardMember,
@@ -37,13 +38,13 @@ interface RequestDetailProps {
   handoffReason: string;
   newNote: string;
   onClose: () => void;
-  onStatusChange: (id: string, status: string) => void;
-  onPriorityChange: (id: string, priority: string) => void;
-  onAssigneeChange: (id: string, assignee: string) => void;
-  onAssignment: (id: string, teamId?: string, providerId?: string) => void;
-  onScheduleChange: (id: string, date: string) => void;
-  onVendorChange: (id: string, vendor: string) => void;
-  onCostChange: (id: string, field: 'estimatedCost' | 'actualCost', value: string) => void;
+  onStatusChange: (id: string, status: string) => Promise<void>;
+  onPriorityChange: (id: string, priority: string) => Promise<void>;
+  onAssigneeChange: (id: string, assignee: string) => Promise<void>;
+  onAssignment: (id: string, teamId?: string, providerId?: string) => Promise<void>;
+  onScheduleChange: (id: string, date: string) => Promise<void>;
+  onVendorChange: (id: string, vendor: string) => Promise<void>;
+  onCostChange: (id: string, field: 'estimatedCost' | 'actualCost', value: string) => Promise<void>;
   onHandoff: (id: string) => void;
   onSetHandoffMode: (v: boolean) => void;
   onSetHandoffProviderId: (v: string) => void;
@@ -86,11 +87,112 @@ export function RequestDetail({
 }: RequestDetailProps) {
   const statusTimeline = getStatusTimeline(history);
 
+  const [draftStatus, setDraftStatus] = useState(selectedRequest.status);
+  const [draftPriority, setDraftPriority] = useState(selectedRequest.priority);
+  const [draftTeamId, setDraftTeamId] = useState(selectedRequest.assignedTeamId || '');
+  const [draftProviderId, setDraftProviderId] = useState(selectedRequest.assignedProviderId || '');
+  const [draftAssignedTo, setDraftAssignedTo] = useState(selectedRequest.assignedTo || '');
+  const [draftVendor, setDraftVendor] = useState(selectedRequest.vendor || '');
+  const [draftScheduledDate, setDraftScheduledDate] = useState(
+    selectedRequest.scheduledDate ? selectedRequest.scheduledDate.split('T')[0] : ''
+  );
+  const [draftEstimatedCost, setDraftEstimatedCost] = useState(
+    selectedRequest.estimatedCost != null ? String(selectedRequest.estimatedCost) : ''
+  );
+  const [draftActualCost, setDraftActualCost] = useState(
+    selectedRequest.actualCost != null ? String(selectedRequest.actualCost) : ''
+  );
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setDraftStatus(selectedRequest.status);
+    setDraftPriority(selectedRequest.priority);
+    setDraftTeamId(selectedRequest.assignedTeamId || '');
+    setDraftProviderId(selectedRequest.assignedProviderId || '');
+    setDraftAssignedTo(selectedRequest.assignedTo || '');
+    setDraftVendor(selectedRequest.vendor || '');
+    setDraftScheduledDate(
+      selectedRequest.scheduledDate ? selectedRequest.scheduledDate.split('T')[0] : ''
+    );
+    setDraftEstimatedCost(
+      selectedRequest.estimatedCost != null ? String(selectedRequest.estimatedCost) : ''
+    );
+    setDraftActualCost(
+      selectedRequest.actualCost != null ? String(selectedRequest.actualCost) : ''
+    );
+  }, [selectedRequest.id]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const id = selectedRequest.id;
+      if (draftStatus !== selectedRequest.status) await onStatusChange(id, draftStatus);
+      if (draftPriority !== selectedRequest.priority) await onPriorityChange(id, draftPriority);
+      if (draftAssignedTo !== (selectedRequest.assignedTo || ''))
+        await onAssigneeChange(id, draftAssignedTo || '');
+      if (
+        draftTeamId !== (selectedRequest.assignedTeamId || '') ||
+        draftProviderId !== (selectedRequest.assignedProviderId || '')
+      )
+        await onAssignment(id, draftTeamId || undefined, draftProviderId || undefined);
+      if (
+        draftScheduledDate !==
+        (selectedRequest.scheduledDate ? selectedRequest.scheduledDate.split('T')[0] : '')
+      )
+        await onScheduleChange(id, draftScheduledDate);
+      if (draftVendor !== (selectedRequest.vendor || '')) await onVendorChange(id, draftVendor);
+      if (
+        draftEstimatedCost !==
+        (selectedRequest.estimatedCost != null ? String(selectedRequest.estimatedCost) : '')
+      )
+        await onCostChange(id, 'estimatedCost', draftEstimatedCost);
+      if (
+        draftActualCost !==
+        (selectedRequest.actualCost != null ? String(selectedRequest.actualCost) : '')
+      )
+        await onCostChange(id, 'actualCost', draftActualCost);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const isDirty =
+    draftStatus !== selectedRequest.status ||
+    draftPriority !== selectedRequest.priority ||
+    draftTeamId !== (selectedRequest.assignedTeamId || '') ||
+    draftProviderId !== (selectedRequest.assignedProviderId || '') ||
+    draftAssignedTo !== (selectedRequest.assignedTo || '') ||
+    draftVendor !== (selectedRequest.vendor || '') ||
+    draftScheduledDate !==
+      (selectedRequest.scheduledDate ? selectedRequest.scheduledDate.split('T')[0] : '') ||
+    draftEstimatedCost !==
+      (selectedRequest.estimatedCost != null ? String(selectedRequest.estimatedCost) : '') ||
+    draftActualCost !==
+      (selectedRequest.actualCost != null ? String(selectedRequest.actualCost) : '');
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
   return (
-    <div className="fixed inset-0 z-50 flex justify-end">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative w-full max-w-lg bg-white h-full overflow-y-auto">
-        <div className="p-6">
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/40"
+      role="dialog"
+      aria-modal="true"
+      onClick={onClose}
+    >
+      <div
+        className="w-full md:max-w-xl bg-white rounded-t-2xl max-h-[85vh] overflow-y-auto overflow-x-hidden animate-slide-up shadow-2xl"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="sticky top-0 bg-white pt-3 z-10">
+          <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto" />
+        </div>
+        <div className="p-6 pt-3">
           <div className="flex justify-between items-start mb-6">
             <div>
               <h2 className="text-xl font-bold text-gray-900">Request Details</h2>
@@ -100,7 +202,11 @@ export function RequestDetail({
                 </span>
               )}
             </div>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <button
+              onClick={onClose}
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center text-gray-400 hover:text-gray-600 text-xl"
+              aria-label="Close"
+            >
               ✕
             </button>
           </div>
@@ -109,23 +215,23 @@ export function RequestDetail({
             <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Status Workflow</h3>
             <div className="flex items-center gap-2 mb-3">
               <span
-                className={`px-3 py-1 rounded-full text-sm font-medium ${statusColors[selectedRequest.status]}`}
+                className={`px-3 py-1 rounded-full text-sm font-medium ${statusColors[draftStatus]}`}
               >
-                {friendlyStatus(selectedRequest.status)}
+                {friendlyStatus(draftStatus)}
               </span>
               <span
-                className={`px-2 py-1 rounded-full text-xs font-medium ${priorityColors[selectedRequest.priority]}`}
+                className={`px-2 py-1 rounded-full text-xs font-medium ${priorityColors[draftPriority]}`}
               >
-                {selectedRequest.priority}
+                {draftPriority}
               </span>
             </div>
 
-            {workflowTransitions[selectedRequest.status]?.length > 0 && (
+            {workflowTransitions[draftStatus]?.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-3">
-                {workflowTransitions[selectedRequest.status].map(nextStatus => (
+                {workflowTransitions[draftStatus].map(nextStatus => (
                   <button
                     key={nextStatus}
-                    onClick={() => onStatusChange(selectedRequest.id, nextStatus)}
+                    onClick={() => setDraftStatus(nextStatus)}
                     className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${statusColors[nextStatus]} border-transparent hover:opacity-80`}
                   >
                     → {friendlyStatus(nextStatus)}
@@ -134,15 +240,15 @@ export function RequestDetail({
               </div>
             )}
 
-            {(selectedRequest.status === 'COMPLETED' || selectedRequest.status === 'CANCELLED') && (
+            {(draftStatus === 'COMPLETED' || draftStatus === 'CANCELLED') && (
               <p className="text-xs text-gray-500 italic">This request is in a terminal state.</p>
             )}
 
             <div className="mt-3">
               <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
               <select
-                value={selectedRequest.priority}
-                onChange={e => onPriorityChange(selectedRequest.id, e.target.value)}
+                value={draftPriority}
+                onChange={e => setDraftPriority(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
               >
                 {priorityOptions.map(p => (
@@ -166,8 +272,10 @@ export function RequestDetail({
               Resident Information
             </h3>
             <div className="bg-gray-50 rounded-lg p-4">
-              <p className="font-medium text-gray-900">{selectedRequest.user?.name || 'Unknown'}</p>
-              <p className="text-gray-600">{selectedRequest.user?.email || 'No email'}</p>
+              <p className="font-medium text-gray-900 truncate">
+                {selectedRequest.user?.name || 'Unknown'}
+              </p>
+              <p className="text-gray-600 truncate">{selectedRequest.user?.email || 'No email'}</p>
               <p className="text-gray-600">
                 {selectedRequest.user?.address?.street
                   ? `${selectedRequest.user.address.street}${selectedRequest.user.address.unit ? `, ${selectedRequest.user.address.unit}` : ''}`
@@ -194,7 +302,9 @@ export function RequestDetail({
                   </span>
                 </p>
               )}
-              <p className="text-gray-700 whitespace-pre-wrap">{selectedRequest.description}</p>
+              <p className="text-gray-700 whitespace-pre-wrap break-words">
+                {selectedRequest.description}
+              </p>
             </div>
           </div>
 
@@ -208,10 +318,10 @@ export function RequestDetail({
                   In-house Team
                 </label>
                 <select
-                  value={selectedRequest.assignedTeamId || ''}
+                  value={draftTeamId}
                   onChange={e => {
-                    const teamId = e.target.value;
-                    onAssignment(selectedRequest.id, teamId || undefined, undefined);
+                    setDraftTeamId(e.target.value);
+                    if (e.target.value) setDraftProviderId('');
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
                 >
@@ -230,26 +340,29 @@ export function RequestDetail({
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Service Provider
                 </label>
-                <select
-                  value={selectedRequest.assignedProviderId || ''}
-                  onChange={e => {
-                    const providerId = e.target.value;
-                    onAssignment(selectedRequest.id, undefined, providerId || undefined);
-                  }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
-                >
-                  <option value="">No provider assigned</option>
-                  {providers
-                    .filter(p => p.isActive)
-                    .map(provider => (
-                      <option key={provider.id} value={provider.id}>
-                        {provider.companyName} ({provider.trade})
-                      </option>
-                    ))}
-                </select>
+                {draftTeamId ? (
+                  <p className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 text-sm">
+                    Inhouse Team
+                  </p>
+                ) : (
+                  <select
+                    value={draftProviderId}
+                    onChange={e => setDraftProviderId(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                  >
+                    <option value="">No provider assigned</option>
+                    {providers
+                      .filter(p => p.isActive)
+                      .map(provider => (
+                        <option key={provider.id} value={provider.id}>
+                          {provider.companyName} ({provider.trade})
+                        </option>
+                      ))}
+                  </select>
+                )}
               </div>
 
-              {selectedRequest.assignedTeamId && !handoffMode && (
+              {draftTeamId && !handoffMode && (
                 <button
                   onClick={() => onSetHandoffMode(true)}
                   className="px-3 py-1.5 bg-amber-100 text-amber-800 rounded-lg text-sm font-medium hover:bg-amber-200 transition-colors"
@@ -317,8 +430,8 @@ export function RequestDetail({
                   Assigned To (Board Member)
                 </label>
                 <select
-                  value={selectedRequest.assignedTo || ''}
-                  onChange={e => onAssigneeChange(selectedRequest.id, e.target.value)}
+                  value={draftAssignedTo}
+                  onChange={e => setDraftAssignedTo(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
                 >
                   <option value="">Unassigned</option>
@@ -334,8 +447,8 @@ export function RequestDetail({
                 <label className="block text-sm font-medium text-gray-700 mb-1">Vendor</label>
                 <input
                   type="text"
-                  value={selectedRequest.vendor || ''}
-                  onChange={e => onVendorChange(selectedRequest.id, e.target.value)}
+                  value={draftVendor}
+                  onChange={e => setDraftVendor(e.target.value)}
                   placeholder="Enter vendor name"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
                 />
@@ -347,10 +460,8 @@ export function RequestDetail({
                 </label>
                 <input
                   type="date"
-                  value={
-                    selectedRequest.scheduledDate ? selectedRequest.scheduledDate.split('T')[0] : ''
-                  }
-                  onChange={e => onScheduleChange(selectedRequest.id, e.target.value)}
+                  value={draftScheduledDate}
+                  onChange={e => setDraftScheduledDate(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
                 />
               </div>
@@ -360,33 +471,31 @@ export function RequestDetail({
           <div className="mb-6">
             <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Cost Tracking</h3>
             <div className="bg-gray-50 rounded-lg p-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Estimated Cost ($)
+                    Estimated Cost (ZAR)
                   </label>
                   <input
                     type="number"
                     step="0.01"
                     min="0"
-                    value={selectedRequest.estimatedCost || ''}
-                    onChange={e =>
-                      onCostChange(selectedRequest.id, 'estimatedCost', e.target.value)
-                    }
+                    value={draftEstimatedCost}
+                    onChange={e => setDraftEstimatedCost(e.target.value)}
                     placeholder="0.00"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Actual Cost ($)
+                    Actual Cost (ZAR)
                   </label>
                   <input
                     type="number"
                     step="0.01"
                     min="0"
-                    value={selectedRequest.actualCost || ''}
-                    onChange={e => onCostChange(selectedRequest.id, 'actualCost', e.target.value)}
+                    value={draftActualCost}
+                    onChange={e => setDraftActualCost(e.target.value)}
                     placeholder="0.00"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
                   />
@@ -444,7 +553,7 @@ export function RequestDetail({
               <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">
                 Images ({selectedRequest.images.length})
               </h3>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {selectedRequest.images.map((img, idx) => (
                   <div key={idx} className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
                     <img
@@ -544,6 +653,18 @@ export function RequestDetail({
             </div>
           </div>
         </div>
+        {isDirty && (
+          <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-3 z-10">
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="w-full px-4 py-2.5 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {saving ? 'Saving...' : 'Save Changes'}
+            </button>
+          </div>
+        )}
+        <div className="h-[env(safe-area-inset-bottom)]" />
       </div>
     </div>
   );

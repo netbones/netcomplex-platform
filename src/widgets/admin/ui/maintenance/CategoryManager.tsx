@@ -50,7 +50,10 @@ export function CategoryManager({
       ) : (
         <div className="space-y-2 mb-4">
           {categories.map(cat => (
-            <div key={cat.id} className="flex items-center gap-2 bg-white rounded px-3 py-2">
+            <div
+              key={cat.id}
+              className="flex items-center gap-2 bg-white rounded px-3 py-2 flex-wrap"
+            >
               {editingCategory === cat.id ? (
                 <>
                   <input
@@ -115,7 +118,7 @@ export function CategoryManager({
         </div>
       )}
 
-      <div className="flex items-end gap-2">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-end gap-2">
         <div className="flex-1">
           <label className="block text-xs text-gray-600 mb-1">Value (slug)</label>
           <input
@@ -149,7 +152,7 @@ export function CategoryManager({
         <button
           onClick={onAddCategory}
           disabled={!newCategoryValue.trim() || !newCategoryLabel.trim()}
-          className="px-3 py-1.5 bg-indigo-600 text-white rounded text-sm hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-3 py-1.5 bg-indigo-600 text-white rounded text-sm hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed sm:self-end"
         >
           Add
         </button>
