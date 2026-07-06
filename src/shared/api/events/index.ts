@@ -9,4 +9,5 @@ export type {
   GroupJoinedEvent,
   CompetitionEnteredEvent,
   MeritRecognitionEvent,
+  MaintenanceTeamAssignedEvent,
 } from './emitter';

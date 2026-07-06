@@ -49,6 +49,15 @@ export interface MeritRecognitionEvent {
   points: number;
 }
 
+export interface MaintenanceTeamAssignedEvent {
+  tenantId: string;
+  requestId: string;
+  teamId: string;
+  teamName: string;
+  category: string;
+  memberUserIds: string[];
+}
+
 export type DomainEvent =
   | { type: 'booking.created'; payload: BookingCreatedEvent }
   | { type: 'content.created'; payload: ContentCreatedEvent }
@@ -56,7 +65,8 @@ export type DomainEvent =
   | { type: 'event.rsvp'; payload: EventRsvpEvent }
   | { type: 'group.joined'; payload: GroupJoinedEvent }
   | { type: 'competition.entered'; payload: CompetitionEnteredEvent }
-  | { type: 'merit.recognized'; payload: MeritRecognitionEvent };
+  | { type: 'merit.recognized'; payload: MeritRecognitionEvent }
+  | { type: 'maintenance.team_assigned'; payload: MaintenanceTeamAssignedEvent };
 
 export type EventType = DomainEvent['type'];
 

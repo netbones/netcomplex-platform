@@ -14,6 +14,9 @@ import {
   now,
   revalidateDashboard,
   withErrorHandler,
+  maintenanceTeamMembers,
+  notifications,
+  emitEvent,
 } from '@api/server';
 
 import { withTenant } from '@entities/tenant/server';
@@ -265,6 +268,49 @@ export const POST = withErrorHandler(
     }
 
     revalidateDashboard();
+
+    if (teamId && team) {
+      const members = await db
+        .select({ userId: maintenanceTeamMembers.userId })
+        .from(maintenanceTeamMembers)
+        .where(eq(maintenanceTeamMembers.teamId, teamId));
+
+      if (members.length > 0) {
+        const memberIds = members.map(m => m.userId);
+        const ticketNumber = existing.ticketNumber;
+        const ticketLabel = ticketNumber ? `#${ticketNumber}` : `Request ${id}`;
+        const title = `Assigned to your team: ${ticketLabel}`;
+        const message = `${ticketLabel} (${existing.category.replace(/_/g, ' ')}) has been assigned to ${team.name}.`;
+
+        for (const member of members) {
+          await db.insert(notifications).values({
+            id: createId(),
+            tenantId,
+            userId: member.userId,
+            senderId: authData.userId,
+            title,
+            message,
+            type: 'info',
+            category: 'SYSTEM',
+            link: `/dashboard/providers`,
+            payload: {
+              requestId: id,
+              teamId,
+              event: 'team_assigned',
+            },
+          });
+        }
+
+        emitEvent('maintenance.team_assigned', {
+          tenantId,
+          requestId: id,
+          teamId,
+          teamName: team.name,
+          category: existing.category,
+          memberUserIds: memberIds,
+        });
+      }
+    }
 
     return apiSuccess({
       ...updated,
