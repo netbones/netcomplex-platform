@@ -883,7 +883,7 @@ _Features shipping after the anchor tenant launch. Includes platform improvement
 
 **Plans:**
 
-6/8 plans executed
+8/8 plans complete
 | ---- | ------------------ | ----------------------------------------------------------------------------------------- |
 | 1 | [ ] 123-01-PLAN.md | Schema + Entity: 3 Prisma models, migration, Drizzle, Zod schemas, constants |
 | 2 | [ ] 123-02-PLAN.md | API: progress GET, mission PATCH, init on tenant create, SetupSetting CRUD |
@@ -964,8 +964,8 @@ Plans:
 - [x] 123-04-PLAN.md
 - [x] 123-05-PLAN.md
 - [x] 123-06-PLAN.md
-- [ ] 123-07-PLAN.md
-- [ ] 123-PLAN.md
+- [x] 123-07-PLAN.md
+- [x] 123-PLAN.md
 
 - [x] 46.1-01-PLAN.md — Billing domain models (schema, migration, seed, Drizzle schemas)
 - [x] 46.1-02-PLAN.md — Checkout & subscription lifecycle + tier sync + billing helpers + tests
