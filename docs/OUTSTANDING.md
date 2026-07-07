@@ -72,7 +72,7 @@ Tracks all deferred items — phases, features, BD issues, and cross-cutting wor
 
 | Item                                   | Description                                                           | Disposition                                                                                                  |
 | -------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| **cuid2/uuid standardization**         | Mix of cuid/uuid/string IDs fragile in multi-tenant queries           | Revisit                                                                                                      |
+| **cuid2/uuid standardization**         | Mix of cuid/uuid/string IDs fragile in multi-tenant queries           | ✅ **RESOLVED** — ADR-024: all code uses `createId()`, Prisma schema uses `@default(uuid())`, `uuid` package removed                                                                    |
 | **Soft deletes** (`deletedAt`)         | Compliance/audit need exists but feature work has higher priority     | Revisit. Partial via Phase 101                                                                               |
 | **C4 conflict**                        | `docs/UBIQUITOUS_LANGUAGE.md` C4 still OPEN                           | Deferred to Phase 47 (dWallet)                                                                               |
 | **FeatureGate navigation integration** | `getTierLevel()` soft-fallback — unknown inputs return `'foundation'` | Advisory's "throw on unknown" deferred                                                                       |
