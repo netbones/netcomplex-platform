@@ -144,6 +144,9 @@ import { handles } from '@schema/handles';
 import { handlesRelations } from '@schema/handles-relations';
 import { addressEndpoints } from '@schema/address-endpoints';
 import { addressEndpointsRelations } from '@schema/address-endpoints-relations';
+import { tenantSetups } from '@schema/tenant-setups';
+import { setupMissions } from '@schema/setup-missions';
+import { setupSettings } from '@schema/setup-settings';
 
 import { ENV } from 'varlock/env';
 import { dbLogger } from '@shared/lib';
@@ -249,6 +252,9 @@ const dbSchema = {
   handlesRelations,
   addressEndpoints,
   addressEndpointsRelations,
+  tenantSetups,
+  setupMissions,
+  setupSettings,
 } as const;
 
 export type DbSchema = typeof dbSchema;
@@ -491,4 +497,7 @@ export {
   handlesRelations,
   addressEndpoints,
   addressEndpointsRelations,
+  tenantSetups,
+  setupMissions,
+  setupSettings,
 };
