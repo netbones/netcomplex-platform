@@ -70,42 +70,12 @@ export default function AboutPage() {
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
               {tx('about.title', 'About NetComplex')}
             </h1>
-            <p className="text-xl text-white/70 max-w-2xl mx-auto">
+            <p className="text-xl text-white/80 max-w-2xl mx-auto">
               {tx(
                 'about.subtitle',
                 'A community informatics platform built to connect neighbours, streamline operations, and enhance life in residential communities.'
               )}
             </p>
-          </div>
-        </section>
-
-        {/* Mission & Core Belief */}
-        <section className="py-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid md:grid-cols-2 gap-12">
-              <div className="bg-white rounded-2xl p-8 shadow-sm">
-                <div className="w-12 h-12 mb-6">
-                  <img src="/platform/mission.svg" alt="" className="w-full h-full" />
-                </div>
-                <h2 className="text-2xl font-bold text-lapis-deep mb-4">
-                  {tx('mission.title', 'Mission')}
-                </h2>
-                <p className="text-lapis-mid leading-relaxed">
-                  {tx('mission.description', '')}
-                </p>
-              </div>
-              <div className="bg-white rounded-2xl p-8 shadow-sm">
-                <div className="w-12 h-12 mb-6">
-                  <img src="/platform/core.svg" alt="" className="w-full h-full" />
-                </div>
-                <h2 className="text-2xl font-bold text-lapis-deep mb-4">
-                  {tx('mission.coreBeliefTitle', 'Core Belief')}
-                </h2>
-                <p className="text-lapis-mid leading-relaxed">
-                  {tx('mission.coreBelief', '')}
-                </p>
-              </div>
-            </div>
           </div>
         </section>
 
@@ -194,7 +164,7 @@ export default function AboutPage() {
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               {tx('about.ctaTitle', 'Join the Communities Using NetComplex')}
             </h2>
-            <p className="text-xl text-white/70 mb-8">
+            <p className="text-xl text-lapis-azure/80 mb-8">
               {tx(
                 'about.ctaDesc',
                 'Start your 14-day free trial and see what a connected community looks like.'
