@@ -2,10 +2,10 @@
 
 **Goal:** Replace the mandatory 7-step onboarding wizard with a persistent Setup Center — a permanent administrative workspace that guides tenant owners from first login through long-term platform adoption, aligned with ADVISORY-028.
 
-**Status:** Planned
+**Status:** Planned — superseded by individual plan files (123-01 through 123-07)
 **Milestone:** M5+ (Post-Launch Enhancement)
 **BD issue:** soralia-village-0jh1
-**Requirements:** SETUP-01 through SETUP-09 (defined below)
+**Requirements:** SETUP-01 through SETUP-09
 
 ### Merge Gate
 
@@ -18,7 +18,21 @@ The reviewer must verify:
 3. New `/setup` page does not conflict with existing admin routes
 4. Old wizard removal does not break signup flow for new tenants
 
-## Requirements
+### Plan Structure (revised post plan-check)
+
+This master plan has been split into 7 individual plan files matching the ROADMAP checklist.
+Each plan file includes `must_haves` frontmatter for structured verification, `depends_on` for execution ordering, and task-specific `<verify>` blocks.
+
+See individual files:
+- [123-01-PLAN.md](./123-01-PLAN.md) — Schema & Entity Foundation (includes feature flag)
+- [123-02-PLAN.md](./123-02-PLAN.md) — API Layer (tenant-scoped auth, integration tests)
+- [123-03-PLAN.md](./123-03-PLAN.md) — Page Shell (feature flag gating, smoke tests)
+- [123-04-PLAN.md](./123-04-PLAN.md) — Launch & Populate Sections (auto-save, component tests)
+- [123-05-PLAN.md](./123-05-PLAN.md) — Configure & Grow Sections (pure engine, unit tests)
+- [123-06-PLAN.md](./123-06-PLAN.md) — Dashboard Integration (HomeLayer, redirect, smoke test)
+- [123-07-PLAN.md](./123-07-PLAN.md) — Migration & Cleanup (dry-run, rollback, verification)
+
+## Requirements (reference)
 
 | ID       | Description                                                                                                |
 | -------- | ---------------------------------------------------------------------------------------------------------- |
