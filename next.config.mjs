@@ -89,6 +89,16 @@ const nextConfig = {
     ];
   },
 
+  async redirects() {
+    return [
+      {
+        source: '/onboarding/:path*',
+        destination: '/setup',
+        permanent: true,
+      },
+    ];
+  },
+
   async rewrites() {
     return [
       {
