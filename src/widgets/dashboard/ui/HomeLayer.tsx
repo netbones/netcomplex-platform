@@ -6,6 +6,8 @@ import { authClient } from '@api/client';
 import { AlertTriangle, Calendar, Bell, Wrench, Activity, Megaphone, Clock } from 'lucide-react';
 import { getLocalizedValue } from '@shared/lib/i18n/config';
 import { useLanguage } from '@shared/lib/hooks/useSafeTranslation';
+import { useTenant } from '@entities/tenant';
+import { SetupProgressCard } from '@/features/setup';
 
 async function fetchJson<T>(url: string): Promise<T[]> {
   try {
@@ -488,6 +490,7 @@ export function HomeLayer() {
   const [error, setError] = useState(false);
   const { data: session } = authClient.useSession();
   const { language } = useLanguage();
+  const tenant = useTenant();
 
   const role = session?.user?.role || 'RESIDENT';
   const userId = session?.user?.id;
@@ -607,6 +610,7 @@ export function HomeLayer() {
 
   return (
     <div>
+      {tenant?.id && <SetupProgressCard tenantId={tenant.id} />}
       <UrgencyZone
         urgentAnnouncements={data.urgentAnnouncements}
         overdueMaintenance={data.overdueMaintenance}
