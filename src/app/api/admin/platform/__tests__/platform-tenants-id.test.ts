@@ -66,7 +66,7 @@ const MOCK_TENANT = {
   fontFamily: null,
   customCss: null,
   active: true,
-  subscriptionTier: 'foundation',
+  subscriptionTier: 'core',
   tier: 'STANDARD',
   maxPages: 5,
   pageCount: 3,

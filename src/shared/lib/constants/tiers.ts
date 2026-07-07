@@ -5,7 +5,7 @@
  * See docs/TIER_MODEL.md for full documentation.
  */
 
-export type TierLevel = 'foundation' | 'depth' | 'core';
+export type TierLevel = 'core' | 'foundation' | 'depth';
 
 export type ModuleKey =
   | 'directory'
@@ -49,124 +49,124 @@ export interface TierDefinition {
 // ============================================
 
 export const MODULES: Record<ModuleKey, ModuleDefinition> = {
-  // Foundation Modules
+  // Core Modules
   directory: {
     key: 'directory',
     label: 'Directory',
     description: 'Resident directory with search and profiles',
-    tier: 'foundation',
+    tier: 'core',
   },
   news: {
     key: 'news',
     label: 'News',
     description: 'Community news and announcements',
-    tier: 'foundation',
+    tier: 'core',
   },
   events: {
     key: 'events',
     label: 'Events',
     description: 'Community events calendar',
-    tier: 'foundation',
+    tier: 'core',
   },
   groups: {
     key: 'groups',
     label: 'Groups',
     description: 'Interest groups and memberships',
-    tier: 'foundation',
+    tier: 'core',
   },
   chat: {
     key: 'chat',
     label: 'Chat',
     description: 'Real-time community messaging',
-    tier: 'foundation',
+    tier: 'core',
   },
   resources: {
     key: 'resources',
     label: 'Resources',
     description: 'Community library/bookshelf',
-    tier: 'foundation',
+    tier: 'core',
   },
   conservation: {
     key: 'conservation',
     label: 'Conservation',
     description: 'Conservation area features',
-    tier: 'foundation',
+    tier: 'core',
   },
   adminBasic: {
     key: 'adminBasic',
     label: 'Admin (Basic)',
     description: 'Basic community administration',
-    tier: 'foundation',
+    tier: 'core',
   },
 
-  // Depth Modules
+  // Foundation Modules
   adminIntermediate: {
     key: 'adminIntermediate',
     label: 'Admin (Intermediate)',
     description: 'Expanded admin for growing communities',
-    tier: 'depth',
+    tier: 'foundation',
   },
   bookings: {
     key: 'bookings',
     label: 'Bookings',
     description: 'Facility booking system',
-    tier: 'depth',
+    tier: 'foundation',
   },
   surveys: {
     key: 'surveys',
     label: 'Surveys',
     description: 'Community polls and surveys',
-    tier: 'depth',
+    tier: 'foundation',
   },
   marketplace: {
     key: 'marketplace',
     label: 'Marketplace',
     description: 'Services directory',
-    tier: 'depth',
+    tier: 'foundation',
   },
   externalSurveys: {
     key: 'externalSurveys',
     label: 'External Surveys',
     description: 'Third-party survey integration',
-    tier: 'depth',
+    tier: 'foundation',
   },
 
-  // Core Modules
+  // Enterprise Modules
   maintenance: {
     key: 'maintenance',
     label: 'Maintenance',
     description: 'Maintenance request tracking',
-    tier: 'core',
+    tier: 'depth',
   },
   property: {
     key: 'property',
     label: 'Property',
     description: 'Property listings (buy/rent)',
-    tier: 'core',
+    tier: 'depth',
   },
   agentGateway: {
     key: 'agentGateway',
     label: 'Agent Gateway',
     description: 'Real estate agent management',
-    tier: 'core',
+    tier: 'depth',
   },
   analytics: {
     key: 'analytics',
     label: 'Analytics',
     description: 'Advanced analytics dashboard',
-    tier: 'core',
+    tier: 'depth',
   },
   adminAdvanced: {
     key: 'adminAdvanced',
     label: 'Admin (Advanced)',
     description: 'Full admin with analytics',
-    tier: 'core',
+    tier: 'depth',
   },
   education: {
     key: 'education',
     label: 'Education Portal',
     description: 'Bursaries, scholarships, and free learning resources',
-    tier: 'foundation',
+    tier: 'core',
   },
 };
 
@@ -175,9 +175,9 @@ export const MODULES: Record<ModuleKey, ModuleDefinition> = {
 // ============================================
 
 export const TIERS: Record<TierLevel, TierDefinition> = {
-  foundation: {
-    id: 'foundation',
-    name: 'FOUNDATION',
+  core: {
+    id: 'core',
+    name: 'CORE',
     maxPages: 5,
     description: 'Entry tier for small communities (up to 50 units)',
     color: '#22C55E',
@@ -192,9 +192,9 @@ export const TIERS: Record<TierLevel, TierDefinition> = {
       'adminBasic',
     ],
   },
-  depth: {
-    id: 'depth',
-    name: 'DEPTH',
+  foundation: {
+    id: 'foundation',
+    name: 'FOUNDATION',
     maxPages: 15,
     description: 'Growth tier for expanding communities (up to 200 units)',
     color: '#F59E0B',
@@ -214,9 +214,9 @@ export const TIERS: Record<TierLevel, TierDefinition> = {
       'externalSurveys',
     ],
   },
-  core: {
-    id: 'core',
-    name: 'CORE',
+  depth: {
+    id: 'depth',
+    name: 'ENTERPRISE',
     maxPages: -1, // unlimited
     description: 'Enterprise tier for large HOAs and property management companies',
     color: '#1E293B',
@@ -265,12 +265,12 @@ export function getTierModules(tier: TierLevel): ModuleKey[] {
 // Note: Legacy tier names are no longer accepted. DB has no legacy data. See git history for removed cases.
 export function getTierLevel(tier: string): TierLevel {
   switch (tier) {
+    case 'core':
     case 'foundation':
     case 'depth':
-    case 'core':
       return tier as TierLevel;
     default:
-      return 'foundation';
+      return 'core';
   }
 }
 
@@ -278,7 +278,7 @@ export function getTierLevel(tier: string): TierLevel {
  * Get the default tier for a new tenant
  */
 export function getDefaultTier(): TierLevel {
-  return 'foundation';
+  return 'core';
 }
 
 /**

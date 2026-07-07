@@ -215,7 +215,7 @@ export async function createTenant(data: {
     fontFamily: data.fontFamily ?? null,
     customCss: data.customCss ?? null,
     active: data.active ?? true,
-    subscriptionTier: data.subscriptionTier ?? 'foundation',
+    subscriptionTier: data.subscriptionTier ?? 'core',
     modules: (data.modules ?? {}) as typeof tenants.$inferInsert.modules,
     maxPages: data.maxPages ?? 5,
     pageCount: data.pageCount ?? 0,

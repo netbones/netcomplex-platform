@@ -5,9 +5,9 @@ vi.mock('server-only', () => ({}));
 const mocks = vi.hoisted(() => ({
   tenantResult: { tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' },
   TIERS: {
-    foundation: { id: 'foundation', name: 'FOUNDATION', maxPages: 5, color: '#22C55E' },
-    depth: { id: 'depth', name: 'DEPTH', maxPages: 15, color: '#F59E0B' },
-    core: { id: 'core', name: 'CORE', maxPages: -1, color: '#1E293B' },
+    core: { id: 'core', name: 'CORE', maxPages: 5, color: '#22C55E' },
+    foundation: { id: 'foundation', name: 'FOUNDATION', maxPages: 15, color: '#F59E0B' },
+    depth: { id: 'depth', name: 'ENTERPRISE', maxPages: -1, color: '#1E293B' },
   },
 }));
 
@@ -68,21 +68,21 @@ describe('Pricing API', () => {
     expect(body.data.plans).toHaveLength(3);
 
     const planIds = body.data.plans.map((p: { id: string }) => p.id);
-    expect(planIds).toEqual(['foundation', 'depth', 'core']);
+    expect(planIds).toEqual(['core', 'foundation', 'depth']);
 
     expect(body.data.tiers).toEqual(mocks.TIERS);
 
-    const depth = body.data.plans.find((p: { id: string }) => p.id === 'depth');
-    expect(depth).toBeDefined();
-    expect(depth.price).toBe('R599');
-    expect(depth.popular).toBe(true);
+    const foundation = body.data.plans.find((p: { id: string }) => p.id === 'foundation');
+    expect(foundation).toBeDefined();
+    expect(foundation.price).toBe('R599');
+    expect(foundation.popular).toBe(true);
   });
 
-  it('returns correct pricing data for foundation tier', async () => {
+  it('returns correct pricing data for core tier', async () => {
     const response = await GET();
     const body = await response.json();
 
-    const foundation = body.data.plans.find((p: { id: string }) => p.id === 'foundation');
+    const foundation = body.data.plans.find((p: { id: string }) => p.id === 'core');
     expect(foundation.name).toBe('FOUNDATION');
     expect(foundation.price).toBe('R299');
     expect(foundation.period).toBe('/month');
@@ -92,11 +92,11 @@ describe('Pricing API', () => {
     expect(foundation.features).toContain('Email support');
   });
 
-  it('returns correct pricing data for core tier', async () => {
+  it('returns correct pricing data for depth tier', async () => {
     const response = await GET();
     const body = await response.json();
 
-    const core = body.data.plans.find((p: { id: string }) => p.id === 'core');
+    const core = body.data.plans.find((p: { id: string }) => p.id === 'depth');
     expect(core.name).toBe('CORE');
     expect(core.price).toBe('Custom');
     expect(core.period).toBe('');

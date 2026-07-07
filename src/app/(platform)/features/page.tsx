@@ -5,9 +5,9 @@ interface FeatureGroup {
   group: string;
   features: {
     name: string;
+    core: boolean | string;
     foundation: boolean | string;
     depth: boolean | string;
-    core: boolean | string;
   }[];
 }
 
@@ -15,69 +15,81 @@ const featureGroups: FeatureGroup[] = [
   {
     group: 'Community Management',
     features: [
-      { name: 'Resident directory', foundation: true, depth: true, core: true },
-      { name: 'Maintenance requests', foundation: true, depth: true, core: true },
-      { name: 'Announcements & news', foundation: true, depth: true, core: true },
-      { name: 'Facility bookings', foundation: false, depth: true, core: true },
-      { name: 'Event management', foundation: false, depth: true, core: true },
-      { name: 'Surveys & polling', foundation: false, depth: true, core: true },
+      { name: 'Resident directory', core: true, foundation: true, depth: true },
+      { name: 'Maintenance requests', core: true, foundation: true, depth: true },
+      { name: 'Announcements & news', core: true, foundation: true, depth: true },
+      { name: 'Facility bookings', core: false, foundation: true, depth: true },
+      { name: 'Event management', core: false, foundation: true, depth: true },
+      { name: 'Surveys & polling', core: false, foundation: true, depth: true },
     ],
   },
   {
     group: 'Communication',
     features: [
-      { name: 'In-platform messaging', foundation: true, depth: true, core: true },
-      { name: 'Push notifications', foundation: true, depth: true, core: true },
-      { name: 'Email notifications', foundation: true, depth: true, core: true },
-      { name: 'Community content feed', foundation: true, depth: true, core: true },
-      { name: 'Affinity groups', foundation: false, depth: true, core: true },
-      { name: 'Emergency broadcast', foundation: false, depth: true, core: true },
+      { name: 'In-platform messaging', core: true, foundation: true, depth: true },
+      { name: 'Push notifications', core: true, foundation: true, depth: true },
+      { name: 'Email notifications', core: true, foundation: true, depth: true },
+      { name: 'Community content feed', core: true, foundation: true, depth: true },
+      { name: 'Affinity groups', core: false, foundation: true, depth: true },
+      { name: 'Emergency broadcast', core: false, foundation: true, depth: true },
     ],
   },
   {
     group: 'Administration',
     features: [
-      { name: 'Unit & resident management', foundation: true, depth: true, core: true },
-      { name: 'Document storage', foundation: true, depth: true, core: true },
-      { name: 'Role-based access control', foundation: true, depth: true, core: true },
-      { name: 'Custom branding', foundation: false, depth: true, core: true },
-      { name: 'Advanced analytics', foundation: false, depth: false, core: true },
-      { name: 'Multi-community support', foundation: false, depth: false, core: true },
+      { name: 'Unit & resident management', core: true, foundation: true, depth: true },
+      { name: 'Document storage', core: true, foundation: true, depth: true },
+      { name: 'Role-based access control', core: true, foundation: true, depth: true },
+      { name: 'Custom branding', core: false, foundation: true, depth: true },
+      { name: 'Advanced analytics', core: false, foundation: false, depth: true },
+      { name: 'Multi-community support', core: false, foundation: false, depth: true },
     ],
   },
   {
     group: 'Commerce & Finance',
     features: [
-      { name: 'Community marketplace', foundation: true, depth: true, core: true },
-      { name: 'Digital wallet', foundation: true, depth: true, core: true },
-      { name: 'Payment processing', foundation: true, depth: true, core: true },
-      { name: 'Provider directory', foundation: false, depth: true, core: true },
-      { name: 'API access', foundation: false, depth: false, core: true },
-      { name: 'Custom integrations', foundation: false, depth: false, core: true },
+      { name: 'Community marketplace', core: true, foundation: true, depth: true },
+      { name: 'Digital wallet', core: true, foundation: true, depth: true },
+      { name: 'Payment processing', core: true, foundation: true, depth: true },
+      { name: 'Provider directory', core: false, foundation: true, depth: true },
+      { name: 'API access', core: false, foundation: false, depth: true },
+      { name: 'Custom integrations', core: false, foundation: false, depth: true },
     ],
   },
   {
     group: 'Support & Scale',
     features: [
-      { name: 'Email support', foundation: true, depth: true, core: true },
-      { name: 'Priority support', foundation: false, depth: true, core: true },
-      { name: 'Dedicated account manager', foundation: false, depth: false, core: true },
-      { name: 'Max units', foundation: 'Up to 50', depth: 'Up to 200', core: 'Unlimited' },
-      { name: 'Max pages', foundation: '5 pages', depth: '15 pages', core: 'Unlimited' },
+      { name: 'Email support', core: true, foundation: true, depth: true },
+      { name: 'Priority support', core: false, foundation: true, depth: true },
+      { name: 'Dedicated account manager', core: false, foundation: false, depth: true },
+      { name: 'Max units', core: 'Up to 50', foundation: 'Up to 200', depth: 'Unlimited' },
+      { name: 'Max pages', core: '5 pages', foundation: '15 pages', depth: 'Unlimited' },
     ],
   },
 ];
 
 const tiers = [
   {
-    id: 'foundation',
-    name: 'Foundation',
+    id: 'core',
+    name: 'Core',
     price: 'R299/mo',
     color: 'text-emerald-600',
     bg: 'bg-emerald-50',
   },
-  { id: 'depth', name: 'Depth', price: 'R599/mo', color: 'text-amber-600', bg: 'bg-amber-50' },
-  { id: 'core', name: 'Core', price: 'Custom', color: 'text-lapis-deep', bg: 'bg-lapis-azure/10' },
+  {
+    id: 'foundation',
+    name: 'Foundation',
+    price: 'R599/mo',
+    color: 'text-amber-600',
+    bg: 'bg-amber-50',
+  },
+  {
+    id: 'depth',
+    name: 'Depth',
+    price: 'Custom',
+    color: 'text-lapis-deep',
+    bg: 'bg-lapis-azure/10',
+  },
 ] as const;
 
 function TierCell({ value }: { value: boolean | string }) {

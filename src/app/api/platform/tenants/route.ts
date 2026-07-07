@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     const body: SignupRequest = await request.json();
 
     // Validate the plan is a valid tier
-    if (!['foundation', 'depth', 'core'].includes(body.plan)) {
+    if (!['core', 'foundation', 'depth'].includes(body.plan)) {
       return apiError('VALIDATION_ERROR', 'Invalid subscription plan', 400);
     }
 

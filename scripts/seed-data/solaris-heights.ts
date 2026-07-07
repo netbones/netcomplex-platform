@@ -25,7 +25,7 @@ export const SOLARIS_HEIGHTS: TenantSeedData = {
     slug: 'solaris-heights',
     primaryColor: '#0EA5E9',
     accentColor: '#F97316',
-    subscriptionTier: 'depth',
+    subscriptionTier: 'foundation',
     tier: 'STANDARD',
     featureFlags: { whiteLabel: true },
     tagline: 'Modern city living, community at heart',

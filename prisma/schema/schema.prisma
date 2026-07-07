@@ -355,7 +355,7 @@ model PremiumSeat {
   createdAt            DateTime              @default(now())
   updatedAt            DateTime              @default(now()) @updatedAt
   messageRetentionDays Int                   @default(30)
-  tier                 String                @default("foundation")
+  tier                 String                @default("core")
   archivedAt           DateTime?
   status               SeatStatus            @default(ACTIVE)
   addressId            String?

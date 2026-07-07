@@ -40,8 +40,8 @@ function FeaturesForm({ tenant, allFeatures }: TenantFeaturesFormProps) {
     { name: 'Widgets', features: widgets },
   ];
 
-  const tierOrder = ['foundation', 'depth', 'core'];
-  const currentTierIndex = tierOrder.indexOf(tenant.subscriptionTier || 'foundation');
+  const tierOrder = ['core', 'foundation', 'depth'];
+  const currentTierIndex = tierOrder.indexOf(tenant.subscriptionTier || 'core');
 
   function getAccessLevel(featureTier: string): 'allowed' | 'upgrade' | 'locked' {
     const featureTierIndex = tierOrder.indexOf(featureTier);

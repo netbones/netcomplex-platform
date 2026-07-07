@@ -12,7 +12,7 @@ export type { PricingPlan };
 
 // Static pricing data aligned with Netcomplex tiers
 const PRICING_PLANS: Record<TierLevel, Omit<PricingPlan, 'id'>> = {
-  foundation: {
+  core: {
     name: 'FOUNDATION',
     price: 'R299',
     period: '/month',
@@ -30,7 +30,7 @@ const PRICING_PLANS: Record<TierLevel, Omit<PricingPlan, 'id'>> = {
     maxPages: 5,
     color: '#22C55E',
   },
-  depth: {
+  foundation: {
     name: 'DEPTH',
     price: 'R599',
     period: '/month',
@@ -50,7 +50,7 @@ const PRICING_PLANS: Record<TierLevel, Omit<PricingPlan, 'id'>> = {
     maxPages: 15,
     color: '#F59E0B',
   },
-  core: {
+  depth: {
     name: 'CORE',
     price: 'Custom',
     period: '',

@@ -34,11 +34,11 @@ export interface TenantInput {
    * Subscription tier. Stored as free-form `text` in the database, but
    * the application code coerces it to `TierLevel` (see
    * `src/shared/lib/constants/tiers.ts`). Must be one of:
-   *   - `foundation` — entry tier, community basics
-   *   - `depth`      — adds marketplace, maintenance, surveys
-   *   - `core`       — flagship tier, all features including white-label
+   *   - `core`       — entry tier, community basics
+   *   - `foundation` — adds marketplace, maintenance, surveys
+   *   - `depth` — flagship tier, all features including white-label
    */
-  subscriptionTier: 'foundation' | 'depth' | 'core';
+  subscriptionTier: 'core' | 'foundation' | 'depth';
   /** Platform tier enum. */
   tier: 'STANDARD' | 'PREMIUM' | 'ENTERPRISE';
   /** Free-form feature flags, e.g. { i18n: true }. */

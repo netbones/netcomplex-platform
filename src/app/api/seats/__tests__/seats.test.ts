@@ -256,7 +256,7 @@ describe('Seats API', () => {
             subscriptionTier: 'basic',
             maxProperties: 5,
             messageRetentionDays: 30,
-            tier: 'foundation',
+            tier: 'core',
           },
         ])
       );
@@ -273,7 +273,7 @@ describe('Seats API', () => {
 
       expect(response.status).toBe(200);
       expect(body.data.seat.platformAddress).toBe('0xdef');
-      expect(body.data.seat.tier).toBe('foundation');
+      expect(body.data.seat.tier).toBe('core');
     });
 
     it('returns 403 without auth session', async () => {

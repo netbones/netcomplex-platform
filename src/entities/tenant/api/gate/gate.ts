@@ -53,19 +53,19 @@ export {
 // ============================================
 
 const TENANT_TIER_TO_LEVEL: Record<TenantTier, TierLevel> = {
-  STANDARD: 'foundation',
-  PREMIUM: 'depth',
-  ENTERPRISE: 'core',
+  STANDARD: 'core',
+  PREMIUM: 'foundation',
+  ENTERPRISE: 'depth',
 };
 
 const TIER_LEVEL_ORDER: Record<TierLevel, number> = {
-  foundation: 1,
-  depth: 2,
-  core: 3,
+  core: 1,
+  foundation: 2,
+  depth: 3,
 };
 
 function tenantTierToTierLevel(tier: TenantTier): TierLevel {
-  return TENANT_TIER_TO_LEVEL[tier] ?? 'foundation';
+  return TENANT_TIER_TO_LEVEL[tier] ?? 'core';
 }
 
 function tierAtLeast(tenant: TierLevel, required: TierLevel): boolean {

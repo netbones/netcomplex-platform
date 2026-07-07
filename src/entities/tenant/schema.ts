@@ -12,7 +12,7 @@ const phoneRegex = /^[\d\s\-+()]{7,20}$/;
  * @property phone - Admin phone number (optional)
  * @property password - Admin password (required, min 8 chars)
  * @property confirmPassword - Password confirmation (must match password)
- * @property plan - Subscription tier (foundation/depth/core)
+ * @property plan - Subscription tier (core/foundation/depth)
  */
 export const signupSchema = z
   .object({
@@ -37,7 +37,7 @@ export const signupSchema = z
       .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
       .regex(/[0-9]/, 'Password must contain at least one number'),
     confirmPassword: z.string().min(1, 'Please confirm your password'),
-    plan: z.enum(['foundation', 'depth', 'core']),
+    plan: z.enum(['core', 'foundation', 'depth']),
   })
   .refine(data => data.password === data.confirmPassword, {
     message: "Passwords don't match",

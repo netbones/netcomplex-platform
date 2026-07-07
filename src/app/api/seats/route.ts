@@ -130,7 +130,7 @@ export const POST = withErrorHandler(async (request: Request) => {
           subscriptionTier: 'basic',
           maxProperties: 5,
           messageRetentionDays: 30,
-          tier: 'foundation',
+          tier: 'core',
         })
         .returning();
 

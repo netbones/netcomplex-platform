@@ -931,7 +931,7 @@ CREATE TABLE "PremiumSeat" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "messageRetentionDays" INTEGER NOT NULL DEFAULT 30,
-    "tier" TEXT NOT NULL DEFAULT 'foundation',
+    "tier" TEXT NOT NULL DEFAULT 'core',
 
     CONSTRAINT "PremiumSeat_pkey" PRIMARY KEY ("id")
 );

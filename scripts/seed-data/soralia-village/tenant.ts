@@ -5,7 +5,7 @@ export const tenant: TenantInput = {
   slug: 'soralia',
   primaryColor: '#4F46E5',
   accentColor: '#F59E0B',
-  subscriptionTier: 'core',
+  subscriptionTier: 'depth',
   tier: 'PREMIUM',
   featureFlags: {},
   tagline: 'Where fynbos meets the sea',

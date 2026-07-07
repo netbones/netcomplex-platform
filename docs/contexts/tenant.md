@@ -16,7 +16,7 @@ Core multi-tenancy infrastructure. Owns tenant identity, tier hierarchy, role-ba
 | -------------- | ----------------------------------------------- |
 | `Tenant`       | SaaS tenant: name, slug, tier, domain, settings |
 | `TenantTier`   | Tier classification for the tenant              |
-| `TierLevel`    | `'foundation' \| 'depth' \| 'core'`             |
+| `TierLevel`    | `'core' \| 'foundation' \| 'depth'`             |
 | `StandardSeat` | Household-based resident access right           |
 | `SoloSeat`     | Individual resident access right                |
 | `PremiumSeat`  | Agent/premium access right                      |

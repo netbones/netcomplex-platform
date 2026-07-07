@@ -36,7 +36,7 @@ export function ModulesStep({
     if (Object.keys(formData.modules).length === 0) {
       const initialModules: Record<string, boolean> = {};
       (Object.keys(MODULES) as ModuleKey[]).forEach(key => {
-        initialModules[key] = hasModuleAccess('foundation', key);
+        initialModules[key] = hasModuleAccess('core', key);
       });
       setFormData(prev => ({ ...prev, modules: initialModules }));
     }
@@ -50,10 +50,10 @@ export function ModulesStep({
   };
 
   const foundationModules = (Object.keys(MODULES) as ModuleKey[]).filter(key =>
-    hasModuleAccess('foundation', key)
+    hasModuleAccess('core', key)
   );
 
-  const premiumModules = PREMIUM_MODULES.filter(key => !hasModuleAccess('foundation', key));
+  const premiumModules = PREMIUM_MODULES.filter(key => !hasModuleAccess('core', key));
 
   return (
     <OnboardingStep
