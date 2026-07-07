@@ -883,15 +883,15 @@ _Features shipping after the anchor tenant launch. Includes platform improvement
 
 **Plans:**
 
-| Wave | Plan               | Objective                                                                                 |
+3/8 plans executed
 | ---- | ------------------ | ----------------------------------------------------------------------------------------- |
-| 1    | [ ] 123-01-PLAN.md | Schema + Entity: 3 Prisma models, migration, Drizzle, Zod schemas, constants              |
-| 2    | [ ] 123-02-PLAN.md | API: progress GET, mission PATCH, init on tenant create, SetupSetting CRUD                |
-| 3    | [ ] 123-03-PLAN.md | Setup Center page shell: `/setup` route, SetupCenter + SetupSection components, nav entry |
-| 4    | [ ] 123-04-PLAN.md | Launch + Populate sections: identity config, branding, invites, roles, member import      |
-| 5    | [ ] 123-05-PLAN.md | Configure + Grow sections: module toggles, progressive disclosure, recommendation engine  |
-| 6    | [ ] 123-06-PLAN.md | Dashboard integration: HomeLayer setup card, redirect change, community health dashboard  |
-| 7    | [ ] 123-07-PLAN.md | Migration + Cleanup: data migration script, remove old wizard, redirect `/onboarding/*`   |
+| 1 | [ ] 123-01-PLAN.md | Schema + Entity: 3 Prisma models, migration, Drizzle, Zod schemas, constants |
+| 2 | [ ] 123-02-PLAN.md | API: progress GET, mission PATCH, init on tenant create, SetupSetting CRUD |
+| 3 | [ ] 123-03-PLAN.md | Setup Center page shell: `/setup` route, SetupCenter + SetupSection components, nav entry |
+| 4 | [ ] 123-04-PLAN.md | Launch + Populate sections: identity config, branding, invites, roles, member import |
+| 5 | [ ] 123-05-PLAN.md | Configure + Grow sections: module toggles, progressive disclosure, recommendation engine |
+| 6 | [ ] 123-06-PLAN.md | Dashboard integration: HomeLayer setup card, redirect change, community health dashboard |
+| 7 | [ ] 123-07-PLAN.md | Migration + Cleanup: data migration script, remove old wizard, redirect `/onboarding/*` |
 
 **Out of scope:** AI-assisted onboarding, platform maturity scoring, white-label deployment checks, usage analytics, guided migration wizards for existing tenants.
 
@@ -957,6 +957,15 @@ _Features explicitly deferred to post-M5b. The 8 feature items originally in the
 | 3    | [ ] 46.1-04-PLAN.md | Tenant Portal: 3 pages at /tenant/billing (overview, invoices, payment-methods) + 5 UI components + checkout flow                   |
 
 Plans:
+
+- [x] 123-01-PLAN.md
+- [x] 123-02-PLAN.md
+- [x] 123-03-PLAN.md
+- [ ] 123-04-PLAN.md
+- [ ] 123-05-PLAN.md
+- [ ] 123-06-PLAN.md
+- [ ] 123-07-PLAN.md
+- [ ] 123-PLAN.md
 
 - [x] 46.1-01-PLAN.md — Billing domain models (schema, migration, seed, Drizzle schemas)
 - [x] 46.1-02-PLAN.md — Checkout & subscription lifecycle + tier sync + billing helpers + tests
