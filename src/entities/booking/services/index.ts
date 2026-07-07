@@ -1,6 +1,6 @@
 import { db, bookings, settings, users } from '@api/server';
 
-import { eq, asc, gte, and, sql } from 'drizzle-orm';
+import { eq, asc, gte, and, sql, ne } from 'drizzle-orm';
 import { DEFAULT_FACILITIES } from '../model';
 import type { TenantFacility } from '../model';
 import { apiLogger } from '@shared/lib';
@@ -95,6 +95,65 @@ export async function listBookings(params: {
     .leftJoin(users, eq(bookings.userId, users.id))
     .where(whereClause)
     .orderBy(asc(bookings.date));
+}
+
+/**
+ * Checks for conflicting bookings — same facility, same date, overlapping time.
+ * Returns the conflicting booking ID if found, null otherwise.
+ */
+export async function checkBookingConflict(params: {
+  tenantId: string;
+  facility: string;
+  date: Date;
+  startTime: string;
+  endTime: string;
+  excludeBookingId?: string;
+}): Promise<string | null> {
+  const [conflicting] = await db
+    .select({ id: bookings.id })
+    .from(bookings)
+    .where(
+      and(
+        eq(bookings.tenantId, params.tenantId),
+        eq(bookings.facility, params.facility),
+        eq(bookings.date, params.date),
+        ne(bookings.status, 'CANCELLED'),
+        sql`(
+          (${bookings.startTime} < ${params.endTime} AND ${bookings.endTime} > ${params.startTime})
+        )`,
+        params.excludeBookingId ? ne(bookings.id, params.excludeBookingId) : undefined
+      )
+    )
+    .limit(1);
+
+  return conflicting?.id ?? null;
+}
+
+/**
+ * Gets booked time slots for a facility on a given date.
+ * Only returns non-cancelled bookings.
+ */
+export async function getBookedSlots(params: {
+  tenantId: string;
+  facility: string;
+  date: Date;
+}): Promise<{ startTime: string; endTime: string }[]> {
+  const result = await db
+    .select({
+      startTime: bookings.startTime,
+      endTime: bookings.endTime,
+    })
+    .from(bookings)
+    .where(
+      and(
+        eq(bookings.tenantId, params.tenantId),
+        eq(bookings.facility, params.facility),
+        eq(bookings.date, params.date),
+        ne(bookings.status, 'CANCELLED')
+      )
+    );
+
+  return result;
 }
 
 /**
