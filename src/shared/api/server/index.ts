@@ -113,6 +113,9 @@ export {
   addresses,
   handles,
   addressEndpoints,
+  tenantSetups,
+  setupMissions,
+  setupSettings,
 } from '../db';
 export { auth } from '../auth';
 export {
