@@ -71,8 +71,10 @@
     "events": "Izehlakalo",
     "surveys": "Inhlolovo",
     "competitions": "Imiqhudelwano",
-    "communication": "Ukuxhumana",
-    "marketplace": "Imakethe",
+      "communication": "Ukuxhumana",
+      "marketplace": "Imakethe",
+      "education": "Iphothali yemfundo",
+      "disputes": "Izingxabano",
     "descriptions": {
       "maintenance": "Thumela futhi ulandele izicelo zokunakekelwa",
       "bookings": "Bhukha izindawo zomphakathi nezinto",
@@ -82,7 +84,9 @@
       "surveys": "Inhlolovo yomphakathi nemibuzo",
       "competitions": "Imiqhudelwano yomphakathi nezincintiswano",
       "communication": "Ingxoxo, izimemezelo, kanye nemiyalezo",
-      "marketplace": "Buka futhi ubhukhe abahlinzeki bamasevisi omphakathi"
+      "marketplace": "Buka futhi ubhukhe abahlinzeki bamasevisi omphakathi",
+      "education": "Imifundaze, izifundi, kanye nezinsiza zokufunda zamahhala",
+      "disputes": "Faka futhi ulandele izingxabano zomphakathi"
     }
   },
   "quickNav": "Izigaba zeSevisi",

@@ -71,8 +71,10 @@
     "events": "Gebeure",
     "surveys": "Opnames",
     "competitions": "Kompetisies",
-    "communication": "Kommunikasie",
-    "marketplace": "Markplek",
+      "communication": "Kommunikasie",
+      "marketplace": "Markplek",
+      "education": "Onderwysportaal",
+      "disputes": "Geskille",
     "descriptions": {
       "maintenance": "Dien onderhoudsversoeke in en volg dit op",
       "bookings": "Bespreek gemeenskap fasiliteite en geriefs",
@@ -82,7 +84,9 @@
       "surveys": "Gemeenskap opnames en vraelyste",
       "competitions": "Gemeenskap kompetisies en wedstryde",
       "communication": "Klets, aankondigings en boodskappe",
-      "marketplace": "Blaai en bespreek gemeenskap diensverskaffers"
+      "marketplace": "Blaai en bespreek gemeenskap diensverskaffers",
+      "education": "Beurse, studiebeurse en gratis leerhulpbronne",
+      "disputes": "Dien gemeenskap geskille in en volg dit op"
     }
   },
   "quickNav": "Diens Kategorieë",

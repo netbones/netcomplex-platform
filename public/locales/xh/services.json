@@ -71,8 +71,10 @@
     "events": "Iziganeko",
     "surveys": "Uphando",
     "competitions": "Ukhuphiswano",
-    "communication": "Unxibelelwano",
-    "marketplace": "Imarike",
+      "communication": "Unxibelelwano",
+      "marketplace": "Imarike",
+      "education": "Iphothali yemfundo",
+      "disputes": "Iimpikiswano",
     "descriptions": {
       "maintenance": "Thumela kwaye ulandele isicelo sokugcinwa",
       "bookings": "Buka iindawo zoluntu kunye nezincedo",
@@ -82,7 +84,9 @@
       "surveys": "Uphando loluntu kunye nemibuzo",
       "competitions": "Ukhuphiswano loluntu kunye nemiceli-mngeni",
       "communication": "Incoko, izaziso, kunye nemiyalezo",
-      "marketplace": "Khangela kwaye ubhukhe ababoneleli beenkonzo zoluntu"
+      "marketplace": "Khangela kwaye ubhukhe ababoneleli beenkonzo zoluntu",
+      "education": "Izifundi, izifundo, kunye nemithombo yokufunda yasimahla",
+      "disputes": "Fayilisha kwaye ulandele iimpikiswano zoluntu"
     }
   },
   "quickNav": "Iindidi zeNkonzo",
