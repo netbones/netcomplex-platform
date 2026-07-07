@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Breadcrumbs } from '@shared/ui';
 
 interface Household {
@@ -63,7 +64,7 @@ export default function HouseholdsPage() {
       <Breadcrumbs items={[{ label: 'Admin', href: '/admin' }, { label: 'Households' }]} />
 
       <div className="flex items-center gap-3 mb-6">
-        <img src="/platform/households.svg" alt="" className="w-8 h-8" />
+        <Image src="/platform/households.svg" alt="" width={32} height={32} />
         <h1 className="text-2xl font-bold text-gray-900">Households</h1>
         <span className="text-sm text-gray-500 ml-auto">{total} households</span>
       </div>
@@ -127,10 +128,13 @@ export default function HouseholdsPage() {
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       {household.homeImage ? (
-                        <img
+                        <Image
                           src={household.homeImage}
                           alt={`${household.street} ${household.unit}`}
-                          className="w-10 h-10 rounded-lg object-cover"
+                          width={40}
+                          height={40}
+                          className="rounded-lg object-cover"
+                          unoptimized
                         />
                       ) : (
                         <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center">

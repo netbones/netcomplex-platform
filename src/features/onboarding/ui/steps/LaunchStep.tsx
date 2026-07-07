@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { OnboardingStep } from '../OnboardingStep';
 import type { OnboardingFormData } from '../../model/useOnboarding';
 
@@ -49,22 +50,22 @@ export function LaunchStep({ loading, error, onComplete, saveStep }: StepProps) 
 
         {/* Action Links */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <a
+          <Link
             href="/admin"
             className="flex flex-col items-center p-6 bg-indigo-50 border border-indigo-200 rounded-xl hover:bg-indigo-100 transition-colors"
           >
             <i className="fas fa-cog text-2xl text-indigo-600 mb-2" />
             <span className="font-medium text-indigo-900">Admin Panel</span>
             <span className="text-xs text-indigo-600 mt-1">Manage your community</span>
-          </a>
-          <a
+          </Link>
+          <Link
             href="/"
             className="flex flex-col items-center p-6 bg-green-50 border border-green-200 rounded-xl hover:bg-green-100 transition-colors"
           >
             <i className="fas fa-globe text-2xl text-green-600 mb-2" />
             <span className="font-medium text-green-900">Public Site</span>
             <span className="text-xs text-green-600 mt-1">View your community</span>
-          </a>
+          </Link>
         </div>
 
         {/* Complete Button */}

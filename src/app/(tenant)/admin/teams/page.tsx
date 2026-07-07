@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
 import type { MaintenanceTeam } from '@entities/maintenance';
@@ -226,7 +227,7 @@ export default function AdminTeamsPage() {
 
         <div className="flex justify-between items-center mb-6 flex-wrap gap-2">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <img src="/platform/maintenance.svg" alt="" className="w-8 h-8 sm:w-10 sm:h-10" />
+            <Image src="/platform/maintenance.svg" alt="" width={40} height={40} />
             Maintenance Teams
           </h1>
           <button

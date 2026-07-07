@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { Breadcrumbs } from '@shared/ui';
 import { useSafeTranslation } from '@shared/lib';
 import { AdminAchievementsWidget } from '@widgets/admin';
@@ -16,7 +17,7 @@ export default function AchievementsAdminPage() {
         ]}
       />
       <div className="flex items-center gap-3 mb-6">
-        <img src="/platform/achievements.svg" alt="" className="w-8 h-8" />
+        <Image src="/platform/achievements.svg" alt="" width={32} height={32} />
         <h1 className="text-2xl font-bold text-gray-900">
           {tx('domains.achievements', 'Achievements')}
         </h1>

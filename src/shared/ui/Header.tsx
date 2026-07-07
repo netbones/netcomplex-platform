@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@shared/ui';
 import { authClient } from '@api/client';
@@ -193,7 +194,14 @@ function AvatarDropdown({
         type="button"
       >
         {session.user.image ? (
-          <img src={session.user.image} alt="" className="w-6 h-6 rounded-full object-cover" />
+          <Image
+            src={session.user.image}
+            alt=""
+            width={24}
+            height={24}
+            className="rounded-full object-cover"
+            unoptimized
+          />
         ) : (
           <div className="w-6 h-6 rounded-full bg-white/30 flex items-center justify-center text-xs font-medium">
             {(session.user.name || session.user.email || '?').charAt(0).toUpperCase()}
@@ -342,10 +350,13 @@ export function Header() {
       <div className="container mx-auto px-4 py-4 relative">
         <div className="flex justify-between items-center">
           <Link href="/" className="flex items-center space-x-3">
-            <img
+            <Image
               src={tenant?.logoUrl || '/logo.png'}
               alt={`${tenantName} Logo`}
-              className="w-16 h-16 rounded-full bg-white p-2 border-2 border-white shadow-lg object-cover"
+              width={64}
+              height={64}
+              className="rounded-full bg-white p-2 border-2 border-white shadow-lg object-cover"
+              unoptimized
             />
             <div>
               <h1 className="text-2xl font-bold">

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { authClient } from '@api/client';
+import Image from 'next/image';
 import { useConversations } from '@shared/lib/hooks';
 import type { ConversationListItem } from '@entities/chat';
 
@@ -50,10 +51,13 @@ export function MessagesWidget() {
                   className="w-8 h-8 rounded-full bg-soralia-primary/20 flex items-center justify-center border-2 border-white"
                 >
                   {participant.avatar ? (
-                    <img
+                    <Image
                       src={participant.avatar}
                       alt={participant.name || ''}
+                      width={32}
+                      height={32}
                       className="w-8 h-8 rounded-full object-cover"
+                      unoptimized
                     />
                   ) : (
                     <span className="text-xs text-soralia-primary font-medium">

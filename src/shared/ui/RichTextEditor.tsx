@@ -1,10 +1,11 @@
 'use client';
 
+import Image from 'next/image';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
-import Image from '@tiptap/extension-image';
+import { Image as TiptapImage } from '@tiptap/extension-image';
 import { ResizableImage } from 'tiptap-extension-resizable-image';
 import 'tiptap-extension-resizable-image/styles.css';
 import { TextStyle } from '@tiptap/extension-text-style';
@@ -133,7 +134,7 @@ export function RichTextEditor({
       CodeBlockLowlight.configure({
         lowlight,
       }),
-      Image.configure({
+      TiptapImage.configure({
         inline: false,
         allowBase64: false,
       }),
@@ -657,10 +658,12 @@ export function RichTextEditor({
                       onClick={() => insertFromMediaLib(url)}
                       className="aspect-square rounded overflow-hidden border-2 border-transparent hover:border-indigo-500 transition-colors"
                     >
-                      <img
+                      <Image
                         src={url}
                         alt={`Image ${idx + 1}`}
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
+                        unoptimized
                       />
                     </button>
                   ))}

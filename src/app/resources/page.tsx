@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
+import Image from 'next/image';
 import { usePageLoading } from '@shared/ui';
 
 const log = createComponentLogger('resources-page');
@@ -211,7 +212,7 @@ export default function ResourcesPage() {
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
             <div>
               <div className="flex items-center gap-3 mb-4">
-                <img src="/platform/resources.svg" alt="" className="w-12 h-12" />
+                <Image src="/platform/resources.svg" alt="" width={48} height={48} />
                 <h1 className="text-4xl font-bold">{t('resources:title')}</h1>
               </div>
               <p className="text-indigo-100 text-lg max-w-2xl">{t('resources:subtitle')}</p>

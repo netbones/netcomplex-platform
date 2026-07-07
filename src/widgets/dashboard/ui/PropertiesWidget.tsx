@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
+import Image from 'next/image';
 import { Property } from '@entities/tenant';
 
 interface PropertiesWidgetProps {
@@ -41,10 +42,13 @@ export function PropertiesWidget({ properties = [], loading = false }: Propertie
         >
           <div className="flex items-start gap-4">
             {property.homeImage ? (
-              <img
+              <Image
                 src={property.homeImage}
                 alt={property.unit}
+                width={64}
+                height={64}
                 className="w-16 h-16 rounded-lg object-cover"
+                unoptimized
               />
             ) : (
               <div className="w-16 h-16 rounded-lg bg-indigo-100 flex items-center justify-center">

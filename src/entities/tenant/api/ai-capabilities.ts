@@ -38,8 +38,8 @@ export async function isAiCapabilityEnabled(
   tenantId: string,
   capability: AiCapabilityKey
 ): Promise<boolean> {
-  const module = await getTenantModule(tenantId, 'ai-provider');
-  if (!module?.enabled) return false;
-  const config = module.config as AiProviderModuleConfig | null;
+  const tenantModule = await getTenantModule(tenantId, 'ai-provider');
+  if (!tenantModule?.enabled) return false;
+  const config = tenantModule.config as AiProviderModuleConfig | null;
   return config?.capabilities?.[capability] === true;
 }

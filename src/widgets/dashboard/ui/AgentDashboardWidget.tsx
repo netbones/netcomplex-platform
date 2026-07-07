@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useTranslation } from 'react-i18next';
 
 interface ManagedProperty {
@@ -95,10 +96,13 @@ export function AgentDashboardWidget() {
         >
           <div className="flex items-start gap-4">
             {household.homeImage ? (
-              <img
+              <Image
                 src={household.homeImage}
                 alt={household.unit}
+                width={56}
+                height={56}
                 className="w-14 h-14 rounded-lg object-cover"
+                unoptimized
               />
             ) : (
               <div className="w-14 h-14 rounded-lg bg-indigo-100 flex items-center justify-center">

@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useMaintenanceForm, categories, priorities } from '../model/useMaintenanceForm';
 import { MaintenanceRequestForm, MaintenancePriority } from '@entities/maintenance';
 
@@ -120,10 +121,13 @@ export function MaintenanceForm({ onSubmit, propertyId }: MaintenanceFormProps) 
           <div className="grid grid-cols-3 gap-2">
             {formData.images.map((url, index) => (
               <div key={url} className="relative group">
-                <img
+                <Image
                   src={url}
                   alt={`Upload ${index + 1}`}
-                  className="w-full h-24 object-cover rounded-lg"
+                  fill
+                  className="object-cover rounded-lg"
+                  unoptimized
+                  sizes="(max-width: 768px) 33vw, 200px"
                 />
                 <button
                   type="button"

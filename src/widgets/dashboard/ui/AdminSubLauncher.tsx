@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useSafeTranslation } from '@shared/lib';
 
 export type AdminDomainCategory = 'community' | 'operations' | 'financial' | 'system';
@@ -282,8 +283,8 @@ export function AdminSubLauncher() {
                       className="group flex items-start gap-4 p-4 bg-white rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md transition-all border border-gray-100 text-left w-full"
                       type="button"
                     >
-                      <div className="flex-shrink-0 w-10 h-10">
-                        <img src={domain.icon} alt="" className="w-full h-full" />
+                      <div className="flex-shrink-0 w-10 h-10 relative">
+                        <Image src={domain.icon} alt="" fill className="w-full h-full" />
                       </div>
                       <div className="min-w-0">
                         <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition">
@@ -308,8 +309,8 @@ export function AdminSubLauncher() {
                     href={`/admin/${domain.id}`}
                     className="group flex items-start gap-4 p-4 bg-white rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md transition-all border border-gray-100"
                   >
-                    <div className="flex-shrink-0 w-10 h-10">
-                      <img src={domain.icon} alt="" className="w-full h-full" />
+                    <div className="flex-shrink-0 w-10 h-10 relative">
+                      <Image src={domain.icon} alt="" fill className="w-full h-full" />
                     </div>
                     <div className="min-w-0">
                       <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition">

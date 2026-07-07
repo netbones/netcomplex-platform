@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useSafeTranslation } from '@shared/lib';
 import { createId } from '@shared/lib/id';
 
@@ -213,10 +214,12 @@ export function Bookshelf({
                     className={`block aspect-[2/3] bg-gray-100 rounded-lg overflow-hidden shadow-sm group-hover:shadow-md transition-shadow ${book.url ? 'cursor-pointer' : 'cursor-default'}`}
                   >
                     {book.coverUrl ? (
-                      <img
+                      <Image
                         src={book.coverUrl}
                         alt={book.title}
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
+                        unoptimized
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-100 to-purple-100">
@@ -253,10 +256,12 @@ export function Bookshelf({
                       className={`block w-full h-full ${books[selectedIndex].url ? 'cursor-pointer' : 'cursor-default'}`}
                     >
                       {books[selectedIndex].coverUrl ? (
-                        <img
+                        <Image
                           src={books[selectedIndex].coverUrl}
                           alt={books[selectedIndex].title}
-                          className="w-full h-full object-cover rounded-lg shadow-lg"
+                          fill
+                          className="object-cover rounded-lg shadow-lg"
+                          unoptimized
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-100 to-purple-100 rounded-lg shadow-lg">
@@ -340,10 +345,12 @@ export function Bookshelf({
                     }`}
                   >
                     {book.coverUrl ? (
-                      <img
+                      <Image
                         src={book.coverUrl}
                         alt={book.title}
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
+                        unoptimized
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-100 to-purple-100">

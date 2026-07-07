@@ -7,6 +7,7 @@ import { canPublishAnnouncements } from '@shared/lib';
 import { useAnnouncements, AnnouncementForm, AnnouncementList } from '@features/announcements';
 import type { AnnouncementWithResource } from '@features/announcements';
 import type { AnnouncementFormData } from '@entities/content';
+import Image from 'next/image';
 import { toast } from 'sonner';
 export default function AnnouncementsAdminPage() {
   const { data: session } = authClient.useSession();
@@ -97,7 +98,7 @@ export default function AnnouncementsAdminPage() {
 
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-            <img src="/platform/announcements.svg" alt="" className="w-8 h-8" />
+            <Image src="/platform/announcements.svg" alt="" width={32} height={32} />
             Announcements
           </h1>
           {!showForm && (

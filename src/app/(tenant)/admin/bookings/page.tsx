@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { useSafeTranslation } from '@shared/lib';
+import Image from 'next/image';
 import { createComponentLogger } from '@shared/lib';
 import { Plus, Trash2 } from 'lucide-react';
 import { PRESET_FACILITIES } from '@entities/booking';
@@ -112,7 +113,7 @@ export default function AdminBookingsPage() {
 
           <div className="flex items-center justify-between mt-6 mb-8">
             <div className="flex items-center gap-3">
-              <img src="/platform/bookings.svg" alt="" className="w-8 h-8" />
+              <Image src="/platform/bookings.svg" alt="" width={32} height={32} />
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">Bookings</h1>
                 <p className="text-sm text-gray-500 mt-1">

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import type { AdminUser } from '@entities/user';
 import { roleOptions } from '@entities/user';
 import { resolveSeatInfo, resolveAddress, resolveType } from './helpers/resolve-user-helpers';
+import Image from 'next/image';
 
 interface UserRowProps {
   index: number;
@@ -41,10 +42,13 @@ export function UserRow({
       <td className="px-4 py-3 text-sm">
         <div className="flex items-center gap-2">
           {user.image ? (
-            <img
+            <Image
               src={user.image}
               alt=""
+              width={28}
+              height={28}
               className="w-7 h-7 rounded-full object-cover flex-shrink-0"
+              unoptimized
             />
           ) : (
             <div className="w-7 h-7 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-medium flex-shrink-0">

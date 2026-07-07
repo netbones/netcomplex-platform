@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { authClient } from '@api/client';
 import { supportedLanguages, languageNames } from '@/shared/lib/i18n';
+import Image from 'next/image';
 import { usePageLoading } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
 import { useUserProfile } from '@shared/lib/hooks';
@@ -211,7 +212,7 @@ export default function SettingsPage() {
         <Breadcrumbs items={[{ label: tCommon('nav.home'), href: '/' }, { label: 'Profile' }]} />
 
         <div className="flex items-center gap-3 mb-8">
-          <img src="/platform/settings.svg" alt="" className="w-10 h-10" />
+          <Image src="/platform/settings.svg" alt="" width={40} height={40} />
           <h1 className="text-3xl font-bold text-gray-900">Profile</h1>
         </div>
 

@@ -7,6 +7,7 @@ import { useParams } from 'next/navigation';
 import { Breadcrumbs, ErrorBoundary, RichTextRenderer } from '@shared/ui';
 import { ContentEngagementBar } from '@features/content';
 import { createComponentLogger } from '@shared/lib';
+import Image from 'next/image';
 import { usePageLoading } from '@shared/ui';
 
 const log = createComponentLogger('news-post-page');
@@ -185,8 +186,14 @@ export default function NewsPostPage() {
 
           {/* Featured Image */}
           {post.image && (
-            <div className="mb-8 rounded-xl overflow-hidden">
-              <img src={post.image} alt={post.title} className="w-full h-64 sm:h-80 object-cover" />
+            <div className="mb-8 rounded-xl overflow-hidden relative">
+              <Image
+                src={post.image}
+                alt={post.title}
+                fill
+                className="w-full h-64 sm:h-80 object-cover"
+                unoptimized
+              />
             </div>
           )}
 

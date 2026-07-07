@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useSafeTranslation } from '@shared/lib';
 import { PrimaryCTA } from './PrimaryCTA';
 import { SectionLayout } from '@shared/ui';
@@ -437,7 +438,7 @@ export function HeroSection() {
       <div className="relative max-w-4xl mx-auto text-center space-y-6">
         {/* Logo/Icon */}
         <div className="flex justify-center mb-4">
-          <img src="/platform/netcomplex.svg" alt="NetComplex" className="h-20 w-20" />
+          <Image src="/platform/netcomplex.svg" alt="NetComplex" width={80} height={80} />
         </div>
 
         {/* Heading */}
@@ -480,10 +481,12 @@ export function HeroSection() {
 
       {/* City Silhouette */}
       <div className="absolute bottom-0 left-0 right-0 pointer-events-none flex justify-center">
-        <img
+        <Image
           src="/platform/four.webp"
           alt=""
-          className="max-w-3xl w-full h-auto object-contain opacity-70"
+          width={768}
+          height={200}
+          className="max-w-3xl w-full object-contain opacity-70"
         />
       </div>
     </SectionLayout>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Breadcrumbs } from '@shared/ui';
 
 export default function GroupCategoriesPage() {
@@ -66,7 +67,7 @@ export default function GroupCategoriesPage() {
       />
 
       <h1 className="text-3xl font-bold text-gray-900 mb-8 flex items-center gap-3">
-        <img src="/platform/system.svg" alt="" className="w-10 h-10" />
+        <Image src="/platform/system.svg" alt="" width={40} height={40} />
         Interest Group Categories
       </h1>
 

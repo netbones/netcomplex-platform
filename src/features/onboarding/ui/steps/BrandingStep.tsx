@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { OnboardingStep } from '../OnboardingStep';
 import type { OnboardingFormData } from '../../model/useOnboarding';
 
@@ -52,12 +53,14 @@ export function BrandingStep({
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Community Logo</label>
           <div className="flex items-center gap-4">
-            <div className="w-20 h-20 rounded-lg bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden">
+            <div className="relative w-20 h-20 rounded-lg bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden">
               {formData.branding.logoUrl ? (
-                <img
+                <Image
                   src={formData.branding.logoUrl}
                   alt="Logo"
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
+                  unoptimized
                 />
               ) : (
                 <span className="text-gray-400 text-xs text-center">No logo</span>

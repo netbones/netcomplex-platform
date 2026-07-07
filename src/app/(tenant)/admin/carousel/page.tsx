@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
+import Image from 'next/image';
 import { createComponentLogger } from '@shared/lib';
 import type { HeroCarouselConfig, CarouselItem } from '@entities/tenant';
 import { createId } from '@shared/lib/id';
@@ -194,10 +195,12 @@ export default function AdminCarouselPage() {
                 <div className="mt-3">
                   <p className="text-xs text-gray-500 mb-1">Preview:</p>
                   <div className="relative h-32 rounded-lg overflow-hidden bg-gray-100">
-                    <img
+                    <Image
                       src={item.image}
                       alt={item.title}
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
+                      unoptimized
                       onError={e => {
                         (e.target as HTMLImageElement).style.display = 'none';
                       }}

@@ -1,6 +1,7 @@
 'use client';
 
 import { useSafeTranslation } from '@shared/lib';
+import Image from 'next/image';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { EducationPortal } from '@widgets/education';
 
@@ -18,8 +19,8 @@ export default function EducationPage() {
         />
 
         <div className="flex items-center gap-3 mt-6 mb-6">
-          <div className="flex-shrink-0 w-10 h-10">
-            <img src="/platform/education-red.svg" alt="" className="w-full h-full" />
+          <div className="flex-shrink-0 w-10 h-10 relative">
+            <Image src="/platform/education-red.svg" alt="" fill className="w-full h-full" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{tx('title', 'Education Portal')}</h1>

@@ -16,6 +16,7 @@ import {
   Building2,
   CalendarDays,
 } from 'lucide-react';
+import Image from 'next/image';
 
 const log = createComponentLogger('maintenance-page');
 
@@ -213,7 +214,13 @@ export function MaintenancePage() {
           />
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-4xl font-bold text-soralia-primary flex items-center gap-3">
-              <img src="/platform/maintenance.svg" alt="" className="w-10 h-10" />
+              <Image
+                src="/platform/maintenance.svg"
+                alt=""
+                width={40}
+                height={40}
+                className="w-10 h-10"
+              />
               {t('maintenance:title')}
             </h1>
             <button

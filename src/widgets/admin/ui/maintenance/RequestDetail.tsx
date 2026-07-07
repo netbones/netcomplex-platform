@@ -12,6 +12,7 @@ import type {
 
 export type { MaintenanceTeam, ServiceProvider } from './types';
 
+import Image from 'next/image';
 import {
   formatDate,
   formatDateTime,
@@ -555,11 +556,16 @@ export function RequestDetail({
               </h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {selectedRequest.images.map((img, idx) => (
-                  <div key={idx} className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-                    <img
+                  <div
+                    key={idx}
+                    className="aspect-square bg-gray-100 rounded-lg overflow-hidden relative"
+                  >
+                    <Image
                       src={img}
                       alt={`Image ${idx + 1}`}
+                      fill
                       className="w-full h-full object-cover"
+                      unoptimized
                     />
                   </div>
                 ))}

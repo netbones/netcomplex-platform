@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { fetchApi, formatCurrency, formatPercent } from './adminApi';
 import { RevenueChart } from './RevenueChart';
+import Image from 'next/image';
 import type { ProviderAnalyticsResponse } from './types';
 
 function MetricCard({ title, value, hint }: { title: string; value: string; hint?: string }) {
@@ -36,7 +37,13 @@ export function ProviderAnalyticsDashboard() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <h1 className="flex items-center gap-3 text-3xl font-semibold">
-              <img src="/platform/providers.svg" alt="" className="h-8 w-8" />
+              <Image
+                src="/platform/providers.svg"
+                alt=""
+                width={32}
+                height={32}
+                className="h-8 w-8"
+              />
               Provider ecosystem analytics
             </h1>
             <p className="mt-2 max-w-3xl text-sm text-violet-50">

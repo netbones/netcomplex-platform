@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { DelegationWidget } from '@widgets/delegation';
 
@@ -104,18 +105,18 @@ export default function AgentGatewayPage() {
                 Quick Links
               </h2>
               <div className="space-y-2">
-                <a
+                <Link
                   href="/dashboard/services/maintenance"
                   className="block text-sm text-gray-600 hover:text-indigo-600 py-1.5 px-2 rounded hover:bg-gray-50"
                 >
                   Maintenance Dashboard
-                </a>
-                <a
+                </Link>
+                <Link
                   href="/dashboard/services/my-services"
                   className="block text-sm text-gray-600 hover:text-indigo-600 py-1.5 px-2 rounded hover:bg-gray-50"
                 >
                   My Services
-                </a>
+                </Link>
                 <a
                   href="/profile"
                   className="block text-sm text-gray-600 hover:text-indigo-600 py-1.5 px-2 rounded hover:bg-gray-50"

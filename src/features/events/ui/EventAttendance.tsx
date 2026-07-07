@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { UserCheck, UserPlus, Loader2, Users } from 'lucide-react';
 
 interface Attendee {
@@ -98,12 +99,14 @@ export function EventAttendance({ eventId }: EventAttendanceProps) {
         <div className="space-y-2">
           {attendees.map(attendee => (
             <div key={attendee.id} className="flex items-center gap-3 py-2">
-              <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center shrink-0 overflow-hidden">
+              <div className="relative w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center shrink-0 overflow-hidden">
                 {attendee.avatar ? (
-                  <img
+                  <Image
                     src={attendee.avatar}
                     alt={attendee.name}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
+                    unoptimized
                   />
                 ) : (
                   <span className="text-xs font-medium text-indigo-600">

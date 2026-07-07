@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { Breadcrumbs } from '@shared/ui';
 import { EventList } from '@widgets/admin';
@@ -10,7 +11,7 @@ export default function EventsPage() {
       <Breadcrumbs items={[{ label: 'Admin', href: '/admin' }, { label: 'Events' }]} />
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-          <img src="/platform/events.svg" alt="" className="w-8 h-8" />
+          <Image src="/platform/events.svg" alt="" width={32} height={32} />
           Events
         </h1>
         <Link

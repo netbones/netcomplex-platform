@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Breadcrumbs } from '@shared/ui';
 import { useLanguage } from '@shared/lib/hooks/useSafeTranslation';
 
@@ -96,7 +97,7 @@ export default function ContentListPage() {
       <Breadcrumbs items={[{ label: 'Admin', href: '/admin' }, { label: 'Content Management' }]} />
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-          <img src="/platform/content.svg" alt="" className="w-8 h-8" />
+          <Image src="/platform/content.svg" alt="" width={32} height={32} />
           Content Management
         </h1>
         <Link

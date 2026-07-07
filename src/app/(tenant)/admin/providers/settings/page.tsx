@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import Image from 'next/image';
 import { fetchApi, sendJson, statusBadgeClass } from '@/components/admin/adminApi';
 import type { RegistrationModeResponse } from '@/components/admin/types';
 
@@ -31,7 +32,7 @@ export default function AdminProviderSettingsPage() {
     <div className="mx-auto max-w-5xl space-y-6 p-6">
       <section className="rounded-3xl bg-gradient-to-r from-gray-900 to-slate-700 p-6 text-white shadow-lg">
         <h1 className="flex items-center gap-3 text-3xl font-semibold">
-          <img src="/platform/providers.svg" alt="" className="h-8 w-8" />
+          <Image src="/platform/providers.svg" alt="" width={32} height={32} />
           Provider registration settings
         </h1>
         <p className="mt-2 max-w-3xl text-sm text-slate-200">

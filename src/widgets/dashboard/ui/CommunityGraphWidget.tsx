@@ -15,6 +15,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useTranslation } from 'react-i18next';
+import Image from 'next/image';
 import {
   Users,
   MessageSquare,
@@ -68,7 +69,14 @@ function ResidentNode({ data }: { data: ResidentNode & { color?: string } }) {
   return (
     <div className="flex items-center gap-3 bg-white rounded-full px-4 py-2 shadow-lg border-2 border-indigo-500 min-w-[140px]">
       {data.avatar ? (
-        <img src={data.avatar} alt={data.name} className="w-8 h-8 rounded-full object-cover" />
+        <Image
+          src={data.avatar}
+          alt={data.name}
+          width={32}
+          height={32}
+          className="w-8 h-8 rounded-full object-cover"
+          unoptimized
+        />
       ) : (
         <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs font-bold">
           {initials}

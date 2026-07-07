@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { authClient } from '@api/client';
+import Image from 'next/image';
 import { usePageLoading } from '@shared/ui';
 
 type ViewMode = 'detail' | 'matching';
@@ -316,13 +317,16 @@ function InterestContent() {
                     className="border rounded-lg p-4 hover:shadow-md transition"
                   >
                     <div className="flex items-center gap-3">
-                      <img
+                      <Image
                         src={
                           resident.avatar ||
                           `https://api.dicebear.com/7.x/avataaars/svg?seed=${resident.name}`
                         }
                         alt={resident.name}
+                        width={48}
+                        height={48}
                         className="w-12 h-12 rounded-full"
+                        unoptimized
                       />
                       <div>
                         <h3 className="font-semibold">{resident.name}</h3>

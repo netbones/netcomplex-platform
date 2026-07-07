@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Breadcrumbs, ErrorBoundary, TagCloud } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
 import { usePageLoading } from '@shared/ui';
+import Image from 'next/image';
 import { AnnouncementsStreamWidget } from '@widgets/dashboard';
 
 const log = createComponentLogger('news-page');
@@ -97,7 +98,7 @@ export default function NewsPage() {
 
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <img src="/platform/news.svg" alt="" className="w-10 h-10" />
+            <Image src="/platform/news.svg" alt="" width={40} height={40} className="w-10 h-10" />
             <h1 className="text-4xl font-bold text-gray-900">News & Updates</h1>
           </div>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">

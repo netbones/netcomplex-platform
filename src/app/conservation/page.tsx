@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
+import Image from 'next/image';
 import { usePageLoading } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
 
@@ -219,11 +220,13 @@ export default function ConservationPage() {
             { label: tCommon('nav.conservation') },
           ]}
         />
-        <div className="rounded-lg shadow-lg mb-8 overflow-hidden">
-          <img
+        <div className="relative rounded-lg shadow-lg mb-8 overflow-hidden h-64">
+          <Image
             src="/conservation.webp"
             alt="Soralia Village Conservation Area"
-            className="w-full h-64 object-cover"
+            fill
+            className="object-cover"
+            priority
           />
         </div>
 

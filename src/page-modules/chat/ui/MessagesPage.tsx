@@ -15,6 +15,7 @@ import {
   type ConversationListItem,
 } from '@entities/chat';
 import { CreateConversationModal } from '@features/chat';
+import Image from 'next/image';
 import { COMMON_EMOJIS } from '@entities/chat';
 
 const log = createComponentLogger('MessagesPage');
@@ -222,7 +223,13 @@ export function MessagesPage({ initialConversationId }: MessagesPageProps) {
 
           <div className="flex items-center justify-between mb-4 mt-2 shrink-0">
             <h1 className="text-3xl font-bold text-soralia-primary flex items-center gap-3">
-              <img src="/platform/communication.svg" alt="" className="w-8 h-8" />
+              <Image
+                src="/platform/communication.svg"
+                alt=""
+                width={32}
+                height={32}
+                className="w-8 h-8"
+              />
               Messages
             </h1>
           </div>
@@ -470,10 +477,13 @@ export function MessagesPage({ initialConversationId }: MessagesPageProps) {
                           <div className="flex flex-col items-center justify-center text-center py-10 border-b border-gray-50 mb-6 bg-gradient-to-b from-gray-50/50 to-transparent rounded-2xl px-4">
                             <div className="w-16 h-16 relative mb-4">
                               {otherParticipantAvatar ? (
-                                <img
+                                <Image
                                   src={otherParticipantAvatar}
                                   alt={otherParticipantName}
+                                  width={64}
+                                  height={64}
                                   className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-sm"
+                                  unoptimized
                                 />
                               ) : (
                                 <div className="w-16 h-16 rounded-full bg-indigo-50 flex items-center justify-center border-2 border-white shadow-sm">
@@ -552,10 +562,12 @@ export function MessagesPage({ initialConversationId }: MessagesPageProps) {
                       <div className="border-t border-gray-100 p-4 shrink-0 bg-white">
                         {selectedImage && (
                           <div className="relative inline-block mb-3 bg-gray-50 p-1.5 rounded-xl border border-gray-150">
-                            <img
+                            <Image
                               src={selectedImage}
                               alt="Preview"
+                              fill
                               className="h-20 max-w-[120px] rounded-lg object-cover"
+                              unoptimized
                             />
                             <button
                               onClick={() => setSelectedImage(null)}

@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 
 interface TenantBrandingFormProps {
   tenant: {
@@ -168,10 +170,13 @@ function BrandingForm({ tenant }: TenantBrandingFormProps) {
           <p className="text-sm text-gray-500 mb-2">Logo Preview</p>
           <div className="flex items-center gap-4">
             {previewLogo ? (
-              <img
+              <Image
                 src={previewLogo}
                 alt="Logo preview"
+                width={64}
+                height={64}
                 className="h-16 w-16 object-contain rounded"
+                unoptimized
               />
             ) : (
               <div className="h-16 w-16 bg-gray-200 rounded flex items-center justify-center text-gray-400">
@@ -337,12 +342,12 @@ function BrandingForm({ tenant }: TenantBrandingFormProps) {
 
       {/* Actions */}
       <div className="flex justify-end gap-3">
-        <a
+        <Link
           href="/dashboard/admin/platform"
           className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
         >
           Cancel
-        </a>
+        </Link>
         <button
           type="submit"
           disabled={isPending}

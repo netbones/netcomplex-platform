@@ -1,6 +1,7 @@
 'use client';
 
 import { ReactNode } from 'react';
+import Link from 'next/link';
 import { type TierLevel } from '@/shared/lib';
 import { hasFeature, canAccessPage, canUseWidget } from '../api/features/registry';
 
@@ -98,12 +99,12 @@ function UpgradePrompt({
         {page && `The "${page}" page requires a higher tier.`}
         {widget && `The "${widget}" requires a higher tier.`}
       </p>
-      <a
+      <Link
         href="/dashboard/admin/upgrade"
         className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
       >
         Upgrade to {nextTier}
-      </a>
+      </Link>
     </div>
   );
 }

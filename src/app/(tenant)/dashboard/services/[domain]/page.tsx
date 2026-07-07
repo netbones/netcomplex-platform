@@ -7,6 +7,7 @@ import { useSafeTranslation } from '@shared/lib';
 import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { notFound } from 'next/navigation';
+import Image from 'next/image';
 import { SERVICES_DOMAINS, getServicesDomainWidgets } from '@widgets/dashboard';
 import { SERVICES_DOMAIN_DEFINITIONS } from '@widgets/dashboard';
 import { WidgetRenderer } from '@widgets/dashboard';
@@ -64,7 +65,9 @@ export default function ServicesDomainPage({ params }: ServicesDomainPageProps) 
 
         <div className="flex items-center justify-between mt-6 mb-6 gap-3 flex-wrap">
           <div className="flex items-center gap-3">
-            {iconSrc && <img src={iconSrc} alt="" className="w-8 h-8" />}
+            {iconSrc && (
+              <Image src={iconSrc} alt="" width={32} height={32} className="w-8 h-8" unoptimized />
+            )}
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
                 {tx(
@@ -151,7 +154,14 @@ export default function ServicesDomainPage({ params }: ServicesDomainPageProps) 
         {widgets.length === 0 && (
           <div className="bg-white rounded-lg shadow-sm p-12 text-center">
             {iconSrc && (
-              <img src={iconSrc} alt="" className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+              <Image
+                src={iconSrc}
+                alt=""
+                width={48}
+                height={48}
+                className="w-12 h-12 text-gray-300 mx-auto mb-4"
+                unoptimized
+              />
             )}
             <h2 className="text-lg font-semibold text-gray-900 mb-2">
               {tx(

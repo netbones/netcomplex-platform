@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { usePageLoading } from '@shared/ui';
+import Image from 'next/image';
 import { createComponentLogger } from '@shared/lib';
 import { BookingForm } from '@features/booking';
 import { StatusBadge, FacilityBadge, BookingCalendar, type Booking } from '@entities/booking';
@@ -66,7 +67,13 @@ export function BookingsPage() {
           />
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
             <div className="flex items-center gap-3">
-              <img src="/platform/bookings.svg" alt="" className="w-8 h-8" />
+              <Image
+                src="/platform/bookings.svg"
+                alt=""
+                width={32}
+                height={32}
+                className="w-8 h-8"
+              />
               <h1 className="text-4xl font-bold text-soralia-primary">{t('bookings:title')}</h1>
             </div>
           </div>

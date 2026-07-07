@@ -45,23 +45,21 @@ export const authClient = new Proxy<AuthClientType>({} as AuthClientType, {
   },
 }) as AuthClientType;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export const signIn: any = new Proxy({} as any, {
   get(_, prop) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (...args: unknown[]) =>
       ((getClient().signIn as any)[prop] as (...a: unknown[]) => unknown)?.(...args);
   },
 });
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const signUp: any = new Proxy({} as any, {
   get(_, prop) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (...args: unknown[]) =>
       ((getClient().signUp as any)[prop] as (...a: unknown[]) => unknown)?.(...args);
   },
 });
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const signOut: any = (...args: unknown[]) =>

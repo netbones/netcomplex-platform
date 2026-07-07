@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { authClient } from '@api/client';
+import Image from 'next/image';
 import { ErrorBoundary } from '@shared/ui';
 import { useApiToast } from '@shared/lib/hooks';
 
@@ -305,11 +306,13 @@ export function MyAlbumWidget() {
                         {album.mediaIds.slice(0, 6).map(mediaId => {
                           const mediaItem = mediaItems.find(item => item.key === mediaId);
                           return mediaItem ? (
-                            <div key={mediaId} className="aspect-square">
-                              <img
+                            <div key={mediaId} className="aspect-square relative">
+                              <Image
                                 src={mediaItem.url}
                                 alt={mediaItem.name}
+                                fill
                                 className="w-full h-full object-cover rounded"
+                                unoptimized
                               />
                             </div>
                           ) : null;

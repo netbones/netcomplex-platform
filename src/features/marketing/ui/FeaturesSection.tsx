@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { useSafeTranslation } from '@shared/lib';
 import { SectionLayout } from '@shared/ui';
 import { BarChart3, ChevronDown } from 'lucide-react';
@@ -86,7 +87,13 @@ export function FeaturesSection() {
                       <iconSpec.Icon className="w-6 h-6" />
                     </div>
                   ) : (
-                    <img src={iconSpec.src} alt={iconSpec.alt} className="w-12 h-12" />
+                    <Image
+                      src={iconSpec.src}
+                      alt={iconSpec.alt}
+                      width={48}
+                      height={48}
+                      unoptimized
+                    />
                   )}
                 </div>
                 <h3 className="text-xl font-semibold text-lapis-deep mb-2 group-hover:text-gold-vein transition-colors duration-300">

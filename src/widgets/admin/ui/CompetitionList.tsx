@@ -4,6 +4,7 @@ import { useState, useEffect, Fragment } from 'react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { trpc } from '@api/client';
+import Image from 'next/image';
 
 // ──────────────────────────────────────────
 // Types
@@ -306,9 +307,15 @@ function ParticipantsPanel({ competition }: { competition: Competition }) {
                 <tr key={p.id} className="hover:bg-gray-50">
                   <td className="px-4 py-2">
                     <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-full overflow-hidden flex-shrink-0 bg-indigo-100 flex items-center justify-center text-xs font-medium text-indigo-600">
+                      <div className="w-7 h-7 rounded-full overflow-hidden flex-shrink-0 bg-indigo-100 flex items-center justify-center text-xs font-medium text-indigo-600 relative">
                         {p.avatar ? (
-                          <img src={p.avatar} alt="" className="w-full h-full object-cover" />
+                          <Image
+                            src={p.avatar}
+                            alt=""
+                            fill
+                            className="w-full h-full object-cover"
+                            unoptimized
+                          />
                         ) : (
                           p.name.charAt(0).toUpperCase()
                         )}
@@ -335,12 +342,17 @@ function ParticipantsPanel({ competition }: { competition: Competition }) {
       <div className="p-4">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {participants.map(p => (
-            <div key={p.id} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+            <div
+              key={p.id}
+              className="bg-white rounded-lg border border-gray-200 overflow-hidden relative min-h-[160px]"
+            >
               {p.submissionUrl ? (
-                <img
+                <Image
                   src={p.submissionUrl}
                   alt={`${p.name}'s submission`}
+                  fill
                   className="w-full h-40 object-cover"
+                  unoptimized
                 />
               ) : (
                 <div className="w-full h-40 bg-gray-100 flex items-center justify-center text-gray-400 text-sm">
@@ -424,9 +436,15 @@ function ParticipantsPanel({ competition }: { competition: Competition }) {
                 <tr key={p.id} className="hover:bg-gray-50">
                   <td className="px-4 py-2">
                     <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-full overflow-hidden flex-shrink-0 bg-indigo-100 flex items-center justify-center text-xs font-medium text-indigo-600">
+                      <div className="w-7 h-7 rounded-full overflow-hidden flex-shrink-0 bg-indigo-100 flex items-center justify-center text-xs font-medium text-indigo-600 relative">
                         {p.avatar ? (
-                          <img src={p.avatar} alt="" className="w-full h-full object-cover" />
+                          <Image
+                            src={p.avatar}
+                            alt=""
+                            fill
+                            className="w-full h-full object-cover"
+                            unoptimized
+                          />
                         ) : (
                           p.name.charAt(0).toUpperCase()
                         )}

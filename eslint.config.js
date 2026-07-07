@@ -1,21 +1,27 @@
 import tseslint from 'typescript-eslint';
+import nextPlugin from '@next/eslint-plugin-next';
 
-export default [
+export default tseslint.config(
   ...tseslint.configs.recommended,
+
   {
     ignores: ['node_modules/', 'dist/', 'build/', '.next/', 'src/**/*.html'],
   },
+
+  // Next.js plugin rules
+  {
+    plugins: { '@next/next': nextPlugin },
+    rules: {
+      ...nextPlugin.configs.recommended.rules,
+      ...nextPlugin.configs['core-web-vitals'].rules,
+    },
+  },
+
+  // Project rules + FSD deep-import guardrails
   {
     rules: {
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
       'prefer-const': 'error',
-      // FSD guardrails: Re-enabled for audit.
-      // Note: ESLint catches deep imports (@shared/*/*) inside the editor.
-      // Steiger (steiger.config.js) is the source of truth for FSD architecture
-      // rules — layer hierarchy, public API sidestep, public API presence, slice
-      // hygiene, segment conventions. ESLint and Steiger share the same goal
-      // (enforce FSD boundaries) but report different violation classes.
-      // See AGENTS.md "FSD Architecture" for the split of responsibilities.
       'no-restricted-imports': [
         'error',
         {
@@ -28,24 +34,16 @@ export default [
             },
           ],
           patterns: [
-            // Enforce slice public API (no deep imports)
             {
               regex:
                 '^@shared/(?!lib/hooks|lib/agent-token|lib/sanitize|lib/i18n|lib/id|lib/format-date)[^/]+/[^/]+$',
               message: 'Use public API from @shared instead of deep imports.',
             },
-            // Block deep imports from entities except for the server.ts
-            // sub-barrel pattern (ADR-020). @entities/*/server is the canonical
-            // public API for server-only entity exports.
             {
               regex: '^@entities/(?!.*/server$)[^/]+/[^/@]',
               message:
                 'Use public API from @entities/<slice> instead of deep imports. For server-only exports, use @entities/<slice>/server.',
             },
-            // Block deep imports from features except for the server.ts
-            // sub-barrel pattern (mirrors ADR-020 for entities).
-            // @features/<slice>/server is the canonical public API for
-            // server-only feature exports.
             {
               regex: '^@features/[^/]+/(?!server$)[^/@]',
               message:
@@ -63,7 +61,6 @@ export default [
               group: ['@processes/*/*'],
               message: 'Use public API from @processes/<slice> instead of deep imports.',
             },
-            // Block legacy bucket imports
             {
               group: ['@/components/**'],
               message: 'Legacy components bucket is deprecated. Use FSD layers instead.',
@@ -77,17 +74,19 @@ export default [
       ],
     },
   },
+
+  // Admin providers: disable restricted-imports (needs free module access)
   {
     files: ['src/app/(tenant)/admin/providers/**'],
     rules: {
       'no-restricted-imports': 'off',
     },
   },
+
+  // @features/gate: allow deep import of @entities/tenant/api/gate/mappings
+  // This is the canonical clean module (zero server deps) — importing from the
+  // @entities/tenant/server barrel would pull ioredis → dns into client builds.
   {
-    // @features/gate imports mapping tables from @entities/tenant/api/gate/mappings.
-    // This is the canonical clean module (zero server deps) — importing from the
-    // @entities/tenant/server barrel would pull ioredis → dns into client builds.
-    // See soralia-village-1eh for the build fix rationale.
     files: ['src/features/gate/**'],
     rules: {
       'no-restricted-imports': [
@@ -95,8 +94,6 @@ export default [
         {
           paths: [],
           patterns: [
-            // Keep all patterns EXCEPT the entities deep-import rule,
-            // which traps the intentionally deep @entities/tenant/api/gate/mappings import.
             {
               regex: '^@shared/(?!lib/hooks|lib/format-date)[^/]+/[^/]+$',
               message: 'Use public API from @shared instead of deep imports.',
@@ -130,5 +127,5 @@ export default [
         },
       ],
     },
-  },
-];
+  }
+);

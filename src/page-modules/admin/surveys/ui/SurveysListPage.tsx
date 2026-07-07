@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Breadcrumbs } from '@shared/ui';
 import type { Survey } from '@entities/survey';
 
@@ -37,7 +38,7 @@ export function SurveysListPage() {
 
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-          <img src="/platform/surveys.svg" alt="" className="w-10 h-10" />
+          <Image src="/platform/surveys.svg" alt="" width={40} height={40} className="w-10 h-10" />
           Surveys &amp; Polls
         </h1>
         <Link

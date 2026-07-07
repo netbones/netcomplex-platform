@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { ErrorBoundary } from '@shared/ui';
 import { trpc } from '@api/client';
 import { useRouter } from 'next/navigation';
@@ -120,10 +121,12 @@ function CompetitionCard({
                     style={{ zIndex: 5 - i }}
                   >
                     {p.avatar ? (
-                      <img
+                      <Image
                         src={p.avatar}
                         alt=""
+                        fill
                         className="w-full h-full rounded-full object-cover"
+                        unoptimized
                       />
                     ) : (
                       <div className="w-full h-full rounded-full bg-indigo-100 flex items-center justify-center text-xs font-medium text-indigo-600">

@@ -9,6 +9,7 @@ import { Breadcrumbs, ErrorBoundary, RichTextRenderer } from '@shared/ui';
 import { ContentEngagementBar } from '@features/content';
 import { createComponentLogger } from '@shared/lib';
 import { DirectoryChatModal } from '@/features/directory/ui/DirectoryChatModal';
+import Image from 'next/image';
 import { StandingBadge } from '@entities/merit';
 
 const log = createComponentLogger('resident-profile');
@@ -301,25 +302,30 @@ function ProfileContent() {
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
             {(user.standardSeats?.[0]?.household?.homeImage ||
               user.soloSeats?.[0]?.household?.homeImage) && (
-              <div className="h-48 w-full">
-                <img
+              <div className="relative h-48 w-full">
+                <Image
                   src={
                     user.standardSeats?.[0]?.household?.homeImage ||
                     user.soloSeats?.[0]?.household?.homeImage ||
                     ''
                   }
                   alt={`${user.name}'s home`}
+                  fill
                   className="w-full h-full object-cover"
+                  unoptimized
                 />
               </div>
             )}
 
             <div className="p-6">
               <div className="flex items-start gap-6">
-                <img
+                <Image
                   src={avatarUrl}
                   alt={user.name}
+                  width={96}
+                  height={96}
                   className="w-24 h-24 rounded-full bg-gray-100"
+                  unoptimized
                 />
                 <div className="flex-1">
                   <h1 className="text-3xl font-bold text-gray-900">{user.name}</h1>

@@ -67,7 +67,7 @@ export function ModulesStep({
             Available Modules
           </h4>
           {foundationModules.map(key => {
-            const module = MODULES[key];
+            const mod = MODULES[key];
             const enabled = formData.modules[key] ?? true;
             return (
               <div
@@ -75,8 +75,8 @@ export function ModulesStep({
                 className="flex items-center justify-between p-4 bg-slate-50 rounded-lg"
               >
                 <div>
-                  <p className="font-medium text-gray-900">{module.label}</p>
-                  <p className="text-sm text-gray-500">{module.description}</p>
+                  <p className="font-medium text-gray-900">{mod.label}</p>
+                  <p className="text-sm text-gray-500">{mod.description}</p>
                 </div>
                 <button
                   onClick={() =>

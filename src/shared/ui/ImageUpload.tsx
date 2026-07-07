@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
 import { toast } from 'sonner';
 import { createComponentLogger } from '@shared/lib';
 
@@ -88,7 +89,7 @@ export function ImageUpload({
       <div className="flex items-center gap-4">
         <div className="relative w-24 h-24 rounded-lg overflow-hidden bg-gray-100 border border-gray-300 flex items-center justify-center">
           {preview ? (
-            <img src={preview} alt="Preview" className="w-full h-full object-cover" />
+            <Image src={preview} alt="Preview" fill className="object-cover" unoptimized />
           ) : (
             <span className="text-gray-400 text-xs text-center p-2">No image</span>
           )}

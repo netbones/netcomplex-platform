@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import type { DisputeEvidenceDTO } from '../model/types';
 import { EvidenceUploadZone } from './EvidenceUploadZone';
+import Image from 'next/image';
 import { LoadingSkeleton } from '@shared/ui';
 import { formatDate } from '@shared/lib/format-date';
 
@@ -123,12 +124,16 @@ export function EvidencePreviewGrid({ disputeId, userId }: EvidencePreviewGridPr
 
                 {/* Preview */}
                 {isImage(item.fileType) ? (
-                  <button onClick={() => setLightboxUrl(item.fileUrl)} className="block w-full">
-                    <img
+                  <button
+                    onClick={() => setLightboxUrl(item.fileUrl)}
+                    className="block w-full relative min-h-[128px]"
+                  >
+                    <Image
                       src={item.fileUrl}
                       alt={item.fileName}
+                      fill
                       className="w-full h-32 object-cover"
-                      loading="lazy"
+                      unoptimized
                     />
                   </button>
                 ) : (
@@ -179,11 +184,13 @@ export function EvidencePreviewGrid({ disputeId, userId }: EvidencePreviewGridPr
               />
             </svg>
           </button>
-          <img
+          <Image
             src={lightboxUrl}
             alt="Evidence preview"
+            fill
             className="max-w-full max-h-full object-contain rounded-lg"
             onClick={e => e.stopPropagation()}
+            unoptimized
           />
         </div>
       )}

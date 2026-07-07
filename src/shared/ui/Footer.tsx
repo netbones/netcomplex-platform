@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { useGateContext } from '@features/gate';
@@ -53,10 +54,13 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           <div>
             <div className="flex items-center space-x-3 mb-4">
-              <img
+              <Image
                 src={tenant?.logoUrl || '/logo.png'}
                 alt={`${tenantName} Logo`}
-                className="w-12 h-12 rounded-full bg-white p-1 shadow-md object-cover"
+                width={48}
+                height={48}
+                className="rounded-full bg-white p-1 shadow-md object-cover"
+                unoptimized
               />
               <div>
                 <h3 className="text-xl font-bold">{t('app.name', { tenantName })}</h3>

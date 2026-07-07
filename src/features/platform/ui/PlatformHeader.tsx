@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@shared/lib';
@@ -68,7 +69,7 @@ export function PlatformHeader({ className, variant = 'light' }: PlatformHeaderP
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center gap-4">
             <Link href="/" className="flex items-center gap-3">
-              <img src="/platform/netcomplex.svg" alt="NetComplex" className="h-10 w-10" />
+              <Image src="/platform/netcomplex.svg" alt="NetComplex" width={40} height={40} />
               <span className="flex flex-col">
                 <span className={cn('text-2xl font-bold tracking-tight', textColor)}>
                   NetComplex

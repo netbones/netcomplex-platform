@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { toast } from 'sonner';
 import { Tooltip, TooltipTrigger, TooltipContent } from './tooltip';
 import { authClient } from '@api/client';
@@ -209,8 +210,8 @@ export function MediaLibrary({
                   className="group relative bg-white rounded-lg shadow overflow-hidden cursor-pointer"
                   onClick={() => selectable && onSelect?.(img)}
                 >
-                  <div className="aspect-square">
-                    <img src={img.url} alt={img.name} className="w-full h-full object-cover" />
+                  <div className="aspect-square relative">
+                    <Image src={img.url} alt={img.name} fill className="object-cover" unoptimized />
                   </div>
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                     <Tooltip>
@@ -276,10 +277,12 @@ export function MediaLibrary({
             <div className="relative">
               {/* Main carousel */}
               <div className="relative aspect-video bg-black rounded-lg overflow-hidden">
-                <img
+                <Image
                   src={images[selectedIndex].url}
                   alt={images[selectedIndex].name}
-                  className="w-full h-full object-contain"
+                  fill
+                  className="object-contain"
+                  unoptimized
                 />
                 {/* Navigation arrows */}
                 {images.length > 1 && (
@@ -356,7 +359,14 @@ export function MediaLibrary({
                         : 'border-transparent hover:border-gray-300'
                     }`}
                   >
-                    <img src={img.url} alt={img.name} className="w-full h-full object-cover" />
+                    <Image
+                      src={img.url}
+                      alt={img.name}
+                      width={80}
+                      height={80}
+                      className="object-cover"
+                      unoptimized
+                    />
                   </button>
                 ))}
               </div>

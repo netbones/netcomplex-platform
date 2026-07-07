@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { authClient } from '@api/client';
+import Image from 'next/image';
 import { ErrorBoundary } from '@shared/ui';
 import { AgentWidget } from './AgentWidget';
 import { CreateListingForm } from '@features/service';
@@ -247,10 +248,13 @@ export function PremiumPortfolioWidget() {
                 >
                   <div className="flex items-start gap-3 mb-3">
                     {household.homeImage ? (
-                      <img
+                      <Image
                         src={household.homeImage}
                         alt={`${household.street} ${household.unit}`}
+                        width={64}
+                        height={64}
                         className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
+                        unoptimized
                       />
                     ) : (
                       <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">

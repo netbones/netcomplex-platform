@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useSafeTranslation } from '@shared/lib';
 import { MessagesCommandBar, type MessagesCommandBarUrgency } from './MessagesCommandBar';
 import { MESSAGES_DOMAIN_DEFINITIONS, type MessagesDomainDef } from './MessagesSubLauncher';
@@ -36,8 +37,8 @@ function DomainCard({ domain, badge }: { domain: MessagesDomainDef; badge: numbe
       href={`/dashboard/communication/${domain.id}`}
       className="group relative flex items-start gap-3 p-3 bg-white rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md transition-all border border-gray-100"
     >
-      <div className="flex-shrink-0 w-10 h-10">
-        <img src={domain.icon} alt="" className="w-full h-full" />
+      <div className="flex-shrink-0 w-10 h-10 relative">
+        <Image src={domain.icon} alt="" fill className="w-full h-full" />
       </div>
       <div className="min-w-0 flex-1">
         <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition truncate">
