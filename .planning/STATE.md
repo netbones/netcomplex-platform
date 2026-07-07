@@ -6,12 +6,12 @@ current_phase: 122
 current_phase_name: workspace-context-architecture
 status: executing
 stopped_at: Phase 04 UI-SPEC approved
-last_updated: '2026-07-07T07:45:41.281Z'
+last_updated: '2026-07-07T08:19:53.520Z'
 progress:
   total_phases: 70
   completed_phases: 57
   total_plans: 196
-  completed_plans: 173
+  completed_plans: 174
   percent: 81
 ---
 
@@ -20,13 +20,13 @@ progress:
 ## Current Position
 
 Phase: 123 (setup-center) — EXECUTING
-Plan: 2 of 7
+Plan: 3 of 7
 
 - **Phase:** Phase 122 (workspace-context-architecture) — Context gathered, ready for planning
 - **Previous:** Phase 120 (api-governance-hardening) — Plan 2 complete (identity router migration)
 - **Previous:** Phase 04 verified — content i18n locale wiring complete (11/11 must-haves)
 
-**Last Session:** 2026-07-01T18:59:39.831Z
+**Last Session:** 2026-07-07T08:19:23.412Z
 **Stopped at:** Phase 122 UI-SPEC approved
 
 ## Active Phase Decisions
@@ -187,6 +187,7 @@ Plan: 2 of 7
 - [Phase 50-service-marketplace]: MarketplaceWidget initially renders a placeholder — full listing grid and booking UI deferred to Plan 50-04
 - [Phase ?]: TDD RED-GREEN cycle used for all 3 booking calendar tasks — Each task has separate test and feat commits ensuring test-first development
 - [Phase 04-content-i18n]: Use i18n.language from existing useTranslation() hook — no new imports or wrappers needed — Pattern used across all 4 pages consistently
+- [Phase ?]: Page-level feature flag gating removed due to FSD lint restriction — navigation gating via ADMIN_ITEMS permissionKey is sufficient
 
 ## Notes
 
@@ -372,6 +373,7 @@ Plan: 2 of 7
 | Phase 120-api-governance-hardening P04          | 19min  | 2 tasks  | 4 files  |
 | Phase 04-content-i18n P01                       | 7min   | 3 tasks  | 5 files  |
 | Phase 04-content-i18n P02                       | 9min   | 3 tasks  | 7 files  |
+| Phase 123-setup-center P123-03                  | 92     | 6 tasks  | 11 files |
 
 ## Accumulated Context
 

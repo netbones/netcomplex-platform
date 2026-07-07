@@ -883,7 +883,7 @@ _Features shipping after the anchor tenant launch. Includes platform improvement
 
 **Plans:**
 
-3/8 plans executed
+4/8 plans executed
 | ---- | ------------------ | ----------------------------------------------------------------------------------------- |
 | 1 | [ ] 123-01-PLAN.md | Schema + Entity: 3 Prisma models, migration, Drizzle, Zod schemas, constants |
 | 2 | [ ] 123-02-PLAN.md | API: progress GET, mission PATCH, init on tenant create, SetupSetting CRUD |
@@ -961,7 +961,7 @@ Plans:
 - [x] 123-01-PLAN.md
 - [x] 123-02-PLAN.md
 - [x] 123-03-PLAN.md
-- [ ] 123-04-PLAN.md
+- [x] 123-04-PLAN.md
 - [ ] 123-05-PLAN.md
 - [ ] 123-06-PLAN.md
 - [ ] 123-07-PLAN.md
