@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { signupSchema, type SignupFormData } from '@entities/tenant';
+import { signupSchema, type SignupFormData, hasFeature, type TierLevel } from '@entities/tenant';
 
 type Step = 1 | 2 | 3;
 
@@ -112,10 +112,15 @@ export function useSignupForm() {
         throw new Error(msg);
       }
 
-      // Redirect to onboarding wizard with the new tenant id
+      // Redirect based on enable-setup-center feature flag
       const responseData = await res.json();
       const tenantId = responseData.data?.tenantId;
-      router.push(`/onboarding/${tenantId}`);
+      const shouldUseSetup = hasFeature('feature.enable-setup-center', data.plan as TierLevel);
+      if (shouldUseSetup) {
+        router.push('/setup');
+      } else {
+        router.push(`/onboarding/${tenantId}`);
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to create community';
       setError(message);
