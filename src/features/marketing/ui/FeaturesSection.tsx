@@ -18,7 +18,7 @@ const featureIcons: Array<
   { type: 'svg', src: '/platform/events-nc.svg', alt: 'Events' },
   { type: 'svg', src: '/platform/dwallet-nc.svg', alt: 'Web3 Digital Identity' },
   { type: 'svg', src: '/platform/surveys-nc.svg', alt: 'Surveys & Polls' },
-  { type: 'svg', src: '/platform/web3.svg', alt: 'Web3' },
+  { type: 'svg', src: '/platform/locale-nc.svg', alt: 'Localization' },
   { type: 'svg', src: '/platform/marketplace-nc.svg', alt: 'Marketplace' },
   { type: 'svg', src: '/platform/education-nc.svg', alt: 'Education' },
 ];
