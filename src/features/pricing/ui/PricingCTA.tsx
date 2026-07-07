@@ -1,17 +1,22 @@
+'use client';
+
+import { useTranslation } from 'react-i18next';
 import { PageCTA } from '@shared/ui';
 
 export function PricingCTA() {
+  const { t } = useTranslation('platform');
+
   return (
     <PageCTA
-      title="Still have questions?"
-      description="Our team is here to help you find the right plan for your community."
+      title={t('pricingPage.ctaTitle')}
+      description={t('pricingPage.ctaDescription')}
       primaryAction={{
         href: '/contact',
-        text: 'Contact Sales',
+        text: t('pricingPage.contactSales'),
       }}
       secondaryAction={{
         href: '/signup',
-        text: 'Start Free Trial',
+        text: t('pricingPage.startFreeTrial'),
       }}
       background="canopy"
     />

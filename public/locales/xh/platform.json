@@ -153,6 +153,26 @@
       "subtitle": "Qala isilingo sakho sasimahla seentsuku ezili-14. Akukho khadi letyala lifunekayo."
     }
   },
+  "pricingPage": {
+    "heroTitle": "Izicwangciso Ezilifaneleyo Uluntu Lwakho",
+    "heroSubtitle": "Amanqanaba amathathu enzelwe ukuhlangabeza uluntu lwakho apho likhoyo \u2014 kwaye likhule nawe. Zonke izicwangciso zibandakanya isilingo sasimahla seentsuku ezili-14.",
+    "mostPopular": "Ethandwa Kakhulu",
+    "faqTitle": "Imibuzo Ebuzwa Rhoqo",
+    "faqs": {
+      "q1": "Ndingasitshintsha isicwangciso sam kamva?",
+      "a1": "Ewe, ungaphucula okanye wehlise isicwangciso sakho nanini na. Iinguqu ziqala ukusebenza ekuqaleni komjikelo wakho olandelayo wokuhlawula.",
+      "q2": "Ingaba sikhona isilingo sasimahla?",
+      "a2": "Ewe! Zonke izicwangciso ziza nesilingo sasimahla seentsuku ezili-14. Akukho khadi letyala lifunekayo ukuqala.",
+      "q3": "Zeziphi iindlela zokuhlawula enizamkelayo?",
+      "a3": "Samkela onke amakhadi amakhulu okuthenga kunye neetransfer zebhanki kwizicwangciso zonyaka.",
+      "q4": "Ndingayifumana imbuyekezo?",
+      "a4": "Sinikezela ngesibonelelo sokubuyisela imali kwiintsuku ezingama-30. Ukuba awonelisekanga, nxibelelana nathi ukuze ufumane imbuyekezo epheleleyo."
+    },
+    "ctaTitle": "Usenemibuzo?",
+    "ctaDescription": "Iqela lethu lilapha ukukunceda ufumane isicwangciso esifanelekileyo soluntu lwakho.",
+    "contactSales": "Qhagamshelana Neentengiso",
+    "startFreeTrial": "Qala Isilingo Sasimahla"
+  },
   "header": {
     "home": "Ekhaya",
     "features": "Iimpawu",

@@ -153,6 +153,26 @@
       "subtitle": "Qala isilingo sakho samahhala sezinsuku ezingu-14. Akukho khadi lesikweletu elidingekayo."
     }
   },
+  "pricingPage": {
+    "heroTitle": "Amapulani Afanele Umphakathi Wakho",
+    "heroSubtitle": "Amazinga amathathu aklanyelwe ukuhlangabeza umphakathi wakho lapho ukhona \u2014 futhi ukhule nawe. Wonke amapulani afaka isilingo samahhala sezinsuku ezingu-14.",
+    "mostPopular": "Ethandwa Kakhulu",
+    "faqTitle": "Imibuzo Ebuzwa Njalo",
+    "faqs": {
+      "q1": "Ngingawashintsha amapulani kamuva?",
+      "a1": "Yebo, ungathuthukisa noma wehlise ipulani yakho nganoma yisiphi isikhathi. Izinguquko ziqala ukusebenza ekuqaleni komjikelezo wakho olandelayo wokukhokha.",
+      "q2": "Ingabe kukhona isilingo samahhala?",
+      "a2": "Yebo! Wonke amapulani eza nesilingo samahhala sezinsuku ezingu-14. Akukho khadi lesikweletu elidingekayo ukuze uqale.",
+      "q3": "Yiziphi izindlela zokukhokha enizamukelayo?",
+      "a3": "Samukela wonke amakhadi amakhulu okuthenga kanye nokudluliswa kwebhange kumapulani wonyaka.",
+      "q4": "Ngingayithola imbuyiselo?",
+      "a4": "Sinikeza isiqiniseko sokubuyisela imali sezinsuku ezingama-30. Uma ungenelisekile, xhumana nathi ukuze uthole imbuyiselo ephelele."
+    },
+    "ctaTitle": "Usenemibuzo?",
+    "ctaDescription": "Ithimba lethu lilapha ukukusiza uthole ipulani efanele umphakathi wakho.",
+    "contactSales": "Xhumana Nokuthengisa",
+    "startFreeTrial": "Qala Isilingo Samahhala"
+  },
   "header": {
     "home": "Ekhaya",
     "features": "Izici",

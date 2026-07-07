@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useTranslation } from 'react-i18next';
 import { SectionLayout } from '@shared/ui';
 import type { PricingPlan } from '../model/types';
 
 export function PricingCards() {
+  const { t } = useTranslation('platform');
   const [plans, setPlans] = useState<PricingPlan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -18,7 +20,7 @@ export function PricingCards() {
           throw new Error('Failed to fetch pricing data');
         }
         const data = await response.json();
-        setPlans(data.plans);
+        setPlans(data.data?.plans ?? []);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load pricing');
       } finally {
@@ -82,7 +84,7 @@ export function PricingCards() {
             {plan.popular && (
               <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                 <span className="bg-gold-vein text-lapis-deep px-4 py-1 rounded-full text-sm font-medium">
-                  Most Popular
+                  {t('pricingPage.mostPopular')}
                 </span>
               </div>
             )}

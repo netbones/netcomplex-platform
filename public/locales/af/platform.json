@@ -153,6 +153,26 @@
       "subtitle": "Begin jou 14-dag gratis proeftydperk. Geen kredietkaart nodig nie."
     }
   },
+  "pricingPage": {
+    "heroTitle": "Planpas Wat Jou Gemeenskap Pas",
+    "heroSubtitle": "Drie vlakke ontwerp om jou gemeenskap te ontmoet waar dit is \u2014 en saam met jou te groei. Alle planne sluit 'n 14-dag gratis proeftydperk in.",
+    "mostPopular": "Gewildste",
+    "faqTitle": "Gereelde Vrae",
+    "faqs": {
+      "q1": "Kan ek later planne verander?",
+      "a1": "Ja, jy kan enige tyd jou plan opgradeer of afgradeer. Veranderinge tree in werking aan die begin van jou volgende faktuursiklus.",
+      "q2": "Is daar 'n gratis proeftydperk?",
+      "a2": "Ja! Alle planne kom met 'n 14-dag gratis proeftydperk. Geen kredietkaart nodig om te begin nie.",
+      "q3": "Watter betaalmetodes aanvaar julle?",
+      "a3": "Ons aanvaar alle groot kredietkaarte en bankoorplasings vir jaarlikse planne.",
+      "q4": "Kan ek 'n terugbetaling kry?",
+      "a4": "Ons bied 'n 30-dag geld-terugwaarborg. As jy nie tevrede is nie, kontak ons vir 'n volle terugbetaling."
+    },
+    "ctaTitle": "Nog vrae?",
+    "ctaDescription": "Ons span is hier om jou te help om die regte plan vir jou gemeenskap te vind.",
+    "contactSales": "Kontak Verkope",
+    "startFreeTrial": "Begin Gratis Proeftydperk"
+  },
   "header": {
     "home": "Tuis",
     "features": "Funksies",

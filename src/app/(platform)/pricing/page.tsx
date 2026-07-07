@@ -2,17 +2,19 @@
 
 import { PricingHeader, PricingCards, PricingFAQ, PricingCTA } from '@features/pricing';
 
-import { PlatformFooter } from '@features/platform';
-import { PageLayout } from '@shared/ui';
+import { PlatformFooter, PlatformHeader } from '@features/platform';
 
 export default function PricingPage() {
   return (
-    <PageLayout>
-      <PricingHeader />
-      <PricingCards />
-      <PricingFAQ />
-      <PricingCTA />
+    <div className="min-h-screen bg-vellum">
+      <PlatformHeader variant="light" />
+      <main>
+        <PricingHeader />
+        <PricingCards />
+        <PricingFAQ />
+        <PricingCTA />
+      </main>
       <PlatformFooter />
-    </PageLayout>
+    </div>
   );
 }
