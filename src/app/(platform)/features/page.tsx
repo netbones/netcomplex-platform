@@ -26,53 +26,53 @@ const featureGroups: FeatureGroup[] = [
   {
     group: groupKeys[0],
     features: [
-      { name: 'Resident directory', core: true, foundation: true, 'pro-max': true },
-      { name: 'Maintenance requests', core: true, foundation: true, 'pro-max': true },
-      { name: 'Announcements & news', core: true, foundation: true, 'pro-max': true },
-      { name: 'Facility bookings', core: false, foundation: true, 'pro-max': true },
-      { name: 'Event management', core: false, foundation: true, 'pro-max': true },
-      { name: 'Surveys & polling', core: false, foundation: true, 'pro-max': true },
+      { name: 'featuresPage.features.residentDirectory', core: true, foundation: true, 'pro-max': true },
+      { name: 'featuresPage.features.maintenanceRequests', core: true, foundation: true, 'pro-max': true },
+      { name: 'featuresPage.features.announcements', core: true, foundation: true, 'pro-max': true },
+      { name: 'featuresPage.features.facilityBookings', core: false, foundation: true, 'pro-max': true },
+      { name: 'featuresPage.features.eventManagement', core: false, foundation: true, 'pro-max': true },
+      { name: 'featuresPage.features.surveys', core: false, foundation: true, 'pro-max': true },
     ],
   },
   {
     group: groupKeys[1],
     features: [
-      { name: 'In-platform messaging', core: true, foundation: true, 'pro-max': true },
-      { name: 'Push notifications', core: true, foundation: true, 'pro-max': true },
-      { name: 'Email notifications', core: true, foundation: true, 'pro-max': true },
-      { name: 'Community content feed', core: true, foundation: true, 'pro-max': true },
-      { name: 'Affinity groups', core: false, foundation: true, 'pro-max': true },
-      { name: 'Emergency broadcast', core: false, foundation: true, 'pro-max': true },
+      { name: 'featuresPage.features.inPlatformMessaging', core: true, foundation: true, 'pro-max': true },
+      { name: 'featuresPage.features.pushNotifications', core: true, foundation: true, 'pro-max': true },
+      { name: 'featuresPage.features.emailNotifications', core: true, foundation: true, 'pro-max': true },
+      { name: 'featuresPage.features.communityContentFeed', core: true, foundation: true, 'pro-max': true },
+      { name: 'featuresPage.features.affinityGroups', core: false, foundation: true, 'pro-max': true },
+      { name: 'featuresPage.features.emergencyBroadcast', core: false, foundation: true, 'pro-max': true },
     ],
   },
   {
     group: groupKeys[2],
     features: [
-      { name: 'Unit & resident management', core: true, foundation: true, 'pro-max': true },
-      { name: 'Document storage', core: true, foundation: true, 'pro-max': true },
-      { name: 'Role-based access control', core: true, foundation: true, 'pro-max': true },
-      { name: 'Custom branding', core: false, foundation: true, 'pro-max': true },
-      { name: 'Advanced analytics', core: false, foundation: false, 'pro-max': true },
-      { name: 'Multi-community support', core: false, foundation: false, 'pro-max': true },
+      { name: 'featuresPage.features.unitResidentManagement', core: true, foundation: true, 'pro-max': true },
+      { name: 'featuresPage.features.documentStorage', core: true, foundation: true, 'pro-max': true },
+      { name: 'featuresPage.features.roleBasedAccessControl', core: true, foundation: true, 'pro-max': true },
+      { name: 'featuresPage.features.customBranding', core: false, foundation: true, 'pro-max': true },
+      { name: 'featuresPage.features.advancedAnalytics', core: false, foundation: false, 'pro-max': true },
+      { name: 'featuresPage.features.multiCommunitySupport', core: false, foundation: false, 'pro-max': true },
     ],
   },
   {
     group: groupKeys[3],
     features: [
-      { name: 'Community marketplace', core: true, foundation: true, 'pro-max': true },
-      { name: 'Digital wallet', core: true, foundation: true, 'pro-max': true },
-      { name: 'Payment processing', core: true, foundation: true, 'pro-max': true },
-      { name: 'Provider directory', core: false, foundation: true, 'pro-max': true },
-      { name: 'API access', core: false, foundation: false, 'pro-max': true },
-      { name: 'Custom integrations', core: false, foundation: false, 'pro-max': true },
+      { name: 'featuresPage.features.communityMarketplace', core: true, foundation: true, 'pro-max': true },
+      { name: 'featuresPage.features.digitalWallet', core: true, foundation: true, 'pro-max': true },
+      { name: 'featuresPage.features.paymentProcessing', core: true, foundation: true, 'pro-max': true },
+      { name: 'featuresPage.features.providerDirectory', core: false, foundation: true, 'pro-max': true },
+      { name: 'featuresPage.features.apiAccess', core: false, foundation: false, 'pro-max': true },
+      { name: 'featuresPage.features.customIntegrations', core: false, foundation: false, 'pro-max': true },
     ],
   },
   {
     group: groupKeys[4],
     features: [
-      { name: 'Email support', core: true, foundation: true, 'pro-max': true },
-      { name: 'Priority support', core: false, foundation: true, 'pro-max': true },
-      { name: 'Dedicated account manager', core: false, foundation: false, 'pro-max': true },
+      { name: 'featuresPage.features.emailSupport', core: true, foundation: true, 'pro-max': true },
+      { name: 'featuresPage.features.prioritySupport', core: false, foundation: true, 'pro-max': true },
+      { name: 'featuresPage.features.dedicatedAccountManager', core: false, foundation: false, 'pro-max': true },
       { name: 'Max units', core: 'Up to 50', foundation: 'Up to 200', 'pro-max': 'Unlimited' },
       { name: 'Max pages', core: '5 pages', foundation: '15 pages', 'pro-max': 'Unlimited' },
     ],
@@ -157,7 +157,7 @@ export default function FeaturesPage() {
                     key={feature.name}
                     className="grid grid-cols-1 md:grid-cols-[2fr_repeat(3,1fr)] gap-4 items-center py-3 px-4 rounded-lg hover:bg-white/50 transition-colors"
                   >
-                    <span className="text-lapis-deep font-medium">{feature.name}</span>
+                    <span className="text-lapis-deep font-medium">{t(feature.name)}</span>
                     <div className="flex md:hidden gap-4 text-sm text-lapis-mid">
                       {tiers.map(tier => (
                         <span key={tier.id} className="flex items-center gap-1.5">
