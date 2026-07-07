@@ -848,6 +848,53 @@ _Harden the codebase to launch-readiness, ship the launch-blocking features: Com
 
 ---
 
+## M5+ — Post-Launch Features
+
+_Features shipping after the anchor tenant launch. Includes platform improvements that enhance the onboarding, setup, and long-term adoption experience._
+
+---
+
+## Phase 123: Setup Center
+
+**Goal:** Replace the mandatory 7-step onboarding wizard (Phase 20, expanded Phase 27) with a persistent Setup Center — a permanent administrative workspace that guides tenant owners from first login through long-term platform adoption, aligned with ADVISORY-028.
+
+**Status:** Planned — 7 plans in 7 waves
+
+**Source:** ADVISORY-028 — Replace Immediate Onboarding Wizard with a Persistent Setup Center
+**BD issue:** soralia-village-0jh1
+
+**Requirements:** SETUP-01 through SETUP-09
+
+| Requirement | Plan   | Description                                                                |
+| ----------- | ------ | -------------------------------------------------------------------------- |
+| SETUP-01    | 123-01 | `TenantSetup` + `SetupMission` + `SetupSetting` models, migration, Drizzle |
+| SETUP-02    | 123-03 | Setup Center page at `/setup` — permanent admin workspace                  |
+| SETUP-03    | 123-04 | Launch section — required identity config (name, branding, domain, etc.)   |
+| SETUP-04    | 123-04 | Populate section — invitations, roles, member import                       |
+| SETUP-05    | 123-05 | Configure section — optional module toggles with progressive disclosure    |
+| SETUP-06    | 123-05 | Grow section — dynamic recommendations from setup state                    |
+| SETUP-07    | 123-06 | HomeLayer setup progress card + completion redirect change                 |
+| SETUP-08    | 123-07 | Data migration from `onboarding_step_*` keys to `TenantSetup` model        |
+| SETUP-09    | 123-07 | Remove old wizard code + redirect `/onboarding/*` → `/setup`               |
+
+**Depends on:** Phase 20 (existing wizard), Phase 30 (HomeLayer), Phase 34 (AdminLayer pattern), Phase 41 (feature gates)
+
+**Plans:**
+
+| Wave | Plan               | Objective                                                                                 |
+| ---- | ------------------ | ----------------------------------------------------------------------------------------- |
+| 1    | [ ] 123-01-PLAN.md | Schema + Entity: 3 Prisma models, migration, Drizzle, Zod schemas, constants              |
+| 2    | [ ] 123-02-PLAN.md | API: progress GET, mission PATCH, init on tenant create, SetupSetting CRUD                |
+| 3    | [ ] 123-03-PLAN.md | Setup Center page shell: `/setup` route, SetupCenter + SetupSection components, nav entry |
+| 4    | [ ] 123-04-PLAN.md | Launch + Populate sections: identity config, branding, invites, roles, member import      |
+| 5    | [ ] 123-05-PLAN.md | Configure + Grow sections: module toggles, progressive disclosure, recommendation engine  |
+| 6    | [ ] 123-06-PLAN.md | Dashboard integration: HomeLayer setup card, redirect change, community health dashboard  |
+| 7    | [ ] 123-07-PLAN.md | Migration + Cleanup: data migration script, remove old wizard, redirect `/onboarding/*`   |
+
+**Out of scope:** AI-assisted onboarding, platform maturity scoring, white-label deployment checks, usage analytics, guided migration wizards for existing tenants.
+
+---
+
 ## M5+ — Post-Launch Features (Deferred)
 
 _Features explicitly deferred to post-M5b. The 8 feature items originally in the Phase 46 BD backlog triage were restructured on 2026-06-19 into Phase 46 (Provider Platform, 4 items) and Phase 50 (Service Marketplace, 4 items) as launch-critical. Only future-looking deferred items remain (second tenant, plugin system, event sourcing). **dWallet was already elevated into M5b (see phase 47).**_
