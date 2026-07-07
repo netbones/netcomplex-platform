@@ -132,6 +132,7 @@ model Tenant {
   assistSessions          AssistSession[]
   tenantAchievements      TenantAchievement[]
   tenantModules           TenantModule[]
+  tenantSetup             TenantSetup?
 
   @@index([ownerId])
 }
