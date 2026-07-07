@@ -95,7 +95,7 @@ global.fetch = vi.fn(
       ok: true,
       json: () => Promise.resolve([]),
     }) as unknown as Response
-);
+) as unknown as typeof global.fetch;
 
 // ── Import after mocks ────────────────────────────────────────────
 

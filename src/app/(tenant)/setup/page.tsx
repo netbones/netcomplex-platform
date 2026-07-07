@@ -35,7 +35,7 @@ export default async function SetupPage({ searchParams: _searchParams }: SetupPa
         missions: Object.fromEntries(
           Object.entries(setup.missions).map(([section, msns]) => [
             section,
-            (msns as SetupMission[]).map(m => ({
+            (msns as unknown as SetupMission[]).map(m => ({
               ...m,
               createdAt: m.createdAt.toISOString(),
               updatedAt: m.updatedAt.toISOString(),
