@@ -25,3 +25,4 @@ export * from './ui/FacilityBadge';
 export * from './ui/BookingCard';
 export * from './ui/BookingDatePicker';
 export * from './ui/BookingTimeSlots';
+export * from './ui/BookingCalendar';
