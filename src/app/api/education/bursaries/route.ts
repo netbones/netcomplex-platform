@@ -16,7 +16,7 @@ import {
 import { eq, and, isNull, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
-import { v4 as uuidv4 } from 'uuid';
+import { createId } from '@shared/lib/id';
 import { bursaryCreateSchema } from '@entities/education';
 
 export const maxDuration = 8;
@@ -70,7 +70,7 @@ export const POST = withErrorHandler(async (request: Request) => {
     return apiError('VALIDATION_ERROR', 'BursaryField not found', 404);
   }
 
-  const id = uuidv4();
+  const id = createId();
   const now = new Date();
   await db.insert(bursaries).values({
     id,

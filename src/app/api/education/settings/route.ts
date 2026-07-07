@@ -12,7 +12,7 @@ import {
 import { eq } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
-import { v4 as uuidv4 } from 'uuid';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -82,7 +82,7 @@ export const PUT = withErrorHandler(async (request: Request) => {
     await db.update(settings).set({ value, updatedAt: ts }).where(eq(settings.id, existing.id));
   } else {
     await db.insert(settings).values({
-      id: uuidv4(),
+      id: createId(),
       tenantId,
       key: 'education_settings',
       value,

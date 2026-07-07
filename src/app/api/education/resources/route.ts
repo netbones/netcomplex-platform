@@ -14,7 +14,7 @@ import {
 import { eq, and, isNull, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
-import { v4 as uuidv4 } from 'uuid';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -62,7 +62,7 @@ export const POST = withErrorHandler(async (request: Request) => {
     return apiValidationError([{ message: 'Title is required' }]);
   }
 
-  const id = uuidv4();
+  const id = createId();
   const now = new Date();
   await db.insert(resources).values({
     id,
