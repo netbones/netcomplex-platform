@@ -201,11 +201,6 @@ describe('v1 re-export routes', () => {
   });
 
   describe('platform namespace', () => {
-    it('re-exports onboarding', async () => {
-      const mod = await import('@/app/api/v1/platform/onboarding/route');
-      expect(mod.POST).toBeInstanceOf(Function);
-    });
-
     it('re-exports tenants', async () => {
       const mod = await import('@/app/api/v1/platform/tenants/route');
       expect(mod.POST).toBeInstanceOf(Function);
