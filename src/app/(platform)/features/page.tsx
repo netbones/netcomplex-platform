@@ -1,5 +1,8 @@
+'use client';
+
 import { PlatformFooter, PlatformHeader } from '@features/platform';
 import { Check, Minus } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface FeatureGroup {
   group: string;
@@ -11,9 +14,17 @@ interface FeatureGroup {
   }[];
 }
 
+const groupKeys = [
+  'featuresPage.groups.communityManagement',
+  'featuresPage.groups.communication',
+  'featuresPage.groups.administration',
+  'featuresPage.groups.commerceFinance',
+  'featuresPage.groups.supportScale',
+];
+
 const featureGroups: FeatureGroup[] = [
   {
-    group: 'Community Management',
+    group: groupKeys[0],
     features: [
       { name: 'Resident directory', core: true, foundation: true, 'pro-max': true },
       { name: 'Maintenance requests', core: true, foundation: true, 'pro-max': true },
@@ -24,7 +35,7 @@ const featureGroups: FeatureGroup[] = [
     ],
   },
   {
-    group: 'Communication',
+    group: groupKeys[1],
     features: [
       { name: 'In-platform messaging', core: true, foundation: true, 'pro-max': true },
       { name: 'Push notifications', core: true, foundation: true, 'pro-max': true },
@@ -35,7 +46,7 @@ const featureGroups: FeatureGroup[] = [
     ],
   },
   {
-    group: 'Administration',
+    group: groupKeys[2],
     features: [
       { name: 'Unit & resident management', core: true, foundation: true, 'pro-max': true },
       { name: 'Document storage', core: true, foundation: true, 'pro-max': true },
@@ -46,7 +57,7 @@ const featureGroups: FeatureGroup[] = [
     ],
   },
   {
-    group: 'Commerce & Finance',
+    group: groupKeys[3],
     features: [
       { name: 'Community marketplace', core: true, foundation: true, 'pro-max': true },
       { name: 'Digital wallet', core: true, foundation: true, 'pro-max': true },
@@ -57,7 +68,7 @@ const featureGroups: FeatureGroup[] = [
     ],
   },
   {
-    group: 'Support & Scale',
+    group: groupKeys[4],
     features: [
       { name: 'Email support', core: true, foundation: true, 'pro-max': true },
       { name: 'Priority support', core: false, foundation: true, 'pro-max': true },
@@ -104,6 +115,8 @@ function TierCell({ value }: { value: boolean | string }) {
 }
 
 export default function FeaturesPage() {
+  const { t } = useTranslation('platform');
+
   return (
     <div className="min-h-screen bg-vellum">
       <PlatformHeader variant="light" />
@@ -111,9 +124,11 @@ export default function FeaturesPage() {
         {/* Hero */}
         <section className="bg-lapis-deep text-white py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Everything Your Community Needs</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+              {t('featuresPage.heroTitle')}
+            </h1>
             <p className="text-xl text-lapis-azure/80 max-w-2xl mx-auto">
-              Compare features across our three tiers and find the perfect plan for your community.
+              {t('featuresPage.heroSubtitle')}
             </p>
           </div>
         </section>
@@ -134,7 +149,7 @@ export default function FeaturesPage() {
           {featureGroups.map(group => (
             <div key={group.group} className="mb-12">
               <h2 className="text-2xl font-bold text-lapis-deep mb-6 pb-2 border-b border-lapis-azure/20">
-                {group.group}
+                {t(group.group)}
               </h2>
               <div className="space-y-1">
                 {group.features.map(feature => (
@@ -172,22 +187,24 @@ export default function FeaturesPage() {
         {/* CTA */}
         <section className="bg-lapis-deep text-white py-20">
           <div className="max-w-3xl mx-auto px-4 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Get Started?</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              {t('featuresPage.cta.title')}
+            </h2>
             <p className="text-xl text-lapis-azure/80 mb-8">
-              Start your 14-day free trial. No credit card required.
+              {t('featuresPage.cta.subtitle')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
                 href="/signup"
                 className="inline-flex items-center px-8 py-3 text-lg font-semibold rounded-lg bg-gold-vein text-lapis-deep hover:bg-gold-vein/90 transition-colors"
               >
-                Start Free Trial
+                {t('cta.primaryAction')}
               </a>
               <a
                 href="/pricing"
                 className="inline-flex items-center px-8 py-3 text-lg font-semibold rounded-lg border border-white/30 text-white hover:bg-white/10 transition-colors"
               >
-                View Pricing
+                {t('cta.secondaryAction')}
               </a>
             </div>
           </div>

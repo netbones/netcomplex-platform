@@ -106,8 +106,23 @@
   "cta": {
     "title": "Ikompleks Yakho, Exhunyiwe",
     "description": "Joyina amawaka amaphakathi aguqula indlela abamelwane baxhumana ngayo, benxibelelana, futhi baphumelela. I-NetComplex iyenza kube lula ukwakha umphakathi onesibindi esixhunyiwe.",
-    "primaryAction": "Qala I-Trial Yemali",
+    "primaryAction": "Qala Isilingo Samahhala",
     "secondaryAction": "Buka Amacebo"
+  },
+  "featuresPage": {
+    "heroTitle": "Konke Odingwa Umphakathi Wakho",
+    "heroSubtitle": "Qhathanisa izici kumazinga ethu amathathu futhi uthole uhlelo olulungile lomphakathi wakho.",
+    "groups": {
+      "communityManagement": "Ukuphathwa Komphakathi",
+      "communication": "Ukuxhumana",
+      "administration": "Ukuphatha",
+      "commerceFinance": "Ezentengiso Nezimali",
+      "supportScale": "Ukusekelwa Nokukhula"
+    },
+    "cta": {
+      "title": "Usulungele Ukuqala?",
+      "subtitle": "Qala isilingo sakho samahhala sezinsuku ezingu-14. Akukho khadi lesikweletu elidingekayo."
+    }
   },
   "header": {
     "home": "Ekhaya",

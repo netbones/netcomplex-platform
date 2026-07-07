@@ -106,8 +106,23 @@
   "cta": {
     "title": "Ikompleks Yakho, Exhunyiwe",
     "description": "Joyina amawaka eendlela eziguqula indlela abamelwane baxhumana ngayo, benxibelelana, kwaye baphumelela. I-NetComplex iyenza kube lula ukwakha uluntu olunamandla oluxhunyiweyo.",
-    "primaryAction": "Qala I-Trial Engenamali",
+    "primaryAction": "Qala Isilingo Sasimahla",
     "secondaryAction": "Jonga Amacebo"
+  },
+  "featuresPage": {
+    "heroTitle": "Yonke Into Efunwa Luluntu Lwakho",
+    "heroSubtitle": "Thelekisa iimpawu kumanqanaba ethu amathathu kwaye ufumane isicwangciso esifanelekileyo soluntu lwakho.",
+    "groups": {
+      "communityManagement": "Ulawulo Loluntu",
+      "communication": "Unxibelelwano",
+      "administration": "Ulawulo",
+      "commerceFinance": "Urhwebo Nezimali",
+      "supportScale": "Inkxaso Nokukhula"
+    },
+    "cta": {
+      "title": "Ukulungele Ukuqala?",
+      "subtitle": "Qala isilingo sakho sasimahla seentsuku ezili-14. Akukho khadi letyala lifunekayo."
+    }
   },
   "header": {
     "home": "Ekhaya",

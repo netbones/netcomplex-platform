@@ -106,8 +106,23 @@
   "cta": {
     "title": "Jou Kompleks, Gekonnekteer",
     "description": "Sluit by duisende gemeenskappe aan wat transformeer hoe bure koppel, kommunikeer en floreer. NetComplex maak dit maklik om 'n sterker, meer gekoppelde gemeenskap te bou.",
-    "primaryAction": "Begin Gratis Toets",
+    "primaryAction": "Begin Gratis Proeftydperk",
     "secondaryAction": "Sien Planne"
+  },
+  "featuresPage": {
+    "heroTitle": "Alles Wat Jou Gemeenskap Nodig Het",
+    "heroSubtitle": "Vergelyk kenmerke oor ons drie vlakke en vind die perfekte plan vir jou gemeenskap.",
+    "groups": {
+      "communityManagement": "Gemeenskapbestuur",
+      "communication": "Kommunikasie",
+      "administration": "Administrasie",
+      "commerceFinance": "Handel & Finansies",
+      "supportScale": "Ondersteuning & Skaal"
+    },
+    "cta": {
+      "title": "Gereed om te Begin?",
+      "subtitle": "Begin jou 14-dag gratis proeftydperk. Geen kredietkaart nodig nie."
+    }
   },
   "header": {
     "home": "Tuis",

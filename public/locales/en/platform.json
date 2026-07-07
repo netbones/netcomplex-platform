@@ -109,6 +109,21 @@
     "primaryAction": "Start Free Trial",
     "secondaryAction": "View Plans"
   },
+  "featuresPage": {
+    "heroTitle": "Everything Your Community Needs",
+    "heroSubtitle": "Compare features across our three tiers and find the perfect plan for your community.",
+    "groups": {
+      "communityManagement": "Community Management",
+      "communication": "Communication",
+      "administration": "Administration",
+      "commerceFinance": "Commerce & Finance",
+      "supportScale": "Support & Scale"
+    },
+    "cta": {
+      "title": "Ready to Get Started?",
+      "subtitle": "Start your 14-day free trial. No credit card required."
+    }
+  },
   "header": {
     "home": "Home",
     "features": "Features",
