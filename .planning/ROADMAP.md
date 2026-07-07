@@ -879,6 +879,8 @@ _Features shipping after the anchor tenant launch. Includes platform improvement
 
 **Depends on:** Phase 20 (existing wizard), Phase 30 (HomeLayer), Phase 34 (AdminLayer pattern), Phase 41 (feature gates)
 
+**Merge gate:** Review by **DavDev** required before `wt merge`. This phase touches HomeLayer + onboarding — two high-risk surfaces.
+
 **Plans:**
 
 | Wave | Plan               | Objective                                                                                 |

@@ -7,6 +7,17 @@
 **BD issue:** soralia-village-0jh1
 **Requirements:** SETUP-01 through SETUP-09 (defined below)
 
+### Merge Gate
+
+This phase touches the HomeLayer and the onboarding flow — two high-risk surfaces.
+**Merge into `dev` is gated on review by DavDev.** No `wt merge` until sign-off is received.
+The reviewer must verify:
+
+1. HomeLayer integration does not regress existing dashboard UX
+2. Data migration does not lose onboarding state from existing tenants
+3. New `/setup` page does not conflict with existing admin routes
+4. Old wizard removal does not break signup flow for new tenants
+
 ## Requirements
 
 | ID       | Description                                                                                                |
