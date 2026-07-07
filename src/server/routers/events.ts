@@ -348,7 +348,8 @@ export const eventsRouter = router({
       const tenantId = ctx.tenantId;
 
       const [deleted] = await db
-        .delete(eventAttendees)
+        .update(eventAttendees)
+        .set({ deletedAt: now() })
         .where(
           and(
             eq(eventAttendees.eventId, input.id),
