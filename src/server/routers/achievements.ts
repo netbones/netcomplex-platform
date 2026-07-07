@@ -7,7 +7,7 @@ import {
   revalidateAdminChanges,
 } from '@api/server';
 import { toEnvelope } from '@api/server';
-import { achievementDto, achievementProgressDto } from '@api/server';
+import { achievementDto, achievementProgressDto, userAchievementDto } from '@api/server';
 
 import { TRPCError } from '@trpc/server';
 import { hasPermission } from '@shared/lib';
@@ -468,6 +468,6 @@ export const achievementsRouter = router({
         )
         .orderBy(userAchievements.unlockedAt);
 
-      return toEnvelope(rows);
+      return toEnvelope(rows.map(r => userAchievementDto.parse(r)));
     }),
 });
