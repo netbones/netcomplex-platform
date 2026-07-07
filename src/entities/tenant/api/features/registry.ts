@@ -292,6 +292,15 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
     description: 'Curated learning resources and Gutenberg shelf',
     icon: 'book-open',
   },
+  'feature.enable-setup-center': {
+    key: 'feature.enable-setup-center',
+    tier: 'foundation',
+    category: 'feature',
+    label: 'Setup Center',
+    description:
+      'Replace the 7-step onboarding wizard with the persistent mission-based Setup Center',
+    icon: 'clipboard-check',
+  },
 };
 
 // ============================================
