@@ -50,7 +50,7 @@ const PRICING_PLANS: Record<TierLevel, Omit<PricingPlan, 'id'>> = {
     maxPages: 15,
     color: '#F59E0B',
   },
-  depth: {
+  'pro-max': {
     name: 'CORE',
     price: 'Custom',
     period: '',

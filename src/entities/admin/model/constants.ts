@@ -17,5 +17,5 @@ export const DEFAULT_TENANT_COLORS = {
   secondary: '#10B981',
 } as const;
 
-export const TIER_ORDER = ['core', 'foundation', 'depth'] as const;
+export const TIER_ORDER = ['core', 'foundation', 'pro-max'] as const;
 export type TierSlug = (typeof TIER_ORDER)[number];

@@ -7,7 +7,7 @@ interface FeatureGroup {
     name: string;
     core: boolean | string;
     foundation: boolean | string;
-    depth: boolean | string;
+    'pro-max': boolean | string;
   }[];
 }
 
@@ -15,55 +15,55 @@ const featureGroups: FeatureGroup[] = [
   {
     group: 'Community Management',
     features: [
-      { name: 'Resident directory', core: true, foundation: true, depth: true },
-      { name: 'Maintenance requests', core: true, foundation: true, depth: true },
-      { name: 'Announcements & news', core: true, foundation: true, depth: true },
-      { name: 'Facility bookings', core: false, foundation: true, depth: true },
-      { name: 'Event management', core: false, foundation: true, depth: true },
-      { name: 'Surveys & polling', core: false, foundation: true, depth: true },
+      { name: 'Resident directory', core: true, foundation: true, 'pro-max': true },
+      { name: 'Maintenance requests', core: true, foundation: true, 'pro-max': true },
+      { name: 'Announcements & news', core: true, foundation: true, 'pro-max': true },
+      { name: 'Facility bookings', core: false, foundation: true, 'pro-max': true },
+      { name: 'Event management', core: false, foundation: true, 'pro-max': true },
+      { name: 'Surveys & polling', core: false, foundation: true, 'pro-max': true },
     ],
   },
   {
     group: 'Communication',
     features: [
-      { name: 'In-platform messaging', core: true, foundation: true, depth: true },
-      { name: 'Push notifications', core: true, foundation: true, depth: true },
-      { name: 'Email notifications', core: true, foundation: true, depth: true },
-      { name: 'Community content feed', core: true, foundation: true, depth: true },
-      { name: 'Affinity groups', core: false, foundation: true, depth: true },
-      { name: 'Emergency broadcast', core: false, foundation: true, depth: true },
+      { name: 'In-platform messaging', core: true, foundation: true, 'pro-max': true },
+      { name: 'Push notifications', core: true, foundation: true, 'pro-max': true },
+      { name: 'Email notifications', core: true, foundation: true, 'pro-max': true },
+      { name: 'Community content feed', core: true, foundation: true, 'pro-max': true },
+      { name: 'Affinity groups', core: false, foundation: true, 'pro-max': true },
+      { name: 'Emergency broadcast', core: false, foundation: true, 'pro-max': true },
     ],
   },
   {
     group: 'Administration',
     features: [
-      { name: 'Unit & resident management', core: true, foundation: true, depth: true },
-      { name: 'Document storage', core: true, foundation: true, depth: true },
-      { name: 'Role-based access control', core: true, foundation: true, depth: true },
-      { name: 'Custom branding', core: false, foundation: true, depth: true },
-      { name: 'Advanced analytics', core: false, foundation: false, depth: true },
-      { name: 'Multi-community support', core: false, foundation: false, depth: true },
+      { name: 'Unit & resident management', core: true, foundation: true, 'pro-max': true },
+      { name: 'Document storage', core: true, foundation: true, 'pro-max': true },
+      { name: 'Role-based access control', core: true, foundation: true, 'pro-max': true },
+      { name: 'Custom branding', core: false, foundation: true, 'pro-max': true },
+      { name: 'Advanced analytics', core: false, foundation: false, 'pro-max': true },
+      { name: 'Multi-community support', core: false, foundation: false, 'pro-max': true },
     ],
   },
   {
     group: 'Commerce & Finance',
     features: [
-      { name: 'Community marketplace', core: true, foundation: true, depth: true },
-      { name: 'Digital wallet', core: true, foundation: true, depth: true },
-      { name: 'Payment processing', core: true, foundation: true, depth: true },
-      { name: 'Provider directory', core: false, foundation: true, depth: true },
-      { name: 'API access', core: false, foundation: false, depth: true },
-      { name: 'Custom integrations', core: false, foundation: false, depth: true },
+      { name: 'Community marketplace', core: true, foundation: true, 'pro-max': true },
+      { name: 'Digital wallet', core: true, foundation: true, 'pro-max': true },
+      { name: 'Payment processing', core: true, foundation: true, 'pro-max': true },
+      { name: 'Provider directory', core: false, foundation: true, 'pro-max': true },
+      { name: 'API access', core: false, foundation: false, 'pro-max': true },
+      { name: 'Custom integrations', core: false, foundation: false, 'pro-max': true },
     ],
   },
   {
     group: 'Support & Scale',
     features: [
-      { name: 'Email support', core: true, foundation: true, depth: true },
-      { name: 'Priority support', core: false, foundation: true, depth: true },
-      { name: 'Dedicated account manager', core: false, foundation: false, depth: true },
-      { name: 'Max units', core: 'Up to 50', foundation: 'Up to 200', depth: 'Unlimited' },
-      { name: 'Max pages', core: '5 pages', foundation: '15 pages', depth: 'Unlimited' },
+      { name: 'Email support', core: true, foundation: true, 'pro-max': true },
+      { name: 'Priority support', core: false, foundation: true, 'pro-max': true },
+      { name: 'Dedicated account manager', core: false, foundation: false, 'pro-max': true },
+      { name: 'Max units', core: 'Up to 50', foundation: 'Up to 200', 'pro-max': 'Unlimited' },
+      { name: 'Max pages', core: '5 pages', foundation: '15 pages', 'pro-max': 'Unlimited' },
     ],
   },
 ];
@@ -84,8 +84,8 @@ const tiers = [
     bg: 'bg-amber-50',
   },
   {
-    id: 'depth',
-    name: 'Depth',
+    id: 'pro-max',
+    name: 'Pro-Max',
     price: 'Custom',
     color: 'text-lapis-deep',
     bg: 'bg-lapis-azure/10',

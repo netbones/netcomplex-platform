@@ -26,9 +26,9 @@ The NetComplex system as a whole, including the platform admin layer that manage
 
 A subscription level that determines which modules a tenant can access.
 
-- **Canonical values:** `core`, `foundation`, `depth`
-- **Legacy values (still handled by `getTierLevel()`):** `sprout` → core, `grove` → foundation, `forest` → depth
-- **Business/market names (PRD):** Foundation, Growth, Enterprise — **these are marketing labels, mapped 1:1 onto technical tiers: Foundation→core/STANDARD, Growth→foundation/PREMIUM, Enterprise→depth/ENTERPRISE** (resolved: C4, 2026-07-07)
+- **Canonical values:** `core`, `foundation`, `pro-max`
+- **Legacy values (still handled by `getTierLevel()`):** `sprout` → core, `grove` → foundation, `forest` → pro-max
+- **Business/market names (PRD):** Foundation, Growth, Enterprise — **these are marketing labels, mapped 1:1 onto technical tiers: Foundation→core/STANDARD, Growth→foundation/PREMIUM, Enterprise→pro-max/ENTERPRISE** (resolved: C4, 2026-07-07)
 - **Code:** `TierLevel` type in `src/shared/lib/constants/tiers.ts`
 
 ---
@@ -434,7 +434,7 @@ Technical tiers (`foundation`/`depth`/`core`) don't map to business tiers in PRD
 
 **Resolution needed:** Add a mapping table in `tiers.ts` or create a business-tier abstraction layer.
 
-**Resolution:** PRD aligned to codebase's 3-tier system. Marketing labels (`Foundation`/`Growth`/`Enterprise`) map 1:1 onto technical tiers (`core`→STANDARD, `foundation`→PREMIUM, `depth`→ENTERPRISE). The 4-way tenant-type distinction in the old PRD was aspirational marketing — no code ever referenced it, and dWallet (Phase 47) shipped without needing a 4th tier. Soralia Village remains an "anchor tenant" — a tenant designation (Enterprise-tier reference deployment), not a separate tier.
+**Resolution:** PRD aligned to codebase's 3-tier system. Marketing labels (`Foundation`/`Growth`/`Enterprise`) map 1:1 onto technical tiers (`core`→STANDARD, `foundation`→PREMIUM, `pro-max`→ENTERPRISE). The 4-way tenant-type distinction in the old PRD was aspirational marketing — no code ever referenced it, and dWallet (Phase 47) shipped without needing a 4th tier. Soralia Village remains an "anchor tenant" — a tenant designation (Enterprise-tier reference deployment), not a separate tier.
 
 **Status (2026-07-07):** **Closed.** PRD updated (collapsed to 3 tiers, Prisma excerpt fixed, module grid collapsed). Tier Level values reorganized for logical meaning: `core` (standard), `foundation` (premium), `depth` (enterprise). No code changes needed beyond the tier rename.
 

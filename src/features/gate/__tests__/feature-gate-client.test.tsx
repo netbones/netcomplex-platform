@@ -131,7 +131,7 @@ describe('canAccessClient', () => {
   });
 
   it('happy path: ADMIN with all flags true and core tier passes', () => {
-    const ctx = makeCtx({ role: 'ADMIN', tier: 'depth' });
+    const ctx = makeCtx({ role: 'ADMIN', tier: 'pro-max' });
     const result = canAccessClient(ctx, 'bookings');
     expect(result).toEqual({ allowed: true, reason: 'allowed' });
   });

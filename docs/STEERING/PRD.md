@@ -31,7 +31,7 @@ marketing labels below map 1:1 onto the codebase's canonical tier definitions.
 | --------------- | -------------- | ------------- | --------------------------------------------------- | -------------- |
 | **Foundation**  | `core`         | `STANDARD`    | Directory, Pages, News, Groups, Chat, Resources     | Per-home/month |
 | **Growth**      | `foundation`   | `PREMIUM`     | Foundation + Maintenance, Bookings, Marketplace     | Per-home/month |
-| **Enterprise**  | `depth`        | `ENTERPRISE`  | Growth + Premium Portfolio, Analytics, Agent Access | Per-home/month |
+| **Enterprise**  | `pro-max`      | `ENTERPRISE`  | Growth + Premium Portfolio, Analytics, Agent Access | Per-home/month |
 
 Soralia Village runs as the **anchor tenant** — a tenant designation indicating full
 Enterprise-tier access as the reference deployment, not a separate tier.

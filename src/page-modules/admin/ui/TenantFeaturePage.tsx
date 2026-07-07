@@ -83,14 +83,14 @@ async function FeatureManager({ id }: { id: string }) {
               <span className="text-xl font-semibold">{tierDef.name}</span>
               <span
                 className={`px-2 py-1 text-xs rounded-full ${
-                  tenantTier === 'depth'
+                  tenantTier === 'pro-max'
                     ? 'bg-slate-100 text-slate-700'
                     : tenantTier === 'foundation'
                       ? 'bg-amber-100 text-amber-700'
                       : 'bg-green-100 text-green-700'
                 }`}
               >
-                {tenantTier === 'depth'
+                {tenantTier === 'pro-max'
                   ? 'Enterprise'
                   : tenantTier === 'foundation'
                     ? 'Growth'
@@ -121,7 +121,7 @@ async function FeatureManager({ id }: { id: string }) {
       <div className="bg-white rounded-lg shadow p-6 mb-8">
         <h2 className="text-lg font-medium mb-4">Tier Comparison</h2>
         <div className="grid grid-cols-3 gap-4">
-          {(['core', 'foundation', 'depth'] as TierLevel[]).map(t => {
+          {(['core', 'foundation', 'pro-max'] as TierLevel[]).map(t => {
             const tier = TIERS[t];
             const isCurrent = t === tenantTier;
             return (

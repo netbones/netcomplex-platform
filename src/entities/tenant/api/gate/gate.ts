@@ -55,13 +55,13 @@ export {
 const TENANT_TIER_TO_LEVEL: Record<TenantTier, TierLevel> = {
   STANDARD: 'core',
   PREMIUM: 'foundation',
-  ENTERPRISE: 'depth',
+  ENTERPRISE: 'pro-max',
 };
 
 const TIER_LEVEL_ORDER: Record<TierLevel, number> = {
   core: 1,
   foundation: 2,
-  depth: 3,
+  'pro-max': 3,
 };
 
 function tenantTierToTierLevel(tier: TenantTier): TierLevel {

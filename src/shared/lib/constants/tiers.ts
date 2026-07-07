@@ -5,7 +5,7 @@
  * See docs/TIER_MODEL.md for full documentation.
  */
 
-export type TierLevel = 'core' | 'foundation' | 'depth';
+export type TierLevel = 'core' | 'foundation' | 'pro-max';
 
 export type ModuleKey =
   | 'directory'
@@ -136,31 +136,31 @@ export const MODULES: Record<ModuleKey, ModuleDefinition> = {
     key: 'maintenance',
     label: 'Maintenance',
     description: 'Maintenance request tracking',
-    tier: 'depth',
+    tier: 'pro-max',
   },
   property: {
     key: 'property',
     label: 'Property',
     description: 'Property listings (buy/rent)',
-    tier: 'depth',
+    tier: 'pro-max',
   },
   agentGateway: {
     key: 'agentGateway',
     label: 'Agent Gateway',
     description: 'Real estate agent management',
-    tier: 'depth',
+    tier: 'pro-max',
   },
   analytics: {
     key: 'analytics',
     label: 'Analytics',
     description: 'Advanced analytics dashboard',
-    tier: 'depth',
+    tier: 'pro-max',
   },
   adminAdvanced: {
     key: 'adminAdvanced',
     label: 'Admin (Advanced)',
     description: 'Full admin with analytics',
-    tier: 'depth',
+    tier: 'pro-max',
   },
   education: {
     key: 'education',
@@ -214,8 +214,8 @@ export const TIERS: Record<TierLevel, TierDefinition> = {
       'externalSurveys',
     ],
   },
-  depth: {
-    id: 'depth',
+  'pro-max': {
+    id: 'pro-max',
     name: 'ENTERPRISE',
     maxPages: -1, // unlimited
     description: 'Enterprise tier for large HOAs and property management companies',
@@ -267,7 +267,7 @@ export function getTierLevel(tier: string): TierLevel {
   switch (tier) {
     case 'core':
     case 'foundation':
-    case 'depth':
+    case 'pro-max':
       return tier as TierLevel;
     default:
       return 'core';

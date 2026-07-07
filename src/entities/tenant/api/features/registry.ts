@@ -148,7 +148,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
   },
   'page.analytics': {
     key: 'page.analytics',
-    tier: 'depth',
+    tier: 'pro-max',
     category: 'page',
     label: 'Analytics Dashboard',
     description: 'Advanced analytics and insights',
@@ -172,7 +172,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
   },
   'page.agent-gateway': {
     key: 'page.agent-gateway',
-    tier: 'depth',
+    tier: 'pro-max',
     category: 'page',
     label: 'Agent Gateway',
     description: 'Manage property delegations, tokens, and agent access',
@@ -206,7 +206,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
   },
   'feature.apiAccess': {
     key: 'feature.apiAccess',
-    tier: 'depth',
+    tier: 'pro-max',
     category: 'feature',
     label: 'API Access',
     description: 'REST API access for integrations',
@@ -214,7 +214,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
   },
   'feature.premiumSupport': {
     key: 'feature.premiumSupport',
-    tier: 'depth',
+    tier: 'pro-max',
     category: 'feature',
     label: 'Premium Support',
     description: 'Priority support and SLA',
@@ -230,7 +230,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
   },
   'feature.whiteLabel': {
     key: 'feature.whiteLabel',
-    tier: 'depth',
+    tier: 'pro-max',
     category: 'feature',
     label: 'White Label',
     description: 'Full white-label with no NetComplex branding',
@@ -427,7 +427,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
   // Admin Widgets
   'analytics-widget': {
     key: 'analytics-widget',
-    tier: 'depth',
+    tier: 'pro-max',
     category: 'admin',
     label: 'Analytics',
     description: 'Advanced analytics',
@@ -515,7 +515,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
 
 export function getTierLevel(tier: string): TierLevel {
   if (tier === 'foundation') return 'foundation';
-  if (tier === 'depth') return 'depth';
+  if (tier === 'pro-max') return 'pro-max';
   return 'core';
 }
 
@@ -533,12 +533,12 @@ export function hasFeature(
   }
 
   // Otherwise check tier
-  const tierOrder: TierLevel[] = ['core', 'foundation', 'depth'];
+  const tierOrder: TierLevel[] = ['core', 'foundation', 'pro-max'];
   return tierOrder.indexOf(tenantTier) >= tierOrder.indexOf(feature.tier);
 }
 
 export function getFeaturesForTier(tier: TierLevel): FeatureDefinition[] {
-  const tierOrder: TierLevel[] = ['core', 'foundation', 'depth'];
+  const tierOrder: TierLevel[] = ['core', 'foundation', 'pro-max'];
   const tierIndex = tierOrder.indexOf(tier);
 
   return Object.values(FEATURE_REGISTRY).filter(f => tierOrder.indexOf(f.tier) <= tierIndex);
@@ -549,7 +549,7 @@ export function getPagesForTier(tier: TierLevel): FeatureDefinition[] {
 }
 
 export function getWidgetsForTier(tier: TierLevel): WidgetDefinition[] {
-  const tierOrder: TierLevel[] = ['core', 'foundation', 'depth'];
+  const tierOrder: TierLevel[] = ['core', 'foundation', 'pro-max'];
   const tierIndex = tierOrder.indexOf(tier);
 
   return Object.values(WIDGET_REGISTRY).filter(w => tierOrder.indexOf(w.tier) <= tierIndex);
@@ -567,7 +567,7 @@ export function canUseWidget(widgetKey: string, tenantTier: TierLevel): boolean 
   const widget = WIDGET_REGISTRY[widgetKey];
   if (!widget) return true; // Allow unknown widgets
 
-  const tierOrder: TierLevel[] = ['core', 'foundation', 'depth'];
+  const tierOrder: TierLevel[] = ['core', 'foundation', 'pro-max'];
   return tierOrder.indexOf(tenantTier) >= tierOrder.indexOf(widget.tier);
 }
 

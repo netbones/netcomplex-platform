@@ -7,7 +7,7 @@ const mocks = vi.hoisted(() => ({
   TIERS: {
     core: { id: 'core', name: 'CORE', maxPages: 5, color: '#22C55E' },
     foundation: { id: 'foundation', name: 'FOUNDATION', maxPages: 15, color: '#F59E0B' },
-    depth: { id: 'depth', name: 'ENTERPRISE', maxPages: -1, color: '#1E293B' },
+    'pro-max': { id: 'pro-max', name: 'ENTERPRISE', maxPages: -1, color: '#1E293B' },
   },
 }));
 
@@ -68,7 +68,7 @@ describe('Pricing API', () => {
     expect(body.data.plans).toHaveLength(3);
 
     const planIds = body.data.plans.map((p: { id: string }) => p.id);
-    expect(planIds).toEqual(['core', 'foundation', 'depth']);
+    expect(planIds).toEqual(['core', 'foundation', 'pro-max']);
 
     expect(body.data.tiers).toEqual(mocks.TIERS);
 
@@ -92,11 +92,11 @@ describe('Pricing API', () => {
     expect(foundation.features).toContain('Email support');
   });
 
-  it('returns correct pricing data for depth tier', async () => {
+  it('returns correct pricing data for pro-max tier', async () => {
     const response = await GET();
     const body = await response.json();
 
-    const core = body.data.plans.find((p: { id: string }) => p.id === 'depth');
+    const core = body.data.plans.find((p: { id: string }) => p.id === 'pro-max');
     expect(core.name).toBe('CORE');
     expect(core.price).toBe('Custom');
     expect(core.period).toBe('');

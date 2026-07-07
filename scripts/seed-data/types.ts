@@ -36,9 +36,9 @@ export interface TenantInput {
    * `src/shared/lib/constants/tiers.ts`). Must be one of:
    *   - `core`       — entry tier, community basics
    *   - `foundation` — adds marketplace, maintenance, surveys
-   *   - `depth` — flagship tier, all features including white-label
+   *   - `'pro-max'` — flagship tier, all features including white-label
    */
-  subscriptionTier: 'core' | 'foundation' | 'depth';
+  subscriptionTier: 'core' | 'foundation' | 'pro-max';
   /** Platform tier enum. */
   tier: 'STANDARD' | 'PREMIUM' | 'ENTERPRISE';
   /** Free-form feature flags, e.g. { i18n: true }. */

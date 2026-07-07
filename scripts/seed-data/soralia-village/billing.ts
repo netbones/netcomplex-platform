@@ -33,7 +33,7 @@ export const subscriptionTiers: SubscriptionTierInput[] = [
     verificationRequired: true,
   },
   {
-    id: 'tier-depth',
+    id: 'tier-pro-max',
     name: 'Enterprise',
     description: 'Top-tier for premium service providers.',
     price: '99900',
