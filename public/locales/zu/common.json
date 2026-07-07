@@ -28,6 +28,7 @@
     "login": "Ngena",
     "logout": "Phuma",
     "admin": "Admin",
+    "setup": "I-Setup Center",
     "adminGroups": "Amagatsha anempela",
     "adminContent": "Ulawulo lwesiqu",
     "adminSurveys": "Izilingo",
@@ -142,5 +143,23 @@
     "af": "i-Afrikaans",
     "xh": "i-Xhosa",
     "zu": "i-Zulu"
+  },
+  "setup": {
+    "title": "Ukusetha Umphakathi",
+    "subtitle": "Qedela imisebenzi ukuze uqalise futhi ukhulise umphakathi wakho.",
+    "progress": "{{percent}}% Kugcwalisiwe",
+    "sectionsComplete": "izigaba ezigcwalisiwe",
+    "required": "Kudingeka",
+    "noMissions": "Ayikho imisebenzi kulesi sigaba okwamanje.",
+    "emptyHint": "Idatha yakho yokusetha iyalungiswa. Kungathatha isikhashana ngemuva kokudala i-akhawunti.",
+    "errorTitle": "Ayikwazanga ukulayisha ukusetha",
+    "errorHint": "Kwenzeke iphutha elingalindelekile.",
+    "retry": "Zama Futhi",
+    "sections": {
+      "launch": "Qalisa",
+      "populate": "Gcwalisa",
+      "configure": "Lungiselela",
+      "grow": "Khula"
+    }
   }
 }

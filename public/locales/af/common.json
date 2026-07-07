@@ -28,6 +28,7 @@
     "login": "Teken aan",
     "logout": "Teken uit",
     "admin": "Admin",
+    "setup": "Opstelsentrum",
     "adminGroups": "Belange Groepe",
     "adminContent": "Inhoud Bestuur",
     "adminSurveys": "Opnames",
@@ -142,5 +143,23 @@
     "af": "Afrikaans",
     "xh": "Xhosa",
     "zu": "Zoeloe"
+  },
+  "setup": {
+    "title": "Gemeenskapopstelling",
+    "subtitle": "Voltooi take om jou gemeenskap van stapel te stuur.",
+    "progress": "{{percent}}% Voltooi",
+    "sectionsComplete": "afdelings voltooi",
+    "required": "Vereis",
+    "noMissions": "Nog geen take in hierdie afdeling nie.",
+    "emptyHint": "Jou opsteldata word voorberei. Dit kan 'n oomblik neem na die skep van jou rekening.",
+    "errorTitle": "Kan nie opstelling laai nie",
+    "errorHint": "'n Onverwagte fout het plaasgevind.",
+    "retry": "Probeer Weer",
+    "sections": {
+      "launch": "Van Stapel",
+      "populate": "Bevolk",
+      "configure": "Opstel",
+      "grow": "Groei"
+    }
   }
 }

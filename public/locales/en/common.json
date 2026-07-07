@@ -28,6 +28,7 @@
     "login": "Sign In",
     "logout": "Sign Out",
     "admin": "Admin",
+    "setup": "Setup Center",
     "adminGroups": "Interest Groups",
     "adminContent": "Content Management",
     "adminSurveys": "Surveys",
@@ -130,5 +131,23 @@
     "owner": "Owner",
     "renter": "Renter",
     "resident": "Resident"
+  },
+  "setup": {
+    "title": "Community Setup",
+    "subtitle": "Complete missions to launch and grow your community.",
+    "progress": "{{percent}}% Complete",
+    "sectionsComplete": "sections completed",
+    "required": "Required",
+    "noMissions": "No missions in this section yet.",
+    "emptyHint": "Your setup data is being prepared. This may take a moment after account creation.",
+    "errorTitle": "Unable to load setup",
+    "errorHint": "An unexpected error occurred.",
+    "retry": "Try Again",
+    "sections": {
+      "launch": "Launch",
+      "populate": "Populate",
+      "configure": "Configure",
+      "grow": "Grow"
+    }
   }
 }

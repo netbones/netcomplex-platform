@@ -28,6 +28,7 @@
     "login": "Ngena",
     "logout": "Phuma",
     "admin": "Admin",
+    "setup": "I-Setup Center",
     "adminGroups": "Amagqitho anomdla",
     "adminContent": "Ulawulo lwexwebhu",
     "adminSurveys": "Izilingo",
@@ -142,5 +143,23 @@
     "af": "IsiBhulu",
     "xh": "IsiXhosa",
     "zu": "IsiZulu"
+  },
+  "setup": {
+    "title": "Ukuseta Uluntu",
+    "subtitle": "Gqibezela imisebenzi ukuze uqalise kwaye ukhulise uluntu lwakho.",
+    "progress": "{{percent}}% Igqityiwe",
+    "sectionsComplete": "amacandelo agqityiweyo",
+    "required": "Kuyimfuneko",
+    "noMissions": "Akukho misebenzi kweli candelo okwangoku.",
+    "emptyHint": "Idatha yokuseta iyalungiswa. Kungathatha umzuzwana emva kokudala iakhawunti.",
+    "errorTitle": "Ayikwazanga ukulayisha ukuseta",
+    "errorHint": "Kwenzeke impazamo engalindelekanga.",
+    "retry": "Zama Kwakhona",
+    "sections": {
+      "launch": "Qalisa",
+      "populate": "Zalisa",
+      "configure": "Lungiselela",
+      "grow": "Khula"
+    }
   }
 }
