@@ -20,7 +20,7 @@ export function PricingCards() {
           throw new Error('Failed to fetch pricing data');
         }
         const data = await response.json();
-        setPlans(data.data?.plans ?? []);
+        setPlans(Array.isArray(data?.data?.plans) ? data.data.plans : []);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load pricing');
       } finally {
