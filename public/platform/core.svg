@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
+  <!-- Container squircle base in Accent Gold with true alpha corners -->
+  <rect width="64" height="64" rx="18" fill="#CA8A04" />
+
+  <!-- Lightbulb Filament & Core Graphic -->
+  <g fill="none" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round" transform="translate(18, 14)">
+    <!-- Bulb Outline Dome -->
+    <path d="M14,24 C21,24 25,19 25,13 C25,6.5 19.5,1 14,1 C8.5,1 3,6.5 3,13 C3,19 7,24 14,24 Z" stroke-width="2.5" />
+    
+    <!-- Metallic Base Rings -->
+    <line x1="9" y1="28" x2="19" y2="28" stroke-width="2.5" />
+    <line x1="11" y1="32" x2="17" y2="32" stroke-width="2" />
+    
+    <!-- Internal Filament Detail -->
+    <path d="M11,16 L13,10 H15 L17,16" stroke-width="1.5" opacity="0.8" />
+  </g>
+</svg>
