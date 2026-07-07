@@ -6,7 +6,7 @@ current_phase: 122
 current_phase_name: workspace-context-architecture
 status: executing
 stopped_at: Phase 04 UI-SPEC approved
-last_updated: '2026-07-07T08:19:53.520Z'
+last_updated: '2026-07-07T10:30:00.000Z'
 progress:
   total_phases: 70
   completed_phases: 57
@@ -20,14 +20,14 @@ progress:
 ## Current Position
 
 Phase: 123 (setup-center) — EXECUTING
-Plan: 3 of 7
+Plan: 4 of 7
 
 - **Phase:** Phase 122 (workspace-context-architecture) — Context gathered, ready for planning
 - **Previous:** Phase 120 (api-governance-hardening) — Plan 2 complete (identity router migration)
 - **Previous:** Phase 04 verified — content i18n locale wiring complete (11/11 must-haves)
 
-**Last Session:** 2026-07-07T08:19:23.412Z
-**Stopped at:** Phase 122 UI-SPEC approved
+**Last Session:** 2026-07-07T10:30:00.000Z
+**Stopped at:** Phase 123 Plan 04 complete — Launch & Populate sections built
 
 ## Active Phase Decisions
 
@@ -188,6 +188,11 @@ Plan: 3 of 7
 - [Phase ?]: TDD RED-GREEN cycle used for all 3 booking calendar tasks — Each task has separate test and feat commits ensuring test-first development
 - [Phase 04-content-i18n]: Use i18n.language from existing useTranslation() hook — no new imports or wrappers needed — Pattern used across all 4 pages consistently
 - [Phase ?]: Page-level feature flag gating removed due to FSD lint restriction — navigation gating via ADMIN_ITEMS permissionKey is sufficient
+- [Phase 123-04]: Auto-save uses 500ms useRef timer debounce (not useDebounceValue) — saveSetting() is called imperatively on blur, requiring per-invocation debouncing
+- [Phase 123-04]: Launch identity mapped 6 UI missions to 5 API setting keys — launch.identity constant splits into Name + Contact in the UI plan
+- [Phase 123-04]: Populate Assign Roles links to /admin/users rather than embedding full user CRUD — avoids duplicating complex user management UI
+- [Phase 123-04]: CSV import fires individual POST /api/invitations per row — existing rate limiting makes a bulk endpoint unnecessary
+- [Phase 123-04]: Service accounts reuse invitation API with PROVIDER/AGENT/MANAGER roles — no separate provider registration flow needed
 
 ## Notes
 

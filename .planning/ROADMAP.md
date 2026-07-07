@@ -858,7 +858,7 @@ _Features shipping after the anchor tenant launch. Includes platform improvement
 
 **Goal:** Replace the mandatory 7-step onboarding wizard (Phase 20, expanded Phase 27) with a persistent Setup Center — a permanent administrative workspace that guides tenant owners from first login through long-term platform adoption, aligned with ADVISORY-028.
 
-**Status:** Planned — 7 plans in 7 waves
+**Status:** In Progress — 4/7 plans executed
 
 **Source:** ADVISORY-028 — Replace Immediate Onboarding Wizard with a Persistent Setup Center
 **BD issue:** soralia-village-0jh1
@@ -883,7 +883,7 @@ _Features shipping after the anchor tenant launch. Includes platform improvement
 
 **Plans:**
 
-4/8 plans executed
+4/7 plans executed
 | ---- | ------------------ | ----------------------------------------------------------------------------------------- |
 | 1 | [ ] 123-01-PLAN.md | Schema + Entity: 3 Prisma models, migration, Drizzle, Zod schemas, constants |
 | 2 | [ ] 123-02-PLAN.md | API: progress GET, mission PATCH, init on tenant create, SetupSetting CRUD |
