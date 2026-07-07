@@ -27,7 +27,7 @@ Plan: 5 of 7
 - **Previous:** Phase 04 verified — content i18n locale wiring complete (11/11 must-haves)
 
 **Last Session:** 2026-07-07T08:43:06.557Z
-**Stopped at:** Phase 123 Plan 04 complete — Launch & Populate sections built
+**Stopped at:** Phase 123 Plan 05 complete — Configure & Grow sections built
 
 ## Active Phase Decisions
 
@@ -193,6 +193,9 @@ Plan: 5 of 7
 - [Phase 123-04]: Populate Assign Roles links to /admin/users rather than embedding full user CRUD — avoids duplicating complex user management UI
 - [Phase 123-04]: CSV import fires individual POST /api/invitations per row — existing rate limiting makes a bulk endpoint unnecessary
 - [Phase 123-04]: Service accounts reuse invitation API with PROVIDER/AGENT/MANAGER roles — no separate provider registration flow needed
+- [Phase 123-05]: Configure modules defined locally in ConfigureSection rather than global MODULES — dWallet/competitions/achievements not standard ModuleKey entries
+- [Phase 123-05]: Recommendation engine is a pure function — all state via RecommendationInput, zero mocking for tests, trivially testable
+- [Phase 123-05]: GrowSection skip uses session-local Set + persistence callback — avoids premature network round-trips
 
 ## Notes
 
@@ -380,6 +383,7 @@ Plan: 5 of 7
 | Phase 04-content-i18n P02                       | 9min   | 3 tasks  | 7 files  |
 | Phase 123-setup-center P123-03                  | 92     | 6 tasks  | 11 files |
 | Phase 123-setup-center P123-06                  | 388    | 5 tasks  | 6 files  |
+| Phase 123-setup-center P123-05                  | 519    | 6 tasks  | 7 files  |
 
 ## Accumulated Context
 
@@ -427,6 +431,6 @@ Plan: 5 of 7
 
 ## Session
 
-**Last session:** 2026-07-01T16:30:00.000Z
-**Stopped at:** Phase 122 CONTEXT.md written — WorkspaceContext Architecture ready for planning
-**Resume file:** .planning/phases/122-workspace-context-architecture/122-UI-SPEC.md
+**Last session:** 2026-07-07T10:54:15.000Z
+**Stopped at:** Phase 123 Plan 05 complete — Configure & Grow sections with recommendation engine
+**Resume file:** .planning/phases/123-setup-center/123-07-PLAN.md

@@ -858,7 +858,7 @@ _Features shipping after the anchor tenant launch. Includes platform improvement
 
 **Goal:** Replace the mandatory 7-step onboarding wizard (Phase 20, expanded Phase 27) with a persistent Setup Center — a permanent administrative workspace that guides tenant owners from first login through long-term platform adoption, aligned with ADVISORY-028.
 
-**Status:** In Progress — 4/7 plans executed
+**Status:** In Progress — 6/7 plans executed
 
 **Source:** ADVISORY-028 — Replace Immediate Onboarding Wizard with a Persistent Setup Center
 **BD issue:** soralia-village-0jh1
@@ -889,7 +889,7 @@ _Features shipping after the anchor tenant launch. Includes platform improvement
 | 2 | [ ] 123-02-PLAN.md | API: progress GET, mission PATCH, init on tenant create, SetupSetting CRUD |
 | 3 | [ ] 123-03-PLAN.md | Setup Center page shell: `/setup` route, SetupCenter + SetupSection components, nav entry |
 | 4 | [ ] 123-04-PLAN.md | Launch + Populate sections: identity config, branding, invites, roles, member import |
-| 5 | [ ] 123-05-PLAN.md | Configure + Grow sections: module toggles, progressive disclosure, recommendation engine |
+| 5 | [x] 123-05-PLAN.md | Configure + Grow sections: module toggles, progressive disclosure, recommendation engine |
 | 6 | [ ] 123-06-PLAN.md | Dashboard integration: HomeLayer setup card, redirect change, community health dashboard |
 | 7 | [ ] 123-07-PLAN.md | Migration + Cleanup: data migration script, remove old wizard, redirect `/onboarding/*` |
 
