@@ -3,7 +3,6 @@
 import { useSafeTranslation } from '@shared/lib';
 import { PrimaryCTA } from './PrimaryCTA';
 import { SectionLayout } from '@shared/ui';
-import { Network } from 'lucide-react';
 
 export function HeroSection() {
   const { tx, ready } = useSafeTranslation('platform');
@@ -438,9 +437,7 @@ export function HeroSection() {
       <div className="relative max-w-4xl mx-auto text-center space-y-6">
         {/* Logo/Icon */}
         <div className="flex justify-center mb-4">
-          <div className="p-4 bg-lapis-deep rounded-2xl shadow-lg">
-            <Network className="w-12 h-12 text-white" />
-          </div>
+          <img src="/platform/netcomplex.svg" alt="NetComplex" className="h-20 w-20" />
         </div>
 
         {/* Heading */}
