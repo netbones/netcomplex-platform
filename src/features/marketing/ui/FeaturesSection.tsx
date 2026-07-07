@@ -78,13 +78,13 @@ export function FeaturesSection() {
               className="group bg-white rounded-xl shadow-sm border border-lapis-azure/20 hover:shadow-xl hover:border-lapis-azure/40 hover:-translate-y-1 transition-all duration-300 overflow-hidden"
             >
               <div className="p-6">
-                <div
-                  className={`w-12 h-12 rounded-xl ${color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}
-                >
+                <div className="mb-4 group-hover:scale-110 transition-transform duration-300">
                   {iconSpec.type === 'lucide' ? (
-                    <iconSpec.Icon className="w-6 h-6" />
+                    <div className={`w-12 h-12 rounded-xl ${color} flex items-center justify-center`}>
+                      <iconSpec.Icon className="w-6 h-6" />
+                    </div>
                   ) : (
-                    <img src={iconSpec.src} alt={iconSpec.alt} className="w-8 h-8" />
+                    <img src={iconSpec.src} alt={iconSpec.alt} className="w-12 h-12" />
                   )}
                 </div>
                 <h3 className="text-xl font-semibold text-lapis-deep mb-2 group-hover:text-gold-vein transition-colors duration-300">
