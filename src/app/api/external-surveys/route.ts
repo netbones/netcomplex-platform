@@ -129,7 +129,8 @@ export const DELETE = withErrorHandler(async (request: Request) => {
   }
 
   await db
-    .delete(externalSurveys)
+    .update(externalSurveys)
+    .set({ deletedAt: now(), updatedAt: now() })
     .where(and(eq(externalSurveys.id, id), eq(externalSurveys.tenantId, tenantId)));
 
   return apiSuccess({ success: true });

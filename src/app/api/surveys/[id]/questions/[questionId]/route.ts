@@ -10,6 +10,7 @@ import {
   apiSuccess,
   apiUnauthorized,
   apiValidationError,
+  now,
   withErrorHandler,
 } from '@api/server';
 
@@ -161,7 +162,8 @@ export const DELETE = withErrorHandler(
     const { id: surveyId, questionId } = await params;
 
     const [deleted] = await db
-      .delete(questions)
+      .update(questions)
+      .set({ deletedAt: now(), updatedAt: now() })
       .where(
         and(
           eq(questions.id, questionId),

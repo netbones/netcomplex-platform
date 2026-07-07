@@ -128,7 +128,8 @@ export const DELETE = withErrorHandler(
     const { id: surveyId, sectionId } = await params;
 
     const [deleted] = await db
-      .delete(surveySections)
+      .update(surveySections)
+      .set({ deletedAt: now(), updatedAt: now() })
       .where(
         and(
           eq(surveySections.id, sectionId),

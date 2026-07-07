@@ -525,9 +525,10 @@ export const DELETE = withErrorHandler(
       return apiForbidden();
     }
 
-    // Use Drizzle to delete with tenant check
+    // Soft-delete the maintenance request with tenant check
     await db
-      .delete(maintenanceRequests)
+      .update(maintenanceRequests)
+      .set({ deletedAt: now(), updatedAt: now() })
       .where(and(eq(maintenanceRequests.id, id), eq(maintenanceRequests.tenantId, tenantId)));
 
     return apiSuccess({ success: true });

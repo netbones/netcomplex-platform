@@ -10,7 +10,7 @@ import {
   now,
 } from '@api/server';
 
-import { eq, desc, and } from 'drizzle-orm';
+import { eq, desc, and, isNull } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
 import { createId } from '@shared/lib/id';
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
         const existingAlbums = await db
           .select({ id: albums.id })
           .from(albums)
-          .where(and(eq(albums.tenantId, tenantId), eq(albums.userId, userId)));
+          .where(and(eq(albums.tenantId, tenantId), eq(albums.userId, userId), isNull(albums.deletedAt)));
 
         if (existingAlbums.length >= 3) {
           return apiError('VALIDATION_ERROR', 'Maximum 3 albums allowed', 400);
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
         const allAlbums = await db
           .select()
           .from(albums)
-          .where(and(eq(albums.tenantId, tenantId), eq(albums.userId, userId)))
+          .where(and(eq(albums.tenantId, tenantId), eq(albums.userId, userId), isNull(albums.deletedAt)))
           .orderBy(desc(albums.createdAt));
 
         return apiSuccess({ albums: allAlbums });
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
         const allAlbums = await db
           .select()
           .from(albums)
-          .where(and(eq(albums.tenantId, tenantId), eq(albums.userId, userId)))
+          .where(and(eq(albums.tenantId, tenantId), eq(albums.userId, userId), isNull(albums.deletedAt)))
           .orderBy(desc(albums.createdAt));
 
         return apiSuccess({ albums: allAlbums });
@@ -95,7 +95,8 @@ export async function POST(request: NextRequest) {
 
       case 'delete': {
         await db
-          .delete(albums)
+          .update(albums)
+          .set({ deletedAt: now(), updatedAt: now() })
           .where(
             and(eq(albums.id, albumId), eq(albums.tenantId, tenantId), eq(albums.userId, userId))
           );
@@ -103,7 +104,7 @@ export async function POST(request: NextRequest) {
         const allAlbums = await db
           .select()
           .from(albums)
-          .where(and(eq(albums.tenantId, tenantId), eq(albums.userId, userId)))
+          .where(and(eq(albums.tenantId, tenantId), eq(albums.userId, userId), isNull(albums.deletedAt)))
           .orderBy(desc(albums.createdAt));
 
         return apiSuccess({ albums: allAlbums });
@@ -132,7 +133,7 @@ export async function GET(request: Request) {
     const userAlbums = await db
       .select()
       .from(albums)
-      .where(and(eq(albums.tenantId, tenantId), eq(albums.userId, session.user.id)))
+      .where(and(eq(albums.tenantId, tenantId), eq(albums.userId, session.user.id), isNull(albums.deletedAt)))
       .orderBy(desc(albums.createdAt));
 
     return apiSuccess({ albums: userAlbums });
