@@ -13,6 +13,7 @@ import {
 import { eq } from 'drizzle-orm';
 import { logError } from '@shared/lib';
 import { createId } from '@shared/lib/id';
+import { initTenantSetup } from '@/entities/setup';
 
 export const maxDuration = 8;
 
@@ -147,6 +148,21 @@ export async function POST(request: NextRequest) {
       // to avoid leaving a stranded user without a tenant.
       await db.delete(users).where(eq(users.id, userId));
       throw err;
+    }
+
+    // Step 3: Initialize Setup Center data (missions, progress tracker)
+    // Fire-and-forget — failure here should not block signup.
+    // If it fails we log and continue; the Setup Center will gracefully
+    // handle a missing TenantSetup on first access.
+    try {
+      await initTenantSetup(tenantId!, body.plan as TierLevel);
+    } catch (setupErr) {
+      logError(
+        { component: 'platform-tenants-api', operation: 'INIT_SETUP' },
+        'Failed to initialize Setup Center for tenant',
+        setupErr,
+      );
+      // Explicitly do NOT throw — do not block signup
     }
 
     return apiSuccess(
