@@ -82,11 +82,12 @@ export const auth = betterAuth({
     //   );
     // },
     async onExistingUserSignUp({ user }) {
-      const tenant = user.tenantId
+      const userId = (user as unknown as Record<string, unknown>).tenantId as string | undefined;
+      const tenant = userId
         ? await db
             .select({ name: tenants.name, slug: tenants.slug, customDomain: tenants.customDomain })
             .from(tenants)
-            .where(eq(tenants.id, user.tenantId as string))
+            .where(eq(tenants.id, userId))
             .limit(1)
             .then(rows => rows[0] ?? null)
         : null;
@@ -118,7 +119,7 @@ export const auth = betterAuth({
         ? await db
             .select({ name: tenants.name })
             .from(tenants)
-            .where(eq(tenants.id, user.tenantId as string))
+            .where(eq(tenants.id, tenantId))
             .limit(1)
             .then(rows => rows[0] ?? null)
         : null;
