@@ -6,12 +6,7 @@
 
 import { useQueryClient } from '@tanstack/react-query';
 import { trpc, useSession } from '@api/client';
-import type {
-  DelegationListItem,
-  DelegationBlockPayload,
-  DelegationAuditEntry,
-  DelegationListParams,
-} from './types';
+import type { DelegationListItem, DelegationListParams } from './types';
 
 export function useDelegations(params?: DelegationListParams) {
   const { data: sessionData } = useSession();

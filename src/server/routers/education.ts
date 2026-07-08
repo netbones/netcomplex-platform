@@ -2,7 +2,6 @@ import { z } from 'zod';
 import {
   router,
   publicProcedure,
-  tenantProcedure,
   privilegedProcedure,
   db,
   bursaries,

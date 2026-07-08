@@ -91,7 +91,14 @@ export default function HouseholdsPage() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {isLoading ? (
+            {isError ? (
+              <tr>
+                <td colSpan={5} className="px-6 py-8 text-center text-red-500">
+                  <i className="fas fa-exclamation-triangle mr-2"></i>
+                  Failed to load households. Please try again.
+                </td>
+              </tr>
+            ) : isLoading ? (
               <tr>
                 <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
                   <i className="fas fa-spinner fa-spin mr-2"></i>

@@ -2,7 +2,6 @@ import {
   auth,
   db,
   bookings,
-  apiError,
   apiForbidden,
   apiNotFound,
   apiSuccess,

@@ -3,7 +3,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, renderHook } from '@testing-library/react';
-import type { PlatformPageFlags, HeaderLinkId, Role, TierLevel } from '@shared/lib';
+import type { PlatformPageFlags, Role, TierLevel } from '@shared/lib';
 
 vi.mock('@api/client', () => ({
   useSession: vi.fn(),

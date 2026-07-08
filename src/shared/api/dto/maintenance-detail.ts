@@ -1,11 +1,6 @@
 import { z } from 'zod/v4';
 import { maintenanceRequestDto } from './maintenance';
 
-const nullDate = z
-  .date()
-  .nullable()
-  .transform(d => (d ? d.toISOString() : null));
-
 export const maintenanceRequestDetailDto = maintenanceRequestDto.extend({
   user: z
     .object({

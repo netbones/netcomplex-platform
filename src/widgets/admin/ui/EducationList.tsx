@@ -1,10 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createComponentLogger } from '@shared/lib';
 import { trpc } from '@api/client';
-
-const log = createComponentLogger('EducationList');
 
 interface BursaryRow {
   id: string;
@@ -85,11 +82,9 @@ export function EducationList() {
       data?: ResourceRow[];
       refetch: () => void;
     };
-  const { data: fields = [], refetch: refetchFields } =
-    trpc.education.listBursaryFields.useQuery() as {
-      data?: BursaryField[];
-      refetch: () => void;
-    };
+  const { data: fields = [] } = trpc.education.listBursaryFields.useQuery() as {
+    data?: BursaryField[];
+  };
   const { data: settings = { pin: EMPTY_PIN, shelf: [] }, refetch: refetchSettings } =
     trpc.education.getEducationSettings.useQuery() as {
       data?: EduSettings;

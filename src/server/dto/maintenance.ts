@@ -6,11 +6,6 @@ export type { MaintenanceRequestDto, MaintenanceSummaryDto } from '@/shared/api/
 import { z } from 'zod/v4';
 import { maintenanceRequestDto } from '@/shared/api/dto/maintenance';
 
-const dateSchema = z
-  .date()
-  .nullable()
-  .transform(d => (d ? d.toISOString() : null));
-
 export const maintenanceRequestDetailDto = maintenanceRequestDto.extend({
   user: z
     .object({

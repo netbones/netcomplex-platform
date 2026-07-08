@@ -112,13 +112,6 @@ const nextConfig = {
       config.optimization.splitChunks = config.optimization.splitChunks || {};
       config.optimization.splitChunks.cacheGroups = {
         ...config.optimization.splitChunks.cacheGroups,
-        lucideIcons: {
-          test: /[\\/]node_modules[\\/]lucide-react[\\/]/,
-          name: 'lucide-icons',
-          chunks: 'all',
-          priority: 20,
-          reuseExistingChunk: true,
-        },
         tiptap: {
           test: /[\\/]node_modules[\\/](@tiptap|prosemirror|lowlight|highlight\.js)[\\/]/,
           name: 'tiptap-editor',
