@@ -5,7 +5,6 @@ import {
   db,
   invitations,
   users,
-  tenants,
   apiCreated,
   apiConflict,
   apiError,
@@ -85,8 +84,21 @@ export async function POST(request: NextRequest) {
     const origin =
       request.headers.get('origin') || ENV.NEXT_PUBLIC_APP_URL || `http://localhost:3000`;
 
-    // Resolve tenant from request context (set by middleware via x-tenant-slug)
-    const tenantSlug = request.headers.get('x-tenant-slug') || undefined;
+    // Resolve tenant from request context.
+    // For custom domains (solaris.co.za), the middleware-inferred slug from
+    // x-tenant-slug may be wrong (subdomain != DB slug). Use getTenantByDomain
+    // which resolves by customDomain for a correct match.
+    const host = request.headers.get('host') || '';
+    let tenantSlug: string | undefined;
+    let tenantName = 'Netcomplex';
+    try {
+      const { getTenantByDomain } = await import('@entities/tenant/server');
+      const tenant = await getTenantByDomain(host);
+      tenantSlug = tenant?.slug || request.headers.get('x-tenant-slug') || undefined;
+      tenantName = tenant?.name || 'Netcomplex';
+    } catch {
+      tenantSlug = request.headers.get('x-tenant-slug') || undefined;
+    }
 
     const authResponse = await fetch(`${BETTER_AUTH_URL}/api/auth/sign-up/email`, {
       method: 'POST',
@@ -113,17 +125,7 @@ export async function POST(request: NextRequest) {
           request.headers.get('origin') || ENV.NEXT_PUBLIC_APP_URL || `http://localhost:3000`;
         const loginUrl = `${origin}/login`;
 
-        let fromName = 'Netcomplex';
-        if (tenantSlug) {
-          const [tenantRow] = await db
-            .select({ name: tenants.name })
-            .from(tenants)
-            .where(eq(tenants.slug, tenantSlug))
-            .limit(1);
-          if (tenantRow?.name) fromName = tenantRow.name;
-        }
-
-        sendWelcomeEmail(email, name, loginUrl, fromName).catch(error => {
+        sendWelcomeEmail(email, name, loginUrl, tenantName).catch(error => {
           logError(
             { component: 'signup-email', operation: 'SEND_WELCOME' },
             'Failed to send welcome email',

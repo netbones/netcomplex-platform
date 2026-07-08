@@ -148,7 +148,7 @@ export const auth = betterAuth({
         type: 'string',
         required: true,
         defaultValue: tenantConfig.defaultSlug,
-        input: false, // Users cannot set this during signup - it's auto-set
+        input: true, // Allow signup route to set tenant via x-tenant-slug header
       },
       dashboardLayout: {
         type: 'string',
