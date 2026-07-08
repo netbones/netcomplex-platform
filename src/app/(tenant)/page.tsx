@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { useTranslation } from 'react-i18next';
 import { Carousel, Pagination } from '@shared/ui';
-import { STREETS, CARD_HEADER_COLORS } from '@shared/lib';
+import { CARD_HEADER_COLORS } from '@shared/lib';
 import { useResidentFilter } from '@features/directory';
 import type { CarouselItem } from '@entities/tenant';
 import type { HeroCarouselConfig } from '@entities/tenant';
@@ -15,6 +15,20 @@ const CommunityMap = dynamic(() => import('@entities/directory').then(mod => mod
 });
 
 import { UnifiedResidentCard } from '@entities/directory';
+
+/**
+ * Street/block filter options for the directory listing.
+ * Tenant-specific — should eventually be fetched from the tenant's
+ * map.streets setting instead of hardcoded here.
+ */
+const STREETS = [
+  'Pagoda Rd',
+  'Wild Almond Rd',
+  'Silkypuff Street',
+  'Beechwood Rd',
+  'Sugarbrush Rd',
+  'Conebrush Rd',
+] as const;
 
 const DEFAULT_CAROUSEL_ITEMS: CarouselItem[] = [
   {
