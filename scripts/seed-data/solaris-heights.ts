@@ -1,8 +1,8 @@
 /**
  * Solaris Heights — seed data.
  *
- * A high-rise condominium complex in the Cape Flats, 3 blocks of 10 storeys
- * each. Max capacity 150 units (10 floors × 5 units per floor × 3 blocks).
+ * A high-rise condominium complex in the Cape Flats, 4 blocks of 10 storeys
+ * each. Max capacity 200 units (10 floors × 5 units per floor × 4 blocks).
  * The seed file only creates representative demo data — see
  * `soralia-village.ts` for the more comprehensive reference shape.
  *
@@ -30,11 +30,12 @@ export const SOLARIS_HEIGHTS: TenantSeedData = {
     featureFlags: { whiteLabel: true },
     tagline: 'Modern city living, community at heart',
     description:
-      'A 3-block high-rise condominium of up to 150 units in the Cape Flats, with shared amenities and a body corporate that keeps things running smoothly.',
+      'A 4-block high-rise condominium of up to 200 units in the Cape Flats, with shared amenities and a body corporate that keeps things running smoothly.',
     address: '42 Beach Road, Cape Town, 8001',
     telephone: '+27 21 555 0200',
     email: 'info@solarisheights.co.za',
     governanceLabel: 'Body Corporate',
+    customDomain: 'solaris.co.za',
     ticketPrefix: 'SLH',
   },
 
@@ -2008,6 +2009,7 @@ export const SOLARIS_HEIGHTS: TenantSeedData = {
         { name: 'Block A', coords: [-33.9985, 18.5675] },
         { name: 'Block B', coords: [-33.9988, 18.568] },
         { name: 'Block C', coords: [-33.9991, 18.5685] },
+        { name: 'Block D', coords: [-33.9994, 18.569] },
       ]),
     },
   ],
