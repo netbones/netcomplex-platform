@@ -5,6 +5,7 @@ import {
   db,
   invitations,
   users,
+  tenants,
   apiCreated,
   apiConflict,
   apiError,
@@ -83,6 +84,10 @@ export async function POST(request: NextRequest) {
     // Forward to Better Auth's sign-up endpoint
     const origin =
       request.headers.get('origin') || ENV.NEXT_PUBLIC_APP_URL || `http://localhost:3000`;
+
+    // Resolve tenant from request context (set by middleware via x-tenant-slug)
+    const tenantSlug = request.headers.get('x-tenant-slug') || undefined;
+
     const authResponse = await fetch(`${BETTER_AUTH_URL}/api/auth/sign-up/email`, {
       method: 'POST',
       headers: {
@@ -93,7 +98,7 @@ export async function POST(request: NextRequest) {
           request.headers.get('x-forwarded-host') || request.headers.get('host') || '',
         'x-forwarded-proto': request.headers.get('x-forwarded-proto') || 'https',
       },
-      body: JSON.stringify({ email, password, name }),
+      body: JSON.stringify({ email, password, name, tenantId: tenantSlug }),
     });
 
     const responseData = await authResponse.json();
@@ -107,9 +112,16 @@ export async function POST(request: NextRequest) {
         const origin =
           request.headers.get('origin') || ENV.NEXT_PUBLIC_APP_URL || `http://localhost:3000`;
         const loginUrl = `${origin}/login`;
-        const host = request.headers.get('host') || '';
-        const fromName =
-          host.replace(/\./g, ' ').replace(/\b\w/g, c => c.toUpperCase()) || 'Netcomplex';
+
+        let fromName = 'Netcomplex';
+        if (tenantSlug) {
+          const [tenantRow] = await db
+            .select({ name: tenants.name })
+            .from(tenants)
+            .where(eq(tenants.slug, tenantSlug))
+            .limit(1);
+          if (tenantRow?.name) fromName = tenantRow.name;
+        }
 
         sendWelcomeEmail(email, name, loginUrl, fromName).catch(error => {
           logError(
