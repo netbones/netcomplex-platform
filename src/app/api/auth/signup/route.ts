@@ -107,8 +107,11 @@ export async function POST(request: NextRequest) {
         const origin =
           request.headers.get('origin') || ENV.NEXT_PUBLIC_APP_URL || `http://localhost:3000`;
         const loginUrl = `${origin}/login`;
+        const host = request.headers.get('host') || '';
+        const fromName =
+          host.replace(/\./g, ' ').replace(/\b\w/g, c => c.toUpperCase()) || 'Netcomplex';
 
-        sendWelcomeEmail(email, name, loginUrl).catch(error => {
+        sendWelcomeEmail(email, name, loginUrl, fromName).catch(error => {
           logError(
             { component: 'signup-email', operation: 'SEND_WELCOME' },
             'Failed to send welcome email',
@@ -218,7 +221,7 @@ async function processInvitation(
  * Send welcome email to new user.
  * Silently handles errors to not affect the signup flow.
  */
-async function sendWelcomeEmail(email: string, name: string, loginUrl: string) {
+async function sendWelcomeEmail(email: string, name: string, loginUrl: string, fromName: string) {
   try {
     const { sendEmail, templates } = await import('@api/server');
 
@@ -226,8 +229,9 @@ async function sendWelcomeEmail(email: string, name: string, loginUrl: string) {
 
     await sendEmail({
       to: email,
-      subject: templates.welcome.subject(),
+      subject: templates.welcome.subject(fromName),
       html,
+      fromName,
     });
   } catch {
     // Email failure shouldn't affect signup

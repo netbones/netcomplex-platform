@@ -28,10 +28,12 @@ export async function sendEmail({
   to,
   subject,
   html,
+  fromName,
 }: {
   to: string | string[];
   subject: string;
   html: string;
+  fromName?: string;
 }): Promise<SendEmailResult> {
   if (!ENV.RESEND_API_KEY) {
     emailLogger.warn('RESEND_API_KEY not configured');
@@ -39,7 +41,8 @@ export async function sendEmail({
   }
 
   const recipients = Array.isArray(to) ? to : [to];
-  const from = `${FROM_NAME} <${FROM_EMAIL}>`;
+  const name = fromName || FROM_NAME || 'Netcomplex';
+  const from = `${name} <${FROM_EMAIL}>`;
 
   const { data, error } = await resend.emails.send({
     from,

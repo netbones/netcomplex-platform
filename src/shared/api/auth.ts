@@ -102,6 +102,7 @@ export const auth = betterAuth({
         to: user.email,
         subject: templates.securityAlert.subject,
         html: templates.securityAlert.getHtml(user.email, loginUrl, tenantName),
+        fromName: tenantName,
       }).catch(err =>
         authLogger.error({ err, email: user.email }, 'Security alert email send failed')
       );
@@ -111,10 +112,24 @@ export const auth = betterAuth({
   // Wire verification email via Better Auth (used when requireEmailVerification is true)
   emailVerification: {
     sendVerificationEmail: async ({ user, url }) => {
+      const rawUser = user as unknown as Record<string, unknown>;
+      const tenantId = rawUser.tenantId as string | undefined;
+      const tenant = tenantId
+        ? await db
+            .select({ name: tenants.name })
+            .from(tenants)
+            .where(eq(tenants.id, user.tenantId as string))
+            .limit(1)
+            .then(rows => rows[0] ?? null)
+        : null;
+
+      const tenantName = tenant?.name ?? 'Netcomplex';
+
       sendEmail({
         to: user.email,
-        subject: templates.verifyEmail.subject(),
-        html: templates.verifyEmail.getHtml(user.name || '', url),
+        subject: templates.verifyEmail.subject(tenantName),
+        html: templates.verifyEmail.getHtml(user.name || '', url, tenantName),
+        fromName: tenantName,
       }).catch(err =>
         authLogger.error({ err, email: user.email }, 'Verification email send failed')
       );
