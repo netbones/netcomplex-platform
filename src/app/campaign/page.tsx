@@ -49,7 +49,7 @@ export default function CampaignPage() {
       enabled: campaignEnabled,
     }
   );
-  const campaignData = (campaignDataEnvelope?.data as CampaignData | null) ?? null;
+  const campaignData = (campaignDataEnvelope?.data as unknown as CampaignData | null) ?? null;
 
   const { isReady, LoadingComponent } = usePageLoading(
     [
