@@ -1,8 +1,8 @@
 # REST API Route Coverage Report: tRPC Migration Status
 
-**Updated:** 2026-06-28 — Phase 120 complete. 20 domains live.
+**Updated:** 2026-07-08 — Phase 120+ complete. 24 domains live (added: education, delegations, households, providers).
 
-## 1. Existing tRPC Routers (20 domains, 34 files)
+## 1. Existing tRPC Routers (24 domains, 47 files)
 
 | tRPC Router     | Sub-Routers                                                                                       | Key Procedures                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | --------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -25,6 +25,10 @@
 | `achievements`  | —                                                                                                 | `listAchievements`, `getAchievement`, `createAchievement`, `updateAchievement`, `deleteAchievement`, `getMyProgress`, `getAchievementProgress`, `getUnlocked`                                                                                                                                                                                                                                                                                                             |
 | `invitations`   | —                                                                                                 | `listInvitations`, `getInvitation`, `createInvitation`, `cancelInvitation`, `acceptInvitation`, `validateInvitation`, `resendInvitation`                                                                                                                                                                                                                                                                                                                                  |
 | `agents`        | —                                                                                                 | `getActivity`, `listManagedProperties`, `getMarketplaceActions`, `connectWithAgent`                                                                                                                                                                                                                                                                                                                                                                                       |
+| `delegations`   | —                                                                                                 | `listDelegations`, `acceptDelegation`, `rejectDelegation`, `revokeDelegation`, `getDelegationAudit`, `blockDelegation`                                                                                                                                                                                                                                                                                                                                                    |
+| `education`     | —                                                                                                 | `getEducationData`, `updateEducationData`, `listBursaries`, `createBursary`, `getBursary`, `updateBursary`, `deleteBursary`, `listBursaryFields`, `listEducationResources`, `createEducationResource`, `getEducationResource`, `updateEducationResource`, `deleteEducationResource`, `getEducationSettings`, `updateEducationSettings`                                                                                                                                    |
+| `households`    | —                                                                                                 | `getStreets`, `listHouseholds`, `getHousehold`, `updateHousehold`, `getProperty`, `deleteProperty`, `delegateProperty`, `grantResidentDelegation`, `listResidentDelegations`, `revokeResidentDelegation`                                                                                                                                                                                                                                                                  |
+| `providers`     | —                                                                                                 | `validateRegistration`, `registerProvider`, `getLegalDocuments`, `acceptLegalAgreements`, `getVerificationStatus`, `updateVerification`, `getReputation`, `getReputationHistory`, `getReputationScore`, `getAnalytics`, `getDashboard`                                                                                                                                                                                                                                    |
 
 ---
 
@@ -225,9 +229,47 @@
 | `src/app/api/merits/[id]/dispute/route.ts` | `merits.dispute`                                              |
 | `src/app/api/merits/[id]/resolve/route.ts` | `merits.resolveDispute`                                       |
 
+### EDUCATION — ✅ COVERED (New Router)
+
+| REST Route                 | tRPC Coverage                 |
+| -------------------------- | ----------------------------- |
+| (no dedicated REST routes) | `education.*` — 15 procedures |
+
+### DELEGATIONS — ✅ COVERED (New Router)
+
+| REST Route                          | tRPC Coverage                            |
+| ----------------------------------- | ---------------------------------------- |
+| `agent/tokens/route.ts`             | `delegations.*` (agent token management) |
+| `agent/tokens/[id]/revoke/route.ts` | `delegations.revokeDelegation`           |
+
+### HOUSEHOLDS — ✅ COVERED (New Router)
+
+| REST Route                 | tRPC Coverage                                                                                                   |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `households/route.ts`      | `households.listHouseholds`                                                                                     |
+| `households/[id]/route.ts` | `households.getHousehold`, `households.updateHousehold`                                                         |
+| (property management)      | `households.getProperty`, `households.deleteProperty`                                                           |
+| (agent delegation)         | `households.delegateProperty`, `grantResidentDelegation`, `listResidentDelegations`, `revokeResidentDelegation` |
+
+### PROVIDERS — ✅ COVERED (New Router)
+
+| REST Route                                      | tRPC Coverage                                                     |
+| ----------------------------------------------- | ----------------------------------------------------------------- |
+| `providers/register/route.ts`                   | `providers.registerProvider`                                      |
+| `providers/register/validate/route.ts`          | `providers.validateRegistration`                                  |
+| `providers/verification/route.ts`               | `providers.getVerificationStatus`, `providers.updateVerification` |
+| `providers/legal/route.ts`                      | `providers.getLegalDocuments`, `providers.acceptLegalAgreements`  |
+| `providers/reputation/route.ts`                 | `providers.getReputation`                                         |
+| `providers/reputation/history/route.ts`         | `providers.getReputationHistory`                                  |
+| `providers/analytics/route.ts`                  | `providers.getAnalytics`                                          |
+| `providers/analytics/reputation-score/route.ts` | `providers.getReputationScore`                                    |
+| `providers/dashboard/route.ts`                  | `providers.getDashboard`                                          |
+
 ---
 
 ## 3. Domains with No tRPC Router — ❌ NOT COVERED
+
+> **9 domains migrated** in prior phases (Achievements, Agents, Announcements, Campaign, Conservation, Dashboard Stats, External Surveys, Invitations, Settings) — see Section 4 for full coverage.
 
 ### ADMIN (Platform Management) — Stay REST
 
@@ -288,139 +330,63 @@ All routes under `src/app/api/admin/`. Admin-only web pages and platform managem
 | `v1/system/flags/route.ts`       | V1 system flags         | Re-export     |
 | `v1/system/health/route.ts`      | V1 health check         | Re-export     |
 
-### ACHIEVEMENTS — ❌ NOT COVERED, Candidate for tRPC
-
-| REST Route                       | Description               | Effort | Migrate?                     |
-| -------------------------------- | ------------------------- | ------ | ---------------------------- |
-| `achievements/route.ts`          | List/create achievements  | Small  | Yes, new achievements router |
-| `achievements/progress/route.ts` | User achievement progress | Small  | Yes                          |
-
 ### ACCESS CONTROL — ❌ NOT COVERED, Stay REST
 
-| REST Route        | Description                         | Effort | Migrate?                                            |
-| ----------------- | ----------------------------------- | ------ | --------------------------------------------------- |
-| `access/route.ts` | Page access resolution (nav guards) | Small  | Stay REST (entity-driven, called by middleware/nav) |
-
-### AGENTS (Provider) — ❌ NOT COVERED, Candidate for tRPC
-
-| REST Route                           | Description               | Effort | Migrate?                                          |
-| ------------------------------------ | ------------------------- | ------ | ------------------------------------------------- |
-| `agents/activity/route.ts`           | Agent activity feed       | Medium | Yes, integrate into identity or new agents router |
-| `agents/managed-properties/route.ts` | Agent-managed properties  | Medium | Yes                                               |
-| `agents/marketplace/route.ts`        | Agent marketplace actions | Medium | Yes                                               |
-| `v1/tenant/agents/*` (3 routes)      | Re-exports                | —      | —                                                 |
-
-### ANNOUNCEMENTS — ❌ NOT COVERED, Candidate for tRPC
-
-| REST Route                             | Description               | Effort | Migrate?                           |
-| -------------------------------------- | ------------------------- | ------ | ---------------------------------- |
-| `announcements/route.ts`               | List/create announcements | Small  | Yes, integrate into content router |
-| `announcements/[id]/route.ts`          | Single announcement CRUD  | Small  | Yes                                |
-| `v1/tenant/announcements/*` (2 routes) | Re-exports                | —      | —                                  |
-
-### CAMPAIGN — ❌ NOT COVERED, Candidate for tRPC
-
-| REST Route                    | Description           | Effort | Migrate?                           |
-| ----------------------------- | --------------------- | ------ | ---------------------------------- |
-| `campaign/route.ts`           | Campaign page content | Small  | Yes, integrate into content router |
-| `v1/tenant/campaign/route.ts` | Re-export             | —      | —                                  |
-
-### CONSERVATION — ❌ NOT COVERED, Candidate for tRPC
-
-| REST Route                        | Description                 | Effort | Migrate?                           |
-| --------------------------------- | --------------------------- | ------ | ---------------------------------- |
-| `conservation/route.ts`           | Conservation module content | Small  | Yes, integrate into content router |
-| `v1/tenant/conservation/route.ts` | Re-export                   | —      | —                                  |
-
-### DASHBOARD STATS — ❌ NOT COVERED, Candidate for tRPC
-
-| REST Route                 | Description             | Effort | Migrate?                                     |
-| -------------------------- | ----------------------- | ------ | -------------------------------------------- |
-| `dashboard/stats/route.ts` | Dashboard summary stats | Small  | Yes, new dashboard router or extend identity |
-
-### EXTERNAL SURVEYS — ❌ NOT COVERED, Candidate for tRPC
-
-| REST Route                  | Description                     | Effort | Migrate?                   |
-| --------------------------- | ------------------------------- | ------ | -------------------------- |
-| `external-surveys/route.ts` | External (non-resident) surveys | Small  | Yes, extend surveys router |
-
-### INVITATIONS — ❌ NOT COVERED, Candidate for tRPC
-
-| REST Route                           | Description               | Effort | Migrate?                    |
-| ------------------------------------ | ------------------------- | ------ | --------------------------- |
-| `invitations/route.ts`               | List/create invitations   | Medium | Yes, new invitations router |
-| `invitations/[id]/route.ts`          | Single invitation         | Medium | Yes                         |
-| `invitations/accept/route.ts`        | Accept invitation         | Medium | Yes                         |
-| `invitations/validate/route.ts`      | Validate invitation token | Medium | Yes                         |
-| `v1/tenant/invitations/*` (4 routes) | Re-exports                | —      | —                           |
+| REST Route        | Description                         | Migrate?                                            |
+| ----------------- | ----------------------------------- | --------------------------------------------------- |
+| `access/route.ts` | Page access resolution (nav guards) | Stay REST (entity-driven, called by middleware/nav) |
 
 ### MEDIA / UPLOAD — ❌ NOT COVERED, Stay REST
 
-| REST Route        | Description           | Effort | Migrate?                                     |
-| ----------------- | --------------------- | ------ | -------------------------------------------- |
-| `media/route.ts`  | User media management | Small  | Stay REST (file I/O, not suitable for tRPC)  |
-| `upload/route.ts` | File upload           | Small  | Stay REST (multipart, not suitable for tRPC) |
+| REST Route        | Description           | Migrate?                                     |
+| ----------------- | --------------------- | -------------------------------------------- |
+| `media/route.ts`  | User media management | Stay REST (file I/O, not suitable for tRPC)  |
+| `upload/route.ts` | File upload           | Stay REST (multipart, not suitable for tRPC) |
 
 ### PAYMENTS — ❌ NOT COVERED, Stay REST
 
-| REST Route                           | Description            | Effort | Migrate?                            |
-| ------------------------------------ | ---------------------- | ------ | ----------------------------------- |
-| `payments/paypal/capture/route.ts`   | PayPal payment capture | Small  | Stay REST (third-party integration) |
-| `payments/paypal/webhook/route.ts`   | PayPal webhook handler | Small  | Stay REST (webhook)                 |
-| `payments/paystack/verify/route.ts`  | Paystack verification  | Small  | Stay REST                           |
-| `payments/paystack/webhook/route.ts` | Paystack webhook       | Small  | Stay REST (webhook)                 |
+| REST Route                           | Description            | Migrate?                            |
+| ------------------------------------ | ---------------------- | ----------------------------------- |
+| `payments/paypal/capture/route.ts`   | PayPal payment capture | Stay REST (third-party integration) |
+| `payments/paypal/webhook/route.ts`   | PayPal webhook handler | Stay REST (webhook)                 |
+| `payments/paystack/verify/route.ts`  | Paystack verification  | Stay REST                           |
+| `payments/paystack/webhook/route.ts` | Paystack webhook       | Stay REST (webhook)                 |
 
-### PLATFORM — ❌ NOT COVERED, Could migrate
+### PLATFORM — ❌ NOT COVERED (3 migrate, 3 stay REST)
 
 | REST Route                         | Description             | Effort | Migrate?                        |
 | ---------------------------------- | ----------------------- | ------ | ------------------------------- |
 | `platform/onboarding/route.ts`     | Tenant onboarding       | Medium | Yes, new platform router        |
 | `platform/tenants/route.ts`        | Tenant listing          | Medium | Yes                             |
+| `tenants/[id]/modules/route.ts`    | Tenant module config    | Small  | Yes                             |
 | `tenant/billing/checkout/route.ts` | Tenant billing checkout | Medium | Stay REST (payment integration) |
 | `tenant/billing/invoices/route.ts` | Tenant invoices         | Medium | Stay REST                       |
 | `tenant/billing/snapshot/route.ts` | Billing snapshot        | Medium | Stay REST                       |
-| `tenants/[id]/modules/route.ts`    | Tenant module config    | Small  | Yes, new tenants router         |
-| `v1/platform/onboarding/route.ts`  | Re-export               | —      | —                               |
-| `v1/platform/tenants/route.ts`     | Re-export               | —      | —                               |
 
 ### PRICING — ❌ NOT COVERED, Stay REST
 
-| REST Route                   | Description          | Effort | Migrate?                   |
-| ---------------------------- | -------------------- | ------ | -------------------------- |
-| `pricing/route.ts`           | Static pricing plans | Small  | Stay REST (static content) |
-| `v1/tenant/pricing/route.ts` | Re-export            | —      | —                          |
+| REST Route         | Description          | Migrate?                   |
+| ------------------ | -------------------- | -------------------------- |
+| `pricing/route.ts` | Static pricing plans | Stay REST (static content) |
 
-### PROVIDERS — ❌ NOT COVERED
+### PROVIDERS — ✅ COVERED (9 routes migrated, 7 stay REST)
 
-| REST Route                                      | Description             | Effort | Migrate?                        |
-| ----------------------------------------------- | ----------------------- | ------ | ------------------------------- |
-| `providers/register/route.ts`                   | Provider registration   | Large  | Yes, new providers router       |
-| `providers/register/validate/route.ts`          | Registration validation | Medium | Yes                             |
-| `providers/verification/route.ts`               | Provider verification   | Medium | Yes                             |
-| `providers/legal/route.ts`                      | Legal agreements        | Medium | Yes                             |
-| `providers/reputation/route.ts`                 | Reputation score        | Small  | Yes                             |
-| `providers/reputation/history/route.ts`         | Reputation history      | Small  | Yes                             |
-| `providers/analytics/route.ts`                  | Provider analytics      | Medium | Yes                             |
-| `providers/analytics/reputation-score/route.ts` | Reputation score calc   | Small  | Yes                             |
-| `providers/billing/route.ts`                    | Provider billing        | Medium | Stay REST (billing integration) |
-| `providers/billing/cancel/route.ts`             | Cancel subscription     | Medium | Stay REST                       |
-| `providers/billing/charges/route.ts`            | Billing charges         | Medium | Stay REST                       |
-| `providers/billing/fees/route.ts`               | Fee structure           | Small  | Stay REST                       |
-| `providers/billing/invoices/route.ts`           | Provider invoices       | Medium | Stay REST                       |
-| `providers/billing/subscribe/route.ts`          | Subscribe to plan       | Medium | Stay REST                       |
-| `providers/dashboard/route.ts`                  | Provider dashboard      | Medium | Yes                             |
-| `providers/invoices/[id]/pdf/route.ts`          | Invoice PDF             | Small  | Stay REST (PDF generation)      |
+| REST Route                             | Description                                                  | Migrate?                        |
+| -------------------------------------- | ------------------------------------------------------------ | ------------------------------- |
+| `providers/*` (9 routes)               | Registration, verification, reputation, analytics, dashboard | ✅ Migrated — see Section 2     |
+| `providers/billing/route.ts`           | Provider billing                                             | Stay REST (billing integration) |
+| `providers/billing/cancel/route.ts`    | Cancel subscription                                          | Stay REST                       |
+| `providers/billing/charges/route.ts`   | Billing charges                                              | Stay REST                       |
+| `providers/billing/fees/route.ts`      | Fee structure                                                | Stay REST                       |
+| `providers/billing/invoices/route.ts`  | Provider invoices                                            | Stay REST                       |
+| `providers/billing/subscribe/route.ts` | Subscribe to plan                                            | Stay REST                       |
+| `providers/invoices/[id]/pdf/route.ts` | Invoice PDF                                                  | Stay REST (PDF generation)      |
 
-### SETTINGS — ❌ NOT COVERED, Candidate for tRPC
+### SUPPORT — ❌ NOT COVERED, Stay REST
 
-| REST Route                            | Description          | Effort | Migrate?                 |
-| ------------------------------------- | -------------------- | ------ | ------------------------ |
-| `settings/route.ts`                   | List/update settings | Medium | Yes, new settings router |
-| `settings/[key]/route.ts`             | Single setting       | Small  | Yes                      |
-| `settings/contact/route.ts`           | Contact settings     | Small  | Yes                      |
-| `v1/tenant/settings/route.ts`         | Re-export            | —      | —                        |
-| `v1/tenant/settings/[key]/route.ts`   | Re-export            | —      | —                        |
-| `v1/tenant/settings/contact/route.ts` | Re-export            | —      | —                        |
+| REST Route         | Description     | Migrate?                      |
+| ------------------ | --------------- | ----------------------------- |
+| `support/route.ts` | Support tickets | Stay REST (simple, low touch) |
 
 ### STATS (Public), TRANSLATE, WEBHOOKS — Stay REST
 
@@ -474,11 +440,14 @@ All routes under `src/app/api/v1/` are either re-exports from canonical REST rou
 | ✅ FULL | External Surveys           | `surveys/external.ts` (2 procedures)                                 |
 | ✅ FULL | Invitations                | Dedicated invitations router (7 procedures)                          |
 | ✅ FULL | Settings                   | Dedicated settings router (5 procedures)                             |
+| ✅ FULL | Education                  | Dedicated education router (15 procedures)                           |
+| ✅ FULL | Delegations                | Dedicated delegations router (6 procedures)                          |
+| ✅ FULL | Households                 | Dedicated households router (10 procedures)                          |
+| ✅ FULL | Providers                  | Dedicated providers router (11 procedures)                           |
 | ❌ NONE | Access Control             | Special case — navigation guard data                                 |
 | ❌ NONE | Payments                   | Should stay REST (third-party webhooks)                              |
-| ❌ NONE | Platform/Tenant Billing    | Some could migrate, billing stays REST                               |
-| ❌ NONE | Pricing                    | Static data, stay REST                                               |
-| ❌ NONE | Providers (full domain)    | Registration, billing, reputation — large migration                  |
+| ❌ NONE | Platform/Tenant Billing    | 3 routes — onboarding, tenant list, module config                    |
+| ❌ NONE | Support                    | Stay REST (simple, low touch)                                        |
 | ❌ NONE | Stats (public)             | Stay REST                                                            |
 | ❌ NONE | Translate                  | Stay REST (AI service)                                               |
 | ❌ NONE | Webhooks                   | Stay REST                                                            |
@@ -491,15 +460,20 @@ All routes under `src/app/api/v1/` are either re-exports from canonical REST rou
 
 ## 5. Migration Complete
 
-**All 20 tRPC routers are live** covering all tenant-facing domains. Phase 120 (2026-06-28) completed the final governance pass: response envelope, DTO mapping, procedure tiers, rate limiting, and OpenAPI completeness.
+**All 24 tRPC routers are live** covering all tenant-facing domains. Phase 120+ (2026-07-08) added education, delegations, households, and providers routers.
 
-### Three Steps Remaining
+### Remaining Migration Candidate
 
-| Domain       | Effort | Notes                                              |
-| ------------ | ------ | -------------------------------------------------- |
-| Providers    | Large  | Registration, billing, reputation, verification    |
-| Platform     | Medium | Tenant management, onboarding, billing             |
-| Paystack SSR | Small  | Migrate checkout from server-side calls to BFF API |
+| Domain   | Effort | Migrate  | Notes                                  |
+| -------- | ------ | -------- | -------------------------------------- |
+| Platform | Medium | 3 routes | Onboarding, tenant list, module config |
+
+### De-prioritized / Low Touch
+
+| Domain       | Effort | Notes                                            |
+| ------------ | ------ | ------------------------------------------------ |
+| Paystack SSR | Small  | Partial coverage in marketplace.checkout already |
+| Support      | Small  | Simple GET/POST, low frontend touch              |
 
 ### Should Stay as REST
 
@@ -523,13 +497,13 @@ All routes under `src/app/api/v1/` are either re-exports from canonical REST rou
 
 | Category                             | Count |
 | ------------------------------------ | ----- |
-| Total REST route files               | 219   |
-| Routes covered by tRPC               | ~150  |
-| Admin routes (stay REST)             | ~40   |
-| Auth/system/infra routes (stay REST) | ~10   |
-| V1 legacy re-exports (stay REST)     | ~30   |
-| Uncovered, should stay REST          | ~25   |
-| Uncovered, candidate for migration   | ~8    |
-| tRPC routers deployed                | 20    |
-| tRPC sub-routers                     | 14    |
+| Total REST route files               | 255   |
+| Routes covered by tRPC               | ~170  |
+| Admin routes (stay REST)             | ~48   |
+| Auth/system/infra routes (stay REST) | ~12   |
+| V1 legacy re-exports (stay REST)     | ~47   |
+| Uncovered, should stay REST          | ~32   |
+| Uncovered, candidate for migration   | ~3    |
+| tRPC routers deployed                | 24    |
+| tRPC sub-routers                     | 19    |
 | DTO files (drizzle-zod)              | 10    |
