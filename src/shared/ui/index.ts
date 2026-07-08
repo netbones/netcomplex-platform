@@ -18,7 +18,7 @@ export * from './PromoBanner';
 export * from './HeaderImagePicker';
 export * from './PromoIllustration';
 export * from './Pagination';
-export * from './RichTextEditor';
+export * from './RichTextEditorDynamic';
 export * from './RichTextRenderer';
 export * from './TagCloud';
 export * from './TagInput';

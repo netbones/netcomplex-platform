@@ -107,6 +107,31 @@ const nextConfig = {
         net: false,
         tls: false,
       };
+
+      config.optimization.splitChunks.cacheGroups = {
+        ...config.optimization.splitChunks.cacheGroups,
+        lucideIcons: {
+          test: /[\\/]node_modules[\\/]lucide-react[\\/]/,
+          name: 'lucide-icons',
+          chunks: 'all',
+          priority: 20,
+          reuseExistingChunk: true,
+        },
+        tiptap: {
+          test: /[\\/]node_modules[\\/](@tiptap|prosemirror|lowlight|highlight\.js)[\\/]/,
+          name: 'tiptap-editor',
+          chunks: 'async',
+          priority: 20,
+          reuseExistingChunk: true,
+        },
+        leaflet: {
+          test: /[\\/]node_modules[\\/](react-leaflet|leaflet)[\\/]/,
+          name: 'leaflet-map',
+          chunks: 'async',
+          priority: 20,
+          reuseExistingChunk: true,
+        },
+      };
     }
     return config;
   },
