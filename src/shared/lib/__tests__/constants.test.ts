@@ -9,8 +9,6 @@ import {
   CONTENT_CATEGORIES,
   INTERESTS_DISPLAY,
   CARD_ANIMATIONS,
-  MAP_CENTER,
-  MAP_ZOOM,
 } from '@shared/lib';
 
 describe('constants', () => {
@@ -114,26 +112,6 @@ describe('constants', () => {
 
     it('has slideUp animation', () => {
       expect(CARD_ANIMATIONS.slideUp).toBe('animate-slide-up');
-    });
-  });
-
-  describe('MAP_CENTER', () => {
-    it('is a coordinate array', () => {
-      expect(Array.isArray(MAP_CENTER)).toBe(true);
-      expect(MAP_CENTER.length).toBe(2);
-    });
-
-    it('has valid latitude and longitude', () => {
-      expect(MAP_CENTER[0]).toBeCloseTo(-34, 0);
-      expect(MAP_CENTER[1]).toBeCloseTo(18.48, 1);
-    });
-  });
-
-  describe('MAP_ZOOM', () => {
-    it('is a positive number', () => {
-      expect(typeof MAP_ZOOM).toBe('number');
-      expect(MAP_ZOOM).toBeGreaterThan(0);
-      expect(MAP_ZOOM).toBeLessThanOrEqual(20);
     });
   });
 });

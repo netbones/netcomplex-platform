@@ -18,12 +18,12 @@ const fixLeafletIcons = () => {
 export default function MapContent() {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
-  const { center, streets } = useMapSettings();
+  const { center, streets, loading } = useMapSettings();
   const tenant = useTenant();
   const tenantName = tenant?.name || 'Netcomplex Demo Village';
 
   useEffect(() => {
-    if (!mapRef.current || mapInstanceRef.current) return;
+    if (!mapRef.current || mapInstanceRef.current || !center) return;
 
     fixLeafletIcons();
 
@@ -46,6 +46,22 @@ export default function MapContent() {
       }
     };
   }, [center, streets, tenantName]);
+
+  if (loading) {
+    return (
+      <div className="h-full w-full bg-gray-100 animate-pulse rounded-lg flex items-center justify-center">
+        <span className="text-gray-400">Loading map...</span>
+      </div>
+    );
+  }
+
+  if (!center) {
+    return (
+      <div className="h-full w-full bg-gray-100 rounded-lg flex items-center justify-center">
+        <span className="text-gray-400">Map location unavailable</span>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full w-full relative z-0">

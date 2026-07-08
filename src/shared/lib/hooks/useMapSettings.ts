@@ -14,27 +14,16 @@ interface MapStreet {
   coords: [number, number];
 }
 
-const DEFAULT_CENTER: MapCenter = { lat: -34.09165, lng: 18.483269, zoom: 16 };
-
-const DEFAULT_STREETS: MapStreet[] = [
-  { name: 'Pagoda Rd', coords: [-34.09165, 18.483269] },
-  { name: 'Wild Almond Rd', coords: [-34.09025, 18.483569] },
-  { name: 'Silkypuff Street', coords: [-34.0907, 18.483869] },
-  { name: 'Beechwood Rd', coords: [-34.09131, 18.483569] },
-  { name: 'Sugarbrush Rd', coords: [-34.09164, 18.483369] },
-  { name: 'Conebrush Rd', coords: [-34.09101, 18.483769] },
-];
-
 interface MapSettings {
-  center: MapCenter;
+  center: MapCenter | null;
   streets: MapStreet[];
   loading: boolean;
 }
 
 export function useMapSettings(): MapSettings {
   const [settings, setSettings] = useState<MapSettings>({
-    center: DEFAULT_CENTER,
-    streets: DEFAULT_STREETS,
+    center: null,
+    streets: [],
     loading: true,
   });
 
@@ -59,7 +48,7 @@ export function useMapSettings(): MapSettings {
               }));
             }
           } catch {
-            // ignore invalid JSON, use default
+            // ignore invalid JSON
           }
         }
 
@@ -76,7 +65,7 @@ export function useMapSettings(): MapSettings {
               }));
             }
           } catch {
-            // ignore invalid JSON, use default
+            // ignore invalid JSON
           }
         }
       })
