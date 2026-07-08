@@ -22,40 +22,35 @@ Netcomplex transforms community management into a modular, tiered SaaS platform:
 
 ## Product Structure
 
-### Tenants
-
-| Tenant Type  | Description                                 | Example                             |
-| ------------ | ------------------------------------------- | ----------------------------------- |
-| **Anchor**   | Full platform access, reference customer    | Soralia Village                     |
-| **Premium**  | Multi-property portfolio, advanced features | Property management companies       |
-| **Standard** | Single community, core features             | Individual HOA, residential complex |
-| **Starter**  | Basic features, limited users               | Small communities                   |
-
 ### Subscription Tiers
 
-Each tier unlocks specific modules:
+Each tier unlocks specific modules, mapped 1:1 to the codebase's canonical
+`TierLevel` type.
 
-| Tier           | Modules Included                              | Price Model    |
-| -------------- | --------------------------------------------- | -------------- |
-| **Foundation** | Directory, Basic Pages, News                  | Per-home/month |
-| **Growth**     | Foundation + Maintenance, Bookings, Groups    | Per-home/month |
-| **Enterprise** | Growth + Premium Portfolio, Analytics, Agents | Per-home/month |
+| Tier           | DB TenantTier | Modules Included                                        | Price Model    |
+| -------------- | ------------- | ------------------------------------------------------- | -------------- |
+| **Core**       | `STANDARD`    | Directory, Pages, News, Groups, Chat, Resources         | Per-home/month |
+| **Foundation** | `PREMIUM`     | Core + Maintenance, Bookings, Marketplace               | Per-home/month |
+| **Pro-Max**    | `ENTERPRISE`  | Foundation + Premium Portfolio, Analytics, Agent Access | Per-home/month |
+
+Soralia Village runs as the **anchor tenant** — a tenant designation indicating full
+Pro-Max tier access as the reference deployment, not a separate tier.
 
 ### Modules
 
 | Module                | Description                               | Tier       |
 | --------------------- | ----------------------------------------- | ---------- |
-| **Directory**         | Resident listings, search, profiles       | Foundation |
-| **Pages**             | Static content pages, announcements       | Foundation |
-| **News**              | Blog, events, announcements               | Foundation |
-| **Maintenance**       | Request submission, tracking, assignments | Growth     |
-| **Bookings**          | Facility reservations, calendar           | Growth     |
-| **Groups**            | Interest groups, forums                   | Growth     |
-| **Messaging**         | Real-time chat, notifications             | Growth     |
-| **Marketplace**       | Services offered by residents             | Growth     |
-| **Premium Portfolio** | Multi-property management                 | Enterprise |
-| **Analytics**         | Usage stats, reports                      | Enterprise |
-| **Agent Access**      | Real estate agent tools                   | Enterprise |
+| **Directory**         | Resident listings, search, profiles       | Core       |
+| **Pages**             | Static content pages, announcements       | Core       |
+| **News**              | Blog, events, announcements               | Core       |
+| **Maintenance**       | Request submission, tracking, assignments | Foundation |
+| **Bookings**          | Facility reservations, calendar           | Foundation |
+| **Groups**            | Interest groups, forums                   | Foundation |
+| **Messaging**         | Real-time chat, notifications             | Foundation |
+| **Marketplace**       | Services offered by residents             | Foundation |
+| **Premium Portfolio** | Multi-property management                 | Pro-Max    |
+| **Analytics**         | Usage stats, reports                      | Pro-Max    |
+| **Agent Access**      | Real estate agent tools                   | Pro-Max    |
 
 ---
 
@@ -182,7 +177,7 @@ Each tier unlocks specific modules:
 - Inquiry system
 - Provider profiles
 
-#### Premium Portfolio (Enterprise)
+#### Premium Portfolio (Pro-Max)
 
 - Multi-property dashboard
 - Unified tenant view
@@ -264,7 +259,6 @@ model Tenant {
 }
 
 enum TenantTier {
-  STARTER
   STANDARD
   PREMIUM
   ENTERPRISE
@@ -320,7 +314,7 @@ enum TenantTier {
 - [ ] Existing features work with tenant isolation
 - [ ] All current functionality preserved
 - [ ] Multi-property view for premium seats
-- [ ] Module enablement matches Growth tier
+- [ ] Module enablement matches Pro-Max tier (full platform access)
 
 ### Technical
 
@@ -344,16 +338,16 @@ enum TenantTier {
 
 ## Appendix: Module Comparison
 
-| Feature           | Starter | Standard | Premium | Enterprise |
-| ----------------- | ------- | -------- | ------- | ---------- |
-| Directory         | ✓       | ✓        | ✓       | ✓          |
-| Pages             | ✓       | ✓        | ✓       | ✓          |
-| News/Events       | ✓       | ✓        | ✓       | ✓          |
-| Maintenance       | -       | ✓        | ✓       | ✓          |
-| Bookings          | -       | ✓        | ✓       | ✓          |
-| Groups            | -       | ✓        | ✓       | ✓          |
-| Messaging         | -       | ✓        | ✓       | ✓          |
-| Marketplace       | -       | -        | ✓       | ✓          |
-| Analytics         | -       | -        | -       | ✓          |
-| Agent Access      | -       | -        | -       | ✓          |
-| Premium Portfolio | -       | -        | -       | ✓          |
+| Feature           | Core | Foundation | Pro-Max |
+| ----------------- | ---- | ---------- | ------- |
+| Directory         | ✓    | ✓          | ✓       |
+| Pages             | ✓    | ✓          | ✓       |
+| News/Events       | ✓    | ✓          | ✓       |
+| Maintenance       | -    | ✓          | ✓       |
+| Bookings          | -    | ✓          | ✓       |
+| Groups            | -    | ✓          | ✓       |
+| Messaging         | -    | ✓          | ✓       |
+| Marketplace       | -    | ✓          | ✓       |
+| Analytics         | -    | -          | ✓       |
+| Agent Access      | -    | -          | ✓       |
+| Premium Portfolio | -    | -          | ✓       |

@@ -19,7 +19,7 @@ import {
 import { disputeRulingSchema } from '@entities/dispute';
 import { canTransition } from '@entities/dispute';
 import { apiLogger, hasPermission } from '@shared/lib';
-import { eq, and, isNull } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { createId } from '@shared/lib/id';
 

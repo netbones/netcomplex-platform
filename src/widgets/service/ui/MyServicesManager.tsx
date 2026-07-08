@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { authClient } from '@api/client';
 import { ErrorBoundary } from '@shared/ui';
 import { SERVICE_MARKETPLACE_CATEGORIES } from '@entities/service';
+import Image from 'next/image';
 import { createComponentLogger } from '@shared/lib';
 import { Plus, MessageSquare, Briefcase, Clock, ExternalLink } from 'lucide-react';
 
@@ -507,10 +508,13 @@ function ListingsTab({
               <div className="flex flex-wrap gap-2 mb-2">
                 {formData.images.map((url, i) => (
                   <div key={i} className="relative group">
-                    <img
+                    <Image
                       src={url}
                       alt={`Upload ${i + 1}`}
+                      width={64}
+                      height={64}
                       className="w-16 h-16 object-cover rounded-lg border"
+                      unoptimized
                     />
                     <button
                       onClick={() => removeImage(i)}
@@ -619,10 +623,13 @@ function ListingsTab({
                 className="min-w-0 flex-1 flex items-center gap-3"
               >
                 {listing.images?.[0] && (
-                  <img
+                  <Image
                     src={listing.images[0]}
                     alt=""
+                    width={40}
+                    height={40}
                     className="w-10 h-10 rounded-lg object-cover border shrink-0"
+                    unoptimized
                   />
                 )}
                 <div className="min-w-0">

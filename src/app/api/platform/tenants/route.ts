@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     const body: SignupRequest = await request.json();
 
     // Validate the plan is a valid tier
-    if (!['foundation', 'depth', 'core'].includes(body.plan)) {
+    if (!['core', 'foundation', 'pro-max'].includes(body.plan)) {
       return apiError('VALIDATION_ERROR', 'Invalid subscription plan', 400);
     }
 
@@ -160,7 +160,7 @@ export async function POST(request: NextRequest) {
       logError(
         { component: 'platform-tenants-api', operation: 'INIT_SETUP' },
         'Failed to initialize Setup Center for tenant',
-        setupErr,
+        setupErr
       );
       // Explicitly do NOT throw — do not block signup
     }

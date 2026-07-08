@@ -8,6 +8,7 @@ import {
   writeAuditLog,
   revalidateAdminChanges,
   now,
+  rateLimitMiddleware,
 } from '@api/server';
 import { TRPCError } from '@trpc/server';
 import { hasPermission } from '@shared/lib';
@@ -70,6 +71,7 @@ export const settingsRouter = router({
    */
   upsertSetting: privilegedProcedure
     .input(UpsertSettingInput)
+    .use(rateLimitMiddleware({ windowMs: 60_000, maxRequests: 10 }))
     .meta({
       openapi: { method: 'POST', path: '/settings/upsert', protect: true, tags: ['settings'] },
     })
@@ -133,6 +135,7 @@ export const settingsRouter = router({
    */
   deleteSetting: privilegedProcedure
     .input(DeleteSettingInput)
+    .use(rateLimitMiddleware({ windowMs: 60_000, maxRequests: 10 }))
     .meta({
       openapi: { method: 'DELETE', path: '/settings/delete', protect: true, tags: ['settings'] },
     })

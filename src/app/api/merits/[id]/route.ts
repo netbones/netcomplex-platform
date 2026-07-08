@@ -13,7 +13,7 @@ import {
   withErrorHandler,
   writeAuditLog,
 } from '@api/server';
-import { eq, and, isNull } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
 import { getStandingTier, DEFAULT_TIER_THRESHOLDS } from '@entities/merit';

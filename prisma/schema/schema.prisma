@@ -355,7 +355,7 @@ model PremiumSeat {
   createdAt            DateTime              @default(now())
   updatedAt            DateTime              @default(now()) @updatedAt
   messageRetentionDays Int                   @default(30)
-  tier                 String                @default("foundation")
+  tier                 String                @default("core")
   archivedAt           DateTime?
   status               SeatStatus            @default(ACTIVE)
   addressId            String?
@@ -424,7 +424,7 @@ model StandardSeat {
 }
 
 model UserKey {
-  id        String    @id @default(cuid())
+  id        String    @id @default(uuid())
   userId    String
   publicKey String
   createdAt DateTime  @default(now())
@@ -435,7 +435,7 @@ model UserKey {
 }
 
 model UserDevice {
-  id         String   @id @default(cuid())
+  id         String   @id @default(uuid())
   userId     String
   publicKey  String
   deviceName String
@@ -447,7 +447,7 @@ model UserDevice {
 }
 
 model PlatformModule {
-  id             String         @id @default(cuid())
+  id             String         @id @default(uuid())
   key            String         @unique
   label          String
   minTier        Tier           @default(STANDARD)
@@ -458,7 +458,7 @@ model PlatformModule {
 }
 
 model TenantModule {
-  id        String         @id @default(cuid())
+  id        String         @id @default(uuid())
   tenantId  String
   moduleKey String
   enabled   Boolean        @default(false)
@@ -539,7 +539,7 @@ model SetupSetting {
 }
 
 model Property {
-  id                  String                @id @default(cuid())
+  id                  String                @id @default(uuid())
   tenantId            String
   platformAddress     String
   street              String
@@ -569,7 +569,7 @@ model Property {
 }
 
 model Household {
-  id             String          @id @default(cuid())
+  id             String          @id @default(uuid())
   tenantId       String
   propertyId     String
   organizationId String?
@@ -630,7 +630,7 @@ model PropertyListing {
 }
 
 model PropertyPremiumSeat {
-  id            String      @id @default(cuid())
+  id            String      @id @default(uuid())
   tenantId      String
   propertyId    String
   premiumSeatId String
@@ -783,7 +783,7 @@ model ContentLike {
 }
 
 model Support {
-  id              String        @id @default(cuid())
+  id              String        @id @default(uuid())
   tenantId        String
   Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   senderUserId    String
@@ -886,7 +886,7 @@ model Album {
 }
 
 model Resource {
-  id            String             @id @default(cuid())
+  id            String             @id @default(uuid())
   tenantId      String
   title         String
   description   String?
@@ -920,7 +920,7 @@ model Resource {
 }
 
 model ResourceVersion {
-  id         String    @id @default(cuid())
+  id         String    @id @default(uuid())
   resourceId String
   fileUrl    String?
   fileType   String?
@@ -1062,7 +1062,7 @@ model MaintenanceRequest {
 }
 
 model MaintenanceTeam {
-  id          String                   @id @default(cuid())
+  id          String                   @id @default(uuid())
   tenantId    String
   Tenant      Tenant                   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   name        String
@@ -1079,7 +1079,7 @@ model MaintenanceTeam {
 }
 
 model MaintenanceTeamMember {
-  id        String          @id @default(cuid())
+  id        String          @id @default(uuid())
   tenantId  String
   teamId    String
   userId    String
@@ -1095,7 +1095,7 @@ model MaintenanceTeamMember {
 }
 
 model MaintenanceCategory {
-  id          String    @id @default(cuid())
+  id          String    @id @default(uuid())
   tenantId    String
   Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   value       String
@@ -1109,7 +1109,7 @@ model MaintenanceCategory {
 }
 
 model BursaryField {
-  id          String    @id @default(cuid())
+  id          String    @id @default(uuid())
   tenantId    String
   Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   value       String
@@ -1124,7 +1124,7 @@ model BursaryField {
 }
 
 model RequestNote {
-  id         String             @id @default(cuid())
+  id         String             @id @default(uuid())
   requestId  String
   userId     String
   content    String
@@ -1139,7 +1139,7 @@ model RequestNote {
 }
 
 model InternalMaintenanceNote {
-  id        String             @id @default(cuid())
+  id        String             @id @default(uuid())
   requestId String
   userId    String
   content   String
@@ -1155,7 +1155,7 @@ model InternalMaintenanceNote {
 }
 
 model RequestHistory {
-  id        String             @id @default(cuid())
+  id        String             @id @default(uuid())
   requestId String
   userId    String
   field     String
@@ -1171,7 +1171,7 @@ model RequestHistory {
 }
 
 model ServiceProvider {
-  id              String                   @id @default(cuid())
+  id              String                   @id @default(uuid())
   tenantId        String
   Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   companyName     String
@@ -1311,7 +1311,7 @@ model CommunityServiceReview {
 }
 
 model ProviderVerification {
-  id                    String                     @id @default(cuid())
+  id                    String                     @id @default(uuid())
   providerId            String                     @unique
   tenantId              String
   Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
@@ -1332,7 +1332,7 @@ model ProviderVerification {
 }
 
 model ProviderLegalAgreement {
-  id            String          @id @default(cuid())
+  id            String          @id @default(uuid())
   providerId    String
   tenantId      String
   Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
@@ -1350,7 +1350,7 @@ model ProviderLegalAgreement {
 }
 
 model ProviderReputation {
-  id                String          @id @default(cuid())
+  id                String          @id @default(uuid())
   providerId        String          @unique
   tenantId          String
   Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
@@ -1370,7 +1370,7 @@ model ProviderReputation {
 }
 
 model ProviderMerit {
-  id          String            @id @default(cuid())
+  id          String            @id @default(uuid())
   providerId  String
   tenantId    String
   Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
@@ -1388,7 +1388,7 @@ model ProviderMerit {
 }
 
 model ProviderSubscription {
-  id              String               @id @default(cuid())
+  id              String               @id @default(uuid())
   providerId      String
   tenantId        String
   Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
@@ -1414,7 +1414,7 @@ model ProviderSubscription {
 }
 
 model PaymentTransaction {
-  id             String               @id @default(cuid())
+  id             String               @id @default(uuid())
   providerId     String
   tenantId       String
   Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
@@ -1442,7 +1442,7 @@ model PaymentTransaction {
 }
 
 model RevenueRecord {
-  id            String             @id @default(cuid())
+  id            String             @id @default(uuid())
   tenantId      String
   Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   providerId    String
@@ -1463,7 +1463,7 @@ model RevenueRecord {
 }
 
 model ProviderCharge {
-  id             String               @id @default(cuid())
+  id             String               @id @default(uuid())
   providerId     String
   tenantId       String
   Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
@@ -1489,7 +1489,7 @@ model ProviderCharge {
 }
 
 model ProviderInvoice {
-  id             String               @id @default(cuid())
+  id             String               @id @default(uuid())
   providerId     String
   tenantId       String
   Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
@@ -1517,7 +1517,7 @@ model ProviderInvoice {
 }
 
 model BillingPlan {
-  id                  String               @id @default(cuid())
+  id                  String               @id @default(uuid())
   tenantId            String
   Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   name                String
@@ -1544,7 +1544,7 @@ model BillingPlan {
 }
 
 model TenantSubscription {
-  id                 String                   @id @default(cuid())
+  id                 String                   @id @default(uuid())
   tenantId           String
   Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   planId             String
@@ -1570,7 +1570,7 @@ model TenantSubscription {
 }
 
 model TenantInvoice {
-  id             String             @id @default(cuid())
+  id             String             @id @default(uuid())
   tenantId       String
   Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   subscriptionId String
@@ -1594,7 +1594,7 @@ model TenantInvoice {
 }
 
 model TenantPayment {
-  id             String             @id @default(cuid())
+  id             String             @id @default(uuid())
   tenantId       String
   Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   subscriptionId String
@@ -1618,7 +1618,7 @@ model TenantPayment {
 }
 
 model BillingAdjustment {
-  id             String                @id @default(cuid())
+  id             String                @id @default(uuid())
   tenantId       String
   Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   subscriptionId String?
@@ -1634,7 +1634,7 @@ model BillingAdjustment {
 }
 
 model BillingEvent {
-  id             String              @id @default(cuid())
+  id             String              @id @default(uuid())
   tenantId       String
   Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   subscriptionId String?
@@ -1649,7 +1649,7 @@ model BillingEvent {
 }
 
 model Coupon {
-  id                 String             @id @default(cuid())
+  id                 String             @id @default(uuid())
   tenantId           String
   Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   code               String
@@ -1672,7 +1672,7 @@ model Coupon {
 }
 
 model CouponRedemption {
-  id             String   @id @default(cuid())
+  id             String   @id @default(uuid())
   couponId       String
   tenantId       String
   Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
@@ -1687,7 +1687,7 @@ model CouponRedemption {
 }
 
 model TaxRate {
-  id             String           @id @default(cuid())
+  id             String           @id @default(uuid())
   name           String
   rate           Decimal          @db.Decimal(5, 2)
   country        String           @default("ZA")
@@ -1701,7 +1701,7 @@ model TaxRate {
 }
 
 model TaxJurisdiction {
-  id        String    @id @default(cuid())
+  id        String    @id @default(uuid())
   name      String
   country   String    @default("ZA")
   region    String?
@@ -1746,6 +1746,8 @@ model Question {
   required  Boolean        @default(false)
   order     Int            @default(0)
   config    Json?          @default("{}")
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @default(now()) @updatedAt
   deletedAt DateTime?
   Section   SurveySection? @relation(fields: [sectionId], references: [id])
   Survey    Survey         @relation(fields: [surveyId], references: [id], onDelete: Cascade)
@@ -1841,7 +1843,7 @@ model CommunityMerit {
 }
 
 model Competition {
-  id              String             @id @default(cuid())
+  id              String             @id @default(uuid())
   tenantId        String
   Tenant          Tenant             @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   title           String
@@ -1866,7 +1868,7 @@ model Competition {
 }
 
 model CompetitionEntry {
-  id             String      @id @default(cuid())
+  id             String      @id @default(uuid())
   competitionId  String
   userId         String
   status         EntryStatus @default(JOINED)
@@ -1888,7 +1890,7 @@ model CompetitionEntry {
 }
 
 model AssistSession {
-  id        String    @id @default(cuid())
+  id        String    @id @default(uuid())
   tenantId  String
   staffId   String
   scope     String    @default("metadata")
@@ -1944,7 +1946,7 @@ model AgentAccess {
 }
 
 model AgentToken {
-  id             String       @id @default(cuid())
+  id             String       @id @default(uuid())
   tenantId       String
   Tenant         Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   agentId        String
@@ -1970,7 +1972,7 @@ model AgentToken {
 }
 
 model DelegationAction {
-  id           String      @id @default(cuid())
+  id           String      @id @default(uuid())
   tenantId     String
   Tenant       Tenant      @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   delegationId String
@@ -1987,7 +1989,7 @@ model DelegationAction {
 }
 
 model ResidentDelegation {
-  id         String    @id @default(cuid())
+  id         String    @id @default(uuid())
   tenantId   String
   Tenant     Tenant    @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   propertyId String
@@ -2033,7 +2035,7 @@ model PlatformSuspension {
 }
 
 model SubscriptionTier {
-  id                   String                 @id @default(cuid())
+  id                   String                 @id @default(uuid())
   tenantId             String
   Tenant               Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   name                 String
@@ -2051,7 +2053,7 @@ model SubscriptionTier {
 }
 
 model AchievementDefinition {
-  id                      String                    @id @default(cuid())
+  id                      String                    @id @default(uuid())
   key                     String                    @unique
   label                   String
   description             String?
@@ -2067,7 +2069,7 @@ model AchievementDefinition {
 }
 
 model TenantAchievement {
-  id              String                @id @default(cuid())
+  id              String                @id @default(uuid())
   tenantId        String
   definitionId    String
   enabled         Boolean               @default(true)
@@ -2081,7 +2083,7 @@ model TenantAchievement {
 }
 
 model UserAchievementProgress {
-  id           String                @id @default(cuid())
+  id           String                @id @default(uuid())
   tenantId     String
   Tenant       Tenant                @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   userId       String
@@ -2096,7 +2098,7 @@ model UserAchievementProgress {
 }
 
 model UserAchievement {
-  id           String                @id @default(cuid())
+  id           String                @id @default(uuid())
   tenantId     String
   Tenant       Tenant                @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   userId       String
@@ -2111,7 +2113,7 @@ model UserAchievement {
 }
 
 model DWallet {
-  id             String              @id @default(cuid())
+  id             String              @id @default(uuid())
   tenantId       String
   Tenant         Tenant              @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   userId         String              @unique
@@ -2134,7 +2136,7 @@ model DWallet {
 }
 
 model WalletTransaction {
-  id            String            @id @default(cuid())
+  id            String            @id @default(uuid())
   tenantId      String
   Tenant        Tenant            @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   walletId      String
@@ -2157,7 +2159,7 @@ model WalletTransaction {
 }
 
 model DataConsent {
-  id        String    @id @default(cuid())
+  id        String    @id @default(uuid())
   tenantId  String
   Tenant    Tenant    @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   walletId  String
@@ -2177,7 +2179,7 @@ model DataConsent {
 }
 
 model PayoutRequest {
-  id            String       @id @default(cuid())
+  id            String       @id @default(uuid())
   tenantId      String
   Tenant        Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   walletId      String
@@ -2200,7 +2202,7 @@ model PayoutRequest {
 }
 
 model DataRevenueStream {
-  id               String   @id @default(cuid())
+  id               String   @id @default(uuid())
   tenantId         String
   Tenant           Tenant   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   key              String
@@ -2216,7 +2218,7 @@ model DataRevenueStream {
 }
 
 model DataShareBatch {
-  id               String      @id @default(cuid())
+  id               String      @id @default(uuid())
   tenantId         String
   Tenant           Tenant      @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   periodStart      DateTime
@@ -2235,7 +2237,7 @@ model DataShareBatch {
 }
 
 model Address {
-  id                 String            @id @default(cuid())
+  id                 String            @id @default(uuid())
   tenantId           String
   Tenant             Tenant            @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   address            String
@@ -2272,7 +2274,7 @@ model Address {
 }
 
 model Handle {
-  id        String       @id @default(cuid())
+  id        String       @id @default(uuid())
   tenantId  String
   Tenant    Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   handle    String
@@ -2287,7 +2289,7 @@ model Handle {
 }
 
 model AddressEndpoint {
-  id        String       @id @default(cuid())
+  id        String       @id @default(uuid())
   addressId String
   type      EndpointType
   enabled   Boolean      @default(true)
@@ -2299,7 +2301,7 @@ model AddressEndpoint {
 }
 
 model PlatformAiTierQuota {
-  id              String          @id @default(cuid())
+  id              String          @id @default(uuid())
   tier            Tier            @unique
   monthlyTokens   Int
   overagePolicy   AiOveragePolicy @default(HARD_STOP)
@@ -2310,7 +2312,7 @@ model PlatformAiTierQuota {
 }
 
 model AiCapabilityCost {
-  id              String   @id @default(cuid())
+  id              String   @id @default(uuid())
   capability      String   @unique
   estimatedTokens Int
   maxTokens       Int
@@ -2319,7 +2321,7 @@ model AiCapabilityCost {
 }
 
 model TenantAiUsage {
-  id             String         @id @default(cuid())
+  id             String         @id @default(uuid())
   tenantId       String
   Tenant         Tenant         @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   billingMonth   String
@@ -2338,7 +2340,7 @@ model TenantAiUsage {
 }
 
 model AiUsageEvent {
-  id               String        @id @default(cuid())
+  id               String        @id @default(uuid())
   tenantId         String
   Tenant           Tenant        @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   usageId          String
@@ -2363,7 +2365,7 @@ model AiUsageEvent {
 }
 
 model DisputeCase {
-  id                  String                @id @default(cuid())
+  id                  String                @id @default(uuid())
   tenantId            String
   Tenant              Tenant                @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   referenceNumber     String                @unique
@@ -2413,7 +2415,7 @@ model DisputeCase {
 }
 
 model DisputeEvidence {
-  id          String      @id @default(cuid())
+  id          String      @id @default(uuid())
   tenantId    String
   Tenant      Tenant      @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   disputeId   String
@@ -2433,7 +2435,7 @@ model DisputeEvidence {
 }
 
 model DisputeEvent {
-  id         String           @id @default(cuid())
+  id         String           @id @default(uuid())
   tenantId   String
   Tenant     Tenant           @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   disputeId  String
@@ -2454,7 +2456,7 @@ model DisputeEvent {
 }
 
 model DisputeMessage {
-  id         String                  @id @default(cuid())
+  id         String                  @id @default(uuid())
   tenantId   String
   Tenant     Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   disputeId  String
@@ -2474,7 +2476,7 @@ model DisputeMessage {
 }
 
 model DisputeMessageVersion {
-  id              String         @id @default(cuid())
+  id              String         @id @default(uuid())
   messageId       String
   originalContent String
   editedAt        DateTime
@@ -2486,7 +2488,7 @@ model DisputeMessageVersion {
 }
 
 model DisputeNotification {
-  id        String      @id @default(cuid())
+  id        String      @id @default(uuid())
   tenantId  String
   Tenant    Tenant      @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   disputeId String
@@ -2504,7 +2506,7 @@ model DisputeNotification {
 }
 
 model Bursary {
-  id          String        @id @default(cuid())
+  id          String        @id @default(uuid())
   tenantId    String
   Tenant      Tenant        @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   title       String

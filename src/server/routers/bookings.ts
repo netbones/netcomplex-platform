@@ -25,6 +25,7 @@ import {
   validateFacility,
   listBookings as entityListBookings,
   createBooking as entityCreateBooking,
+  checkBookingConflict,
 } from '@entities/booking/server';
 
 import { toBookingDTO } from '@api/server';
@@ -215,6 +216,21 @@ export const bookingsRouter = router({
         throw new TRPCError({
           code: 'BAD_REQUEST',
           message: `Invalid facility. Valid options: ${validation.validOptions.join(', ')}`,
+        });
+      }
+
+      const conflictId = await checkBookingConflict({
+        tenantId,
+        facility: input.facility,
+        date: new Date(input.date),
+        startTime: input.startTime,
+        endTime: input.endTime,
+      });
+
+      if (conflictId) {
+        throw new TRPCError({
+          code: 'CONFLICT',
+          message: 'This time slot is no longer available. Please choose another time.',
         });
       }
 

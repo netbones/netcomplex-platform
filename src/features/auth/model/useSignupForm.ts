@@ -25,7 +25,7 @@ export function useSignupForm() {
       phone: '',
       password: '',
       confirmPassword: '',
-      plan: 'depth',
+      plan: 'foundation',
     },
   });
 

@@ -43,7 +43,7 @@ export const templates = {
 
   welcome: {
     subject: (tenantName = 'Netcomplex') => `Welcome to ${escapeHtml(tenantName)}!`,
-    getHtml: (name: string, tenantName = 'Netcomplex') => `
+    getHtml: (name: string, loginUrl: string, tenantName = 'Netcomplex') => `
 <!DOCTYPE html>
 <html>
 <head>
@@ -72,7 +72,7 @@ export const templates = {
   </div>
 
   <div style="text-align: center; margin: 30px 0;">
-    <a href="https://soralia.co.za/login" style="background: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Login to Portal</a>
+    <a href="${loginUrl}" style="background: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Login to Portal</a>
   </div>
 
   <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
@@ -130,7 +130,12 @@ export const templates = {
 
   emailNotification: {
     subject: (tenantName = 'Netcomplex') => `New notification from ${escapeHtml(tenantName)}`,
-    getHtml: (title: string, message: string, tenantName = 'Netcomplex') => `
+    getHtml: (
+      title: string,
+      message: string,
+      notificationsUrl: string,
+      tenantName = 'Netcomplex'
+    ) => `
 <!DOCTYPE html>
 <html>
 <head>
@@ -150,7 +155,7 @@ export const templates = {
   </div>
 
   <div style="text-align: center; margin: 30px 0;">
-    <a href="https://soralia.co.za/notifications" style="background: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">View Notifications</a>
+    <a href="${notificationsUrl}" style="background: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">View Notifications</a>
   </div>
 
   <p style="color: #6b7280; font-size: 14px;">
@@ -169,7 +174,7 @@ export const templates = {
 
   securityAlert: {
     subject: 'Security Alert: Sign-up attempt with your email',
-    getHtml: (email: string, tenantName = 'Netcomplex') => `
+    getHtml: (email: string, loginUrl: string, tenantName = 'Netcomplex') => `
 <!DOCTYPE html>
 <html>
 <head>
@@ -191,7 +196,7 @@ export const templates = {
   <p style="margin: 20px 0;">If this was you, you can simply log in to your existing account. If this wasn't you, someone may have tried to use your email address to create a duplicate account. Your account remains secure, and no action is required.</p>
 
   <div style="text-align: center; margin: 30px 0;">
-    <a href="https://soralia.co.za/login" style="background: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Login to your account</a>
+    <a href="${loginUrl}" style="background: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Login to your account</a>
   </div>
 
   <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">

@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@shared/lib';
@@ -67,10 +68,15 @@ export function PlatformHeader({ className, variant = 'light' }: PlatformHeaderP
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center gap-4">
-            <Link href="/" className="flex flex-col">
-              <span className={cn('text-2xl font-bold tracking-tight', textColor)}>NetComplex</span>
-              <span className={cn('text-xs font-medium tracking-wide', subtextColor)}>
-                Your complex, connected.
+            <Link href="/" className="flex items-center gap-3">
+              <Image src="/platform/netcomplex.svg" alt="NetComplex" width={40} height={40} />
+              <span className="flex flex-col">
+                <span className={cn('text-2xl font-bold tracking-tight', textColor)}>
+                  NetComplex
+                </span>
+                <span className={cn('text-xs font-medium tracking-wide', subtextColor)}>
+                  Your complex, connected.
+                </span>
               </span>
             </Link>
             <span

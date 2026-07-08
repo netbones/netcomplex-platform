@@ -1,6 +1,7 @@
 'use client';
 
 import { ImageUpload } from '@shared/ui';
+import Image from 'next/image';
 
 interface PropertySectionProps {
   householdId: string | null;
@@ -35,7 +36,13 @@ export function PropertySection({
         <ImageUpload value={householdImage} onChange={onImageChange} label="" />
       ) : householdImage && isSafeImageUrl(householdImage) ? (
         <div className="relative w-32 h-32 rounded-lg overflow-hidden">
-          <img src={householdImage} alt="Property" className="w-full h-full object-cover" />
+          <Image
+            src={householdImage}
+            alt="Property"
+            fill
+            className="w-full h-full object-cover"
+            unoptimized
+          />
         </div>
       ) : (
         <p className="text-gray-400 italic">No property image available</p>

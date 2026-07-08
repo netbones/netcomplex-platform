@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useSafeTranslation } from '@shared/lib';
 import { ErrorBoundary } from '@shared/ui';
+import { trpc } from '@api/client';
 import {
   BURSARIES,
   RESOURCES,
@@ -662,42 +663,36 @@ export function EducationPortal() {
   const [pin, setPin] = useState<PinData | null>(null);
   const savedCountEl = useRef<HTMLSpanElement>(null);
 
-  const fetchData = useCallback(async () => {
-    try {
-      const [bRes, rRes, fRes, sRes] = await Promise.all([
-        fetch('/api/education/bursaries'),
-        fetch('/api/education/resources'),
-        fetch('/api/education/bursary-fields'),
-        fetch('/api/education/settings'),
-      ]);
-      const bJson = await bRes.json();
-      const rJson = await rRes.json();
-      const fJson = await fRes.json();
-      const sJson = await sRes.json();
+  const { data: rawBursaries } = trpc.education.listBursaries.useQuery() as {
+    data?: DbBursary[];
+  };
+  const { data: rawResources } = trpc.education.listEducationResources.useQuery() as {
+    data?: DbResource[];
+  };
+  const { data: rawFields } = trpc.education.listBursaryFields.useQuery() as {
+    data?: { id: string; label: string }[];
+  };
+  const { data: settingsData } = trpc.education.getEducationSettings.useQuery() as {
+    data?: { pin: PinData; shelf: ShelfBook[] };
+  };
 
-      const fields: { id: string; label: string }[] = fJson.data ?? [];
-      const fieldMap = new Map(fields.map(f => [f.id, f.label]));
-
-      const rawBursaries = (bJson.data ?? []) as DbBursary[];
-      const rawResources = (rJson.data ?? []) as DbResource[];
-      const settings = sJson.data ?? {};
-
-      if (rawBursaries.length > 0) {
-        setApiBursaries(rawBursaries.map(b => mapBursary(b, fieldMap.get(b.fieldId))));
-      }
-      if (rawResources.length > 0) {
-        setApiResources(rawResources.map(mapResource));
-      }
-      if (settings.shelf?.length > 0) {
-        setShelfBooks(settings.shelf);
-      }
-      if (settings.pin?.title) {
-        setPin(settings.pin);
-      }
-    } catch {
-      /* fall through to static data */
+  useEffect(() => {
+    if (!rawFields || !rawBursaries) return;
+    const fieldMap = new Map(rawFields.map(f => [f.id, f.label]));
+    if (rawBursaries.length > 0) {
+      setApiBursaries(rawBursaries.map(b => mapBursary(b, fieldMap.get(b.fieldId))));
     }
-  }, []);
+  }, [rawBursaries, rawFields]);
+
+  useEffect(() => {
+    if (!rawResources || !rawResources.length) return;
+    setApiResources(rawResources.map(mapResource));
+  }, [rawResources]);
+
+  useEffect(() => {
+    if (settingsData?.shelf?.length) setShelfBooks(settingsData.shelf);
+    if (settingsData?.pin?.title) setPin(settingsData.pin);
+  }, [settingsData]);
 
   const toggleSave = useCallback((id: string) => {
     setSaved(prev => {
@@ -719,10 +714,6 @@ export function EducationPortal() {
       /* ignore */
     }
   }, []);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
 
   useEffect(() => {
     localStorage.setItem('edu-saved', JSON.stringify([...saved]));

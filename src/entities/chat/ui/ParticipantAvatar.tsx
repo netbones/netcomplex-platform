@@ -1,4 +1,5 @@
 'use client';
+import Image from 'next/image';
 
 interface ParticipantAvatarProps {
   name: string;
@@ -25,9 +26,9 @@ export function ParticipantAvatar({
 
   return (
     <div className="relative">
-      <div className={`rounded-full overflow-hidden border border-white ${sizeClass}`}>
+      <div className={`rounded-full overflow-hidden border border-white ${sizeClass} relative`}>
         {avatar ? (
-          <img src={avatar} alt={name} className="w-full h-full object-cover" />
+          <Image src={avatar} alt={name} fill className="w-full h-full object-cover" unoptimized />
         ) : (
           <div
             className={`w-full h-full bg-soralia-primary/20 flex items-center justify-center ${sizeClass}`}

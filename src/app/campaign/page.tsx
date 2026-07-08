@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { usePageLoading } from '@shared/ui';
+import Image from 'next/image';
+import { trpc } from '@api/client';
 import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('campaign-page');
@@ -38,10 +40,16 @@ interface CampaignData {
 }
 
 export default function CampaignPage() {
-  const [campaignData, setCampaignData] = useState<CampaignData | null>(null);
-  const [loading, setLoading] = useState(true);
   const [campaignEnabled, setCampaignEnabled] = useState<boolean>(true);
   const { t, i18n } = useTranslation(['common', 'campaign']);
+
+  const { data: campaignDataEnvelope, isLoading: loading } = trpc.content.getCampaignPage.useQuery(
+    undefined,
+    {
+      enabled: campaignEnabled,
+    }
+  );
+  const campaignData = (campaignDataEnvelope?.data as unknown as CampaignData | null) ?? null;
 
   const { isReady, LoadingComponent } = usePageLoading(
     [
@@ -65,26 +73,6 @@ export default function CampaignPage() {
     }
     checkCampaignEnabled();
   }, []);
-
-  useEffect(() => {
-    async function fetchCampaignData() {
-      try {
-        const res = await fetch('/api/campaign');
-        const body = await res.json();
-        setCampaignData(body.success ? body.data : body);
-      } catch (error) {
-        log.error({}, 'Failed to fetch campaign data', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    if (campaignEnabled) {
-      fetchCampaignData();
-    } else {
-      setLoading(false);
-    }
-  }, [campaignEnabled]);
 
   // Get localized content
   const getLocalizedContent = (field: Record<string, string> | null | undefined): string => {
@@ -130,7 +118,13 @@ export default function CampaignPage() {
 
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-4">
-              <img src="/platform/campaigns.svg" alt="" className="w-10 h-10" />
+              <Image
+                src="/platform/campaigns.svg"
+                alt=""
+                width={40}
+                height={40}
+                className="w-10 h-10"
+              />
               <h1 className="text-4xl font-bold text-soralia-primary">{pageTitle}</h1>
             </div>
             {pageDescription && <p className="text-lg text-gray-600">{pageDescription}</p>}
@@ -146,13 +140,15 @@ export default function CampaignPage() {
                 <Link
                   key={item.id}
                   href={`/news/${item.id}`}
-                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow block"
+                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow block relative"
                 >
                   {item.image && (
-                    <img
+                    <Image
                       src={item.image}
                       alt={getLocalizedContent(item.title)}
+                      fill
                       className="w-full h-48 object-cover"
+                      unoptimized
                     />
                   )}
                   <div className="p-4">
@@ -167,7 +163,14 @@ export default function CampaignPage() {
                     {item.author && (
                       <div className="flex items-center gap-2 text-sm text-gray-500">
                         {item.author.avatar && (
-                          <img src={item.author.avatar} alt="" className="w-6 h-6 rounded-full" />
+                          <Image
+                            src={item.author.avatar}
+                            alt=""
+                            width={24}
+                            height={24}
+                            className="w-6 h-6 rounded-full"
+                            unoptimized
+                          />
                         )}
                         <span>{item.author.name}</span>
                       </div>

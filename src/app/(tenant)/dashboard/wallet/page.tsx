@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useCallback, useEffect } from 'react';
+import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { ErrorBoundary, LoadingSkeleton } from '@shared/ui';
 import { useWallet } from '@entities/dwallet';
@@ -10,6 +11,7 @@ import type {
   PayoutRequestItem,
   StreamConfig,
 } from '@entities/dwallet';
+import Image from 'next/image';
 import {
   Download,
   MoreHorizontal,
@@ -156,7 +158,7 @@ function PageHeader({ balance, isLoading }: { balance: string | undefined; isLoa
     <div className="mb-6">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-3">
-          <img src="/platform/wallet-red.svg" alt="dWallet" className="w-7 h-7" />
+          <Image src="/platform/wallet-red.svg" alt="dWallet" width={28} height={28} />
           <div>
             <h2 className="text-2xl font-bold text-slate-800">My dWallet</h2>
             <p className="text-sm text-slate-500">Your data, your consent, your rewards</p>
@@ -278,7 +280,7 @@ function OverviewTab({
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
         <div className="w-16 h-16 rounded-full bg-indigo-50 flex items-center justify-center mb-4">
-          <img src="/platform/wallet-red.svg" alt="dWallet" className="w-8 h-8" />
+          <Image src="/platform/wallet-red.svg" alt="dWallet" width={32} height={32} />
         </div>
         <h3 className="text-base font-semibold text-slate-700 mb-2">No community activity yet</h3>
         <p className="text-sm text-slate-500 max-w-xs">
@@ -382,13 +384,13 @@ function OverviewTab({
 
       {/* Quick Actions */}
       <div className="flex items-center gap-3">
-        <a
+        <Link
           href="/dashboard/wallet?tab=payouts"
           className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
         >
           <CreditCard className="w-4 h-4" />
           Request Payout
-        </a>
+        </Link>
         <button
           type="button"
           className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] border border-slate-300 text-slate-600 text-sm font-medium rounded-lg hover:bg-slate-50 transition-colors"
@@ -403,12 +405,12 @@ function OverviewTab({
         <div>
           <div className="flex items-center justify-between mb-3">
             <h4 className="text-sm font-semibold text-slate-700">Recent Community Activity</h4>
-            <a
+            <Link
               href="/dashboard/wallet?tab=activity"
               className="text-sm text-indigo-600 hover:text-indigo-700"
             >
               View all &rarr;
-            </a>
+            </Link>
           </div>
           <div className="border border-slate-200 rounded-lg bg-white overflow-hidden">
             <table className="w-full text-sm">

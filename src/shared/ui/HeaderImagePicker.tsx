@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { X, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -126,7 +127,7 @@ export function HeaderImagePicker({
                       : 'border-transparent hover:border-gray-300'
                   }`}
                 >
-                  <img src={img.url} alt={img.name} className="w-full h-full object-cover" />
+                  <Image src={img.url} alt={img.name} fill className="object-cover" unoptimized />
                   {selected === img.url && (
                     <div className="absolute inset-0 bg-indigo-600/20 flex items-center justify-center">
                       <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center">

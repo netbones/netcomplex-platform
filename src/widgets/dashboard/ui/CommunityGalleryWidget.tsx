@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import NextImage from 'next/image';
 import { Image as ImageIcon, Globe, ChevronLeft } from 'lucide-react';
 
 interface PublicAlbum {
@@ -108,9 +109,15 @@ export function CommunityGalleryWidget() {
             className="text-left border rounded-lg p-3 hover:shadow-md transition-shadow"
           >
             <div className="flex items-center gap-2 mb-2">
-              <div className="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center overflow-hidden">
+              <div className="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center overflow-hidden relative">
                 {album.userAvatar ? (
-                  <img src={album.userAvatar} alt="" className="w-full h-full object-cover" />
+                  <NextImage
+                    src={album.userAvatar}
+                    alt=""
+                    fill
+                    className="w-full h-full object-cover"
+                    unoptimized
+                  />
                 ) : (
                   <span className="text-xs font-medium text-indigo-600">
                     {album.userName.charAt(0).toUpperCase()}
@@ -149,8 +156,8 @@ function AlbumMediaThumbnail({ mediaId }: { mediaId: string }) {
   }
 
   return (
-    <div className="aspect-square rounded overflow-hidden">
-      <img src={url} alt="" className="w-full h-full object-cover" />
+    <div className="aspect-square rounded overflow-hidden relative">
+      <NextImage src={url} alt="" fill className="w-full h-full object-cover" unoptimized />
     </div>
   );
 }

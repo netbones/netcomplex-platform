@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { useTranslation } from 'react-i18next';
 import { Carousel, Pagination } from '@shared/ui';
-import { STREETS, CARD_HEADER_COLORS } from '@shared/lib';
+import { CARD_HEADER_COLORS } from '@shared/lib';
 import { useResidentFilter } from '@features/directory';
+import { useMapSettings } from '@shared/lib/hooks/useMapSettings';
 import type { CarouselItem } from '@entities/tenant';
 import type { HeroCarouselConfig } from '@entities/tenant';
 
@@ -39,6 +40,7 @@ export default function HomePage() {
   const { t, ready } = useTranslation('common');
   const [mounted, setMounted] = useState(false);
   const [carouselItems, setCarouselItems] = useState<CarouselItem[]>(DEFAULT_CAROUSEL_ITEMS);
+  const { streets: mapStreets } = useMapSettings();
 
   const {
     residents,
@@ -190,8 +192,8 @@ export default function HomePage() {
               className="border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-1 focus:ring-soralia-primary"
             >
               <option>{t('home.allStreets')}</option>
-              {STREETS.map(street => (
-                <option key={street}>{street}</option>
+              {mapStreets.map(s => (
+                <option key={s.name}>{s.name}</option>
               ))}
             </select>
           </div>

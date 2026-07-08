@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import Link from 'next/link';
 import { ErrorBoundary } from '@shared/ui';
 import { useAdminContent } from '@shared/lib/hooks';
 
@@ -87,18 +88,18 @@ export function AdminContentWidget() {
         </div>
 
         <div className="mt-4 flex gap-2">
-          <a
+          <Link
             href="/admin/content"
             className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
           >
             Manage Content →
-          </a>
-          <a
+          </Link>
+          <Link
             href="/admin/content/new"
             className="text-green-600 hover:text-green-800 text-sm font-medium"
           >
             Create New →
-          </a>
+          </Link>
         </div>
       </div>
     </ErrorBoundary>

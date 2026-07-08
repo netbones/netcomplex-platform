@@ -69,8 +69,8 @@ export function getPoolProviderConfig(): {
  * PLATFORM_AI_DEFAULT_PROVIDER (defaults to 'anthropic').
  */
 export async function getAiProvider(tenantId: string): Promise<AiProvider> {
-  const module = await getTenantModule(tenantId, 'ai-provider');
-  if (!module?.enabled) return new NullProvider();
+  const tenantModule = await getTenantModule(tenantId, 'ai-provider');
+  if (!tenantModule?.enabled) return new NullProvider();
 
   const config = getPoolProviderConfig();
   if (!config) return new NullProvider();

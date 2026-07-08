@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { Breadcrumbs } from '@shared/ui';
 import { EducationList } from '@widgets/admin';
 
@@ -13,7 +14,7 @@ export default function EducationAdminPage() {
         ]}
       />
       <div className="flex items-center gap-3 mt-6 mb-6">
-        <img src="/platform/education-red.svg" alt="" className="w-8 h-8" />
+        <Image src="/platform/education-red.svg" alt="" width={32} height={32} />
         <h1 className="text-2xl font-bold text-gray-900">Education Portal</h1>
       </div>
       <EducationList />

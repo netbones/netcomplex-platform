@@ -82,10 +82,28 @@ export const auth = betterAuth({
     //   );
     // },
     async onExistingUserSignUp({ user }) {
+      const userId = (user as unknown as Record<string, unknown>).tenantId as string | undefined;
+      const tenant = userId
+        ? await db
+            .select({ name: tenants.name, slug: tenants.slug, customDomain: tenants.customDomain })
+            .from(tenants)
+            .where(eq(tenants.id, userId))
+            .limit(1)
+            .then(rows => rows[0] ?? null)
+        : null;
+
+      const tenantName = tenant?.name ?? 'Netcomplex';
+      const loginUrl = tenant?.customDomain
+        ? `https://${tenant.customDomain}/login`
+        : tenant?.slug
+          ? `https://${tenant.slug}.netbones.co.za/login`
+          : 'https://app.netbones.co.za/login';
+
       sendEmail({
         to: user.email,
         subject: templates.securityAlert.subject,
-        html: templates.securityAlert.getHtml(user.email),
+        html: templates.securityAlert.getHtml(user.email, loginUrl, tenantName),
+        fromName: tenantName,
       }).catch(err =>
         authLogger.error({ err, email: user.email }, 'Security alert email send failed')
       );
@@ -95,10 +113,24 @@ export const auth = betterAuth({
   // Wire verification email via Better Auth (used when requireEmailVerification is true)
   emailVerification: {
     sendVerificationEmail: async ({ user, url }) => {
+      const rawUser = user as unknown as Record<string, unknown>;
+      const tenantId = rawUser.tenantId as string | undefined;
+      const tenant = tenantId
+        ? await db
+            .select({ name: tenants.name })
+            .from(tenants)
+            .where(eq(tenants.id, tenantId))
+            .limit(1)
+            .then(rows => rows[0] ?? null)
+        : null;
+
+      const tenantName = tenant?.name ?? 'Netcomplex';
+
       sendEmail({
         to: user.email,
-        subject: templates.verifyEmail.subject(),
-        html: templates.verifyEmail.getHtml(user.name || '', url),
+        subject: templates.verifyEmail.subject(tenantName),
+        html: templates.verifyEmail.getHtml(user.name || '', url, tenantName),
+        fromName: tenantName,
       }).catch(err =>
         authLogger.error({ err, email: user.email }, 'Verification email send failed')
       );
@@ -117,7 +149,7 @@ export const auth = betterAuth({
         type: 'string',
         required: true,
         defaultValue: tenantConfig.defaultSlug,
-        input: false, // Users cannot set this during signup - it's auto-set
+        input: true, // Allow signup route to set tenant via x-tenant-slug header
       },
       dashboardLayout: {
         type: 'string',

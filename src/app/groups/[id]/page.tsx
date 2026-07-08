@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { authClient } from '@api/client';
+import Image from 'next/image';
 import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('group-detail-page');
@@ -153,9 +154,9 @@ export default function GroupDetailPage() {
             <div className="space-y-3">
               {group.members.map(m => (
                 <div key={m.user.id} className="flex items-center">
-                  <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 text-sm font-medium mr-3 overflow-hidden flex-shrink-0">
+                  <div className="relative w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 text-sm font-medium mr-3 overflow-hidden flex-shrink-0">
                     {m.user.image ? (
-                      <img src={m.user.image} alt="" className="w-full h-full object-cover" />
+                      <Image src={m.user.image} alt="" fill className="object-cover" unoptimized />
                     ) : (
                       m.user.name?.charAt(0)
                     )}

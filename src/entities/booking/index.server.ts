@@ -10,4 +10,6 @@ export {
   buildBookingConditions,
   listBookings,
   createBooking,
+  checkBookingConflict,
+  getBookedSlots,
 } from './services';

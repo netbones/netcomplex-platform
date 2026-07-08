@@ -3,7 +3,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, renderHook } from '@testing-library/react';
-import type { PlatformPageFlags, HeaderLinkId, Role, TierLevel } from '@shared/lib';
+import type { PlatformPageFlags, Role, TierLevel } from '@shared/lib';
 
 vi.mock('@api/client', () => ({
   useSession: vi.fn(),
@@ -106,7 +106,7 @@ describe('canAccessClient', () => {
   });
 
   it('Layer 4: denies when tier is too low for feature', () => {
-    const ctx = makeCtx({ tier: 'foundation' });
+    const ctx = makeCtx({ tier: 'core' });
     const result = canAccessClient(ctx, 'services');
     expect(result).toEqual({ allowed: false, reason: 'feature' });
   });
@@ -119,25 +119,25 @@ describe('canAccessClient', () => {
   });
 
   it('Layer 4: skipped for features with null registry mapping (competitions)', () => {
-    const ctx = makeCtx({ tier: 'foundation' });
+    const ctx = makeCtx({ tier: 'core' });
     const result = canAccessClient(ctx, 'competitions');
     expect(result.allowed).toBe(true);
   });
 
   it('Layer 4: skipped for features with null registry mapping (dashboard)', () => {
-    const ctx = makeCtx({ tier: 'foundation' });
+    const ctx = makeCtx({ tier: 'core' });
     const result = canAccessClient(ctx, 'dashboard');
     expect(result.allowed).toBe(true);
   });
 
   it('happy path: ADMIN with all flags true and core tier passes', () => {
-    const ctx = makeCtx({ role: 'ADMIN', tier: 'core' });
+    const ctx = makeCtx({ role: 'ADMIN', tier: 'pro-max' });
     const result = canAccessClient(ctx, 'bookings');
     expect(result).toEqual({ allowed: true, reason: 'allowed' });
   });
 
   it('robustness: features with non-null flags and non-null registry work correctly', () => {
-    const ctx = makeCtx({ role: 'RESIDENT', tier: 'foundation' });
+    const ctx = makeCtx({ role: 'RESIDENT', tier: 'core' });
     for (const feature of ['maintenance', 'events', 'chat', 'news', 'directory'] as const) {
       const result = canAccessClient(ctx, feature);
       expect(result.allowed).toBe(true);

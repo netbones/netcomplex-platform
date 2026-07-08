@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import type { Message } from '../model/types';
 
 interface ChatMessageProps {
@@ -90,10 +91,12 @@ export function ChatMessage({ message, isCurrentUser, showSenderName = false }: 
         >
           {isImage ? (
             <div className="relative overflow-hidden rounded-lg mt-1">
-              <img
+              <Image
                 src={message.mediaUrl!}
                 alt="Shared content"
+                fill
                 className="max-w-full max-h-[300px] object-cover rounded-lg"
+                unoptimized
               />
             </div>
           ) : (

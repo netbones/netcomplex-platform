@@ -20,7 +20,6 @@ import {
   eq,
   and,
   desc,
-  isNull,
   sql,
   listMaintenanceRequests,
   createMaintenanceRequest,

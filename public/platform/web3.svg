@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
+  <defs>
+    <linearGradient id="glassBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#F3EFE3" stop-opacity="0.75"/>
+    </linearGradient>
+    <linearGradient id="netNavy" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+    <linearGradient id="netGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EAB308"/>
+      <stop offset="100%" stop-color="#A16207"/>
+    </linearGradient>
+    <filter id="softShadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="1" dy="2.5" stdDeviation="2" flood-color="#0F172A" flood-opacity="0.2"/>
+    </filter>
+    <clipPath id="leftHalf">
+      <rect x="-10" y="-10" width="27" height="60" />
+    </clipPath>
+    <clipPath id="rightHalf">
+      <rect x="17" y="-10" width="40" height="60" />
+    </clipPath>
+  </defs>
+
+  <rect width="64" height="64" rx="16" fill="url(#glassBg)" stroke="#E2E8F0" stroke-width="1" />
+
+  <g filter="url(#softShadow)" transform="translate(15, 14)">
+    <!-- Left Half Vector Mapping (Navy) -->
+    <g clip-path="url(#leftHalf)">
+      <path d="M26,12 C29.5,12 31,14.5 31,17 C31,19.5 29,21.5 25,21.5 H13 V12 H26 Z M25,21.5 C29.5,21.5 32,23.5 32,26.5 C32,29.5 29.5,32 25,32 H13 V21.5 H25 Z M18,4 V36 M23,4 V36 M9,7 H27 M9,36 H27" fill="none" stroke="url(#netNavy)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+
+    <!-- Right Half Vector Mapping (Gold) -->
+    <g clip-path="url(#rightHalf)">
+      <path d="M26,12 C29.5,12 31,14.5 31,17 C31,19.5 29,21.5 25,21.5 H13 V12 H26 Z M25,21.5 C29.5,21.5 32,23.5 32,26.5 C32,29.5 29.5,32 25,32 H13 V21.5 H25 Z M18,4 V36 M23,4 V36 M9,7 H27 M9,36 H27" fill="none" stroke="url(#netGold)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </g>
+</svg>

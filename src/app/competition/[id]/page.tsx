@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ErrorBoundary } from '@shared/ui';
 import { authClient, trpc } from '@api/client';
+import Image from 'next/image';
 import { toast } from 'sonner';
 
 // ──────────────────────────────────────────
@@ -163,10 +164,12 @@ function CompetitionDetailContent() {
       {/* Hero section */}
       {competition.image && (
         <div className="relative w-full h-64 md:h-80 rounded-lg overflow-hidden mb-8">
-          <img
+          <Image
             src={competition.image}
             alt={competition.title}
+            fill
             className="w-full h-full object-cover"
+            unoptimized
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
         </div>
@@ -295,11 +298,13 @@ function CompetitionDetailContent() {
                       <span className="font-medium">Entry submitted!</span>
                     </div>
                     {competition.currentUserEntry.submissionUrl && (
-                      <div className="mt-2">
-                        <img
+                      <div className="mt-2 relative">
+                        <Image
                           src={competition.currentUserEntry.submissionUrl}
                           alt="Your submission"
+                          fill
                           className="max-w-xs mx-auto rounded-lg shadow-sm border border-gray-100"
+                          unoptimized
                         />
                       </div>
                     )}
@@ -437,9 +442,15 @@ function CompetitionDetailContent() {
                 : competition.topParticipants.slice(0, 20)
               ).map(p => (
                 <div key={p.userId} className="flex flex-col items-center gap-1">
-                  <div className="w-10 h-10 rounded-full overflow-hidden">
+                  <div className="w-10 h-10 rounded-full overflow-hidden relative">
                     {p.avatar ? (
-                      <img src={p.avatar} alt="" className="w-full h-full object-cover" />
+                      <Image
+                        src={p.avatar}
+                        alt=""
+                        fill
+                        className="w-full h-full object-cover"
+                        unoptimized
+                      />
                     ) : (
                       <div className="w-full h-full bg-indigo-100 flex items-center justify-center text-sm font-medium text-indigo-600">
                         {p.name.charAt(0).toUpperCase()}
@@ -480,9 +491,15 @@ function CompetitionDetailContent() {
                     key={w.userId}
                     className="bg-white rounded-lg shadow-sm border border-amber-100 p-4 flex items-center gap-3"
                   >
-                    <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
+                    <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 relative">
                       {w.avatar ? (
-                        <img src={w.avatar} alt="" className="w-full h-full object-cover" />
+                        <Image
+                          src={w.avatar}
+                          alt=""
+                          fill
+                          className="w-full h-full object-cover"
+                          unoptimized
+                        />
                       ) : (
                         <div className="w-full h-full bg-amber-100 flex items-center justify-center text-lg font-bold text-amber-600">
                           {w.name.charAt(0).toUpperCase()}
@@ -512,9 +529,15 @@ function CompetitionDetailContent() {
                         key={w.userId}
                         className="bg-white rounded-lg shadow-sm border border-gray-100 p-3 flex items-center gap-3"
                       >
-                        <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+                        <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 relative">
                           {w.avatar ? (
-                            <img src={w.avatar} alt="" className="w-full h-full object-cover" />
+                            <Image
+                              src={w.avatar}
+                              alt=""
+                              fill
+                              className="w-full h-full object-cover"
+                              unoptimized
+                            />
                           ) : (
                             <div className="w-full h-full bg-gray-100 flex items-center justify-center text-sm font-medium text-gray-600">
                               {w.name.charAt(0).toUpperCase()}

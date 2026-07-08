@@ -14,7 +14,7 @@ import {
   users,
 } from '@api/server';
 
-import { eq, and, isNull, desc } from 'drizzle-orm';
+import { eq, and, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { apiLogger } from '@shared/lib';
 import { createId } from '@shared/lib/id';

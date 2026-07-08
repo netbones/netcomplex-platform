@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
       fontFamily: body.fontFamily || null,
       customCss: body.customCss || null,
       active: body.active ?? true,
-      subscriptionTier: body.subscriptionTier || 'foundation',
+      subscriptionTier: body.subscriptionTier || 'core',
       tier: body.tier || 'STANDARD',
       maxPages: body.maxPages ?? 5,
       pageCount: body.pageCount ?? 0,

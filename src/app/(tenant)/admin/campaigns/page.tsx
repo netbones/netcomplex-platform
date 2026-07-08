@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
@@ -258,10 +259,13 @@ export default function AdminCampaignsPage() {
               className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm flex items-center gap-4"
             >
               {item.image && (
-                <img
+                <Image
                   src={item.image}
                   alt={getTitle(item)}
-                  className="w-16 h-16 rounded-lg object-cover shrink-0"
+                  width={64}
+                  height={64}
+                  className="rounded-lg object-cover shrink-0"
+                  unoptimized
                 />
               )}
               <div className="flex-1 min-w-0">

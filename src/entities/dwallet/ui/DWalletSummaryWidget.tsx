@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback } from 'react';
+import Link from 'next/link';
 import { ErrorBoundary, LoadingCard } from '@shared/ui';
 import { useWallet } from '@entities/dwallet';
 import { Wallet, CreditCard, Download, Info } from 'lucide-react';
@@ -260,12 +261,12 @@ function DWalletSummaryWidgetContent() {
         </div>
 
         {/* View full activity link */}
-        <a
+        <Link
           href="/dashboard/wallet?tab=activity"
           className="text-sm text-indigo-600 hover:text-indigo-700 transition-colors"
         >
           View full activity &rarr;
-        </a>
+        </Link>
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
 import { usePageLoading, Breadcrumbs, ErrorBoundary, ModalOverlay } from '@shared/ui';
 import { CARD_ANIMATIONS, createComponentLogger } from '@shared/lib';
+import Image from 'next/image';
 import {
   defaultServiceCategories as defaultCats,
   additionalServices as defaultAdditional,
@@ -211,9 +212,11 @@ export function ServicesPage() {
             <section className="rounded-3xl overflow-hidden bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600 text-white mb-12">
               <div className="p-10 lg:p-14">
                 <div className="flex items-start gap-4 mb-8">
-                  <img
+                  <Image
                     src="/platform/services.svg"
                     alt=""
+                    width={40}
+                    height={40}
                     className="w-10 h-10 mt-1.5 hidden sm:block brightness-0 invert"
                   />
                   <div>

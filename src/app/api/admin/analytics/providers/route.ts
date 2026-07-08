@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { and, desc, eq, gte, isNull, sql } from 'drizzle-orm';
+import { and, desc, eq, gte, sql } from 'drizzle-orm';
 
 import {
   apiInternalError,

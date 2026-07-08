@@ -15,7 +15,7 @@ import {
   withErrorHandler,
   writeAuditLog,
 } from '@api/server';
-import { and, eq, isNull, desc } from 'drizzle-orm';
+import { and, eq, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
 import { BEHAVIOR_POINTS, DEFAULT_EXPIRY_DAYS, getStandingTier } from '@entities/merit';

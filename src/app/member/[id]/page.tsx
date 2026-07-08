@@ -4,6 +4,7 @@ import { Suspense } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { trpc } from '@api/client';
+import Image from 'next/image';
 import { Breadcrumbs } from '@shared/ui';
 
 function MemberContent() {
@@ -86,14 +87,27 @@ function MemberContent() {
 
       <div className="bg-white rounded-lg shadow-md overflow-hidden mt-6">
         {property?.homeImage && (
-          <div className="h-48 w-full">
-            <img src={property.homeImage} alt="Property" className="w-full h-full object-cover" />
+          <div className="relative h-48 w-full">
+            <Image
+              src={property.homeImage}
+              alt="Property"
+              fill
+              className="w-full h-full object-cover"
+              unoptimized
+            />
           </div>
         )}
 
         <div className="p-6">
           <div className="flex items-start gap-6">
-            <img src={avatarUrl} alt={user.name} className="w-24 h-24 rounded-full bg-gray-100" />
+            <Image
+              src={avatarUrl}
+              alt={user.name}
+              width={96}
+              height={96}
+              className="w-24 h-24 rounded-full bg-gray-100"
+              unoptimized
+            />
             <div className="flex-1">
               <h1 className="text-3xl font-bold text-gray-900">{user.name}</h1>
               <p className="text-gray-600 mt-1">

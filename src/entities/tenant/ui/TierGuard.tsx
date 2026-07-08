@@ -1,6 +1,7 @@
 'use client';
 
 import { ReactNode } from 'react';
+import Link from 'next/link';
 import { type TierLevel } from '@/shared/lib';
 import { hasFeature, canAccessPage, canUseWidget } from '../api/features/registry';
 
@@ -19,7 +20,7 @@ interface TierGuardProps {
  * TierGuard - Conditionally render content based on tenant subscription tier
  *
  * SCOPE: Subscription-based access control
- * - Checks tenant's subscription tier (foundation/depth/core) for baseline access
+ * - Checks tenant's subscription tier (core/foundation/'pro-max') for baseline access
  * - Works with page, widget, and feature permission checks
  * - Provides upgrade prompt UI when access is denied
  *
@@ -87,7 +88,7 @@ function UpgradePrompt({
   widget?: string;
   currentTier: TierLevel;
 }) {
-  const nextTier = currentTier === 'foundation' ? 'DEPTH' : 'CORE';
+  const nextTier = currentTier === 'core' ? 'DEPTH' : 'CORE';
 
   return (
     <div className="flex flex-col items-center justify-center p-6 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
@@ -98,12 +99,12 @@ function UpgradePrompt({
         {page && `The "${page}" page requires a higher tier.`}
         {widget && `The "${widget}" requires a higher tier.`}
       </p>
-      <a
+      <Link
         href="/dashboard/admin/upgrade"
         className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
       >
         Upgrade to {nextTier}
-      </a>
+      </Link>
     </div>
   );
 }

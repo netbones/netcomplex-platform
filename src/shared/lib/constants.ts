@@ -58,11 +58,6 @@ export const FILE_SIZE = {
 export const SUPPORTED_LANGUAGES = ['en', 'af', 'xh', 'zu'] as const;
 export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
 
-/** Leaflet map center coordinates [lat, lng] */
-export const MAP_CENTER: [number, number] = [-34.09165, 18.483269];
-/** Leaflet map default zoom level */
-export const MAP_ZOOM = 16;
-
 /** Default pagination page size */
 export const PAGINATION_DEFAULT_PAGE_SIZE = 20;
 
@@ -213,13 +208,3 @@ export const RESIDENT_TYPES = {
   RENTER: 'RENTER',
 } as const;
 export type ResidentType = keyof typeof RESIDENT_TYPES;
-
-/** Streets (default fallback — use map.streets setting for tenant-specific data) */
-export const STREETS = [
-  'Pagoda Rd',
-  'Wild Almond Rd',
-  'Silkypuff Street',
-  'Beechwood Rd',
-  'Sugarbrush Rd',
-  'Conebrush Rd',
-] as const;

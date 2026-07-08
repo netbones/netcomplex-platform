@@ -1,15 +1,16 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { useSafeTranslation } from '@shared/lib';
 import { SectionLayout } from '@shared/ui';
-import { Users, BarChart3, Megaphone, ChevronDown, HatGlassesIcon } from 'lucide-react';
+import { BarChart3, ChevronDown } from 'lucide-react';
 
 const featureIcons: Array<
   | { type: 'lucide'; Icon: React.ComponentType<{ className?: string }> }
   | { type: 'svg'; src: string; alt: string }
 > = [
-  { type: 'lucide', Icon: Users },
+  { type: 'svg', src: '/platform/residents-nc.svg', alt: 'Directory & Residents' },
   { type: 'svg', src: '/platform/maintenance-nc.svg', alt: 'Maintenance' },
   { type: 'svg', src: '/platform/bookings-nc.svg', alt: 'Bookings' },
   { type: 'svg', src: '/platform/news-nc.svg', alt: 'Community Content' },
@@ -17,8 +18,8 @@ const featureIcons: Array<
   { type: 'svg', src: '/platform/teams-nc.svg', alt: 'Affinity Groups' },
   { type: 'svg', src: '/platform/events-nc.svg', alt: 'Events' },
   { type: 'svg', src: '/platform/dwallet-nc.svg', alt: 'Web3 Digital Identity' },
-  { type: 'lucide', Icon: Megaphone },
-  { type: 'lucide', Icon: HatGlassesIcon },
+  { type: 'svg', src: '/platform/surveys-nc.svg', alt: 'Surveys & Polls' },
+  { type: 'svg', src: '/platform/locale-nc.svg', alt: 'Localization' },
   { type: 'svg', src: '/platform/marketplace-nc.svg', alt: 'Marketplace' },
   { type: 'svg', src: '/platform/education-nc.svg', alt: 'Education' },
 ];
@@ -78,13 +79,21 @@ export function FeaturesSection() {
               className="group bg-white rounded-xl shadow-sm border border-lapis-azure/20 hover:shadow-xl hover:border-lapis-azure/40 hover:-translate-y-1 transition-all duration-300 overflow-hidden"
             >
               <div className="p-6">
-                <div
-                  className={`w-12 h-12 rounded-xl ${color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}
-                >
+                <div className="mb-4 group-hover:scale-110 transition-transform duration-300">
                   {iconSpec.type === 'lucide' ? (
-                    <iconSpec.Icon className="w-6 h-6" />
+                    <div
+                      className={`w-12 h-12 rounded-xl ${color} flex items-center justify-center`}
+                    >
+                      <iconSpec.Icon className="w-6 h-6" />
+                    </div>
                   ) : (
-                    <img src={iconSpec.src} alt={iconSpec.alt} className="w-8 h-8" />
+                    <Image
+                      src={iconSpec.src}
+                      alt={iconSpec.alt}
+                      width={48}
+                      height={48}
+                      unoptimized
+                    />
                   )}
                 </div>
                 <h3 className="text-xl font-semibold text-lapis-deep mb-2 group-hover:text-gold-vein transition-colors duration-300">

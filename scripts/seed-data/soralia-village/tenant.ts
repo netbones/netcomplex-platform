@@ -5,7 +5,7 @@ export const tenant: TenantInput = {
   slug: 'soralia',
   primaryColor: '#4F46E5',
   accentColor: '#F59E0B',
-  subscriptionTier: 'core',
+  subscriptionTier: 'pro-max',
   tier: 'PREMIUM',
   featureFlags: {},
   tagline: 'Where fynbos meets the sea',
@@ -15,5 +15,6 @@ export const tenant: TenantInput = {
   telephone: '+27 21 555 0100',
   email: 'info@soraliavillage.co.za',
   governanceLabel: 'Homeowners Association',
+  customDomain: 'soralia.co.za',
   ticketPrefix: 'SRV',
 };

@@ -67,7 +67,8 @@ export const DELETE = withErrorHandler(async (request: Request) => {
   const { tenantId } = await withTenant();
 
   await db
-    .delete(groupMembers)
+    .update(groupMembers)
+    .set({ deletedAt: now() })
     .where(
       and(
         eq(groupMembers.tenantId, tenantId),

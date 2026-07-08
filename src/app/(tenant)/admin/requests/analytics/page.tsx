@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Breadcrumbs, ErrorBoundary, LoadingSpinner } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
 
@@ -184,7 +185,7 @@ export default function MaintenanceAnalyticsPage() {
 
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <img src="/platform/maintenance.svg" alt="" className="w-10 h-10" />
+            <Image src="/platform/maintenance.svg" alt="" width={40} height={40} />
             Maintenance Analytics
           </h1>
           <p className="text-gray-600 mt-1">Overview of maintenance request metrics</p>

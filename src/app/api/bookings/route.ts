@@ -22,7 +22,12 @@ import { apiLogger } from '@shared/lib';
 
 import { eq } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
-import { listBookings, validateFacility, createBooking } from '@entities/booking/server';
+import {
+  listBookings,
+  validateFacility,
+  createBooking,
+  checkBookingConflict,
+} from '@entities/booking/server';
 
 // Limit execution time to 8 seconds for booking operations
 export const maxDuration = 8;
@@ -152,6 +157,23 @@ export async function POST(request: Request) {
         'INVALID_FACILITY',
         `Invalid facility. Valid options: ${validation.validOptions.join(', ')}`,
         400
+      );
+    }
+
+    // Check for conflicting bookings (same facility, date, overlapping time)
+    const conflictId = await checkBookingConflict({
+      tenantId,
+      facility,
+      date: new Date(date),
+      startTime,
+      endTime,
+    });
+
+    if (conflictId) {
+      return apiError(
+        'CONFLICT',
+        'This time slot is no longer available. Please choose another time.',
+        409
       );
     }
 

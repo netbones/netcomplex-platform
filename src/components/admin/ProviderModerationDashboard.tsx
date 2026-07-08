@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { fetchApi, formatCurrency, formatDate, statusBadgeClass } from './adminApi';
 import { VerificationQueue } from './VerificationQueue';
+import Image from 'next/image';
 import type {
   PendingProvidersResponse,
   ProviderListResponse,
@@ -61,7 +62,13 @@ export function ProviderModerationDashboard() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <h1 className="flex items-center gap-3 text-3xl font-semibold">
-              <img src="/platform/providers.svg" alt="" className="h-8 w-8" />
+              <Image
+                src="/platform/providers.svg"
+                alt=""
+                width={32}
+                height={32}
+                className="h-8 w-8"
+              />
               Provider moderation
             </h1>
             <p className="mt-2 max-w-3xl text-sm text-indigo-50">

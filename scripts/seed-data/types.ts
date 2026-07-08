@@ -34,11 +34,11 @@ export interface TenantInput {
    * Subscription tier. Stored as free-form `text` in the database, but
    * the application code coerces it to `TierLevel` (see
    * `src/shared/lib/constants/tiers.ts`). Must be one of:
-   *   - `foundation` — entry tier, community basics
-   *   - `depth`      — adds marketplace, maintenance, surveys
-   *   - `core`       — flagship tier, all features including white-label
+   *   - `core`       — entry tier, community basics
+   *   - `foundation` — adds marketplace, maintenance, surveys
+   *   - `'pro-max'` — flagship tier, all features including white-label
    */
-  subscriptionTier: 'foundation' | 'depth' | 'core';
+  subscriptionTier: 'core' | 'foundation' | 'pro-max';
   /** Platform tier enum. */
   tier: 'STANDARD' | 'PREMIUM' | 'ENTERPRISE';
   /** Free-form feature flags, e.g. { i18n: true }. */
@@ -55,6 +55,8 @@ export interface TenantInput {
   email?: string;
   /** Governance entity label, e.g. "Homeowners Association", "Body Corporate". */
   governanceLabel?: string;
+  /** Custom domain for white-label tenants, e.g. "solaris.co.za". */
+  customDomain?: string;
   /** Letter prefix used for ticket numbers, e.g. "SRV" → SRV-2026-0001. */
   ticketPrefix: string;
 }

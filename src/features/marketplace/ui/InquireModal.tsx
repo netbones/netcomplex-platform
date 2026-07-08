@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import Image from 'next/image';
 import { createClient } from '@supabase/supabase-js';
 import type { ServiceListing } from '@entities/service';
 import type { ConversationMessage } from '@entities/chat';
@@ -287,10 +288,13 @@ export function InquireModal({ listing, isOpen, onClose }: InquireModalProps) {
                             )}
                           </div>
                         ) : isImage && mediaUrl ? (
-                          <img
+                          <Image
                             src={mediaUrl}
                             alt="Shared image"
+                            width={300}
+                            height={200}
                             className="max-w-full max-h-[200px] object-cover rounded-lg my-1"
+                            unoptimized
                           />
                         ) : (
                           <p className="text-sm break-words">{msg.content}</p>

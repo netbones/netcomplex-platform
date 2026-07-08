@@ -83,6 +83,23 @@ export async function POST(request: NextRequest) {
     // Forward to Better Auth's sign-up endpoint
     const origin =
       request.headers.get('origin') || ENV.NEXT_PUBLIC_APP_URL || `http://localhost:3000`;
+
+    // Resolve tenant from request context.
+    // For custom domains (solaris.co.za), the middleware-inferred slug from
+    // x-tenant-slug may be wrong (subdomain != DB slug). Use getTenantByDomain
+    // which resolves by customDomain for a correct match.
+    const host = request.headers.get('host') || '';
+    let tenantSlug: string | undefined;
+    let tenantName = 'Netcomplex';
+    try {
+      const { getTenantByDomain } = await import('@entities/tenant/server');
+      const tenant = await getTenantByDomain(host);
+      tenantSlug = tenant?.slug || request.headers.get('x-tenant-slug') || undefined;
+      tenantName = tenant?.name || 'Netcomplex';
+    } catch {
+      tenantSlug = request.headers.get('x-tenant-slug') || undefined;
+    }
+
     const authResponse = await fetch(`${BETTER_AUTH_URL}/api/auth/sign-up/email`, {
       method: 'POST',
       headers: {
@@ -93,22 +110,29 @@ export async function POST(request: NextRequest) {
           request.headers.get('x-forwarded-host') || request.headers.get('host') || '',
         'x-forwarded-proto': request.headers.get('x-forwarded-proto') || 'https',
       },
-      body: JSON.stringify({ email, password, name }),
+      body: JSON.stringify({ email, password, name, tenantId: tenantSlug }),
     });
 
     const responseData = await authResponse.json();
 
-    // If signup succeeded, send welcome email and process invitation
+    // If signup succeeded, process signup
     if (authResponse.ok) {
-      // Note: We intentionally don't await this to not block the response
-      // and we don't fail the signup if email fails
-      sendWelcomeEmail(email, name).catch(error => {
-        logError(
-          { component: 'signup-email', operation: 'SEND_WELCOME' },
-          'Failed to send welcome email',
-          error
-        );
-      });
+      const createdUser = responseData?.user;
+
+      // Only send welcome email for genuinely new users (not re-verification of existing)
+      if (createdUser) {
+        const origin =
+          request.headers.get('origin') || ENV.NEXT_PUBLIC_APP_URL || `http://localhost:3000`;
+        const loginUrl = `${origin}/login`;
+
+        sendWelcomeEmail(email, name, loginUrl, tenantName).catch(error => {
+          logError(
+            { component: 'signup-email', operation: 'SEND_WELCOME' },
+            'Failed to send welcome email',
+            error
+          );
+        });
+      }
 
       // Process invitation if token was provided
       if (invitationData) {
@@ -211,16 +235,17 @@ async function processInvitation(
  * Send welcome email to new user.
  * Silently handles errors to not affect the signup flow.
  */
-async function sendWelcomeEmail(email: string, name: string) {
+async function sendWelcomeEmail(email: string, name: string, loginUrl: string, fromName: string) {
   try {
     const { sendEmail, templates } = await import('@api/server');
 
-    const html = templates.welcome.getHtml(name);
+    const html = templates.welcome.getHtml(name, loginUrl);
 
     await sendEmail({
       to: email,
-      subject: templates.welcome.subject(),
+      subject: templates.welcome.subject(fromName),
       html,
+      fromName,
     });
   } catch {
     // Email failure shouldn't affect signup

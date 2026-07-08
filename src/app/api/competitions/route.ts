@@ -14,7 +14,7 @@ import {
   withErrorHandler,
 } from '@api/server';
 
-import { eq, and, desc, lte, gte, isNull } from 'drizzle-orm';
+import { eq, and, desc, lte, gte } from 'drizzle-orm';
 
 import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';

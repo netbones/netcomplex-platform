@@ -331,7 +331,11 @@ async function sendEmailNotificationIfEnabled(
     }
 
     // Send email notification with retry
-    const html = templates.emailNotification.getHtml(title, message);
+    const html = templates.emailNotification.getHtml(
+      title,
+      message,
+      `${process.env.NEXT_PUBLIC_APP_URL || ''}/notifications`
+    );
     let lastError: unknown;
 
     for (let attempt = 1; attempt <= 3; attempt++) {

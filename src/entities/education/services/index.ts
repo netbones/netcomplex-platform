@@ -1,8 +1,8 @@
 import { db, notDeleted, now } from '@api/server';
 import { bursaries } from '@schema/bursaries';
 import { bursaryFields } from '@schema/bursary-fields';
-import { eq, desc, and, isNull } from 'drizzle-orm';
-import { v4 as uuidv4 } from 'uuid';
+import { eq, desc, and } from 'drizzle-orm';
+import { createId } from '@shared/lib/id';
 import type { BursaryCreateData, BursaryUpdateData, BursaryFieldData } from '../schema';
 
 export async function listBursaryFields(tenantId: string) {
@@ -22,7 +22,7 @@ export async function createBursaryField(
   tenantId: string,
   data: Omit<BursaryFieldData, 'id' | 'tenantId'>
 ) {
-  const id = uuidv4();
+  const id = createId();
   const ts = now();
   await db.insert(bursaryFields).values({
     id,
@@ -71,7 +71,7 @@ export async function getBursary(id: string) {
 }
 
 export async function createBursary(tenantId: string, data: BursaryCreateData) {
-  const id = uuidv4();
+  const id = createId();
   const ts = now();
   await db.insert(bursaries).values({
     id,

@@ -131,7 +131,7 @@ describe('POST /api/cron/ai-pool-rollover', () => {
             Promise.resolve([
               {
                 id: 'usage-1',
-                tenantId: 'tenant-enterprise',
+                tenantId: 'tenant-pro-max',
                 overageTokens: 5000,
                 overageCostZAR: '1.90',
               },
@@ -144,8 +144,8 @@ describe('POST /api/cron/ai-pool-rollover', () => {
       makeChainable([
         {
           id: 'sub-1',
-          tenantId: 'tenant-enterprise',
-          planId: 'plan-enterprise',
+          tenantId: 'tenant-pro-max',
+          planId: 'plan-pro-max',
           status: 'ACTIVE',
         },
       ])

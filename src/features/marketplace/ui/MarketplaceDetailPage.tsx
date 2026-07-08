@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { BookingBottomSheet } from '@entities/marketplace';
 
 interface ServiceListing {
@@ -48,7 +49,13 @@ export function MarketplaceDetailPage({ listing }: MarketplaceDetailPageProps) {
       {/* Hero image section */}
       {listing.images && listing.images.length > 0 && (
         <div className="relative w-full h-64 md:h-96 bg-gray-200 rounded-lg overflow-hidden mb-6">
-          <img src={listing.images[0]} alt={listing.title} className="w-full h-full object-cover" />
+          <Image
+            src={listing.images[0]}
+            alt={listing.title}
+            fill
+            className="object-cover"
+            unoptimized
+          />
         </div>
       )}
 

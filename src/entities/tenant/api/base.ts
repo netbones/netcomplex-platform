@@ -16,7 +16,7 @@ import { eq } from 'drizzle-orm';
 import 'server-only';
 
 import type { TierLevel } from '@entities/tenant';
-// import { unstable_cache } from 'next/cache';
+import { unstable_cache } from 'next/cache';
 import { headers } from 'next/headers';
 import type { Tenant, TenantTier } from '@shared/lib';
 import {
@@ -61,20 +61,31 @@ import { dbLogger } from '@shared/lib';
 
 export type { Tenant };
 
+/**
+ * Maps short-name subdomains (from *.netbones.co.za wildcard) to full tenant slugs.
+ *
+ * The wildcard domain `*.netbones.co.za` derives the tenant slug from the
+ * subdomain (e.g. `soralia.netbones.co.za` → slug `soralia`). When the
+ * subdomain differs from the slug (e.g. `solaris.netbones.co.za` → slug
+ * `solaris-heights`), add an entry here.
+ *
+ * New tenants should prefer slug == subdomain to avoid needing an alias.
+ */
+const SUBDOMAIN_ALIASES: Record<string, string> = {
+  solaris: 'solaris-heights',
+};
+
+const NETBONES_WILDCARD_SUFFIX = '.netbones.co.za';
+
 const getCurrentTenantImpl = async (): Promise<Tenant | undefined> => {
   const headersList = await headers();
 
   const tenantId = headersList.get('x-tenant-id');
   if (tenantId) return getTenantById(tenantId);
 
-  const slug = headersList.get('x-tenant-slug');
-  if (slug) {
-    const bySlug = await getTenantBySlug(slug);
-    if (bySlug) return bySlug;
-  }
-
-  // Fallback: resolve by custom domain (e.g. solaris.co.za → solaris-heights).
-  // New tenants only need their customDomain set in the DB — no code changes required.
+  // 1. Resolve by full host as custom domain.
+  //    Catches branded domains like solaris.co.za → Solaris Heights,
+  //    soralia.co.za → Soralia Village.
   const host = headersList.get('host') || '';
   if (host) {
     const hostWithoutPort = host.split(':')[0] || '';
@@ -82,8 +93,35 @@ const getCurrentTenantImpl = async (): Promise<Tenant | undefined> => {
     if (byDomain) return byDomain;
   }
 
-  // Fallback for development: use LOCAL_TENANT_SLUG env or default to 'soralia'
-  // This allows Soralia development to work with the multi-tenant system
+  // 2. Resolve by slug from middleware x-tenant-slug header.
+  //    Catches soralia.netbones.co.za where subdomain == slug.
+  const slug = headersList.get('x-tenant-slug');
+  if (slug) {
+    const bySlug = await getTenantBySlug(slug);
+    if (bySlug) return bySlug;
+  }
+
+  // 3. Resolve *.netbones.co.za wildcard subdomain → slug (with alias mapping).
+  //    Catches solaris.netbones.co.za where subdomain ≠ slug.
+  if (host) {
+    const hostWithoutPort = host.split(':')[0] || '';
+    if (hostWithoutPort.endsWith(NETBONES_WILDCARD_SUFFIX)) {
+      const subdomain = hostWithoutPort.slice(0, -NETBONES_WILDCARD_SUFFIX.length);
+      if (subdomain) {
+        // Try direct subdomain as slug first (covers soralia → soralia)
+        const bySubdomainSlug = await getTenantBySlug(subdomain);
+        if (bySubdomainSlug) return bySubdomainSlug;
+        // Try alias map (covers solaris → solaris-heights)
+        const aliasSlug = SUBDOMAIN_ALIASES[subdomain];
+        if (aliasSlug) {
+          const byAlias = await getTenantBySlug(aliasSlug);
+          if (byAlias) return byAlias;
+        }
+      }
+    }
+  }
+
+  // 4. Fallback for development: LOCAL_TENANT_SLUG env or 'soralia'.
   const localTenantSlug = process.env.LOCAL_TENANT_SLUG || 'soralia';
   return getTenantBySlug(localTenantSlug);
 };
@@ -155,20 +193,32 @@ function toTenant(row: Record<string, unknown>): Tenant {
   };
 }
 
-export async function getTenantById(id: string): Promise<Tenant | undefined> {
-  const result = await db.select().from(tenants).where(eq(tenants.id, id)).limit(1);
-  return result[0] ? toTenant(result[0]) : undefined;
-}
+export const getTenantById = unstable_cache(
+  async (id: string): Promise<Tenant | undefined> => {
+    const result = await db.select().from(tenants).where(eq(tenants.id, id)).limit(1);
+    return result[0] ? toTenant(result[0]) : undefined;
+  },
+  ['tenant-by-id'],
+  { revalidate: 60, tags: ['tenant-lookup'] }
+);
 
-export async function getTenantBySlug(slug: string): Promise<Tenant | undefined> {
-  const result = await db.select().from(tenants).where(eq(tenants.slug, slug)).limit(1);
-  return result[0] ? toTenant(result[0]) : undefined;
-}
+export const getTenantBySlug = unstable_cache(
+  async (slug: string): Promise<Tenant | undefined> => {
+    const result = await db.select().from(tenants).where(eq(tenants.slug, slug)).limit(1);
+    return result[0] ? toTenant(result[0]) : undefined;
+  },
+  ['tenant-by-slug'],
+  { revalidate: 60, tags: ['tenant-lookup'] }
+);
 
-export async function getTenantByDomain(domain: string): Promise<Tenant | undefined> {
-  const result = await db.select().from(tenants).where(eq(tenants.customDomain, domain)).limit(1);
-  return result[0] ? toTenant(result[0]) : undefined;
-}
+export const getTenantByDomain = unstable_cache(
+  async (domain: string): Promise<Tenant | undefined> => {
+    const result = await db.select().from(tenants).where(eq(tenants.customDomain, domain)).limit(1);
+    return result[0] ? toTenant(result[0]) : undefined;
+  },
+  ['tenant-by-domain'],
+  { revalidate: 60, tags: ['tenant-lookup'] }
+);
 
 export async function getTenantByUserId(userId: string): Promise<Tenant | undefined> {
   const user = await db.select().from(users).where(eq(users.id, userId)).limit(1);
@@ -215,7 +265,7 @@ export async function createTenant(data: {
     fontFamily: data.fontFamily ?? null,
     customCss: data.customCss ?? null,
     active: data.active ?? true,
-    subscriptionTier: data.subscriptionTier ?? 'foundation',
+    subscriptionTier: data.subscriptionTier ?? 'core',
     modules: (data.modules ?? {}) as typeof tenants.$inferInsert.modules,
     maxPages: data.maxPages ?? 5,
     pageCount: data.pageCount ?? 0,

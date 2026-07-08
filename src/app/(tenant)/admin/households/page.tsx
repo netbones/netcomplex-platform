@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Breadcrumbs } from '@shared/ui';
+import { trpc } from '@api/client';
 
 interface Household {
   id: string;
@@ -22,39 +24,20 @@ interface Household {
 }
 
 export default function HouseholdsPage() {
-  const [households, setHouseholds] = useState<Household[]>([]);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
   const limit = 20;
 
-  useEffect(() => {
-    const delayDebounce = setTimeout(() => {
-      fetchHouseholds();
-    }, 300);
+  const { data, isLoading, isError } = trpc.households.listHouseholds.useQuery({
+    search,
+    page,
+    limit,
+  });
 
-    return () => clearTimeout(delayDebounce);
-  }, [search, page]);
-
-  const fetchHouseholds = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(
-        `/api/households?search=${encodeURIComponent(search)}&page=${page}&limit=${limit}`
-      );
-      if (res.ok) {
-        const body = await res.json();
-        const data = body?.data ?? body;
-        setHouseholds(data.households || []);
-        setTotal(data.total || 0);
-      }
-    } catch (error) {
-      console.error('Failed to fetch households:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const envelope = data;
+  const households =
+    ((envelope?.data as Record<string, unknown>)?.households as Household[] | undefined) ?? [];
+  const total = ((envelope?.data as Record<string, unknown>)?.total as number | undefined) ?? 0;
 
   const totalPages = Math.ceil(total / limit);
 
@@ -63,7 +46,7 @@ export default function HouseholdsPage() {
       <Breadcrumbs items={[{ label: 'Admin', href: '/admin' }, { label: 'Households' }]} />
 
       <div className="flex items-center gap-3 mb-6">
-        <img src="/platform/households.svg" alt="" className="w-8 h-8" />
+        <Image src="/platform/households.svg" alt="" width={32} height={32} />
         <h1 className="text-2xl font-bold text-gray-900">Households</h1>
         <span className="text-sm text-gray-500 ml-auto">{total} households</span>
       </div>
@@ -108,7 +91,14 @@ export default function HouseholdsPage() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {loading ? (
+            {isError ? (
+              <tr>
+                <td colSpan={5} className="px-6 py-8 text-center text-red-500">
+                  <i className="fas fa-exclamation-triangle mr-2"></i>
+                  Failed to load households. Please try again.
+                </td>
+              </tr>
+            ) : isLoading ? (
               <tr>
                 <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
                   <i className="fas fa-spinner fa-spin mr-2"></i>
@@ -127,10 +117,13 @@ export default function HouseholdsPage() {
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       {household.homeImage ? (
-                        <img
+                        <Image
                           src={household.homeImage}
                           alt={`${household.street} ${household.unit}`}
-                          className="w-10 h-10 rounded-lg object-cover"
+                          width={40}
+                          height={40}
+                          className="rounded-lg object-cover"
+                          unoptimized
                         />
                       ) : (
                         <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center">

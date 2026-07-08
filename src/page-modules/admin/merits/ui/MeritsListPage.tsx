@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Shield, AlertTriangle, Check, Clock, X, Plus } from 'lucide-react';
 
 interface CommunityMerit {
@@ -79,7 +80,7 @@ export function MeritsListPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-3">
-            <img src="/platform/merits.svg" alt="" className="w-8 h-8" />
+            <Image src="/platform/merits.svg" alt="" width={32} height={32} className="w-8 h-8" />
             Community Merits
           </h1>
           <p className="text-sm text-gray-500 mt-1">Behavior records and standing management</p>

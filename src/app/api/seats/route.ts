@@ -9,6 +9,7 @@ import {
   apiNotFound,
   apiError,
   auth,
+  now,
   withErrorHandler,
   AddressService,
   AddressConflictError,
@@ -129,7 +130,7 @@ export const POST = withErrorHandler(async (request: Request) => {
           subscriptionTier: 'basic',
           maxProperties: 5,
           messageRetentionDays: 30,
-          tier: 'foundation',
+          tier: 'core',
         })
         .returning();
 
@@ -177,7 +178,10 @@ export const DELETE = withErrorHandler(async (request: Request) => {
       return apiNotFound('soloSeat not found');
     }
 
-    await db.delete(soloSeats).where(eq(soloSeats.id, seat[0].id));
+    await db
+      .update(soloSeats)
+      .set({ archivedAt: now(), status: 'ARCHIVED', updatedAt: now() })
+      .where(eq(soloSeats.id, seat[0].id));
     return apiSuccess({ success: true });
   }
 
@@ -192,7 +196,10 @@ export const DELETE = withErrorHandler(async (request: Request) => {
       return apiNotFound('premiumSeat not found');
     }
 
-    await db.delete(premiumSeats).where(eq(premiumSeats.id, seat.id));
+    await db
+      .update(premiumSeats)
+      .set({ archivedAt: now(), status: 'ARCHIVED', updatedAt: now() })
+      .where(eq(premiumSeats.id, seat.id));
     return apiSuccess({ success: true });
   }
 

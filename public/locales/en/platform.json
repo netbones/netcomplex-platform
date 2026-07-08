@@ -109,6 +109,70 @@
     "primaryAction": "Start Free Trial",
     "secondaryAction": "View Plans"
   },
+  "featuresPage": {
+    "heroTitle": "Everything Your Community Needs",
+    "heroSubtitle": "Compare features across our three tiers and find the perfect plan for your community.",
+    "groups": {
+      "communityManagement": "Community Management",
+      "communication": "Communication",
+      "administration": "Administration",
+      "commerceFinance": "Commerce & Finance",
+      "supportScale": "Support & Scale"
+    },
+    "features": {
+      "residentDirectory": "Resident directory",
+      "maintenanceRequests": "Maintenance requests",
+      "announcements": "Announcements & news",
+      "facilityBookings": "Facility bookings",
+      "eventManagement": "Event management",
+      "surveys": "Surveys & polling",
+      "inPlatformMessaging": "In-platform messaging",
+      "pushNotifications": "Push notifications",
+      "emailNotifications": "Email notifications",
+      "communityContentFeed": "Community content feed",
+      "affinityGroups": "Affinity groups",
+      "emergencyBroadcast": "Emergency broadcast",
+      "unitResidentManagement": "Unit & resident management",
+      "documentStorage": "Document storage",
+      "roleBasedAccessControl": "Role-based access control",
+      "customBranding": "Custom branding",
+      "advancedAnalytics": "Advanced analytics",
+      "multiCommunitySupport": "Multi-community support",
+      "communityMarketplace": "Community marketplace",
+      "digitalWallet": "Digital wallet",
+      "paymentProcessing": "Payment processing",
+      "providerDirectory": "Provider directory",
+      "apiAccess": "API access",
+      "customIntegrations": "Custom integrations",
+      "emailSupport": "Email support",
+      "prioritySupport": "Priority support",
+      "dedicatedAccountManager": "Dedicated account manager"
+    },
+    "cta": {
+      "title": "Ready to Get Started?",
+      "subtitle": "Start your 14-day free trial. No credit card required."
+    }
+  },
+  "pricingPage": {
+    "heroTitle": "Plans That Fit Your Community",
+    "heroSubtitle": "Three tiers designed to meet your community where it is \u2014 and grow with you. All plans include a 14-day free trial.",
+    "mostPopular": "Most Popular",
+    "faqTitle": "Frequently Asked Questions",
+    "faqs": {
+      "q1": "Can I change plans later?",
+      "a1": "Yes, you can upgrade or downgrade your plan at any time. Changes take effect at the start of your next billing cycle.",
+      "q2": "Is there a free trial?",
+      "a2": "Yes! All plans come with a 14-day free trial. No credit card required to start.",
+      "q3": "What payment methods do you accept?",
+      "a3": "We accept all major credit cards and bank transfers for annual plans.",
+      "q4": "Can I get a refund?",
+      "a4": "We offer a 30-day money-back guarantee. If you are not satisfied, contact us for a full refund."
+    },
+    "ctaTitle": "Still have questions?",
+    "ctaDescription": "Our team is here to help you find the right plan for your community.",
+    "contactSales": "Contact Sales",
+    "startFreeTrial": "Start Free Trial"
+  },
   "header": {
     "home": "Home",
     "features": "Features",

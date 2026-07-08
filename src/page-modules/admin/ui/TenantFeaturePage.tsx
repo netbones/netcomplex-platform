@@ -17,7 +17,7 @@ async function FeatureManager({ id }: { id: string }) {
     return notFound();
   }
 
-  const tenantTier = (tenant.subscriptionTier || 'foundation') as TierLevel;
+  const tenantTier = (tenant.subscriptionTier || 'core') as TierLevel;
   const tierDef = TIERS[tenantTier];
 
   const allFeatures = [
@@ -76,23 +76,23 @@ async function FeatureManager({ id }: { id: string }) {
             className="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold text-white"
             style={{ backgroundColor: tierDef.color }}
           >
-            {tenantTier === 'foundation' ? '🏗️' : tenantTier === 'depth' ? '🌊' : '🏛️'}
+            {tenantTier === 'core' ? '🏗️' : tenantTier === 'foundation' ? '🌊' : '🏛️'}
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-3">
               <span className="text-xl font-semibold">{tierDef.name}</span>
               <span
                 className={`px-2 py-1 text-xs rounded-full ${
-                  tenantTier === 'core'
+                  tenantTier === 'pro-max'
                     ? 'bg-slate-100 text-slate-700'
-                    : tenantTier === 'depth'
+                    : tenantTier === 'foundation'
                       ? 'bg-amber-100 text-amber-700'
                       : 'bg-green-100 text-green-700'
                 }`}
               >
-                {tenantTier === 'core'
+                {tenantTier === 'pro-max'
                   ? 'Enterprise'
-                  : tenantTier === 'depth'
+                  : tenantTier === 'foundation'
                     ? 'Growth'
                     : 'Foundation'}
               </span>
@@ -121,7 +121,7 @@ async function FeatureManager({ id }: { id: string }) {
       <div className="bg-white rounded-lg shadow p-6 mb-8">
         <h2 className="text-lg font-medium mb-4">Tier Comparison</h2>
         <div className="grid grid-cols-3 gap-4">
-          {(['foundation', 'depth', 'core'] as TierLevel[]).map(t => {
+          {(['core', 'foundation', 'pro-max'] as TierLevel[]).map(t => {
             const tier = TIERS[t];
             const isCurrent = t === tenantTier;
             return (
@@ -133,7 +133,7 @@ async function FeatureManager({ id }: { id: string }) {
               >
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-xl">
-                    {t === 'foundation' ? '🏗️' : t === 'depth' ? '🌊' : '🏛️'}
+                    {t === 'core' ? '🏗️' : t === 'foundation' ? '🌊' : '🏛️'}
                   </span>
                   <span className="font-semibold">{tier.name}</span>
                 </div>

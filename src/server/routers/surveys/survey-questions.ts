@@ -6,7 +6,6 @@ import {
   TRPCError,
   eq,
   and,
-  isNull,
   sql,
   inArray,
   AddQuestionInput,
@@ -107,7 +106,7 @@ export const surveyQuestionProcedures = {
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Question not found' });
       }
 
-      const updateData: Record<string, unknown> = {};
+      const updateData: Record<string, unknown> = { updatedAt: new Date() };
       if (input.text !== undefined) updateData.text = input.text;
       if (input.type !== undefined) updateData.type = input.type;
       if (input.options !== undefined) updateData.options = input.options;
@@ -150,7 +149,7 @@ export const surveyQuestionProcedures = {
 
       const [deleted] = await db
         .update(questions)
-        .set({ deletedAt: new Date() })
+        .set({ deletedAt: new Date(), updatedAt: new Date() })
         .where(
           and(
             eq(questions.id, input.questionId),
@@ -208,7 +207,7 @@ export const surveyQuestionProcedures = {
 
       const reordered = await db.transaction(async tx => {
         for (const item of input.items) {
-          const updateSet: Record<string, unknown> = { order: item.order };
+          const updateSet: Record<string, unknown> = { order: item.order, updatedAt: new Date() };
           if ('sectionId' in item) {
             updateSet.sectionId = item.sectionId ?? null;
           }

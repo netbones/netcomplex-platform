@@ -187,6 +187,7 @@ async function seedTenant(data: TenantSeedData): Promise<void> {
       telephone: data.tenant.telephone ?? null,
       email: data.tenant.email ?? null,
       governanceLabel: data.tenant.governanceLabel ?? null,
+      customDomain: data.tenant.customDomain ?? null,
       maxPages: 10,
       pageCount: 0,
       active: true,
@@ -206,6 +207,7 @@ async function seedTenant(data: TenantSeedData): Promise<void> {
         telephone: data.tenant.telephone ?? null,
         email: data.tenant.email ?? null,
         governanceLabel: data.tenant.governanceLabel ?? null,
+        customDomain: data.tenant.customDomain ?? null,
       },
     })
     .returning();

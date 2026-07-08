@@ -10,6 +10,7 @@ import {
   apiUnauthorized,
   apiValidationError,
   withErrorHandler,
+  now,
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
@@ -108,7 +109,7 @@ export const POST = withErrorHandler(
     // Batch update in a transaction
     const reordered = await db.transaction(async tx => {
       for (const item of body.items) {
-        const updateSet: Record<string, unknown> = { order: item.order };
+        const updateSet: Record<string, unknown> = { order: item.order, updatedAt: now() };
         // Allow moving questions between sections (or to ungrouped)
         if ('sectionId' in item) {
           updateSet.sectionId = item.sectionId ?? null;

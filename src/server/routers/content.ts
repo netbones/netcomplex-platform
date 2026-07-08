@@ -570,7 +570,10 @@ export const contentRouter = router({
       .limit(1);
 
     if (existing) {
-      await db.delete(contentLikes).where(eq(contentLikes.id, existing.id));
+      await db
+        .update(contentLikes)
+        .set({ deletedAt: now() })
+        .where(eq(contentLikes.id, existing.id));
       return toEnvelope({ liked: false });
     }
 

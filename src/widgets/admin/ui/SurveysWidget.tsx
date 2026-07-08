@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { ErrorBoundary } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
 
@@ -101,13 +102,13 @@ export function SurveysWidget() {
         <div className="text-center py-6">
           <i className="fas fa-poll text-3xl text-gray-400 mb-3"></i>
           <p className="text-sm text-gray-600 mb-3">No surveys yet</p>
-          <a
+          <Link
             href="/admin/surveys/new"
             className="inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
           >
             <i className="fas fa-plus"></i>
             Create Survey
-          </a>
+          </Link>
         </div>
       </ErrorBoundary>
     );
@@ -145,23 +146,23 @@ export function SurveysWidget() {
                   </span>
                 </div>
               </div>
-              <a
+              <Link
                 href={`/admin/surveys/${survey.id}`}
                 className="text-indigo-600 hover:text-indigo-800 text-xs font-medium flex-shrink-0"
               >
                 View Results
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
 
         <div className="mt-4 pt-3 border-t border-gray-200">
-          <a
+          <Link
             href="/admin/surveys"
             className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
           >
             View All Surveys →
-          </a>
+          </Link>
         </div>
       </div>
     </ErrorBoundary>

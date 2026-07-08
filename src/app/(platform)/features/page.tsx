@@ -1,83 +1,226 @@
+'use client';
+
 import { PlatformFooter, PlatformHeader } from '@features/platform';
 import { Check, Minus } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface FeatureGroup {
   group: string;
   features: {
     name: string;
-    foundation: boolean | string;
-    depth: boolean | string;
     core: boolean | string;
+    foundation: boolean | string;
+    'pro-max': boolean | string;
   }[];
 }
 
+const groupKeys = [
+  'featuresPage.groups.communityManagement',
+  'featuresPage.groups.communication',
+  'featuresPage.groups.administration',
+  'featuresPage.groups.commerceFinance',
+  'featuresPage.groups.supportScale',
+];
+
 const featureGroups: FeatureGroup[] = [
   {
-    group: 'Community Management',
+    group: groupKeys[0],
     features: [
-      { name: 'Resident directory', foundation: true, depth: true, core: true },
-      { name: 'Maintenance requests', foundation: true, depth: true, core: true },
-      { name: 'Announcements & news', foundation: true, depth: true, core: true },
-      { name: 'Facility bookings', foundation: false, depth: true, core: true },
-      { name: 'Event management', foundation: false, depth: true, core: true },
-      { name: 'Surveys & polling', foundation: false, depth: true, core: true },
+      {
+        name: 'featuresPage.features.residentDirectory',
+        core: true,
+        foundation: true,
+        'pro-max': true,
+      },
+      {
+        name: 'featuresPage.features.maintenanceRequests',
+        core: true,
+        foundation: true,
+        'pro-max': true,
+      },
+      {
+        name: 'featuresPage.features.announcements',
+        core: true,
+        foundation: true,
+        'pro-max': true,
+      },
+      {
+        name: 'featuresPage.features.facilityBookings',
+        core: false,
+        foundation: true,
+        'pro-max': true,
+      },
+      {
+        name: 'featuresPage.features.eventManagement',
+        core: false,
+        foundation: true,
+        'pro-max': true,
+      },
+      { name: 'featuresPage.features.surveys', core: false, foundation: true, 'pro-max': true },
     ],
   },
   {
-    group: 'Communication',
+    group: groupKeys[1],
     features: [
-      { name: 'In-platform messaging', foundation: true, depth: true, core: true },
-      { name: 'Push notifications', foundation: true, depth: true, core: true },
-      { name: 'Email notifications', foundation: true, depth: true, core: true },
-      { name: 'Community content feed', foundation: true, depth: true, core: true },
-      { name: 'Affinity groups', foundation: false, depth: true, core: true },
-      { name: 'Emergency broadcast', foundation: false, depth: true, core: true },
+      {
+        name: 'featuresPage.features.inPlatformMessaging',
+        core: true,
+        foundation: true,
+        'pro-max': true,
+      },
+      {
+        name: 'featuresPage.features.pushNotifications',
+        core: true,
+        foundation: true,
+        'pro-max': true,
+      },
+      {
+        name: 'featuresPage.features.emailNotifications',
+        core: true,
+        foundation: true,
+        'pro-max': true,
+      },
+      {
+        name: 'featuresPage.features.communityContentFeed',
+        core: true,
+        foundation: true,
+        'pro-max': true,
+      },
+      {
+        name: 'featuresPage.features.affinityGroups',
+        core: false,
+        foundation: true,
+        'pro-max': true,
+      },
+      {
+        name: 'featuresPage.features.emergencyBroadcast',
+        core: false,
+        foundation: true,
+        'pro-max': true,
+      },
     ],
   },
   {
-    group: 'Administration',
+    group: groupKeys[2],
     features: [
-      { name: 'Unit & resident management', foundation: true, depth: true, core: true },
-      { name: 'Document storage', foundation: true, depth: true, core: true },
-      { name: 'Role-based access control', foundation: true, depth: true, core: true },
-      { name: 'Custom branding', foundation: false, depth: true, core: true },
-      { name: 'Advanced analytics', foundation: false, depth: false, core: true },
-      { name: 'Multi-community support', foundation: false, depth: false, core: true },
+      {
+        name: 'featuresPage.features.unitResidentManagement',
+        core: true,
+        foundation: true,
+        'pro-max': true,
+      },
+      {
+        name: 'featuresPage.features.documentStorage',
+        core: true,
+        foundation: true,
+        'pro-max': true,
+      },
+      {
+        name: 'featuresPage.features.roleBasedAccessControl',
+        core: true,
+        foundation: true,
+        'pro-max': true,
+      },
+      {
+        name: 'featuresPage.features.customBranding',
+        core: false,
+        foundation: true,
+        'pro-max': true,
+      },
+      {
+        name: 'featuresPage.features.advancedAnalytics',
+        core: false,
+        foundation: false,
+        'pro-max': true,
+      },
+      {
+        name: 'featuresPage.features.multiCommunitySupport',
+        core: false,
+        foundation: false,
+        'pro-max': true,
+      },
     ],
   },
   {
-    group: 'Commerce & Finance',
+    group: groupKeys[3],
     features: [
-      { name: 'Community marketplace', foundation: true, depth: true, core: true },
-      { name: 'Digital wallet', foundation: true, depth: true, core: true },
-      { name: 'Payment processing', foundation: true, depth: true, core: true },
-      { name: 'Provider directory', foundation: false, depth: true, core: true },
-      { name: 'API access', foundation: false, depth: false, core: true },
-      { name: 'Custom integrations', foundation: false, depth: false, core: true },
+      {
+        name: 'featuresPage.features.communityMarketplace',
+        core: true,
+        foundation: true,
+        'pro-max': true,
+      },
+      {
+        name: 'featuresPage.features.digitalWallet',
+        core: true,
+        foundation: true,
+        'pro-max': true,
+      },
+      {
+        name: 'featuresPage.features.paymentProcessing',
+        core: true,
+        foundation: true,
+        'pro-max': true,
+      },
+      {
+        name: 'featuresPage.features.providerDirectory',
+        core: false,
+        foundation: true,
+        'pro-max': true,
+      },
+      { name: 'featuresPage.features.apiAccess', core: false, foundation: false, 'pro-max': true },
+      {
+        name: 'featuresPage.features.customIntegrations',
+        core: false,
+        foundation: false,
+        'pro-max': true,
+      },
     ],
   },
   {
-    group: 'Support & Scale',
+    group: groupKeys[4],
     features: [
-      { name: 'Email support', foundation: true, depth: true, core: true },
-      { name: 'Priority support', foundation: false, depth: true, core: true },
-      { name: 'Dedicated account manager', foundation: false, depth: false, core: true },
-      { name: 'Max units', foundation: 'Up to 50', depth: 'Up to 200', core: 'Unlimited' },
-      { name: 'Max pages', foundation: '5 pages', depth: '15 pages', core: 'Unlimited' },
+      { name: 'featuresPage.features.emailSupport', core: true, foundation: true, 'pro-max': true },
+      {
+        name: 'featuresPage.features.prioritySupport',
+        core: false,
+        foundation: true,
+        'pro-max': true,
+      },
+      {
+        name: 'featuresPage.features.dedicatedAccountManager',
+        core: false,
+        foundation: false,
+        'pro-max': true,
+      },
+      { name: 'Max units', core: 'Up to 50', foundation: 'Up to 200', 'pro-max': 'Unlimited' },
+      { name: 'Max pages', core: '5 pages', foundation: '15 pages', 'pro-max': 'Unlimited' },
     ],
   },
 ];
 
 const tiers = [
   {
-    id: 'foundation',
-    name: 'Foundation',
+    id: 'core',
+    name: 'Core',
     price: 'R299/mo',
     color: 'text-emerald-600',
     bg: 'bg-emerald-50',
   },
-  { id: 'depth', name: 'Depth', price: 'R599/mo', color: 'text-amber-600', bg: 'bg-amber-50' },
-  { id: 'core', name: 'Core', price: 'Custom', color: 'text-lapis-deep', bg: 'bg-lapis-azure/10' },
+  {
+    id: 'foundation',
+    name: 'Foundation',
+    price: 'R599/mo',
+    color: 'text-amber-600',
+    bg: 'bg-amber-50',
+  },
+  {
+    id: 'pro-max',
+    name: 'Pro-Max',
+    price: 'Custom',
+    color: 'text-lapis-deep',
+    bg: 'bg-lapis-azure/10',
+  },
 ] as const;
 
 function TierCell({ value }: { value: boolean | string }) {
@@ -92,6 +235,8 @@ function TierCell({ value }: { value: boolean | string }) {
 }
 
 export default function FeaturesPage() {
+  const { t } = useTranslation('platform');
+
   return (
     <div className="min-h-screen bg-vellum">
       <PlatformHeader variant="light" />
@@ -99,9 +244,9 @@ export default function FeaturesPage() {
         {/* Hero */}
         <section className="bg-lapis-deep text-white py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Everything Your Community Needs</h1>
-            <p className="text-xl text-lapis-azure/80 max-w-2xl mx-auto">
-              Compare features across our three tiers and find the perfect plan for your community.
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">{t('featuresPage.heroTitle')}</h1>
+            <p className="text-xl text-white/70 max-w-2xl mx-auto">
+              {t('featuresPage.heroSubtitle')}
             </p>
           </div>
         </section>
@@ -122,7 +267,7 @@ export default function FeaturesPage() {
           {featureGroups.map(group => (
             <div key={group.group} className="mb-12">
               <h2 className="text-2xl font-bold text-lapis-deep mb-6 pb-2 border-b border-lapis-azure/20">
-                {group.group}
+                {t(group.group)}
               </h2>
               <div className="space-y-1">
                 {group.features.map(feature => (
@@ -130,7 +275,7 @@ export default function FeaturesPage() {
                     key={feature.name}
                     className="grid grid-cols-1 md:grid-cols-[2fr_repeat(3,1fr)] gap-4 items-center py-3 px-4 rounded-lg hover:bg-white/50 transition-colors"
                   >
-                    <span className="text-lapis-deep font-medium">{feature.name}</span>
+                    <span className="text-lapis-deep font-medium">{t(feature.name)}</span>
                     <div className="flex md:hidden gap-4 text-sm text-lapis-mid">
                       {tiers.map(tier => (
                         <span key={tier.id} className="flex items-center gap-1.5">
@@ -160,22 +305,20 @@ export default function FeaturesPage() {
         {/* CTA */}
         <section className="bg-lapis-deep text-white py-20">
           <div className="max-w-3xl mx-auto px-4 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Get Started?</h2>
-            <p className="text-xl text-lapis-azure/80 mb-8">
-              Start your 14-day free trial. No credit card required.
-            </p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t('featuresPage.cta.title')}</h2>
+            <p className="text-xl text-white/70 mb-8">{t('featuresPage.cta.subtitle')}</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
                 href="/signup"
                 className="inline-flex items-center px-8 py-3 text-lg font-semibold rounded-lg bg-gold-vein text-lapis-deep hover:bg-gold-vein/90 transition-colors"
               >
-                Start Free Trial
+                {t('cta.primaryAction')}
               </a>
               <a
                 href="/pricing"
                 className="inline-flex items-center px-8 py-3 text-lg font-semibold rounded-lg border border-white/30 text-white hover:bg-white/10 transition-colors"
               >
-                View Pricing
+                {t('cta.secondaryAction')}
               </a>
             </div>
           </div>

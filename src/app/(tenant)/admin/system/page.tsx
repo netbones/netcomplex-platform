@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { useSafeTranslation } from '@shared/lib';
@@ -163,7 +164,7 @@ export default function AdminSystemPage() {
           />
 
           <div className="flex items-center gap-3 mt-6 mb-8">
-            <img src="/platform/system.svg" alt="" className="w-10 h-10" />
+            <Image src="/platform/system.svg" alt="" width={40} height={40} />
             <div>
               <h1 className="text-3xl font-bold text-gray-900">System</h1>
               <p className="text-sm text-gray-500">Platform configuration and health</p>
@@ -180,7 +181,7 @@ export default function AdminSystemPage() {
               >
                 <div className="flex items-center gap-4">
                   <div className="w-14 h-14 bg-blue-500 rounded-xl flex items-center justify-center">
-                    <img src="/platform/users.svg" alt="" className="w-8 h-8" />
+                    <Image src="/platform/users.svg" alt="" width={32} height={32} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-500">Users</p>
@@ -196,7 +197,7 @@ export default function AdminSystemPage() {
               >
                 <div className="flex items-center gap-4">
                   <div className="w-14 h-14 bg-orange-500 rounded-xl flex items-center justify-center">
-                    <img src="/platform/maintenance.svg" alt="" className="w-8 h-8" />
+                    <Image src="/platform/maintenance.svg" alt="" width={32} height={32} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-500">Requests</p>
@@ -212,7 +213,7 @@ export default function AdminSystemPage() {
               >
                 <div className="flex items-center gap-4">
                   <div className="w-14 h-14 bg-green-500 rounded-xl flex items-center justify-center">
-                    <img src="/platform/system.svg" alt="" className="w-8 h-8" />
+                    <Image src="/platform/system.svg" alt="" width={32} height={32} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-500">Groups</p>
@@ -228,7 +229,7 @@ export default function AdminSystemPage() {
               >
                 <div className="flex items-center gap-4">
                   <div className="w-14 h-14 bg-purple-500 rounded-xl flex items-center justify-center">
-                    <img src="/platform/content.svg" alt="" className="w-8 h-8" />
+                    <Image src="/platform/content.svg" alt="" width={32} height={32} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-500">Content</p>

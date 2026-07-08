@@ -1,5 +1,4 @@
 import { notDeleted, rateLimitMiddleware } from '@api/server';
-import { messageDto, unreadCountsDto } from '@api/server';
 import {
   z,
   tenantProcedure,

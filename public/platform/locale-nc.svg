@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
+  <defs>
+    <!-- Frosted glass background card matching the dashboard profile -->
+    <linearGradient id="glassBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#F3EFE3" stop-opacity="0.75"/>
+    </linearGradient>
+    <!-- Left-side Metallic Corporate Navy Gradient -->
+    <linearGradient id="netNavy" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+    <!-- Right-side Metallic Anchor Gold Gradient -->
+    <linearGradient id="netGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EAB308"/>
+      <stop offset="100%" stop-color="#A16207"/>
+    </linearGradient>
+    <!-- Soft dark shadow for layout depth over the cream canvas -->
+    <filter id="softShadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="1" dy="2.5" stdDeviation="2" flood-color="#0F172A" flood-opacity="0.2"/>
+    </filter>
+    <clipPath id="leftHalf">
+      <rect x="-10" y="-10" width="28" height="60" />
+    </clipPath>
+    <clipPath id="rightHalf">
+      <rect x="18" y="-10" width="40" height="60" />
+    </clipPath>
+  </defs>
+
+  <!-- Container Base Card (Margins maintain true alpha transparency outside corners) -->
+  <rect width="64" height="64" rx="16" fill="url(#glassBg)" stroke="#E2E8F0" stroke-width="1" />
+
+  <!-- Graphics Group matching the exact Megaphone/Localization design -->
+  <g filter="url(#softShadow)" transform="translate(14, 14)">
+    <g>
+      <!-- Left Split (Corporate Navy) -->
+      <g clip-path="url(#leftHalf)">
+        <!-- Megaphone Main Cone and Body -->
+        <path d="M18,10 L31,5 C33,4 34,5.5 34,8 V26 C34,28.5 33,30 31,29 L18,24 Z" fill="url(#netNavy)" />
+        <path d="M6,12 H18 V22 H6 C4.5,22 3,20.5 3,17 C3,13.5 4.5,12 6,12 Z" fill="url(#netNavy)" />
+        <!-- Handle -->
+        <path d="M12,22 L10,30 C9.5,31.5 11,32 12.5,32 L15,22 Z" fill="url(#netNavy)" />
+        <!-- Sound/Broadcast Waves -->
+        <path d="M38,10 C40.5,12.5 40.5,21.5 38,24" stroke="url(#netNavy)" stroke-width="2.5" stroke-linecap="round" fill="none" />
+        <path d="M43,6 C47,11 47,23 43,28" stroke="url(#netNavy)" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.7" />
+      </g>
+      
+      <!-- Right Split (Anchor Gold) -->
+      <g clip-path="url(#rightHalf)">
+        <!-- Megaphone Main Cone and Body -->
+        <path d="M18,10 L31,5 C33,4 34,5.5 34,8 V26 C34,28.5 33,30 31,29 L18,24 Z" fill="url(#netGold)" />
+        <path d="M6,12 H18 V22 H6 C4.5,22 3,20.5 3,17 C3,13.5 4.5,12 6,12 Z" fill="url(#netGold)" />
+        <!-- Handle -->
+        <path d="M12,22 L10,30 C9.5,31.5 11,32 12.5,32 L15,22 Z" fill="url(#netGold)" />
+        <!-- Sound/Broadcast Waves -->
+        <path d="M38,10 C40.5,12.5 40.5,21.5 38,24" stroke="url(#netGold)" stroke-width="2.5" stroke-linecap="round" fill="none" />
+        <path d="M43,6 C47,11 47,23 43,28" stroke="url(#netGold)" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.7" />
+      </g>
+    </g>
+  </g>
+</svg>

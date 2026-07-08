@@ -19,6 +19,11 @@ import { settingsRouter } from './settings';
 import { achievementsRouter } from './achievements';
 import { invitationsRouter } from './invitations';
 import { agentsRouter } from './agents';
+import { delegationsRouter } from './delegations';
+import { educationRouter } from './education';
+import { householdsRouter } from './households';
+import { providersRouter } from './providers';
+import { platformRouter } from './platform';
 
 // Domain routers are added here as they migrate to tRPC
 export const appRouter = router({
@@ -41,6 +46,11 @@ export const appRouter = router({
   achievements: achievementsRouter,
   invitations: invitationsRouter,
   agents: agentsRouter,
+  delegations: delegationsRouter,
+  education: educationRouter,
+  households: householdsRouter,
+  providers: providersRouter,
+  platform: platformRouter,
 });
 
 export type AppRouter = typeof appRouter;

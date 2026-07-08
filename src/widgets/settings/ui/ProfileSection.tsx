@@ -1,6 +1,7 @@
 'use client';
 
 import { ImageUpload } from '@shared/ui';
+import Image from 'next/image';
 
 interface ProfileSectionProps {
   userName: string;
@@ -24,7 +25,14 @@ export function ProfileSection({
         <div className="flex items-center gap-6">
           <div className="flex-shrink-0">
             {userAvatar && isSafeImageUrl(userAvatar) ? (
-              <img src={userAvatar} alt="Profile" className="w-20 h-20 rounded-full object-cover" />
+              <Image
+                src={userAvatar}
+                alt="Profile"
+                width={80}
+                height={80}
+                className="w-20 h-20 rounded-full object-cover"
+                unoptimized
+              />
             ) : (
               <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center">
                 <span className="text-gray-500 text-2xl">{userName?.charAt(0) || '?'}</span>

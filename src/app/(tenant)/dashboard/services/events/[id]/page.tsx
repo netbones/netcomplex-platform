@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { use } from 'react';
 import Link from 'next/link';
 import { Calendar, MapPin, User, ArrowLeft } from 'lucide-react';
+import Image from 'next/image';
 import { LoadingSpinner, Breadcrumbs } from '@shared/ui';
 import { EventAttendance } from '@features/events';
 
@@ -104,8 +105,14 @@ export default function EventDetailPage({ params }: EventPageProps) {
 
         <div className="mt-6 bg-white rounded-lg shadow-sm overflow-hidden">
           {event.image && (
-            <div className="h-48 sm:h-64 bg-gray-100">
-              <img src={event.image} alt={event.title} className="w-full h-full object-cover" />
+            <div className="relative h-48 sm:h-64 bg-gray-100">
+              <Image
+                src={event.image}
+                alt={event.title}
+                fill
+                className="w-full h-full object-cover"
+                unoptimized
+              />
             </div>
           )}
 

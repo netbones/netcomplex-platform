@@ -1,5 +1,7 @@
 'use client';
 
+import { useState, useMemo } from 'react';
+
 interface AddWidgetModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -13,6 +15,14 @@ export function AddWidgetModal({
   availableWidgets,
   onSelect,
 }: AddWidgetModalProps) {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredWidgets = useMemo(() => {
+    if (!searchQuery.trim()) return availableWidgets;
+    const query = searchQuery.toLowerCase().trim();
+    return availableWidgets.filter(w => w.label.toLowerCase().includes(query));
+  }, [availableWidgets, searchQuery]);
+
   if (!isOpen) return null;
 
   return (
@@ -24,20 +34,41 @@ export function AddWidgetModal({
             <i className="fas fa-times"></i>
           </button>
         </div>
-        <div className="space-y-2 max-h-96 overflow-y-auto">
-          {availableWidgets.map(widget => (
-            <button
-              key={widget.id}
-              onClick={() => {
-                onSelect(widget.id);
-                onClose();
-              }}
-              className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-indigo-50 transition text-left"
-            >
-              <i className={`fas ${widget.icon} text-indigo-600 w-6`}></i>
-              <span className="font-medium">{widget.label}</span>
-            </button>
-          ))}
+
+        <div className="relative mb-4">
+          <i className="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+          <input
+            type="text"
+            placeholder="Search widgets..."
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            autoFocus
+          />
+        </div>
+
+        <div className="space-y-2 max-h-80 overflow-y-auto">
+          {filteredWidgets.length === 0 ? (
+            <p className="text-center text-gray-400 py-6 text-sm">
+              {searchQuery.trim()
+                ? `No widgets matching "${searchQuery.trim()}"`
+                : 'No widgets available'}
+            </p>
+          ) : (
+            filteredWidgets.map(widget => (
+              <button
+                key={widget.id}
+                onClick={() => {
+                  onSelect(widget.id);
+                  onClose();
+                }}
+                className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-indigo-50 transition text-left"
+              >
+                <i className={`fas ${widget.icon} text-indigo-600 w-6`}></i>
+                <span className="font-medium">{widget.label}</span>
+              </button>
+            ))
+          )}
         </div>
       </div>
     </div>

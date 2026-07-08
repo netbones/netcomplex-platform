@@ -14,7 +14,7 @@ import {
   withErrorHandler,
 } from '@api/server';
 
-import { eq, and, desc, inArray, isNull } from 'drizzle-orm';
+import { eq, and, desc, inArray } from 'drizzle-orm';
 
 import { withTenant } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';

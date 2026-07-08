@@ -4,12 +4,14 @@ import {
   apiError,
   apiForbidden,
   apiInternalError,
+  apiNotFound,
   apiSuccess,
   apiUnauthorized,
   writeAuditLog,
   rateLimitByUser,
   revalidateAdminChanges,
   getSessionAndRole,
+  now,
 } from '@api/server';
 
 import { eq, and } from 'drizzle-orm';
@@ -126,6 +128,64 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ ke
     return apiSuccess({ key, value });
   } catch (error) {
     apiLogger.error({ err: error, key, tenantId }, 'Settings upsert error');
+    return apiInternalError();
+  }
+}
+
+/**
+ * DELETE /api/settings/[key] — Soft-delete a setting for the current tenant.
+ * Requires auth + admin permission.
+ */
+export async function DELETE(request: Request, { params }: { params: Promise<{ key: string }> }) {
+  const authData = await getSessionAndRole(request);
+
+  if (!authData) {
+    return apiUnauthorized();
+  }
+
+  const moduleCheck = await assertModuleEnabled('settings');
+  if (moduleCheck) return moduleCheck;
+
+  if (!hasPermission(authData.role, 'admin')) {
+    return apiForbidden('admin permission required');
+  }
+
+  const scopeError = await requireAssistScope(request, 'full');
+  if (scopeError) return scopeError;
+
+  const rateLimit = await rateLimitByUser(authData.userId, { windowMs: 60_000, maxRequests: 10 });
+  if (rateLimit) return rateLimit;
+
+  const { key } = await params;
+  const { tenantId } = await withTenant();
+
+  try {
+    const [existing] = await db
+      .select()
+      .from(settings)
+      .where(and(eq(settings.tenantId, tenantId), eq(settings.key, key)))
+      .limit(1);
+
+    if (!existing) {
+      return apiNotFound('Setting not found');
+    }
+
+    await db
+      .update(settings)
+      .set({ deletedAt: now(), updatedAt: now() })
+      .where(and(eq(settings.tenantId, tenantId), eq(settings.key, key)));
+
+    writeAuditLog({
+      action: 'SETTINGS_CHANGED',
+      actorId: authData.userId,
+      tenantId,
+      details: { key, oldValue: existing.value, newValue: null, method: 'DELETE' },
+    });
+
+    revalidateAdminChanges();
+    return apiSuccess({ key, deleted: true });
+  } catch (error) {
+    apiLogger.error({ err: error, key, tenantId }, 'Settings delete error');
     return apiInternalError();
   }
 }

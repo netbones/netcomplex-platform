@@ -40,5 +40,6 @@ export * from './suspension';
 export * from './unread-counts';
 export * from './urgency';
 export * from './user';
+export * from './user-achievement';
 export * from './wallet';
 export * from './wallet-transaction';

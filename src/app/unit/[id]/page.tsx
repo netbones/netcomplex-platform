@@ -1,12 +1,14 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, Suspense } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { Breadcrumbs, ErrorBoundary, TagCloud } from '@shared/ui';
 import { sanitizeHtml } from '@/shared/lib/sanitize';
+import Image from 'next/image';
 import { usePageLoading } from '@shared/ui';
+import { trpc } from '@api/client';
 
 interface HouseholdData {
   household: {
@@ -66,11 +68,18 @@ function HouseholdContent() {
   const params = useParams() as { id?: string } | null;
   const id = params?.id;
   const { t: tCommon } = useTranslation('common');
-  const [household, setHousehold] = useState<HouseholdData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const contentsPerPage = 5;
+
+  const {
+    data,
+    isLoading,
+    error: queryError,
+  } = trpc.households.getHousehold.useQuery({ id: id! }, { enabled: !!id });
+
+  const household = (data?.data as HouseholdData | undefined) ?? null;
+  const loading = isLoading;
+  const error = queryError?.message ?? null;
 
   const { isReady, LoadingComponent } = usePageLoading(
     [
@@ -83,30 +92,6 @@ function HouseholdContent() {
     ],
     { additionalLoading: loading }
   );
-
-  useEffect(() => {
-    if (!id) return;
-
-    const fetchHousehold = async () => {
-      try {
-        const res = await fetch(`/api/households/${id}`);
-        if (!res.ok) {
-          if (res.status === 404) {
-            throw new Error('Household not found');
-          }
-          throw new Error('Failed to load household');
-        }
-        const data = await res.json();
-        setHousehold(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load household');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchHousehold();
-  }, [id]);
 
   if (!isReady) {
     return LoadingComponent;
@@ -184,11 +169,13 @@ function HouseholdContent() {
       {/* Household Header */}
       <div className="bg-white rounded-lg shadow-md overflow-hidden mt-6">
         {household.household.homeImage && (
-          <div className="h-64 w-full">
-            <img
+          <div className="relative h-64 w-full">
+            <Image
               src={household.household.homeImage}
               alt={`${household.household.street} ${household.household.unit}`}
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
+              unoptimized
             />
           </div>
         )}
@@ -198,13 +185,16 @@ function HouseholdContent() {
             {/* Primary Owner Avatar */}
             {primaryOwner && (
               <div className="flex-shrink-0">
-                <img
+                <Image
                   src={
                     primaryOwner.avatar ||
                     `https://api.dicebear.com/7.x/avataaars/svg?seed=${primaryOwner.name}`
                   }
                   alt={primaryOwner.name}
-                  className="w-20 h-20 rounded-full bg-gray-100"
+                  width={80}
+                  height={80}
+                  className="rounded-full bg-gray-100"
+                  unoptimized
                 />
               </div>
             )}
@@ -258,13 +248,16 @@ function HouseholdContent() {
                   className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors"
                 >
                   <div className="flex items-center gap-3 mb-3">
-                    <img
+                    <Image
                       src={
                         occupant.avatar ||
                         `https://api.dicebear.com/7.x/avataaars/svg?seed=${occupant.name}`
                       }
                       alt={occupant.name}
-                      className="w-12 h-12 rounded-full bg-gray-200"
+                      width={48}
+                      height={48}
+                      className="rounded-full bg-gray-200"
+                      unoptimized
                     />
                     <div>
                       <h3 className="font-medium text-gray-900">{occupant.name}</h3>
@@ -308,13 +301,16 @@ function HouseholdContent() {
                       className="border-b border-gray-200 pb-6 last:border-0 last:pb-0"
                     >
                       <div className="flex items-center gap-3 mb-3">
-                        <img
+                        <Image
                           src={
                             household.occupants.find(o => o.id === content.author.id)?.avatar ||
                             `https://api.dicebear.com/7.x/avataaars/svg?seed=${content.author.name}`
                           }
                           alt={content.author.name}
-                          className="w-8 h-8 rounded-full bg-gray-200"
+                          width={32}
+                          height={32}
+                          className="rounded-full bg-gray-200"
+                          unoptimized
                         />
                         <div className="flex-1">
                           <div className="flex items-center gap-2">

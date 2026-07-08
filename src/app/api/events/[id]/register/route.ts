@@ -7,6 +7,7 @@ import {
   apiUnauthorized,
   apiNotFound,
   apiConflict,
+  now,
   withErrorHandler,
 } from '@api/server';
 
@@ -100,7 +101,8 @@ export const DELETE = withErrorHandler(
     const userId = session.user.id;
 
     const [deleted] = await db
-      .delete(eventAttendees)
+      .update(eventAttendees)
+      .set({ deletedAt: now() })
       .where(and(eq(eventAttendees.eventId, id), eq(eventAttendees.userId, userId)))
       .returning();
 

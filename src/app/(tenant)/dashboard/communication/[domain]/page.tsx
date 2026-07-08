@@ -7,6 +7,7 @@ import { notFound } from 'next/navigation';
 import { MESSAGES_DOMAINS, getMessagesDomainWidgets } from '@widgets/dashboard';
 import { MESSAGES_DOMAIN_DEFINITIONS } from '@widgets/dashboard';
 import { WidgetRenderer } from '@widgets/dashboard';
+import Image from 'next/image';
 import { ErrorBoundary, Breadcrumbs } from '@shared/ui';
 
 interface MessagesDomainPageProps {
@@ -51,7 +52,7 @@ export default function MessagesDomainPage({ params }: MessagesDomainPageProps) 
 
         <div className="flex items-center justify-between mt-6 mb-6">
           <div className="flex items-center gap-3">
-            {iconSrc && <img src={iconSrc} alt="" className="w-8 h-8" />}
+            {iconSrc && <Image src={iconSrc} alt="" width={32} height={32} unoptimized />}
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
                 {tx(domainDef?.labelKey ?? domain, domainLabelFallback, { ns: 'messages' })}
@@ -86,7 +87,14 @@ export default function MessagesDomainPage({ params }: MessagesDomainPageProps) 
         {widgets.length === 0 && (
           <div className="bg-white rounded-lg shadow-sm p-12 text-center">
             {iconSrc && (
-              <img src={iconSrc} alt="" className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+              <Image
+                src={iconSrc}
+                alt=""
+                width={48}
+                height={48}
+                className="text-gray-300 mx-auto mb-4"
+                unoptimized
+              />
             )}
             <h2 className="text-lg font-semibold text-gray-900 mb-2">
               {tx(domainDef?.labelKey ?? domain, domainLabelFallback, { ns: 'messages' })}

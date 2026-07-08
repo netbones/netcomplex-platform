@@ -1,9 +1,5 @@
 import { z } from 'zod/v4';
 
-const dateSch = z
-  .date()
-  .nullable()
-  .transform(d => (d ? d.toISOString() : new Date().toISOString()));
 const nullDate = z
   .date()
   .nullable()

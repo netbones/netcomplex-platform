@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { fetchApi, formatCurrency, formatDate, sendJson, statusBadgeClass } from './adminApi';
 import { RefundModal } from './RefundModal';
+import Image from 'next/image';
 import type { RefundResponse, TransactionItem, TransactionsResponse } from './types';
 
 function SummaryCard({ title, value }: { title: string; value: string }) {
@@ -56,7 +57,7 @@ export function TransactionDashboard() {
     <div className="mx-auto max-w-7xl space-y-6 p-6">
       <section className="rounded-3xl bg-gradient-to-r from-slate-900 to-indigo-900 p-6 text-white shadow-lg">
         <h1 className="flex items-center gap-3 text-3xl font-semibold">
-          <img src="/platform/providers.svg" alt="" className="h-8 w-8" />
+          <Image src="/platform/providers.svg" alt="" width={32} height={32} className="h-8 w-8" />
           Provider transactions
         </h1>
         <p className="mt-2 max-w-3xl text-sm text-slate-200">

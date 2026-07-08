@@ -73,6 +73,8 @@
     "competitions": "Competitions",
     "communication": "Communication",
     "marketplace": "Marketplace",
+    "education": "Education Portal",
+    "disputes": "Disputes",
     "descriptions": {
       "maintenance": "Submit and track maintenance requests",
       "bookings": "Book community facilities and amenities",
@@ -82,7 +84,9 @@
       "surveys": "Community surveys and questionnaires",
       "competitions": "Community competitions and contests",
       "communication": "Chat, announcements, and messaging",
-      "marketplace": "Browse and book community service providers"
+      "marketplace": "Browse and book community service providers",
+      "education": "Bursaries, scholarships, and free learning resources",
+      "disputes": "File and track community disputes"
     }
   },
   "quickNav": "Service Categories",

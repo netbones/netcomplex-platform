@@ -3,6 +3,7 @@
 import { useCallback } from 'react';
 import Link from 'next/link';
 import { Calendar, MapPin, Plus, ArrowRight, Loader2, BadgeCheck } from 'lucide-react';
+import Image from 'next/image';
 import { useUpcomingEvents } from '@shared/lib/hooks';
 
 interface AttendeePreview {
@@ -94,8 +95,14 @@ export function EventsWidget() {
           }`}
         >
           {event.image ? (
-            <div className="w-14 h-14 rounded-lg overflow-hidden shrink-0 bg-gray-200">
-              <img src={event.image} alt={event.title} className="w-full h-full object-cover" />
+            <div className="w-14 h-14 rounded-lg overflow-hidden shrink-0 bg-gray-200 relative">
+              <Image
+                src={event.image}
+                alt={event.title}
+                fill
+                className="w-full h-full object-cover"
+                unoptimized
+              />
             </div>
           ) : (
             <div className="w-14 h-14 rounded-lg bg-indigo-100 flex items-center justify-center shrink-0">
@@ -130,11 +137,17 @@ export function EventsWidget() {
                   {event.attendees.map((a, i) => (
                     <div
                       key={i}
-                      className="w-5 h-5 rounded-full border-2 border-white bg-indigo-100 flex items-center justify-center overflow-hidden"
+                      className="w-5 h-5 rounded-full border-2 border-white bg-indigo-100 flex items-center justify-center overflow-hidden relative"
                       title={a.name}
                     >
                       {a.avatar ? (
-                        <img src={a.avatar} alt={a.name} className="w-full h-full object-cover" />
+                        <Image
+                          src={a.avatar}
+                          alt={a.name}
+                          fill
+                          className="w-full h-full object-cover"
+                          unoptimized
+                        />
                       ) : (
                         <span className="text-[8px] font-medium text-indigo-600">
                           {a.name.charAt(0).toUpperCase()}

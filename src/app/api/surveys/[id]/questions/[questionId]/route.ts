@@ -10,6 +10,7 @@ import {
   apiSuccess,
   apiUnauthorized,
   apiValidationError,
+  now,
   withErrorHandler,
 } from '@api/server';
 
@@ -90,7 +91,7 @@ export const PATCH = withErrorHandler(
     }
 
     const body = await request.json();
-    const updateData: Record<string, unknown> = {};
+    const updateData: Record<string, unknown> = { updatedAt: now() };
 
     if (body.text !== undefined) {
       if (typeof body.text !== 'string') {
@@ -161,7 +162,8 @@ export const DELETE = withErrorHandler(
     const { id: surveyId, questionId } = await params;
 
     const [deleted] = await db
-      .delete(questions)
+      .update(questions)
+      .set({ deletedAt: now(), updatedAt: now() })
       .where(
         and(
           eq(questions.id, questionId),

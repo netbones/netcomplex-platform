@@ -6,6 +6,7 @@ import {
   apiUnauthorized,
   apiNotFound,
   apiConflict,
+  now,
   withErrorHandler,
 } from '@api/server';
 
@@ -93,7 +94,8 @@ export const DELETE = withErrorHandler(
     const userId = session.user.id;
 
     const [deleted] = await db
-      .delete(contentLikes)
+      .update(contentLikes)
+      .set({ deletedAt: now() })
       .where(and(eq(contentLikes.contentId, id), eq(contentLikes.userId, userId)))
       .returning();
 

@@ -17,7 +17,7 @@ import {
   withErrorHandler,
 } from '@api/server';
 import { hasPermission } from '@shared/lib';
-import { eq, and, isNull, asc, gte, inArray, sql } from 'drizzle-orm';
+import { eq, and, asc, gte, inArray, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { NextResponse } from 'next/server';
 import { buildCsosExportPdf } from './build-csos-pdf';

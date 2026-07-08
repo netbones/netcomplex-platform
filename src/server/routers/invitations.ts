@@ -20,7 +20,7 @@ import { invitationDto } from '@api/server';
 import { TRPCError } from '@trpc/server';
 import { hasPermission, createComponentLogger } from '@shared/lib';
 
-import { eq, and, desc, isNull } from 'drizzle-orm';
+import { eq, and, desc } from 'drizzle-orm';
 import { createId } from '@shared/lib/id';
 
 const IdInput = z.object({ id: z.string() });

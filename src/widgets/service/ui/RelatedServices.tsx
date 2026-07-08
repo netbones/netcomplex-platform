@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ReviewStars, PricingDisplay, ServiceListing } from '@entities/service';
+import Image from 'next/image';
 import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('RelatedServices');
@@ -62,12 +63,14 @@ export function RelatedServices({ serviceId }: RelatedServicesProps) {
             href={`/services/${service.id}`}
             className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-4 block"
           >
-            <div className="aspect-video bg-gray-100 rounded-lg mb-3 overflow-hidden">
+            <div className="aspect-video bg-gray-100 rounded-lg mb-3 overflow-hidden relative">
               {service.images?.[0] ? (
-                <img
+                <Image
                   src={service.images[0]}
                   alt={service.title}
+                  fill
                   className="w-full h-full object-cover"
+                  unoptimized
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-gray-400">

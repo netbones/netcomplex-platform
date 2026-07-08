@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
+  <defs>
+    <linearGradient id="glassBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#F3EFE3" stop-opacity="0.75"/>
+    </linearGradient>
+    <linearGradient id="netNavy" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+    <linearGradient id="netGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EAB308"/>
+      <stop offset="100%" stop-color="#A16207"/>
+    </linearGradient>
+    <filter id="softShadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="1" dy="2.5" stdDeviation="2" flood-color="#0F172A" flood-opacity="0.2"/>
+    </filter>
+    <clipPath id="leftHalf">
+      <rect x="-10" y="-10" width="28" height="60" />
+    </clipPath>
+    <clipPath id="rightHalf">
+      <rect x="18" y="-10" width="40" height="60" />
+    </clipPath>
+  </defs>
+
+  <rect width="64" height="64" rx="16" fill="url(#glassBg)" stroke="#E2E8F0" stroke-width="1" />
+
+  <g filter="url(#softShadow)" transform="translate(13, 14)">
+    <!-- Left Side Split (Navy) -->
+    <g clip-path="url(#leftHalf)">
+      <circle cx="10" cy="8" r="4" fill="url(#netNavy)" />
+      <path d="M2,18 C2,14.5 5.5,13.5 10,13.5 C14.5,13.5 18,14.5 18,18 V23 H2 Z" fill="url(#netNavy)" />
+      <circle cx="26" cy="8" r="4" fill="url(#netNavy)" />
+      <path d="M18,18 C18,14.5 21.5,13.5 26,13.5 C30.5,13.5 34,14.5 34,18 V23 H18 Z" fill="url(#netNavy)" />
+      <circle cx="18" cy="14" r="5" fill="url(#netNavy)" />
+      <path d="M8,26 C8,21.5 12.5,20 18,20 C23.5,20 28,21.5 28,26 V31 H8 Z" fill="url(#netNavy)" />
+    </g>
+
+    <!-- Right Side Split (Gold) -->
+    <g clip-path="url(#rightHalf)">
+      <circle cx="10" cy="8" r="4" fill="url(#netGold)" />
+      <path d="M2,18 C2,14.5 5.5,13.5 10,13.5 C14.5,13.5 18,14.5 18,18 V23 H2 Z" fill="url(#netGold)" />
+      <circle cx="26" cy="8" r="4" fill="url(#netGold)" />
+      <path d="M18,18 C18,14.5 21.5,13.5 26,13.5 C30.5,13.5 34,14.5 34,18 V23 H18 Z" fill="url(#netGold)" />
+      <circle cx="18" cy="14" r="5" fill="url(#netGold)" />
+      <path d="M8,26 C8,21.5 12.5,20 18,20 C23.5,20 28,21.5 28,26 V31 H8 Z" fill="url(#netGold)" />
+    </g>
+  </g>
+</svg>

@@ -11,7 +11,7 @@ import {
 } from '@api/server';
 import { requireProviderAccess } from '@shared/api';
 import { logError } from '@shared/lib';
-import { and, desc, eq, inArray, isNull, sql } from 'drizzle-orm';
+import { and, desc, eq, inArray, sql } from 'drizzle-orm';
 
 export const maxDuration = 8;
 

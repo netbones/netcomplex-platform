@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { HomeLayer } from '@widgets/dashboard';
 import { MyHomeSpaceWithErrorBoundary } from '@widgets/dashboard';
 import { AchievementsWidget } from '@widgets/dashboard';
@@ -61,7 +62,13 @@ export default function DashboardHome() {
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       {headerImage && (
         <div className="relative -mx-6 -mt-6 mb-0 h-48 sm:h-64 rounded-t-none overflow-hidden">
-          <img src={headerImage} alt="Dashboard header" className="w-full h-full object-cover" />
+          <Image
+            src={headerImage}
+            alt="Dashboard header"
+            fill
+            className="object-cover"
+            unoptimized
+          />
           <button
             onClick={() => setShowPicker(true)}
             className="absolute top-4 right-4 px-3 py-1.5 text-xs font-medium bg-white/90 rounded-lg shadow hover:bg-white transition"

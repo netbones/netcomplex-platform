@@ -15,7 +15,6 @@ import {
   desc,
   asc,
   sql,
-  isNull,
   count,
   IdInput,
   ListSurveysInput,

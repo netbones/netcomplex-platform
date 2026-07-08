@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { listTenants } from '@entities/tenant/server';
 
 function Badge({
@@ -65,10 +66,13 @@ async function TenantsList() {
               <td className="px-6 py-4 whitespace-nowrap">
                 <div className="flex items-center">
                   {tenant.logoUrl && (
-                    <img
+                    <Image
                       src={tenant.logoUrl}
                       alt={tenant.name}
+                      width={32}
+                      height={32}
                       className="h-8 w-8 rounded-full mr-3"
+                      unoptimized
                     />
                   )}
                   <span className="font-medium text-gray-900">{tenant.name}</span>

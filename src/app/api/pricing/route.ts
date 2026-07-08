@@ -12,8 +12,8 @@ export type { PricingPlan };
 
 // Static pricing data aligned with Netcomplex tiers
 const PRICING_PLANS: Record<TierLevel, Omit<PricingPlan, 'id'>> = {
-  foundation: {
-    name: 'FOUNDATION',
+  core: {
+    name: 'Core',
     price: 'R299',
     period: '/month',
     description: 'Entry tier for small communities up to 50 units',
@@ -30,15 +30,15 @@ const PRICING_PLANS: Record<TierLevel, Omit<PricingPlan, 'id'>> = {
     maxPages: 5,
     color: '#22C55E',
   },
-  depth: {
-    name: 'DEPTH',
+  foundation: {
+    name: 'Foundation',
     price: 'R599',
     period: '/month',
     description: 'Growth tier for expanding communities up to 200 units',
     features: [
       'Up to 15 pages',
       'Up to 200 units',
-      'Everything in FOUNDATION',
+      'Everything in Core',
       'Facility bookings',
       'Event management',
       'Surveys & voting',
@@ -50,15 +50,15 @@ const PRICING_PLANS: Record<TierLevel, Omit<PricingPlan, 'id'>> = {
     maxPages: 15,
     color: '#F59E0B',
   },
-  core: {
-    name: 'CORE',
+  'pro-max': {
+    name: 'Pro‑Max',
     price: 'Custom',
     period: '',
     description: 'Enterprise tier for large HOAs and property management companies',
     features: [
       'Unlimited pages',
       'Unlimited units',
-      'Everything in DEPTH',
+      'Everything in Foundation',
       'Multiple communities',
       'Advanced analytics',
       'API access',

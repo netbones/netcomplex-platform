@@ -1,30 +1,23 @@
+'use client';
+
+import { useTranslation } from 'react-i18next';
 import { SectionLayout } from '@shared/ui';
 
 export function PricingFAQ() {
+  const { t } = useTranslation('platform');
+
   const faqs = [
-    {
-      q: 'Can I change plans later?',
-      a: 'Yes, you can upgrade or downgrade your plan at any time. Changes take effect at the start of your next billing cycle.',
-    },
-    {
-      q: 'Is there a free trial?',
-      a: 'Yes! All plans come with a 14-day free trial. No credit card required to start.',
-    },
-    {
-      q: 'What payment methods do you accept?',
-      a: 'We accept all major credit cards and bank transfers for annual plans.',
-    },
-    {
-      q: 'Can I get a refund?',
-      a: 'We offer a 30-day money-back guarantee. If you are not satisfied, contact us for a full refund.',
-    },
+    { q: t('pricingPage.faqs.q1'), a: t('pricingPage.faqs.a1') },
+    { q: t('pricingPage.faqs.q2'), a: t('pricingPage.faqs.a2') },
+    { q: t('pricingPage.faqs.q3'), a: t('pricingPage.faqs.a3') },
+    { q: t('pricingPage.faqs.q4'), a: t('pricingPage.faqs.a4') },
   ];
 
   return (
     <SectionLayout size="xl" background="fieldstone">
       <div className="max-w-3xl mx-auto">
         <h2 className="text-3xl font-bold text-bark text-center mb-12">
-          Frequently Asked Questions
+          {t('pricingPage.faqTitle')}
         </h2>
         <div className="space-y-6">
           {faqs.map((faq, idx) => (

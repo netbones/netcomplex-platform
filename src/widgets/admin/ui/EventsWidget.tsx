@@ -5,6 +5,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { ErrorBoundary } from '@shared/ui';
 import { logError } from '@shared/lib';
 
@@ -115,13 +116,13 @@ export function EventsWidget() {
         <div className="text-center py-6">
           <i className="fas fa-calendar-xmark text-3xl text-gray-400 mb-3"></i>
           <p className="text-sm text-gray-600 mb-3">No upcoming events</p>
-          <a
+          <Link
             href="/admin/events/new"
             className="inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
           >
             <i className="fas fa-plus"></i>
             Create Event
-          </a>
+          </Link>
         </div>
       </ErrorBoundary>
     );
@@ -154,12 +155,12 @@ export function EventsWidget() {
         </ul>
 
         <div className="mt-4 pt-3 border-t border-gray-200">
-          <a
+          <Link
             href="/admin/events"
             className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
           >
             View All Events →
-          </a>
+          </Link>
         </div>
       </div>
     </ErrorBoundary>

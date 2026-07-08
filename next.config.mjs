@@ -117,6 +117,26 @@ const nextConfig = {
         net: false,
         tls: false,
       };
+
+      config.optimization = config.optimization || {};
+      config.optimization.splitChunks = config.optimization.splitChunks || {};
+      config.optimization.splitChunks.cacheGroups = {
+        ...config.optimization.splitChunks.cacheGroups,
+        tiptap: {
+          test: /[\\/]node_modules[\\/](@tiptap|prosemirror|lowlight|highlight\.js)[\\/]/,
+          name: 'tiptap-editor',
+          chunks: 'async',
+          priority: 20,
+          reuseExistingChunk: true,
+        },
+        leaflet: {
+          test: /[\\/]node_modules[\\/](react-leaflet|leaflet)[\\/]/,
+          name: 'leaflet-map',
+          chunks: 'async',
+          priority: 20,
+          reuseExistingChunk: true,
+        },
+      };
     }
     return config;
   },

@@ -288,7 +288,7 @@ describe('canAccess()', () => {
     vi.clearAllMocks();
   });
 
-  it('should allow when all 5 layers pass (bookings — depth module)', async () => {
+  it('should allow when all 5 layers pass (bookings — foundation module)', async () => {
     const { isModuleEnabled } = await import('../../lib/modules');
     const { getPlatformPageFlags } = await import('../flags/platform-flags');
 

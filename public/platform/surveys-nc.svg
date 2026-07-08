@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
+  <defs>
+    <linearGradient id="glassBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#F3EFE3" stop-opacity="0.75"/>
+    </linearGradient>
+    <linearGradient id="netNavy" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+    <linearGradient id="netGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EAB308"/>
+      <stop offset="100%" stop-color="#A16207"/>
+    </linearGradient>
+    <filter id="softShadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="1" dy="2.5" stdDeviation="2" flood-color="#0F172A" flood-opacity="0.2"/>
+    </filter>
+    <clipPath id="leftHalf">
+      <rect x="-10" y="-10" width="27" height="60" />
+    </clipPath>
+    <clipPath id="rightHalf">
+      <rect x="17" y="-10" width="40" height="60" />
+    </clipPath>
+  </defs>
+
+  <rect width="64" height="64" rx="16" fill="url(#glassBg)" stroke="#E2E8F0" stroke-width="1" />
+
+  <g filter="url(#softShadow)" transform="translate(15, 14)">
+    <!-- Base Foundation Line Axis -->
+    <line x1="0" y1="32" x2="34" y2="32" stroke="url(#netNavy)" stroke-width="2" stroke-linecap="round" />
+
+    <!-- Left Split (Navy) -->
+    <g clip-path="url(#leftHalf)">
+      <rect x="2" y="18" width="6" height="14" rx="1" fill="url(#netNavy)" />
+      <rect x="11" y="10" width="6" height="22" rx="1" fill="url(#netNavy)" />
+      <rect x="20" y="4" width="6" height="28" rx="1" fill="url(#netNavy)" />
+      <rect x="29" y="14" width="6" height="18" rx="1" fill="url(#netNavy)" />
+    </g>
+
+    <!-- Right Split (Gold) -->
+    <g clip-path="url(#rightHalf)">
+      <rect x="2" y="18" width="6" height="14" rx="1" fill="url(#netGold)" />
+      <rect x="11" y="10" width="6" height="22" rx="1" fill="url(#netGold)" />
+      <rect x="20" y="4" width="6" height="28" rx="1" fill="url(#netGold)" />
+      <rect x="29" y="14" width="6" height="18" rx="1" fill="url(#netGold)" />
+    </g>
+  </g>
+</svg>
