@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { Carousel, Pagination } from '@shared/ui';
 import { CARD_HEADER_COLORS } from '@shared/lib';
 import { useResidentFilter } from '@features/directory';
+import { useMapSettings } from '@shared/lib/hooks/useMapSettings';
 import type { CarouselItem } from '@entities/tenant';
 import type { HeroCarouselConfig } from '@entities/tenant';
 
@@ -15,20 +16,6 @@ const CommunityMap = dynamic(() => import('@entities/directory').then(mod => mod
 });
 
 import { UnifiedResidentCard } from '@entities/directory';
-
-/**
- * Street/block filter options for the directory listing.
- * Tenant-specific — should eventually be fetched from the tenant's
- * map.streets setting instead of hardcoded here.
- */
-const STREETS = [
-  'Pagoda Rd',
-  'Wild Almond Rd',
-  'Silkypuff Street',
-  'Beechwood Rd',
-  'Sugarbrush Rd',
-  'Conebrush Rd',
-] as const;
 
 const DEFAULT_CAROUSEL_ITEMS: CarouselItem[] = [
   {
@@ -53,6 +40,7 @@ export default function HomePage() {
   const { t, ready } = useTranslation('common');
   const [mounted, setMounted] = useState(false);
   const [carouselItems, setCarouselItems] = useState<CarouselItem[]>(DEFAULT_CAROUSEL_ITEMS);
+  const { streets: mapStreets } = useMapSettings();
 
   const {
     residents,
@@ -204,8 +192,8 @@ export default function HomePage() {
               className="border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-1 focus:ring-soralia-primary"
             >
               <option>{t('home.allStreets')}</option>
-              {STREETS.map(street => (
-                <option key={street}>{street}</option>
+              {mapStreets.map(s => (
+                <option key={s.name}>{s.name}</option>
               ))}
             </select>
           </div>
