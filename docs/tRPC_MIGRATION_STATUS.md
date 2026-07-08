@@ -1,8 +1,8 @@
 # REST API Route Coverage Report: tRPC Migration Status
 
-**Updated:** 2026-07-08 — Phase 120+ complete. 24 domains live (added: education, delegations, households, providers).
+**Updated:** 2026-07-08 — Phase 120+ complete. 25 domains live (all tenant-facing domains migrated).
 
-## 1. Existing tRPC Routers (24 domains, 47 files)
+## 1. Existing tRPC Routers (25 domains, 48 files)
 
 | tRPC Router     | Sub-Routers                                                                                       | Key Procedures                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | --------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -29,6 +29,7 @@
 | `education`     | —                                                                                                 | `getEducationData`, `updateEducationData`, `listBursaries`, `createBursary`, `getBursary`, `updateBursary`, `deleteBursary`, `listBursaryFields`, `listEducationResources`, `createEducationResource`, `getEducationResource`, `updateEducationResource`, `deleteEducationResource`, `getEducationSettings`, `updateEducationSettings`                                                                                                                                    |
 | `households`    | —                                                                                                 | `getStreets`, `listHouseholds`, `getHousehold`, `updateHousehold`, `getProperty`, `deleteProperty`, `delegateProperty`, `grantResidentDelegation`, `listResidentDelegations`, `revokeResidentDelegation`                                                                                                                                                                                                                                                                  |
 | `providers`     | —                                                                                                 | `validateRegistration`, `registerProvider`, `getLegalDocuments`, `acceptLegalAgreements`, `getVerificationStatus`, `updateVerification`, `getReputation`, `getReputationHistory`, `getReputationScore`, `getAnalytics`, `getDashboard`                                                                                                                                                                                                                                    |
+| `platform`      | —                                                                                                 | `saveOnboardingStep`, `createTenant`, `listTenantModules`                                                                                                                                                                                                                                                                                                                                                                                                                 |
 
 ---
 
@@ -265,6 +266,14 @@
 | `providers/analytics/reputation-score/route.ts` | `providers.getReputationScore`                                    |
 | `providers/dashboard/route.ts`                  | `providers.getDashboard`                                          |
 
+### PLATFORM — ✅ COVERED (New Router)
+
+| REST Route                      | tRPC Coverage                 |
+| ------------------------------- | ----------------------------- |
+| `platform/onboarding/route.ts`  | `platform.saveOnboardingStep` |
+| `platform/tenants/route.ts`     | `platform.createTenant`       |
+| `tenants/[id]/modules/route.ts` | `platform.listTenantModules`  |
+
 ---
 
 ## 3. Domains with No tRPC Router — ❌ NOT COVERED
@@ -352,16 +361,14 @@ All routes under `src/app/api/admin/`. Admin-only web pages and platform managem
 | `payments/paystack/verify/route.ts`  | Paystack verification  | Stay REST                           |
 | `payments/paystack/webhook/route.ts` | Paystack webhook       | Stay REST (webhook)                 |
 
-### PLATFORM — ❌ NOT COVERED (3 migrate, 3 stay REST)
+### PLATFORM — ✅ COVERED (3 routes migrated, 3 stay REST)
 
-| REST Route                         | Description             | Effort | Migrate?                        |
-| ---------------------------------- | ----------------------- | ------ | ------------------------------- |
-| `platform/onboarding/route.ts`     | Tenant onboarding       | Medium | Yes, new platform router        |
-| `platform/tenants/route.ts`        | Tenant listing          | Medium | Yes                             |
-| `tenants/[id]/modules/route.ts`    | Tenant module config    | Small  | Yes                             |
-| `tenant/billing/checkout/route.ts` | Tenant billing checkout | Medium | Stay REST (payment integration) |
-| `tenant/billing/invoices/route.ts` | Tenant invoices         | Medium | Stay REST                       |
-| `tenant/billing/snapshot/route.ts` | Billing snapshot        | Medium | Stay REST                       |
+| REST Route                         | Description                                | Migrate?                        |
+| ---------------------------------- | ------------------------------------------ | ------------------------------- |
+| `platform/*` (3 routes)            | Onboarding, tenant creation, module config | ✅ Migrated — see Section 2     |
+| `tenant/billing/checkout/route.ts` | Tenant billing checkout                    | Stay REST (payment integration) |
+| `tenant/billing/invoices/route.ts` | Tenant invoices                            | Stay REST                       |
+| `tenant/billing/snapshot/route.ts` | Billing snapshot                           | Stay REST                       |
 
 ### PRICING — ❌ NOT COVERED, Stay REST
 
@@ -444,9 +451,9 @@ All routes under `src/app/api/v1/` are either re-exports from canonical REST rou
 | ✅ FULL | Delegations                | Dedicated delegations router (6 procedures)                          |
 | ✅ FULL | Households                 | Dedicated households router (10 procedures)                          |
 | ✅ FULL | Providers                  | Dedicated providers router (11 procedures)                           |
+| ✅ FULL | Platform                   | Dedicated platform router (3 procedures)                             |
 | ❌ NONE | Access Control             | Special case — navigation guard data                                 |
 | ❌ NONE | Payments                   | Should stay REST (third-party webhooks)                              |
-| ❌ NONE | Platform/Tenant Billing    | 3 routes — onboarding, tenant list, module config                    |
 | ❌ NONE | Support                    | Stay REST (simple, low touch)                                        |
 | ❌ NONE | Stats (public)             | Stay REST                                                            |
 | ❌ NONE | Translate                  | Stay REST (AI service)                                               |
@@ -460,13 +467,11 @@ All routes under `src/app/api/v1/` are either re-exports from canonical REST rou
 
 ## 5. Migration Complete
 
-**All 24 tRPC routers are live** covering all tenant-facing domains. Phase 120+ (2026-07-08) added education, delegations, households, and providers routers.
+**All 25 tRPC routers are live** — all tenant-facing domains are fully migrated. (2026-07-08)
 
-### Remaining Migration Candidate
+### No Remaining Migration Candidates
 
-| Domain   | Effort | Migrate  | Notes                                  |
-| -------- | ------ | -------- | -------------------------------------- |
-| Platform | Medium | 3 routes | Onboarding, tenant list, module config |
+All domains suitable for tRPC have been migrated. Remaining REST-only routes:
 
 ### De-prioritized / Low Touch
 
@@ -503,7 +508,7 @@ All routes under `src/app/api/v1/` are either re-exports from canonical REST rou
 | Auth/system/infra routes (stay REST) | ~12   |
 | V1 legacy re-exports (stay REST)     | ~47   |
 | Uncovered, should stay REST          | ~32   |
-| Uncovered, candidate for migration   | ~3    |
-| tRPC routers deployed                | 24    |
+| Uncovered, candidate for migration   | 0     |
+| tRPC routers deployed                | 25    |
 | tRPC sub-routers                     | 19    |
 | DTO files (drizzle-zod)              | 10    |

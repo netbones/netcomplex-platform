@@ -23,6 +23,7 @@ import { delegationsRouter } from './delegations';
 import { educationRouter } from './education';
 import { householdsRouter } from './households';
 import { providersRouter } from './providers';
+import { platformRouter } from './platform';
 
 // Domain routers are added here as they migrate to tRPC
 export const appRouter = router({
@@ -49,6 +50,7 @@ export const appRouter = router({
   education: educationRouter,
   households: householdsRouter,
   providers: providersRouter,
+  platform: platformRouter,
 });
 
 export type AppRouter = typeof appRouter;
