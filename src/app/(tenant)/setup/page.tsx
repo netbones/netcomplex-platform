@@ -1,5 +1,9 @@
+import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
+import { eq } from 'drizzle-orm';
+import { auth, db, tenants } from '@api/server';
 import { withTenant } from '@entities/tenant/server';
-import { getTenantSetup } from '@/entities/setup';
+import { getTenantSetup } from '@entities/setup/server';
 import { ErrorBoundary } from '@shared/ui';
 import { SetupCenter } from '@/features/setup';
 import type { SetupMission } from '@/entities/setup';
@@ -13,10 +17,24 @@ interface SetupPageProps {
 export default async function SetupPage({ searchParams: _searchParams }: SetupPageProps) {
   const { tenantId } = await withTenant();
 
-  // Feature flag gating for enable-setup-center is at the navigation level
-  // (permissionKey: 'admin' in ADMIN_ITEMS). The feature is at foundation tier
-  // so all tenants have access by default. Page-level auth is enforced by the
-  // tenant middleware and withTenant().
+  // Auth gate: the Setup Center is owner-only. Enforce a session here so
+  // unauthenticated visitors are redirected to sign-in instead of rendering
+  // the page and hitting a 401 on /api/platform/setup. Mirrors the tenant-owner
+  // check in the API route (src/app/api/platform/setup/route.ts).
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user?.id) {
+    redirect('/sign-in');
+  }
+
+  const [tenant] = await db
+    .select({ ownerId: tenants.ownerId })
+    .from(tenants)
+    .where(eq(tenants.id, tenantId))
+    .limit(1);
+
+  if (!tenant || tenant.ownerId !== session.user.id) {
+    redirect('/dashboard');
+  }
 
   // Fetch initial setup data from DB
   const setup = await getTenantSetup(tenantId);
@@ -35,7 +53,16 @@ export default async function SetupPage({ searchParams: _searchParams }: SetupPa
         missions: Object.fromEntries(
           Object.entries(setup.missions).map(([section, msns]) => [
             section,
-            (msns as unknown as SetupMission[]).map(m => ({
+            (
+              msns as unknown as Array<
+                Record<string, unknown> & {
+                  createdAt: Date;
+                  updatedAt: Date;
+                  completedAt: Date | null;
+                  deletedAt: Date | null;
+                }
+              >
+            ).map(m => ({
               ...m,
               createdAt: m.createdAt.toISOString(),
               updatedAt: m.updatedAt.toISOString(),

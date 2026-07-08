@@ -69,6 +69,7 @@ function isPlatformHost(host: string): boolean {
 function isTenantRoute(pathname: string): boolean {
   return (
     pathname.startsWith('/dashboard') ||
+    pathname.startsWith('/setup') ||
     pathname.startsWith('/directory') ||
     pathname.startsWith('/groups') ||
     pathname.startsWith('/events') ||

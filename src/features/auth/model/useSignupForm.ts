@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { signupSchema, type SignupFormData, hasFeature, type TierLevel } from '@entities/tenant';
+import { signupSchema, type SignupFormData } from '@entities/tenant';
 
 type Step = 1 | 2 | 3;
 
@@ -112,15 +112,13 @@ export function useSignupForm() {
         throw new Error(msg);
       }
 
-      // Redirect based on enable-setup-center feature flag
-      const responseData = await res.json();
-      const tenantId = responseData.data?.tenantId;
-      const shouldUseSetup = hasFeature('feature.enable-setup-center', data.plan as TierLevel);
-      if (shouldUseSetup) {
-        router.push('/setup');
-      } else {
-        router.push(`/onboarding/${tenantId}`);
-      }
+      // Account creation requires email verification before a session exists,
+      // so we cannot land the user on an authenticated destination (e.g. /setup
+      // or /onboarding) yet — doing so produced a 401 on /api/platform/setup.
+      // Send them to verify their email; after verifying + signing in they reach
+      // their community space (Setup Center when enable-setup-center is on).
+      await res.json();
+      router.push(`/verify-email?email=${encodeURIComponent(data.email)}`);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to create community';
       setError(message);
