@@ -10,31 +10,32 @@ import {
   revalidateAdminChanges,
 } from '@api/server';
 
-import { eq, sql } from 'drizzle-orm';
+import { eq, sql, and } from 'drizzle-orm';
 import { assertModuleEnabled, withTenant, withTenantOptional } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
 
 export const maxDuration = 8;
 
-export const GET = withErrorHandler(async (request: Request) => {
-  const authData = await getSessionAndRole(request);
-  if (!authData) return apiUnauthorized();
-  // Allow reading settings without tenant (for public access)
+export const GET = withErrorHandler(async (_request: Request) => {
   const { tenantId } = await withTenantOptional();
 
   if (!tenantId) {
     return apiSuccess({});
   }
 
-  const contactSettings = await db.select().from(settings).where(eq(settings.tenantId, tenantId));
+  const contactSettings = await db
+    .select()
+    .from(settings)
+    .where(and(eq(settings.tenantId, tenantId), eq(settings.key, 'map.center')));
+  const streetsSettings = await db
+    .select()
+    .from(settings)
+    .where(and(eq(settings.tenantId, tenantId), eq(settings.key, 'map.streets')));
 
-  const settingsMap = contactSettings.reduce(
-    (acc, s) => {
-      acc[s.key] = s.value;
-      return acc;
-    },
-    {} as Record<string, string>
-  );
+  const settingsMap: Record<string, string> = {};
+  for (const s of [...contactSettings, ...streetsSettings]) {
+    settingsMap[s.key] = s.value;
+  }
 
   return apiSuccess(settingsMap);
 });

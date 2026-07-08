@@ -26,6 +26,21 @@ import { SCOPE_BUNDLES, validateScopes } from '@entities/agent';
 import { createPrefixedId, createId } from '@shared/lib/id';
 
 export const householdsRouter = router({
+  getStreets: tenantProcedure.query(async ({ ctx }) => {
+    const tenantId = ctx.tenantId;
+    if (!tenantId) {
+      throw new TRPCError({ code: 'PRECONDITION_FAILED', message: 'Tenant context required' });
+    }
+
+    const rows = await db
+      .selectDistinct({ street: properties.street })
+      .from(properties)
+      .where(and(eq(properties.tenantId, tenantId), notDeleted(properties)))
+      .orderBy(properties.street);
+
+    return toEnvelope(rows.map(r => r.street));
+  }),
+
   listHouseholds: privilegedProcedure
     .input(
       z.object({

@@ -8,7 +8,8 @@ import { useServiceFilter } from '@features/service';
 import { ServicesGrid } from '@widgets/service';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { usePageLoading } from '@shared/ui';
-import { STREETS, createComponentLogger } from '@shared/lib';
+import { createComponentLogger } from '@shared/lib';
+import { trpc } from '@api/client';
 
 const log = createComponentLogger('DirectoryPage');
 
@@ -37,6 +38,9 @@ export function DirectoryPage() {
     setPage: setResidentsPage,
     setViewMode,
   } = useResidentFilter({ defaultLimit: 12 });
+
+  const { data: streetsData } = trpc.households.getStreets.useQuery();
+  const streets: string[] = (streetsData?.data as string[]) ?? [];
 
   const {
     services,
@@ -105,7 +109,7 @@ export function DirectoryPage() {
             className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-soralia-primary"
           >
             <option>All Streets</option>
-            {STREETS.map(street => (
+            {streets.map(street => (
               <option key={street}>{street}</option>
             ))}
           </select>

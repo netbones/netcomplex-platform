@@ -30,7 +30,8 @@ export function useMapSettings(): MapSettings {
   useEffect(() => {
     fetch('/api/settings/contact')
       .then(res => res.json())
-      .then((data: Record<string, string>) => {
+      .then((envelope: { data?: Record<string, string> }) => {
+        const data = envelope?.data ?? {};
         const centerRaw = data['map.center'];
         const streetsRaw = data['map.streets'];
 
