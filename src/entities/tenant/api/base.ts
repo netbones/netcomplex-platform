@@ -61,20 +61,31 @@ import { dbLogger } from '@shared/lib';
 
 export type { Tenant };
 
+/**
+ * Maps short-name subdomains (from *.netbones.co.za wildcard) to full tenant slugs.
+ *
+ * The wildcard domain `*.netbones.co.za` derives the tenant slug from the
+ * subdomain (e.g. `soralia.netbones.co.za` → slug `soralia`). When the
+ * subdomain differs from the slug (e.g. `solaris.netbones.co.za` → slug
+ * `solaris-heights`), add an entry here.
+ *
+ * New tenants should prefer slug == subdomain to avoid needing an alias.
+ */
+const SUBDOMAIN_ALIASES: Record<string, string> = {
+  solaris: 'solaris-heights',
+};
+
+const NETBONES_WILDCARD_SUFFIX = '.netbones.co.za';
+
 const getCurrentTenantImpl = async (): Promise<Tenant | undefined> => {
   const headersList = await headers();
 
   const tenantId = headersList.get('x-tenant-id');
   if (tenantId) return getTenantById(tenantId);
 
-  const slug = headersList.get('x-tenant-slug');
-  if (slug) {
-    const bySlug = await getTenantBySlug(slug);
-    if (bySlug) return bySlug;
-  }
-
-  // Fallback: resolve by custom domain (e.g. solaris.co.za → solaris-heights).
-  // New tenants only need their customDomain set in the DB — no code changes required.
+  // 1. Resolve by full host as custom domain.
+  //    Catches branded domains like solaris.co.za → Solaris Heights,
+  //    soralia.co.za → Soralia Village.
   const host = headersList.get('host') || '';
   if (host) {
     const hostWithoutPort = host.split(':')[0] || '';
@@ -82,8 +93,35 @@ const getCurrentTenantImpl = async (): Promise<Tenant | undefined> => {
     if (byDomain) return byDomain;
   }
 
-  // Fallback for development: use LOCAL_TENANT_SLUG env or default to 'soralia'
-  // This allows Soralia development to work with the multi-tenant system
+  // 2. Resolve by slug from middleware x-tenant-slug header.
+  //    Catches soralia.netbones.co.za where subdomain == slug.
+  const slug = headersList.get('x-tenant-slug');
+  if (slug) {
+    const bySlug = await getTenantBySlug(slug);
+    if (bySlug) return bySlug;
+  }
+
+  // 3. Resolve *.netbones.co.za wildcard subdomain → slug (with alias mapping).
+  //    Catches solaris.netbones.co.za where subdomain ≠ slug.
+  if (host) {
+    const hostWithoutPort = host.split(':')[0] || '';
+    if (hostWithoutPort.endsWith(NETBONES_WILDCARD_SUFFIX)) {
+      const subdomain = hostWithoutPort.slice(0, -NETBONES_WILDCARD_SUFFIX.length);
+      if (subdomain) {
+        // Try direct subdomain as slug first (covers soralia → soralia)
+        const bySubdomainSlug = await getTenantBySlug(subdomain);
+        if (bySubdomainSlug) return bySubdomainSlug;
+        // Try alias map (covers solaris → solaris-heights)
+        const aliasSlug = SUBDOMAIN_ALIASES[subdomain];
+        if (aliasSlug) {
+          const byAlias = await getTenantBySlug(aliasSlug);
+          if (byAlias) return byAlias;
+        }
+      }
+    }
+  }
+
+  // 4. Fallback for development: LOCAL_TENANT_SLUG env or 'soralia'.
   const localTenantSlug = process.env.LOCAL_TENANT_SLUG || 'soralia';
   return getTenantBySlug(localTenantSlug);
 };

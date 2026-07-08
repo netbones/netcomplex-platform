@@ -15,5 +15,6 @@ export const tenant: TenantInput = {
   telephone: '+27 21 555 0100',
   email: 'info@soraliavillage.co.za',
   governanceLabel: 'Homeowners Association',
+  customDomain: 'soralia.co.za',
   ticketPrefix: 'SRV',
 };
