@@ -108,6 +108,8 @@ const nextConfig = {
         tls: false,
       };
 
+      config.optimization = config.optimization || {};
+      config.optimization.splitChunks = config.optimization.splitChunks || {};
       config.optimization.splitChunks.cacheGroups = {
         ...config.optimization.splitChunks.cacheGroups,
         lucideIcons: {
