@@ -82,10 +82,26 @@ export const auth = betterAuth({
     //   );
     // },
     async onExistingUserSignUp({ user }) {
+      const tenant = user.tenantId
+        ? await db
+            .select({ name: tenants.name, slug: tenants.slug, customDomain: tenants.customDomain })
+            .from(tenants)
+            .where(eq(tenants.id, user.tenantId as string))
+            .limit(1)
+            .then(rows => rows[0] ?? null)
+        : null;
+
+      const tenantName = tenant?.name ?? 'Netcomplex';
+      const loginUrl = tenant?.customDomain
+        ? `https://${tenant.customDomain}/login`
+        : tenant?.slug
+          ? `https://${tenant.slug}.netbones.co.za/login`
+          : 'https://app.netbones.co.za/login';
+
       sendEmail({
         to: user.email,
         subject: templates.securityAlert.subject,
-        html: templates.securityAlert.getHtml(user.email),
+        html: templates.securityAlert.getHtml(user.email, loginUrl, tenantName),
       }).catch(err =>
         authLogger.error({ err, email: user.email }, 'Security alert email send failed')
       );

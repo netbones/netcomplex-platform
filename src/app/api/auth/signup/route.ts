@@ -98,17 +98,24 @@ export async function POST(request: NextRequest) {
 
     const responseData = await authResponse.json();
 
-    // If signup succeeded, send welcome email and process invitation
+    // If signup succeeded, process signup
     if (authResponse.ok) {
-      // Note: We intentionally don't await this to not block the response
-      // and we don't fail the signup if email fails
-      sendWelcomeEmail(email, name).catch(error => {
-        logError(
-          { component: 'signup-email', operation: 'SEND_WELCOME' },
-          'Failed to send welcome email',
-          error
-        );
-      });
+      const createdUser = responseData?.user;
+
+      // Only send welcome email for genuinely new users (not re-verification of existing)
+      if (createdUser) {
+        const origin =
+          request.headers.get('origin') || ENV.NEXT_PUBLIC_APP_URL || `http://localhost:3000`;
+        const loginUrl = `${origin}/login`;
+
+        sendWelcomeEmail(email, name, loginUrl).catch(error => {
+          logError(
+            { component: 'signup-email', operation: 'SEND_WELCOME' },
+            'Failed to send welcome email',
+            error
+          );
+        });
+      }
 
       // Process invitation if token was provided
       if (invitationData) {
@@ -211,11 +218,11 @@ async function processInvitation(
  * Send welcome email to new user.
  * Silently handles errors to not affect the signup flow.
  */
-async function sendWelcomeEmail(email: string, name: string) {
+async function sendWelcomeEmail(email: string, name: string, loginUrl: string) {
   try {
     const { sendEmail, templates } = await import('@api/server');
 
-    const html = templates.welcome.getHtml(name);
+    const html = templates.welcome.getHtml(name, loginUrl);
 
     await sendEmail({
       to: email,
