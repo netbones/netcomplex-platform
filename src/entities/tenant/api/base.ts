@@ -16,7 +16,7 @@ import { eq } from 'drizzle-orm';
 import 'server-only';
 
 import type { TierLevel } from '@entities/tenant';
-// import { unstable_cache } from 'next/cache';
+import { unstable_cache } from 'next/cache';
 import { headers } from 'next/headers';
 import type { Tenant, TenantTier } from '@shared/lib';
 import {
@@ -193,20 +193,32 @@ function toTenant(row: Record<string, unknown>): Tenant {
   };
 }
 
-export async function getTenantById(id: string): Promise<Tenant | undefined> {
-  const result = await db.select().from(tenants).where(eq(tenants.id, id)).limit(1);
-  return result[0] ? toTenant(result[0]) : undefined;
-}
+export const getTenantById = unstable_cache(
+  async (id: string): Promise<Tenant | undefined> => {
+    const result = await db.select().from(tenants).where(eq(tenants.id, id)).limit(1);
+    return result[0] ? toTenant(result[0]) : undefined;
+  },
+  ['tenant-by-id'],
+  { revalidate: 60, tags: ['tenant-lookup'] }
+);
 
-export async function getTenantBySlug(slug: string): Promise<Tenant | undefined> {
-  const result = await db.select().from(tenants).where(eq(tenants.slug, slug)).limit(1);
-  return result[0] ? toTenant(result[0]) : undefined;
-}
+export const getTenantBySlug = unstable_cache(
+  async (slug: string): Promise<Tenant | undefined> => {
+    const result = await db.select().from(tenants).where(eq(tenants.slug, slug)).limit(1);
+    return result[0] ? toTenant(result[0]) : undefined;
+  },
+  ['tenant-by-slug'],
+  { revalidate: 60, tags: ['tenant-lookup'] }
+);
 
-export async function getTenantByDomain(domain: string): Promise<Tenant | undefined> {
-  const result = await db.select().from(tenants).where(eq(tenants.customDomain, domain)).limit(1);
-  return result[0] ? toTenant(result[0]) : undefined;
-}
+export const getTenantByDomain = unstable_cache(
+  async (domain: string): Promise<Tenant | undefined> => {
+    const result = await db.select().from(tenants).where(eq(tenants.customDomain, domain)).limit(1);
+    return result[0] ? toTenant(result[0]) : undefined;
+  },
+  ['tenant-by-domain'],
+  { revalidate: 60, tags: ['tenant-lookup'] }
+);
 
 export async function getTenantByUserId(userId: string): Promise<Tenant | undefined> {
   const user = await db.select().from(users).where(eq(users.id, userId)).limit(1);
