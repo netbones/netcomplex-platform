@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Breadcrumbs } from '@shared/ui';
+import { trpc } from '@api/client';
 
 interface Household {
   id: string;
@@ -23,39 +24,20 @@ interface Household {
 }
 
 export default function HouseholdsPage() {
-  const [households, setHouseholds] = useState<Household[]>([]);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
   const limit = 20;
 
-  useEffect(() => {
-    const delayDebounce = setTimeout(() => {
-      fetchHouseholds();
-    }, 300);
+  const { data, isLoading, isError } = trpc.households.listHouseholds.useQuery({
+    search,
+    page,
+    limit,
+  });
 
-    return () => clearTimeout(delayDebounce);
-  }, [search, page]);
-
-  const fetchHouseholds = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(
-        `/api/households?search=${encodeURIComponent(search)}&page=${page}&limit=${limit}`
-      );
-      if (res.ok) {
-        const body = await res.json();
-        const data = body?.data ?? body;
-        setHouseholds(data.households || []);
-        setTotal(data.total || 0);
-      }
-    } catch (error) {
-      console.error('Failed to fetch households:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const envelope = data;
+  const households =
+    ((envelope?.data as Record<string, unknown>)?.households as Household[] | undefined) ?? [];
+  const total = ((envelope?.data as Record<string, unknown>)?.total as number | undefined) ?? 0;
 
   const totalPages = Math.ceil(total / limit);
 
@@ -109,7 +91,7 @@ export default function HouseholdsPage() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {loading ? (
+            {isLoading ? (
               <tr>
                 <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
                   <i className="fas fa-spinner fa-spin mr-2"></i>

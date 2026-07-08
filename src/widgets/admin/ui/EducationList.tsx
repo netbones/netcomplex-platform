@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { createComponentLogger } from '@shared/lib';
+import { trpc } from '@api/client';
 
 const log = createComponentLogger('EducationList');
 
@@ -70,45 +71,63 @@ const EMPTY_PIN: PinData = { title: '', sub: '', link: '', btn: 'Apply' };
 
 export function EducationList() {
   const [tab, setTab] = useState<TabId>('pin');
-  const [bursaries, setBursaries] = useState<BursaryRow[]>([]);
-  const [resources, setResources] = useState<ResourceRow[]>([]);
-  const [fields, setFields] = useState<BursaryField[]>([]);
-  const [settings, setSettings] = useState<EduSettings>({ pin: EMPTY_PIN, shelf: [] });
   const [loading, setLoading] = useState(true);
+  const [searchB, setSearchB] = useState('');
+  const [searchR, setSearchR] = useState('');
+
+  const { data: bursaries = [], refetch: refetchBursaries } =
+    trpc.education.listBursaries.useQuery() as {
+      data?: BursaryRow[];
+      refetch: () => void;
+    };
+  const { data: resources = [], refetch: refetchResources } =
+    trpc.education.listEducationResources.useQuery() as {
+      data?: ResourceRow[];
+      refetch: () => void;
+    };
+  const { data: fields = [], refetch: refetchFields } =
+    trpc.education.listBursaryFields.useQuery() as {
+      data?: BursaryField[];
+      refetch: () => void;
+    };
+  const { data: settings = { pin: EMPTY_PIN, shelf: [] }, refetch: refetchSettings } =
+    trpc.education.getEducationSettings.useQuery() as {
+      data?: EduSettings;
+      refetch: () => void;
+    };
 
   // Form state
   const [editingBursary, setEditingBursary] = useState<BursaryRow | null>(null);
   const [editingResource, setEditingResource] = useState<ResourceRow | null>(null);
-  const [searchB, setSearchB] = useState('');
-  const [searchR, setSearchR] = useState('');
-
-  const fetchAll = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [bRes, rRes, fRes, sRes] = await Promise.all([
-        fetch('/api/education/bursaries'),
-        fetch('/api/education/resources'),
-        fetch('/api/education/bursary-fields'),
-        fetch('/api/education/settings'),
-      ]);
-      const bJson = await bRes.json();
-      const rJson = await rRes.json();
-      const fJson = await fRes.json();
-      const sJson = await sRes.json();
-      setBursaries(bJson.data ?? []);
-      setResources(rJson.data ?? []);
-      setFields(fJson.data ?? []);
-      setSettings(sJson.data ?? { pin: EMPTY_PIN, shelf: [] });
-    } catch (err) {
-      log.error({}, 'Failed to fetch education data', err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
 
   useEffect(() => {
-    fetchAll();
-  }, [fetchAll]);
+    if (bursaries || resources || fields || settings) {
+      setLoading(false);
+    }
+  }, [bursaries, resources, fields, settings]);
+
+  // Mutation hooks
+  const createBursaryMutation = trpc.education.createBursary.useMutation({
+    onSuccess: () => refetchBursaries(),
+  });
+  const updateBursaryMutation = trpc.education.updateBursary.useMutation({
+    onSuccess: () => refetchBursaries(),
+  });
+  const deleteBursaryMutation = trpc.education.deleteBursary.useMutation({
+    onSuccess: () => refetchBursaries(),
+  });
+  const createResourceMutation = trpc.education.createEducationResource.useMutation({
+    onSuccess: () => refetchResources(),
+  });
+  const updateResourceMutation = trpc.education.updateEducationResource.useMutation({
+    onSuccess: () => refetchResources(),
+  });
+  const deleteResourceMutation = trpc.education.deleteEducationResource.useMutation({
+    onSuccess: () => refetchResources(),
+  });
+  const updateSettingsMutation = trpc.education.updateEducationSettings.useMutation({
+    onSuccess: () => refetchSettings(),
+  });
 
   const getFieldLabel = (fieldId: string) => fields.find(f => f.id === fieldId)?.label ?? fieldId;
 
@@ -123,73 +142,62 @@ export function EducationList() {
 
   // ── Bursary actions ──
 
-  const saveBursary = async (item: Partial<BursaryRow> & { id?: string }) => {
+  const saveBursary = (item: Partial<BursaryRow> & { id?: string }) => {
     if (item.id) {
-      await fetch(`/api/education/bursaries/${item.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(item),
-      });
+      updateBursaryMutation.mutate({ ...item, id: item.id } as Parameters<
+        typeof updateBursaryMutation.mutate
+      >[0]);
     } else {
-      await fetch('/api/education/bursaries', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(item),
-      });
+      createBursaryMutation.mutate({
+        title: item.title ?? '',
+        funder: item.funder ?? '',
+        fieldId: item.fieldId ?? '',
+        amount: item.amount ?? '',
+        description: item.description ?? '',
+        deadline: item.deadline ?? new Date().toISOString(),
+        status: (item.status as 'DRAFT' | 'PUBLISHED' | 'ARCHIVED') ?? 'DRAFT',
+      } as Parameters<typeof createBursaryMutation.mutate>[0]);
     }
     setEditingBursary(null);
-    fetchAll();
   };
 
-  const toggleBursaryStatus = async (b: BursaryRow) => {
+  const toggleBursaryStatus = (b: BursaryRow) => {
     const newStatus = b.status === 'PUBLISHED' ? 'DRAFT' : 'PUBLISHED';
-    await fetch(`/api/education/bursaries/${b.id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: newStatus }),
-    });
-    fetchAll();
+    updateBursaryMutation.mutate({ id: b.id, status: newStatus });
   };
 
-  const deleteBursary = async (id: string) => {
-    await fetch(`/api/education/bursaries/${id}`, { method: 'DELETE' });
-    fetchAll();
+  const deleteBursary = (id: string) => {
+    deleteBursaryMutation.mutate({ id });
   };
 
   // ── Resource actions ──
 
-  const saveResource = async (item: Partial<ResourceRow> & { id?: string }) => {
+  const saveResource = (item: Partial<ResourceRow> & { id?: string }) => {
     if (item.id) {
-      await fetch(`/api/education/resources/${item.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(item),
-      });
+      updateResourceMutation.mutate({ id: item.id, ...item } as Parameters<
+        typeof updateResourceMutation.mutate
+      >[0]);
     } else {
-      await fetch('/api/education/resources', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(item),
-      });
+      createResourceMutation.mutate({
+        title: item.title ?? '',
+        provider: item.provider,
+        externalUrl: item.externalUrl,
+        mediaType: item.mediaType,
+        featured: item.featured,
+        tags: item.tags,
+      } as Parameters<typeof createResourceMutation.mutate>[0]);
     }
     setEditingResource(null);
-    fetchAll();
   };
 
-  const deleteResource = async (id: string) => {
-    await fetch(`/api/education/resources/${id}`, { method: 'DELETE' });
-    fetchAll();
+  const deleteResource = (id: string) => {
+    deleteResourceMutation.mutate({ id });
   };
 
   // ── Settings actions ──
 
-  const saveSettings = async (data: EduSettings) => {
-    await fetch('/api/education/settings', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    setSettings(data);
+  const saveSettings = (data: EduSettings) => {
+    updateSettingsMutation.mutate(data);
   };
 
   // ── Pin ──

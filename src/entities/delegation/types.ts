@@ -5,7 +5,7 @@
  * Consumed by widget components and API hooks.
  */
 
-/** Delegation as returned by GET /api/delegations */
+/** Delegation as returned by trpc.delegations.listDelegations */
 export interface DelegationListItem {
   id: string;
   propertyId: string;
@@ -37,7 +37,7 @@ export interface DelegationListParams {
 
 /** Payload for blocking/unblocking a delegation's communication:contact_occupant scope */
 export interface DelegationBlockPayload {
-  delegationId: string;
+  id: string;
   blocked: boolean;
 }
 

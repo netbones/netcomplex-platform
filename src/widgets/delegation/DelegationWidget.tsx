@@ -75,9 +75,7 @@ export function DelegationWidget() {
                 delegation.blocked ??
                 !delegation.permissions.includes('communication:contact_occupant')
               }
-              onToggleBlock={blocked =>
-                blockMutation.mutate({ delegationId: delegation.id, blocked })
-              }
+              onToggleBlock={blocked => blockMutation.mutate({ id: delegation.id, blocked })}
               isExpanded={expandedDelegationId === delegation.id}
               onToggleExpand={() =>
                 setExpandedDelegationId(

@@ -9,6 +9,14 @@ const dateSch = z
 
 export const externalSurveyDto = createSelectSchema(externalSurveys, {
   createdAt: dateSch,
-}).pick({ id: true, isActive: true, createdAt: true });
+}).pick({
+  id: true,
+  isActive: true,
+  createdAt: true,
+  name: true,
+  provider: true,
+  externalId: true,
+  embedUrl: true,
+});
 
 export type ExternalSurveyDto = z.infer<typeof externalSurveyDto>;

@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { usePageLoading } from '@shared/ui';
 import Image from 'next/image';
+import { trpc } from '@api/client';
 import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('campaign-page');
@@ -39,10 +40,16 @@ interface CampaignData {
 }
 
 export default function CampaignPage() {
-  const [campaignData, setCampaignData] = useState<CampaignData | null>(null);
-  const [loading, setLoading] = useState(true);
   const [campaignEnabled, setCampaignEnabled] = useState<boolean>(true);
   const { t, i18n } = useTranslation(['common', 'campaign']);
+
+  const { data: campaignDataEnvelope, isLoading: loading } = trpc.content.getCampaignPage.useQuery(
+    undefined,
+    {
+      enabled: campaignEnabled,
+    }
+  );
+  const campaignData = (campaignDataEnvelope?.data as CampaignData | null) ?? null;
 
   const { isReady, LoadingComponent } = usePageLoading(
     [
@@ -66,26 +73,6 @@ export default function CampaignPage() {
     }
     checkCampaignEnabled();
   }, []);
-
-  useEffect(() => {
-    async function fetchCampaignData() {
-      try {
-        const res = await fetch('/api/campaign');
-        const body = await res.json();
-        setCampaignData(body.success ? body.data : body);
-      } catch (error) {
-        log.error({}, 'Failed to fetch campaign data', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    if (campaignEnabled) {
-      fetchCampaignData();
-    } else {
-      setLoading(false);
-    }
-  }, [campaignEnabled]);
 
   // Get localized content
   const getLocalizedContent = (field: Record<string, string> | null | undefined): string => {

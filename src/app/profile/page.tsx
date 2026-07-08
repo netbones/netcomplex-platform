@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
-import { authClient } from '@api/client';
+import { authClient, trpc } from '@api/client';
 import { supportedLanguages, languageNames } from '@/shared/lib/i18n';
 import Image from 'next/image';
 import { usePageLoading } from '@shared/ui';
@@ -132,19 +132,13 @@ export default function SettingsPage() {
     }
   };
 
+  const updateHouseholdMutation = trpc.households.updateHousehold.useMutation();
+
   const handleHouseholdImageChange = async (url: string) => {
     setHouseholdImage(url);
     try {
-      const res = await fetch(`/api/households/${householdId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ homeImage: url }),
-      });
-      if (res.ok) {
-        toast.success(tToast('uploaded', 'Property image'));
-      } else {
-        toast.error(tToast('failedToUpload', 'property image'));
-      }
+      await updateHouseholdMutation.mutateAsync({ id: householdId!, homeImage: url });
+      toast.success(tToast('uploaded', 'Property image'));
     } catch {
       toast.error(tToast('failedToUpload', 'property image'));
     }

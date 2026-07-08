@@ -1,10 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { trpc } from '@api/client';
 import { Breadcrumbs } from '@shared/ui';
-import { createComponentLogger } from '@shared/lib';
-
-const log = createComponentLogger('external-surveys-page');
 
 interface ExternalSurvey {
   id: string;
@@ -17,8 +15,10 @@ interface ExternalSurvey {
 }
 
 export default function ExternalSurveysPage() {
-  const [surveys, setSurveys] = useState<ExternalSurvey[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading } = trpc.surveys.adminListExternalSurveys.useQuery();
+
+  const surveys: ExternalSurvey[] = (data?.data ?? []) as ExternalSurvey[];
+
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
     name: '',
@@ -27,42 +27,22 @@ export default function ExternalSurveysPage() {
     embedUrl: '',
   });
 
-  useEffect(() => {
-    fetch('/api/external-surveys')
-      .then(res => res.json())
-      .then(data => {
-        setSurveys(data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
+  const createMutation = trpc.surveys.createExternalSurvey.useMutation({
+    onSuccess: () => {
+      setShowForm(false);
+      setForm({ name: '', provider: 'bitlabs', externalId: '', embedUrl: '' });
+    },
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const updateMutation = trpc.surveys.updateExternalSurvey.useMutation();
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const res = await fetch('/api/external-surveys', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
-      if (res.ok) {
-        const newSurvey = await res.json();
-        setSurveys([newSurvey, ...surveys]);
-        setShowForm(false);
-        setForm({ name: '', provider: 'bitlabs', externalId: '', embedUrl: '' });
-      }
-    } catch (error) {
-      log.error({}, 'Failed to create survey', error);
-    }
+    createMutation.mutate(form);
   };
 
-  const toggleActive = async (id: string, current: boolean) => {
-    await fetch('/api/external-surveys', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, isActive: !current }),
-    });
-    setSurveys(surveys.map(s => (s.id === id ? { ...s, isActive: !current } : s)));
+  const toggleActive = (id: string, current: boolean) => {
+    updateMutation.mutate({ id, isActive: !current });
   };
 
   return (
@@ -138,7 +118,7 @@ export default function ExternalSurveysPage() {
         </form>
       )}
 
-      {loading ? (
+      {isLoading ? (
         <p>Loading...</p>
       ) : surveys.length === 0 ? (
         <div className="bg-white rounded-lg shadow p-8 text-center">

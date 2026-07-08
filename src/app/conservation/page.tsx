@@ -6,16 +6,9 @@ import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import Image from 'next/image';
 import { usePageLoading } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
+import { trpc } from '@api/client';
 
 const log = createComponentLogger('conservation-page');
-
-async function getContent(locale: string) {
-  const response = await fetch(`/api/conservation?locale=${locale}`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch conservation content');
-  }
-  return response.json();
-}
 
 type ContentItem = {
   id: string;
@@ -35,15 +28,25 @@ type ContentItem = {
 
 export default function ConservationPage() {
   const { t: tCommon } = useTranslation('common');
-  const { t, i18n } = useTranslation('conservation');
-  const [content, setContent] = useState<ContentItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { t } = useTranslation('conservation');
   const [conservationMode, setConservationMode] = useState<'default' | 'managed' | 'external'>(
     'default'
   );
   const [externalUrl, setExternalUrl] = useState<string>('');
   const [managedUrl, setManagedUrl] = useState<string>('');
   const [managedContent, setManagedContent] = useState<ContentItem[]>([]);
+  const [managedFetchLoading, setManagedFetchLoading] = useState(false);
+
+  const { data: conservationEnvelope, isLoading: conservationLoading } =
+    trpc.content.getConservationPage.useQuery(undefined, {
+      enabled: conservationMode === 'default',
+    });
+  const platformContent = (conservationEnvelope?.data ?? []) as ContentItem[];
+
+  const isManagedWithUrl = conservationMode === 'managed' && managedUrl;
+  const loading =
+    (conservationMode === 'default' && conservationLoading) ||
+    (isManagedWithUrl && managedFetchLoading);
 
   const { isReady, LoadingComponent } = usePageLoading(
     [
@@ -102,30 +105,19 @@ export default function ConservationPage() {
 
   useEffect(() => {
     if (conservationMode === 'managed' && managedUrl) {
+      setManagedFetchLoading(true);
       fetch(managedUrl)
         .then(r => r.json())
         .then(body => {
           const items = Array.isArray(body) ? body : (body?.data ?? body?.items ?? []);
           setManagedContent(items);
-          setLoading(false);
+          setManagedFetchLoading(false);
         })
         .catch(error => {
           log.error({}, 'Failed to fetch managed conservation content', error);
           setManagedContent([]);
-          setLoading(false);
+          setManagedFetchLoading(false);
         });
-    } else if (conservationMode === 'managed') {
-      // Managed mode without a URL — fall back to platform content
-      getContent(i18n.language).then(body => {
-        setManagedContent(body?.data ?? []);
-        setLoading(false);
-      });
-    } else {
-      // Default mode — fetch platform content for the articles section
-      getContent(i18n.language).then(body => {
-        setContent(body?.data ?? []);
-        setLoading(false);
-      });
     }
   }, [conservationMode, managedUrl]);
 
@@ -291,7 +283,7 @@ export default function ConservationPage() {
             </p>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {content.map(article => (
+              {platformContent.map(article => (
                 <div
                   key={article.id}
                   className={`rounded-lg p-6 border ${article.featured ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200' : 'border-gray-200'}`}

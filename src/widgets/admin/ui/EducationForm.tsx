@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { createComponentLogger } from '@shared/lib';
+import { trpc } from '@api/client';
 
 const log = createComponentLogger('EducationForm');
 
@@ -21,7 +22,18 @@ export function EducationForm() {
   const isBursary = type === 'bursary';
 
   const [fields, setFields] = useState<BursaryField[]>([]);
-  const [form, setForm] = useState<Record<string, string>>({
+  const [form, setForm] = useState<{
+    title: string;
+    funder: string;
+    fieldId: string;
+    amount: string;
+    description: string;
+    deadline: string;
+    status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+    externalUrl: string;
+    provider: string;
+    mediaType: 'BOOK' | 'COURSE' | 'JOURNAL' | 'VIDEO';
+  }>({
     title: '',
     funder: '',
     fieldId: '',
@@ -35,43 +47,53 @@ export function EducationForm() {
   });
   const [saving, setSaving] = useState(false);
 
+  const { data: fieldsData } = trpc.education.listBursaryFields.useQuery() as {
+    data?: BursaryField[];
+  };
+  const { data: bursaryData } = trpc.education.getBursary.useQuery(
+    { id: editId ?? '' },
+    { enabled: isBursary && !!editId }
+  ) as { data?: Record<string, unknown> };
+  const { data: resourceData } = trpc.education.getEducationResource.useQuery(
+    { id: editId ?? '' },
+    { enabled: !isBursary && !!editId }
+  ) as { data?: Record<string, unknown> };
+
+  const createBursaryMutation = trpc.education.createBursary.useMutation();
+  const updateBursaryMutation = trpc.education.updateBursary.useMutation();
+  const createResourceMutation = trpc.education.createEducationResource.useMutation();
+  const updateResourceMutation = trpc.education.updateEducationResource.useMutation();
+
   useEffect(() => {
-    fetch('/api/education/bursary-fields')
-      .then(r => r.json())
-      .then(j => setFields(j.data ?? []));
-  }, []);
+    if (fieldsData) setFields(fieldsData);
+  }, [fieldsData]);
 
   useEffect(() => {
     if (!editId) return;
-    const url = isBursary
-      ? `/api/education/bursaries/${editId}`
-      : `/api/education/resources/${editId}`;
-    fetch(url)
-      .then(r => r.json())
-      .then(j => {
-        const d = j.data ?? j;
-        if (isBursary) {
-          setForm(prev => ({
-            ...prev,
-            title: d.title ?? '',
-            funder: d.funder ?? '',
-            fieldId: d.fieldId ?? '',
-            amount: d.amount ?? '',
-            description: d.description ?? '',
-            deadline: d.deadline ? d.deadline.slice(0, 10) : '',
-            status: d.status ?? 'DRAFT',
-          }));
-        } else {
-          setForm(prev => ({
-            ...prev,
-            title: d.title ?? '',
-            provider: d.provider ?? '',
-            mediaType: d.mediaType ?? 'COURSE',
-            externalUrl: d.externalUrl ?? '',
-          }));
-        }
-      });
-  }, [editId, isBursary]);
+    if (isBursary && bursaryData) {
+      const d = bursaryData;
+      setForm(prev => ({
+        ...prev,
+        title: (d.title as string) ?? '',
+        funder: (d.funder as string) ?? '',
+        fieldId: (d.fieldId as string) ?? '',
+        amount: (d.amount as string) ?? '',
+        description: (d.description as string) ?? '',
+        deadline: d.deadline ? new Date(d.deadline as string).toISOString().slice(0, 10) : '',
+        status: (d.status as 'DRAFT' | 'PUBLISHED' | 'ARCHIVED') ?? 'DRAFT',
+      }));
+    }
+    if (!isBursary && resourceData) {
+      const d = resourceData;
+      setForm(prev => ({
+        ...prev,
+        title: (d.title as string) ?? '',
+        provider: (d.provider as string) ?? '',
+        mediaType: (d.mediaType as 'BOOK' | 'COURSE' | 'JOURNAL' | 'VIDEO') ?? 'COURSE',
+        externalUrl: (d.externalUrl as string) ?? '',
+      }));
+    }
+  }, [editId, isBursary, bursaryData, resourceData]);
 
   const handleSubmit = async () => {
     setSaving(true);
@@ -86,12 +108,11 @@ export function EducationForm() {
           deadline: form.deadline,
           status: form.status,
         };
-        const url = editId ? `/api/education/bursaries/${editId}` : '/api/education/bursaries';
-        await fetch(url, {
-          method: editId ? 'PATCH' : 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
+        if (editId) {
+          await updateBursaryMutation.mutateAsync({ id: editId, ...payload });
+        } else {
+          await createBursaryMutation.mutateAsync(payload);
+        }
       } else {
         const payload = {
           title: form.title,
@@ -99,12 +120,11 @@ export function EducationForm() {
           mediaType: form.mediaType,
           externalUrl: form.externalUrl,
         };
-        const url = editId ? `/api/education/resources/${editId}` : '/api/education/resources';
-        await fetch(url, {
-          method: editId ? 'PATCH' : 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
+        if (editId) {
+          await updateResourceMutation.mutateAsync({ id: editId, ...payload });
+        } else {
+          await createResourceMutation.mutateAsync(payload);
+        }
       }
       router.push('/admin/education');
     } catch (err) {
@@ -158,7 +178,9 @@ export function EducationForm() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
               <select
                 value={form.status}
-                onChange={e => setForm({ ...form, status: e.target.value })}
+                onChange={e =>
+                  setForm({ ...form, status: e.target.value as 'DRAFT' | 'PUBLISHED' | 'ARCHIVED' })
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg"
               >
                 <option value="DRAFT">Draft</option>
@@ -219,7 +241,9 @@ export function EducationForm() {
             <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
             <select
               value={form.mediaType}
-              onChange={e => setForm({ ...form, mediaType: e.target.value })}
+              onChange={e =>
+                setForm({ ...form, mediaType: e.target.value as typeof form.mediaType })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
             >
               <option value="BOOK">Book</option>
