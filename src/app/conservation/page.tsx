@@ -44,9 +44,10 @@ export default function ConservationPage() {
   const platformContent = (conservationEnvelope?.data ?? []) as ContentItem[];
 
   const isManagedWithUrl = conservationMode === 'managed' && managedUrl;
-  const loading =
+  const loading = !!(
     (conservationMode === 'default' && conservationLoading) ||
-    (isManagedWithUrl && managedFetchLoading);
+    (isManagedWithUrl && managedFetchLoading)
+  );
 
   const { isReady, LoadingComponent } = usePageLoading(
     [
