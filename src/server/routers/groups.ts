@@ -21,7 +21,7 @@ import { groupDto, groupDetailDto } from '@api/server';
 import { TRPCError } from '@trpc/server';
 import { hasPermission } from '@shared/lib';
 
-import { eq, and, desc, asc, isNull, inArray, sql } from 'drizzle-orm';
+import { eq, and, desc, asc, inArray, sql } from 'drizzle-orm';
 import { createId } from '@shared/lib/id';
 
 // ──────────────────────────────────────────

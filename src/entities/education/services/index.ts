@@ -1,7 +1,7 @@
 import { db, notDeleted, now } from '@api/server';
 import { bursaries } from '@schema/bursaries';
 import { bursaryFields } from '@schema/bursary-fields';
-import { eq, desc, and, isNull } from 'drizzle-orm';
+import { eq, desc, and } from 'drizzle-orm';
 import { createId } from '@shared/lib/id';
 import type { BursaryCreateData, BursaryUpdateData, BursaryFieldData } from '../schema';
 

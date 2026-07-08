@@ -1,6 +1,6 @@
 import { db, events, notDeleted } from '@api/server';
 
-import { eq, and, desc, asc, gte, isNull } from 'drizzle-orm';
+import { eq, and, desc, asc, gte } from 'drizzle-orm';
 
 /**
  * Lists events for a tenant with optional filtering.

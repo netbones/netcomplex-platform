@@ -24,7 +24,7 @@ import {
   getMeritExpiryDays,
 } from '@/entities/merit/services';
 
-import { eq, and, desc, isNull } from 'drizzle-orm';
+import { eq, and, desc } from 'drizzle-orm';
 import { createId } from '@shared/lib/id';
 
 // ──────────────────────────────────────────

@@ -1,5 +1,5 @@
 import { db, households, notDeleted, properties } from '@api/server';
-import { eq, and, isNull } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import type { MaintenanceRoutingContext } from './types';
 
 /**

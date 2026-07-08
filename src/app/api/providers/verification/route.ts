@@ -16,7 +16,7 @@ import {
 } from '@shared/api';
 import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
-import { and, eq, isNull } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 
 export const maxDuration = 8;
 

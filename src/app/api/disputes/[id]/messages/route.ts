@@ -21,7 +21,7 @@ import { createClient } from '@supabase/supabase-js';
 import { disputeMessageCreateSchema } from '@entities/dispute';
 import { apiLogger, hasPermission } from '@shared/lib';
 import { sanitizeHtml } from '@/shared/lib/sanitize/server';
-import { eq, and, isNull, asc } from 'drizzle-orm';
+import { eq, and, asc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { createId } from '@shared/lib/id';
 

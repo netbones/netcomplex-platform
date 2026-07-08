@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { and, eq, isNull, sql } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { withTenant } from '@entities/tenant/server';
 import {

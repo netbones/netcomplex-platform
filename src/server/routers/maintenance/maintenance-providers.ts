@@ -9,7 +9,6 @@ import {
   eq,
   and,
   asc,
-  isNull,
   ProviderInput,
   UpdateProviderInput,
   requireRequestsPermission,

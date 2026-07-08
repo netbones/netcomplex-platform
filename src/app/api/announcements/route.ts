@@ -18,7 +18,7 @@ import {
   withErrorHandler,
 } from '@api/server';
 
-import { eq, and, desc, inArray, isNull, sql } from 'drizzle-orm';
+import { eq, and, desc, inArray, sql } from 'drizzle-orm';
 
 import { withTenant } from '@entities/tenant/server';
 import { canPublishAnnouncements } from '@shared/lib';

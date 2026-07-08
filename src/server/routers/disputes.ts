@@ -21,7 +21,7 @@ import { TRPCError } from '@trpc/server';
 import { hasPermission } from '@shared/lib';
 import { sanitizeHtml } from '@shared/lib/sanitize/server';
 
-import { eq, and, or, desc, asc, isNull, count, type SQL } from 'drizzle-orm';
+import { eq, and, or, desc, asc, count, type SQL } from 'drizzle-orm';
 
 import {
   disputeCreateSchema,

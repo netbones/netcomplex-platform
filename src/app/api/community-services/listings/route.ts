@@ -19,7 +19,7 @@ import { apiLogger } from '@shared/lib';
 
 // Drizzle imports
 
-import { eq, desc, and, or, sql, ilike, inArray, isNull } from 'drizzle-orm';
+import { eq, desc, and, or, sql, ilike, inArray } from 'drizzle-orm';
 
 import { withTenant } from '@entities/tenant/server';
 import { generateNameSlug } from '@shared/api';

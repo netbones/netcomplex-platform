@@ -15,7 +15,7 @@ import { toEnvelope } from '@api/server';
 import { listingDto } from '@api/server';
 import { TRPCError } from '@trpc/server';
 import { hasPermission } from '@shared/lib';
-import { eq, and, desc, isNull, sql, ilike, or, ne } from 'drizzle-orm';
+import { eq, and, desc, sql, ilike, or, ne } from 'drizzle-orm';
 import {
   getServiceCategories,
   ListListingsInput,

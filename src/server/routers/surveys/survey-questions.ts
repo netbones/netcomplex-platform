@@ -6,7 +6,6 @@ import {
   TRPCError,
   eq,
   and,
-  isNull,
   sql,
   inArray,
   AddQuestionInput,

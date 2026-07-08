@@ -16,7 +16,7 @@ import { hasPermission, apiLogger } from '@shared/lib';
 import { getTableColumns } from 'drizzle-orm';
 import { disputeCreateSchema } from '@entities/dispute';
 import { generateDisputeReference } from '@entities/dispute/server';
-import { eq, and, isNull, desc, sql } from 'drizzle-orm';
+import { eq, and, desc, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { ALL_DISPUTE_CATEGORIES, ALL_DISPUTE_STATUSES } from '@entities/dispute';
 import { createId } from '@shared/lib/id';

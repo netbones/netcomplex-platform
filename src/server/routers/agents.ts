@@ -16,7 +16,7 @@ import { agentProfileDto } from '@api/server';
 
 import { TRPCError } from '@trpc/server';
 
-import { eq, and, desc, isNull } from 'drizzle-orm';
+import { eq, and, desc } from 'drizzle-orm';
 
 export const agentsRouter = router({
   /**

@@ -9,7 +9,7 @@ import {
   notDeleted,
   users,
 } from '@api/server';
-import { eq, desc, and, isNull } from 'drizzle-orm';
+import { eq, desc, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
 

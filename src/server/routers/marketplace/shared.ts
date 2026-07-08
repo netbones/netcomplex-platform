@@ -8,7 +8,7 @@ import {
   settings,
 } from '@api/server';
 import { TRPCError } from '@trpc/server';
-import { eq, and, isNull, sql } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 
 export const DEFAULT_SERVICE_CATEGORIES = {
   COMMUNITY: [
