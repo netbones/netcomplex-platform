@@ -163,7 +163,7 @@ export const DELETE = withErrorHandler(
 
     const [deleted] = await db
       .update(questions)
-      .set({ deletedAt: now(), updatedAt: now() })
+      .set({ deletedAt: now() })
       .where(
         and(
           eq(questions.id, questionId),
