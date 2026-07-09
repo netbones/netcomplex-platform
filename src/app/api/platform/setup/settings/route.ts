@@ -14,7 +14,7 @@ import {
 
 import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
-import { upsertSetupSetting } from '@/entities/setup';
+import { upsertSetupSetting } from '@entities/setup/server';
 
 export const maxDuration = 8;
 

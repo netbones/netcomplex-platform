@@ -13,7 +13,7 @@ import {
 
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
-import { upsertMission } from '@/entities/setup';
+import { upsertMission } from '@entities/setup/server';
 
 export const maxDuration = 8;
 

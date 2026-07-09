@@ -13,7 +13,7 @@ import {
 import { eq } from 'drizzle-orm';
 import { logError } from '@shared/lib';
 import { createId } from '@shared/lib/id';
-import { initTenantSetup } from '@/entities/setup';
+import { initTenantSetup } from '@entities/setup/server';
 
 export const maxDuration = 8;
 

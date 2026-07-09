@@ -10,7 +10,7 @@ import {
 } from '@api/server';
 
 import { eq } from 'drizzle-orm';
-import { getTenantSetup } from '@/entities/setup';
+import { getTenantSetup } from '@entities/setup/server';
 
 export const maxDuration = 8;
 
