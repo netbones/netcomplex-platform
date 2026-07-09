@@ -1,12 +1,12 @@
 # BD Issue Tracker
 
 > **⚠️ GSD-ESCALATED (2026-07-08):** `soralia-village-bawf` — _Onboarding refactor:
-> defer tenant provisioning until post-verification_ (ADVISORY-030 / Option C, P1).
+> defer tenant provisioning until post-verification_ (ADVISORY-031 / Option C, P1).
 > This is **GSD territory** (schema migration to make `users.tenantId` nullable + auth
 > config + multiple FSD slices) — it is a **post-completion gap in the completed Phase 123
 > (Setup Center)** and should be handled via a GSD phase, not a BD quick-fix. Related:
 > `soralia-village-zbvq` (401 hotfix, committed), `soralia-village-0jh1` (Setup Center).
-> Docs: `docs/advisories/ADVISORY-030.md`, `ONBOARDING_REFACTOR.md`.
+> Docs: `docs/advisories/ADVISORY-031.md` (supersedes ADVISORY-030), `ONBOARDING_REFACTOR.md`.
 
 > **Last updated:** 2026-07-08 (Session 16 — onboarding refactor discovery)
 > **Total remaining:** 43 issues

@@ -1,16 +1,15 @@
 # Phase 124: Onboarding Refactor — Defer Tenant Provisioning — Context
 
-**Source:** ADVISORY-030 — Onboarding Refactor: Defer Tenant Provisioning Until Post-Verification (Option C — "defer, don't reserve")
+**Source:** ADVISORY-031 — Onboarding Refactor: Defer Tenant Provisioning Until Post-Verification (Option C — "defer, don't reserve"). Supersedes the ADVISORY-030 draft; §10 is the formal response to COMMUNIQUE-12.
 **BD issue:** soralia-village-bawf (P1, GSD-escalated)
 **Related:** soralia-village-zbvq (401 hotfix — committed `2707e9b6`), soralia-village-0jh1 (Phase 123 Setup Center)
 **Milestone:** M4 Production-Ready / M5 Anchor Tenant Launch (confirm placement at roadmap)
 **Priority:** High
 **Depends on:** Phase 123 (Setup Center) — **complete**. This phase picks up the signup/registration change that Phase 123 explicitly deferred (see `123-CONTEXT.md` Out of Scope).
 
-> **⚠️ Prerequisite:** `phase-123-setup-center` must be **merged into `dev`** before this
-> phase executes. The 401 hotfix (`2707e9b6`) and the analysis docs
-> (`ONBOARDING_REFACTOR.md`, `docs/advisories/ADVISORY-030.md`) currently live only on
-> that branch. Do not open the Phase 124 worktree off `dev` until the merge lands.
+> **✅ Prerequisite satisfied (2026-07-09):** `phase-123-setup-center` is **merged into
+> `dev`**. The 401 hotfix (`2707e9b6`) and the analysis docs (`ONBOARDING_REFACTOR.md`,
+> `docs/advisories/ADVISORY-031.md`) are now on `dev`. Open the Phase 124 worktree off `dev`.
 
 ## Current State (the gap)
 
@@ -88,19 +87,20 @@ Key structural change: **`POST /api/platform/tenants` moves from public + identi
 | CTA entry points (G3 copy)            | PlatformHeader ×2, HeroSection, PricingCards, PricingCTA, CTASection, features, about, PlatformFooter |
 | Setup Center entry                    | `src/app/(tenant)/setup/page.tsx`, `src/widgets/dashboard/ui/HomeLayer.tsx`                           |
 
-## Decision Gates (from ADVISORY-030 §9)
+## Decision Gates (from ADVISORY-031 §9)
 
 - **G0 — Direction (defer, don't reserve):** ✅ resolved by DavDev.
-- **G1 — `tenantId: null` as durable state:** 🔴 open, **High**, blocks Phase 3. Scope now includes the nullable-column migration + consumer audit (see Discovery).
+- **G1 — `tenantId: null` as durable state:** ✅ **re-scoped (ADVISORY-031 §10) from decision gate → migration work item.** Delivered by new **Phase 0** (nullable-column migration + `required:false`/default removal + conditional hook + bounded consumer audit). Blocks Phase 1 and Phase 3 until Phase 0 lands.
 - **G2 — Demo path:** open — shared read-only live tenant vs fully client-mocked. Blocks Phase 3 start.
 - **G3 — Marketing/CTA copy & routing:** open — "Get Started" implies instant community creation. Blocks Phase 1 _ship_.
 - **G4 — Setup Center entry assumptions:** open — confirm no reliance on same-request-lifecycle session claims. Blocks Phase 4.
 
-## Phased Execution Plan (summary — see ADVISORY-030 §6)
+## Phased Execution Plan (summary — see ADVISORY-031 §6)
 
-1. Identity-only sign-up (no tenant); standard Better Auth sign-up; `sendOnSignUp: true` + surfaced failures.
+0. **(NEW — precedes Phase 1, ADVISORY-031 §10)** `tenantId` nullable: Prisma→Drizzle nullable migration, `additionalField` `required:false` + default removed, `user.create.before` hook → `tenant?.id ?? rawTenantId ?? null` (invited-user path unchanged), consumer audit (compile-clean under `string | null` + targeted inventory + runtime smoke). Unblocks G1.
+1. Identity-only sign-up (no tenant); standard Better Auth sign-up; `sendOnSignUp: true` + surfaced failures. **Depends on Phase 0.**
 2. `crossSubDomainCookies` for `.netbones.co.za` (F5 — do regardless).
-3. Post-verification non-blocking landing (demo / create-a-community); relocated re-invocable wizard. **Gated on G1, G2.**
+3. Post-verification non-blocking landing (demo / create-a-community); relocated re-invocable wizard. **Depends on Phase 0; gated on G2.**
 4. Authenticated tenant provisioning (`POST /api/platform/tenants` requires session, no user creation). **Gated on G4.**
 5. Cleanup — retire dead eager-provisioning code. No reaper/TTL to add.
 

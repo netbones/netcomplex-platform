@@ -1,10 +1,13 @@
-# ADVISORY-030 — Onboarding Refactor: Defer Tenant Provisioning Until Post-Verification
+# ADVISORY-031 — Onboarding Refactor: Defer Tenant Provisioning Until Post-Verification
 
-> **⚠️ SUPERSEDED (2026-07-09) by [ADVISORY-031](./ADVISORY-031.md).** This was the
-> earlier draft of the onboarding-refactor advisory, saved under provisional numbering.
-> The confirmed, canonical record is ADVISORY-031, which incorporates the COMMUNIQUE-12
-> response (re-scoped Gate G1, new Phase 0). Retained for history only — do not cite this
-> file for planning. All active references now point to ADVISORY-031.
+**Advisory number:** ADVISORY-031, confirmed against the external advisory register.
+**Supersedes:** [ADVISORY-030](./ADVISORY-030.md) — the earlier draft of this same
+onboarding-refactor advisory (drafted under provisional numbering ADVISORY-029/030),
+now marked superseded and retained for history. This is the canonical record; all active
+references (Phase 124 CONTEXT, COMMUNIQUE-12, BD) point here.
+
+**Update 2026-07-09 (COMMUNIQUE-12):** Gate G1 has been re-scoped from a decision gate
+to a migration work item following Phase 124 discovery. See §10 below.
 
 **Status:** Advisory — execution blocked on decision gates below.
 **Supersedes/extends:** `ONBOARDING_REFACTOR.md` (uploaded draft, "Option A — reserve-then-commit").
@@ -156,6 +159,12 @@ grep -n "tenantId" src/entities/tenant/api/with-tenant.ts
 
 **Phase 1 — Identity-only sign-up (no tenant involved)**
 
+- **DEPENDS ON G1 LANDING FIRST (COMMUNIQUE-12).** "Standard Better Auth sign-up"
+  is not sufficient as originally written — as of this writing every sign-up is
+  still force-stamped with `tenantConfig.defaultSlug` via the required
+  `additionalField` default and the `user.create.before` hook. Phase 1 cannot
+  produce a null-tenant user until Phase 0 (see §10, new standalone pre-req phase)
+  lands the nullable migration and the relaxed/conditional hook.
 - Collapse the 3-step wizard's step 1 to name + email + password only. Community
   name/subdomain/plan fields removed from this flow entirely.
 - `POST /api/platform/tenants` is removed from the sign-up path. Replace with
@@ -172,6 +181,12 @@ grep -n "tenantId" src/entities/tenant/api/with-tenant.ts
 
 **Phase 3 — Post-verification landing choice**
 
+- **HARD-BLOCKED on G1 (COMMUNIQUE-12).** This phase's entire premise — a
+  `/home` landing for a `tenantId = null` user — cannot be built or tested until
+  the nullable migration and the consumer audit (§10) are both complete. The
+  audit is the schedule risk, not the migration itself: a missed non-null
+  assumption becomes a production crash for exactly the cohort this phase exists
+  to serve.
 - New authenticated landing route (or reuse an existing platform-home route) that
   checks `user.tenantId === null` and presents two non-blocking options: demo, or
   "Create a community" (which invokes the existing wizard component). No
@@ -233,16 +248,19 @@ grep -n "tenantId" src/entities/tenant/api/with-tenant.ts
   in this session ("avoid the hazard altogether... no rush to conclude"). Recorded
   here for the register; no further sign-off needed unless reversed.
 
-- **G1 — `tenantId: null` as a first-class, indefinite user state.** Every
-  route/guard currently assuming a verified user always has a `tenantId` (dashboard
-  widgets, `canAccess()`, `withTenant()`) needs an explicit decision: does it
-  redirect null-tenant users to the choice screen, or does it need to tolerate the
-  state directly? Because this state is now durable (not just a few seconds mid-flow
-  — a user may legitimately stay here for weeks, re-invoking the wizard whenever
-  they choose), this decision carries more weight than in the original single-shot
-  design. **Must be resolved before Phase 3 execution** — this is exactly the kind
-  of "surfaces to DavDev, not inferred by the agent" decision per standing gate
-  practice.
+- **G1 — RE-SCOPED (COMMUNIQUE-12, 2026-07-09): migration work item, not a decision
+  gate.** Discovery found `tenantId: null` is currently **impossible**, not merely
+  undecided — blocked simultaneously by (1) the DB `NOT NULL` column (Prisma
+  `tenantId String`, Drizzle `.notNull()`), (2) a required Better Auth
+  `additionalField` with `defaultValue: tenantConfig.defaultSlug`, and (3) a
+  `user.create.before` databaseHook that force-stamps every new user with a tenant
+  regardless. All three must be undone for Option C's landing state to exist at all.
+  G1 now means: nullable-column migration, relaxing/removing the auth-config default,
+  and a bounded consumer audit of `tenantId`-non-null assumptions (see §10 for the
+  scoped acceptance bar). **This blocks Phase 3 outright and materially resizes
+  Phase 1** — Phase 1 cannot rely on "standard Better Auth sign-up" alone until the
+  hook/default-value layers are relaxed, or Phase 1 must explicitly declare a
+  dependency on G1 landing first.
 
 - **G2 — Demo path implementation.** Shared live sandbox tenant (real `Tenant` row,
   read-only enforced at the API layer) vs. fully client-side mocked experience with
@@ -260,3 +278,69 @@ grep -n "tenantId" src/entities/tenant/api/with-tenant.ts
   session claims that Phase 4's authenticated-mutation shape might not populate
   identically). **Must be checked before Phase 4 execution** — discovery checklist
   item on Setup Center entry conditions covers this.
+
+## 10. Response to COMMUNIQUE-12
+
+The discovery is accepted as-is — this is exactly the kind of pre-execution finding
+the gate structure exists to catch, and it doesn't change the G0 direction (defer,
+don't reserve), only its cost. Answers to the three open questions:
+
+**Q1 — Migration placement: standalone pre-req phase, not folded into Phase 1.**
+Recommend a new **Phase 0** (e.g. `.planning/phases/124-0-tenantid-nullable/`) that
+lands, as one reviewable unit: the Prisma/Drizzle nullable migration, the
+`additionalField` relaxation, and the conditional hook rewrite (see Q2). Reasons:
+(a) it's a distinct concern from the wizard/UI work in Phase 1 — a schema migration
+plus a security-adjacent auth-config change plus a consumer sweep has its own
+rollback boundary and shouldn't share a done-criteria checklist with UI changes;
+(b) it lets Phase 1 stay small and mechanical once Phase 0 lands, matching the
+"identity-only sign-up" framing ADVISORY-030 originally intended; (c) it gives the
+consumer audit (Q3) a phase of its own to be budgeted and reviewed on its own
+merits rather than as a rider on UI work. Phase 1 and Phase 3 both declare an
+explicit dependency on Phase 0, as reflected in §6 above.
+
+**Q2 — Relax the hook conditionally; do not remove it outright.** The
+`x-tenant-slug` header path serves tenant-scoped invited-user signups (an existing,
+working flow) and must not regress. Recommend: keep `user.create.before`, but
+change its logic from unconditional fallback to conditional stamping — `tenantId:
+tenant?.id ?? rawTenantId ?? null` (drop the `?? tenantConfig.defaultSlug` tail).
+A signup that arrives with an explicit tenant context (invited-user path) keeps
+today's behavior unchanged; a signup with no tenant context (the new global
+sign-up path) is the only case that lands null. This is the smaller, more
+reviewable diff and avoids re-deriving invited-signup behavior from scratch.
+
+**Q3 — Two-tier acceptance bar, not a full manual review of every reference.**
+A full line-by-line review of every `.tenantId` occurrence is not proportionate —
+the column is referenced across most of `src/db/schema/` and `src/entities/` by
+nature of the multi-tenant design (per ADR-017/tenant.prisma's own admission of
+~86 back-link relations). Recommend instead:
+
+1. **Compile-level baseline** — flip the type to `string | null` and let
+   TypeScript strict mode surface every unguarded read as a compile error. This
+   catches the majority of call sites for free and is non-negotiable as a floor.
+2. **Targeted inventory, not exhaustive grep** — an explicit, reviewed checklist
+   of the specific gate/permission/session surfaces named in COMMUNIQUE-12 §2
+   item 4 (`withTenant()` resolution, session shaping, RLS GUC assumptions,
+   dashboard tenant guards, and any raw `WHERE tenantId =` query not going
+   through `withTenant()`). Each item gets an explicit "handled" or "N/A" mark
+   before Phase 3 sign-off — this is the audit's actual acceptance bar, not "grep
+   returned zero results."
+3. **Runtime smoke test** — the null-tenant `/home` path plus at least one
+   attempt to hit a `withTenant()`-gated route while `tenantId = null`, asserting
+   a graceful redirect/error rather than a crash or (worse) a query that silently
+   matches on `NULL` in ways Postgres semantics might not expect (e.g., `WHERE
+tenantId = $1` with `$1 = null` never matches — verify no code path relies on
+   an equality check silently "working" here).
+
+These three answers are reflected in Phase 0 (new) and the re-scoped G1 language
+above. No further gate is needed for this question set — Phase 0's done criteria
+below serve as the concrete deliverable.
+
+### Phase 0 — Done Criteria (new, precedes Phase 1)
+
+- [ ] `tenantId` nullable in `prisma/schema/schema.prisma`; Drizzle regenerated (`.notNull()` dropped in `src/db/schema/users.ts`)
+- [ ] Better Auth `tenantId` additionalField: `required: false`, `defaultValue` removed
+- [ ] `user.create.before` hook: `tenantId: tenant?.id ?? rawTenantId ?? null` (invited-signup path unchanged; global signup path now lands null)
+- [ ] Codebase compiles clean under `tenantId: string | null`
+- [ ] Inventory checklist (per Q3 item 2) reviewed and each entry marked handled/N/A
+- [ ] Runtime smoke: null-tenant landing route reachable; a `withTenant()`-gated route rejects/redirects gracefully for `tenantId = null` rather than crashing
+- [ ] Existing invited-user tenant-scoped signup flow regression-tested unchanged
