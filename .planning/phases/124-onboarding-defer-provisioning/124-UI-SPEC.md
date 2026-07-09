@@ -51,25 +51,26 @@ Exceptions: none — the 4px-multiple scale covers all UI surfaces in this phase
 
 Sizes inferred from existing auth UI (`SignupHeader.tsx`, `SignupFormSection.tsx`, `verify-email/page.tsx`) and project globals.css heading scale:
 
-| Role    | Size                                      | Weight            | Line Height |
-| ------- | ----------------------------------------- | ----------------- | ----------- |
-| Body    | 16px (text-base)                          | 400               | 1.5         |
-| Label   | 14px (text-sm)                            | 500 (font-medium) | 1.4         |
-| Heading | 28px (text-3xl)                           | 700 (font-bold)   | 1.2         |
-| Display | 32px (text-4xl — /home landing hero only) | 700 (font-bold)   | 1.2         |
+| Role    | Size             | Weight            | Line Height |
+| ------- | ---------------- | ----------------- | ----------- |
+| Body    | 16px (text-base) | 400 (font-normal) | 1.5         |
+| Label   | 14px (text-sm)   | 400 (font-normal) | 1.4         |
+| Heading | 28px (text-3xl)  | 700 (font-bold)   | 1.2         |
+
+**Note:** The `/home` landing hero heading uses text-4xl (32px/700) as an ad-hoc override — it is NOT a separate typography role. Card titles use the Heading role directly at 28px/700.
 
 **Existing component evidence:**
 
 - `SignupFormSection.tsx:19` → `<h2 className="text-3xl font-bold">` (heading, 28px/700)
 - `verify-email/page.tsx:59` → `<h1 className="text-2xl font-bold">` (heading, 24px/700 — kept for verify-email)
-- Input labels use `text-sm font-medium` consistently (14px/500)
+- Input labels use `text-sm font-normal` consistently (14px/400)
 - Body copy uses `text-gray-600 text-sm` (14px/400) in verify-email, `text-slate-600 text-lg` (18px/400) in form descriptions
 
 **New `/home` landing typography:**
 
-- Hero heading: text-4xl font-bold (32px/700) — matches the platform homepage tone
-- Card titles: text-xl font-semibold (20px/600)
-- Card body: text-base (16px/400)
+- Hero heading: text-4xl font-bold (32px/700) — ad-hoc override, not a declared role
+- Card titles: text-3xl font-bold (28px/700) — matches Heading role
+- Card body: text-base font-normal (16px/400) — matches Body role
 
 ---
 
@@ -86,7 +87,7 @@ Derived from existing project palette (`globals.css`, `tailwind.config.cjs`) and
 
 **Accent reserved for:**
 
-- Primary CTA buttons (e.g., "Create Community", "Continue", "Send Verification")
+- Primary CTA buttons (e.g., "Create Community", "Continue to Password", "Send Verification")
 - Active step indicators in the wizard progress bar (`SignupHeader.tsx:23` → `bg-canopy`)
 - Focus rings on inputs (`focus:ring-indigo-500`)
 - Clickable links in auth pages (`text-indigo-600`)
@@ -114,6 +115,24 @@ Derived from existing project palette (`globals.css`, `tailwind.config.cjs`) and
 
 ---
 
+## Visual Hierarchy & Focal Points
+
+**Focal point on `/home` landing:** The hero heading "Welcome to NetComplex" draws the eye first (largest type, centered, highest contrast against vellum background), followed by the two action cards.
+
+**Visual hierarchy across the phase:**
+
+| Priority  | Element                                | Rationale                                      |
+| --------- | -------------------------------------- | ---------------------------------------------- |
+| Primary   | Hero heading, page-level headings      | Largest type (28-32px, 700 weight), first read |
+| Secondary | Card CTAs, primary buttons             | Accent color, 16px/700, draws action intent    |
+| Tertiary  | Body copy, field labels, sign-out link | Neutral color, 14-16px/400, supportive role    |
+
+**Progressive disclosure:** The sign-up wizard presents one step at a time, revealing only the fields needed for that step. Step 2 is hidden until Step 1 passes validation. This minimizes cognitive load at each step.
+
+**Card hierarchy on `/home`:** "Create a community" card (right/top on mobile) uses the filled gold-vein CTA to establish it as the primary action. "Try a live demo" card (left/bottom on mobile) uses a ghost/outline CTA as the secondary action.
+
+---
+
 ## Copywriting Contract
 
 | Element                                              | Copy                                                                                                     |
@@ -122,9 +141,9 @@ Derived from existing project palette (`globals.css`, `tailwind.config.cjs`) and
 | **Sign-up wizard description (Step 1)**              | "Enter your details to get started with NetComplex"                                                      |
 | **Sign-up wizard heading (Step 2)**                  | "Set your password"                                                                                      |
 | **Sign-up wizard description (Step 2)**              | "Choose a strong password to secure your account"                                                        |
-| **Primary CTA (wizard Step 1)**                      | "Continue"                                                                                               |
+| **Primary CTA (wizard Step 1)**                      | "Continue to Password"                                                                                   |
 | **Primary CTA (wizard final step)**                  | "Create Account"                                                                                         |
-| **Wizard back button**                               | "Back"                                                                                                   |
+| **Wizard back button**                               | "Back to Details"                                                                                        |
 | **Sign-up error banner**                             | "[error message from API]" (displayed in `bg-red-50 border-red-200 text-red-700` banner)                 |
 | **`/verify-email` heading**                          | "Verify your email"                                                                                      |
 | **`/verify-email` body**                             | "We sent a verification link to your email address. Check your inbox and spam folder."                   |
@@ -284,7 +303,7 @@ Derived from existing project palette (`globals.css`, `tailwind.config.cjs`) and
 
 | State                       | Visual                                                                                 |
 | --------------------------- | -------------------------------------------------------------------------------------- |
-| Default                     | Two-step wizard; Step 1 shows name/email fields + "Continue" button                    |
+| Default                     | Two-step wizard; Step 1 shows name/email fields + "Continue to Password" button        |
 | Field error                 | Red text below field (`text-sm text-red-600`); field border remains `border-slate-300` |
 | Form error (banner)         | `bg-red-50 border-red-200 text-red-700 px-4 py-3 rounded-lg` banner above fields       |
 | Loading (submitting)        | Button: spinner + "Creating Account..." text, `disabled:opacity-50`                    |
