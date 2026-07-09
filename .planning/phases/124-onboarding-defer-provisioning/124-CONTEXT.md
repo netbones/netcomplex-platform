@@ -67,12 +67,12 @@ Key structural change: **`POST /api/platform/tenants` moves from public + identi
 - **`withTenant()` resolves by header/slug/host only** (`src/entities/tenant/api/with-tenant.ts`) — never reads `user.tenantId`; throws if unresolved. The null-tenant landing **must be a platform-plane route** (`/home`), not a `(tenant)` route.
 - **No demo-tenant concept exists** anywhere → G2 is greenfield.
 - **Dashboard already guards on tenant presence** — `HomeLayer.tsx:613` renders `SetupProgressCard` only when `tenant?.id` exists.
-- **🔴 BLOCKING SURPRISE (expands G1):** `tenantId: null` is currently **impossible**:
+- **✅ RESOLVED — BLOCKING SURPRISE (expanded G1, now Phase 0):** `tenantId: null` is currently **impossible**:
   - `src/db/schema/users.ts:6` → `tenantId: text('tenantId').notNull()` (DB NOT NULL)
   - `src/shared/api/auth.ts:148-152` → additionalField `tenantId` is `required: true`, `defaultValue: tenantConfig.defaultSlug`
-  - `src/shared/api/auth.ts:256` → `databaseHooks.user.create.before` forces `tenant?.id ?? rawTenantId ?? tenantConfig.defaultSlug`
+  - `src/shared/api/auth.ts:243-260` → `databaseHooks.user.create.before` forces `tenant?.id ?? rawTenantId ?? tenantConfig.defaultSlug`
 
-  G1 therefore requires a **nullable-column migration** (Prisma → regenerate Drizzle) + `required:false` + removing the hook fallback + auditing every `.notNull()`-assuming consumer.
+  Resolved via COMMUNIQUE-12 → ADVISORY-031 §10: new **Phase 0** delivers a **nullable-column migration** (Prisma `String` → `String?`, Drizzle regen to drop `.notNull()`), `required:false` + default removal, **conditional hook** (`tenant?.id ?? rawTenantId ?? null` — preserves the invited-user `x-tenant-slug` path but lands null for global signups), and a **bounded consumer audit** (compile-clean under `string | null` + targeted inventory of `withTenant()`, session shaping, RLS GUC, dashboard guards, raw `WHERE tenantId =` queries + runtime smoke). See Phase 0 done criteria in ADVISORY-031 §10.
 
 ## Relevant Code Locations
 
