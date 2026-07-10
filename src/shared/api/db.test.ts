@@ -34,3 +34,12 @@ describe('db pool config', () => {
     expect(ct).toBeLessThanOrEqual(10_000);
   });
 });
+
+describe('runWithRLS fail-closed (ADVISORY-032)', () => {
+  it('must not proceed when app_user role switch fails', () => {
+    const src = readFileSync(join(process.cwd(), 'src/shared/api/db.ts'), 'utf8');
+    expect(src).not.toContain('proceeding without app_user role');
+    expect(src).toContain('RLS role switch failed — aborting transaction');
+    expect(src).toMatch(/catch\s*\([^)]*err[^)]*\)\s*\{[\s\S]*throw err;/);
+  });
+});

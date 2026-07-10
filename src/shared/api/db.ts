@@ -351,11 +351,12 @@ export async function runWithRLS<T>(
     try {
       await tx.execute(sql`SET LOCAL ROLE app_user`);
       await tx.execute(sql`SET LOCAL search_path TO public`);
-    } catch {
-      log.warn(
-        {},
-        'RLS role switch failed — proceeding without app_user role. RLS policies NOT enforced.'
+    } catch (err) {
+      log.error(
+        { err },
+        'RLS role switch failed — aborting transaction. RLS policies would NOT be enforced without app_user role.'
       );
+      throw err;
     }
     await tx.execute(sql`SELECT set_config('app.user_id', ${ctx.userId}, true)`);
     await tx.execute(sql`SELECT set_config('app.tenant_id', ${ctx.tenantId}, true)`);

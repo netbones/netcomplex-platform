@@ -1,6 +1,6 @@
 # ADVISORY-032: Tenant-Resolution Header-Propagation Failure + RLS Fail-Open Fallback
 
-> **Status:** Phase 0 complete · Phase 1 drafted (middleware forwarding + resolver alignment)
+> **Status:** Phases 1–4 complete · Phase 5–6 pending (staging regression + deploy verification)
 > **Scope:** `src/middleware.ts`, `src/entities/tenant/api/with-tenant.ts`, `src/entities/tenant/api/base.ts`, `src/shared/api/db.ts`
 > **Relationship to other work:** Decoupled from ADR-027 (Request-Scope Engine) and ADR-028 (Gate Engine), both still `Proposed`. This advisory does not require, and is not blocked by, either engine. It should ship first.
 > **Origin:** opencode `/architect` review (BOTTLE_REPORT.md, issues #3, #7, #8, #9), escalated after source verification below.
@@ -223,9 +223,10 @@ Repo-wide discovery completed. All three defects **confirmed from source**.
 - [x] `middleware.ts` forwards headers via `NextResponse.next({ request: { headers } })` on every pass-through return; strips client tenant headers before authoritative set
 - [x] `withTenant()` aligned with `getCurrentTenant()` via `resolveTenantFromRequestHeaders()` in `base.ts`
 - [ ] Confirmed via debug echo that route handler receives middleware's computed `x-tenant-slug` (staging)
-- [ ] `x-tenant-slug` / `x-tenant-id` removed from `Access-Control-Allow-Headers`
-- [ ] Session-vs-resolved-tenant cross-check added at `withTenant()`'s call site; `TENANT_MISMATCH` case has a test
-- [ ] `db.ts` `runWithRLS` fails closed + alerts on role-switch failure; all current RLS routes green in staging under this polarity
+- [x] `x-tenant-slug` / `x-tenant-id` removed from `Access-Control-Allow-Headers` (Phase 2, 2026-07-10)
+- [x] Session-vs-resolved-tenant cross-check added in `withTenant()`; `TenantMismatchError` + unit test (Phase 3, 2026-07-10)
+- [x] `db.ts` `runWithRLS` fails closed + error-level alert on role-switch failure (Phase 4, 2026-07-10)
+- [ ] All current RLS routes green in staging under fail-closed polarity (G3 — before production)
 - [ ] Regression suite confirms distinct, correct tenant resolution across all currently-live tenants
 - [ ] This advisory logged as independent of, and not gating on, ADR-027/ADR-028
 
@@ -237,4 +238,4 @@ Repo-wide discovery completed. All three defects **confirmed from source**.
 - **G1** — ~~Second tenant live in production?~~ **PASSED (2026-07-10):** No second tenant live yet. Normal-cadence patch, not emergency hotfix.
 - **G2** — ~~DavDev reviews Phase 0 findings before Phase 1 code.~~ **PASSED (2026-07-10):** Findings in §5a reviewed; Phase 1 drafted.
 - **G3** — Before Phase 4 (RLS fail-closed) ships to production, DavDev confirms staging verified `app_user` role switch succeeds in every target environment.
-- **G4** — DavDev sign-off before Phase 2 removes `x-tenant-slug` from CORS-allowed headers, contingent on discovery confirming no legitimate client dependency.
+- **G4** — ~~DavDev sign-off before Phase 2 removes `x-tenant-slug` from CORS-allowed headers~~ **PASSED (2026-07-10):** Discovery §5.6 confirmed no production client dependency; Phase 2 shipped.

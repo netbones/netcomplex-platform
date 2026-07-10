@@ -7,6 +7,7 @@ export const ERROR_CODES = {
   FORBIDDEN: 'FORBIDDEN',
   TENANT_REQUIRED: 'TENANT_REQUIRED',
   TENANT_FORBIDDEN: 'TENANT_FORBIDDEN',
+  TENANT_MISMATCH: 'TENANT_MISMATCH',
   VALIDATION_ERROR: 'VALIDATION_ERROR',
   NOT_FOUND: 'NOT_FOUND',
   CONFLICT: 'CONFLICT',
@@ -131,6 +132,14 @@ export function apiTenantRequired(): NextResponse<ApiErrorResponse> {
 
 export function apiTenantForbidden(): NextResponse<ApiErrorResponse> {
   return apiError(ERROR_CODES.TENANT_FORBIDDEN, 'Cross-tenant access denied', 403);
+}
+
+export function apiTenantMismatch(): NextResponse<ApiErrorResponse> {
+  return apiError(
+    ERROR_CODES.TENANT_MISMATCH,
+    'Resolved tenant does not match authenticated user tenant',
+    403
+  );
 }
 
 export function apiValidationError(details?: unknown): NextResponse<ApiErrorResponse> {
