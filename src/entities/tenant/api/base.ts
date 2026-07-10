@@ -77,9 +77,14 @@ const SUBDOMAIN_ALIASES: Record<string, string> = {
 
 const NETBONES_WILDCARD_SUFFIX = '.netbones.co.za';
 
-const getCurrentTenantImpl = async (): Promise<Tenant | undefined> => {
-  const headersList = await headers();
-
+/**
+ * Canonical tenant resolution from incoming request headers.
+ * Shared by getCurrentTenant() (layouts) and withTenant() (API routes).
+ * See ADVISORY-032 — order must stay identical in both call paths.
+ */
+export async function resolveTenantFromRequestHeaders(
+  headersList: Headers
+): Promise<Tenant | undefined> {
   const tenantId = headersList.get('x-tenant-id');
   if (tenantId) return getTenantById(tenantId);
 
@@ -108,10 +113,8 @@ const getCurrentTenantImpl = async (): Promise<Tenant | undefined> => {
     if (hostWithoutPort.endsWith(NETBONES_WILDCARD_SUFFIX)) {
       const subdomain = hostWithoutPort.slice(0, -NETBONES_WILDCARD_SUFFIX.length);
       if (subdomain) {
-        // Try direct subdomain as slug first (covers soralia → soralia)
         const bySubdomainSlug = await getTenantBySlug(subdomain);
         if (bySubdomainSlug) return bySubdomainSlug;
-        // Try alias map (covers solaris → solaris-heights)
         const aliasSlug = SUBDOMAIN_ALIASES[subdomain];
         if (aliasSlug) {
           const byAlias = await getTenantBySlug(aliasSlug);
@@ -124,6 +127,11 @@ const getCurrentTenantImpl = async (): Promise<Tenant | undefined> => {
   // 4. Fallback for development: LOCAL_TENANT_SLUG env or 'soralia'.
   const localTenantSlug = process.env.LOCAL_TENANT_SLUG || 'soralia';
   return getTenantBySlug(localTenantSlug);
+}
+
+const getCurrentTenantImpl = async (): Promise<Tenant | undefined> => {
+  const headersList = await headers();
+  return resolveTenantFromRequestHeaders(headersList);
 };
 
 /**

@@ -16,6 +16,9 @@ import { NextResponse, type NextRequest } from 'next/server';
  * API/auth early-return branches.  Platform API/auth calls must receive x-plane: platform,
  * not x-plane: tenant with slug "app" (which resolves to no tenant, causing downstream
  * failures in withTenant() guards).  See ADVISORY-018 (RC-1, RC-2).
+ *
+ * Request headers are forwarded via NextResponse.next({ request: { headers } }) so route
+ * handlers see middleware-computed values. See ADVISORY-032.
  */
 
 const PLATFORM_DOMAIN = 'app.netbones.co.za';
@@ -24,6 +27,14 @@ const DEFAULT_TENANT_SLUG = 'soralia';
 const SUPPORTED_LOCALES = ['en', 'af', 'xh', 'zu'] as const;
 const DEFAULT_LOCALE = 'en';
 const LOCALE_COOKIE = 'i18n-locale';
+
+const MIRROR_REQUEST_HEADERS = [
+  'x-request-id',
+  'x-pathname',
+  'x-locale',
+  'x-plane',
+  'x-tenant-slug',
+] as const;
 
 // CORS configuration for API routes
 const CORS_ALLOWED_ORIGINS = [
@@ -57,6 +68,24 @@ function addCorsHeaders(response: NextResponse, origin: string | null): NextResp
       'Content-Type, Authorization, x-plane, x-tenant-slug'
     );
     response.headers.set('Access-Control-Max-Age', '86400');
+  }
+  return response;
+}
+
+/** Forward mutated request headers to downstream route handlers (ADVISORY-032). */
+function forwardWithHeaders(
+  request: NextRequest,
+  apply: (requestHeaders: Headers) => void
+): NextResponse {
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.delete('x-tenant-slug');
+  requestHeaders.delete('x-tenant-id');
+  apply(requestHeaders);
+
+  const response = NextResponse.next({ request: { headers: requestHeaders } });
+  for (const name of MIRROR_REQUEST_HEADERS) {
+    const value = requestHeaders.get(name);
+    if (value) response.headers.set(name, value);
   }
   return response;
 }
@@ -153,27 +182,42 @@ function detectLocale(request: NextRequest): string {
   return DEFAULT_LOCALE;
 }
 
+function withLocaleHeaders(res: NextResponse, locale: string, request: NextRequest): NextResponse {
+  res.headers.set('x-locale', locale);
+  if (request.cookies.get(LOCALE_COOKIE)?.value !== locale) {
+    res.cookies.set(LOCALE_COOKIE, locale, {
+      path: '/',
+      maxAge: 60 * 60 * 24 * 365,
+      sameSite: 'lax',
+    });
+  }
+  return res;
+}
+
 export async function middleware(request: NextRequest) {
-  const response = NextResponse.next();
-
-  const requestId = crypto.randomUUID?.() || Math.random().toString(36).substring(2, 15);
-  response.headers.set('x-request-id', requestId);
-  request.headers.set('x-request-id', requestId);
-
   const host = request.headers.get('host') || '';
   const pathname = request.nextUrl.pathname;
+  const requestId = crypto.randomUUID?.() || Math.random().toString(36).substring(2, 15);
 
-  response.headers.set('x-pathname', pathname);
-  request.headers.set('x-pathname', pathname);
+  const applyBaseHeaders = (requestHeaders: Headers) => {
+    requestHeaders.set('x-request-id', requestId);
+    requestHeaders.set('x-pathname', pathname);
+  };
+
+  const nextWithHeaders = (apply: (requestHeaders: Headers) => void): NextResponse => {
+    return forwardWithHeaders(request, requestHeaders => {
+      applyBaseHeaders(requestHeaders);
+      apply(requestHeaders);
+    });
+  };
 
   // ── Static assets: skip all logic ──
   if (pathname.startsWith('/_next') || pathname.startsWith('/static') || pathname.includes('.')) {
-    return response;
+    return nextWithHeaders(() => {});
   }
 
   // ── Locale detection: cookie → accept-language → 'en' ──
   const locale = detectLocale(request);
-  request.headers.set('x-locale', locale);
 
   // ── Resolve plane and tenant slug FIRST — before any early returns ──
   const isPlatform = isPlatformHost(host);
@@ -183,23 +227,21 @@ export async function middleware(request: NextRequest) {
   const subdomain = hostWithoutPort.split('.')[0] || '';
   // Subdomain extraction works for *.netbones.co.za (subdomain = slug).
   // Bare custom domains (soralia.org, solaris.co.za, etc.) are resolved
-  // server-side by getTenantByDomain() in withTenant() / getCurrentTenant().
+  // server-side by getTenantByDomain() in resolveTenantFromRequestHeaders().
   const inferredTenantSlug = isLocalhost ? DEFAULT_TENANT_SLUG : subdomain || DEFAULT_TENANT_SLUG;
 
   const isApiRoute = pathname.startsWith('/api/');
   const isAuthRouteCheck = isAuthRoute(pathname);
 
-  function withLocaleHeaders(res: NextResponse): NextResponse {
-    res.headers.set('x-locale', locale);
-    if (request.cookies.get(LOCALE_COOKIE)?.value !== locale) {
-      res.cookies.set(LOCALE_COOKIE, locale, {
-        path: '/',
-        maxAge: 60 * 60 * 24 * 365,
-        sameSite: 'lax',
-      });
-    }
-    return res;
-  }
+  const nextWithLocale = (apply: (requestHeaders: Headers) => void): NextResponse =>
+    withLocaleHeaders(
+      nextWithHeaders(requestHeaders => {
+        requestHeaders.set('x-locale', locale);
+        apply(requestHeaders);
+      }),
+      locale,
+      request
+    );
 
   // ── Platform plane: app.netbones.co.za ──
   if (isPlatform) {
@@ -207,34 +249,42 @@ export async function middleware(request: NextRequest) {
     // No tenant headers are set — withTenant() guards on platform API routes
     // should use withTenantOptional() or skip tenant context entirely.
     if (isApiRoute || isAuthRouteCheck) {
-      // Handle CORS preflight for API routes
       if (request.method === 'OPTIONS') {
         const origin = request.headers.get('origin');
-        const corsResponse = addCorsHeaders(NextResponse.next(), origin);
-        return corsResponse;
+        return addCorsHeaders(NextResponse.next(), origin);
       }
-      response.headers.set('x-plane', 'platform');
-      return addCorsHeaders(withLocaleHeaders(response), request.headers.get('origin'));
+      return addCorsHeaders(
+        nextWithLocale(requestHeaders => {
+          requestHeaders.set('x-plane', 'platform');
+        }),
+        request.headers.get('origin')
+      );
     }
 
-    // Redirect root to platform home
     if (pathname === '/') {
-      return withLocaleHeaders(NextResponse.redirect(new URL('/home', request.url)));
+      return withLocaleHeaders(
+        NextResponse.redirect(new URL('/home', request.url)),
+        locale,
+        request
+      );
     }
 
-    // Redirect tenant routes to platform home
     if (isTenantRoute(pathname)) {
-      return withLocaleHeaders(NextResponse.redirect(new URL('/home', request.url)));
+      return withLocaleHeaders(
+        NextResponse.redirect(new URL('/home', request.url)),
+        locale,
+        request
+      );
     }
 
-    response.headers.set('x-plane', 'platform');
-    return withLocaleHeaders(response);
+    return nextWithLocale(requestHeaders => {
+      requestHeaders.set('x-plane', 'platform');
+    });
   }
 
   // ── Localhost: treat as tenant with default slug ──
   if (isLocalhost) {
     if (isApiRoute || isAuthRouteCheck) {
-      // Handle CORS preflight for API routes
       if (request.method === 'OPTIONS') {
         const origin = request.headers.get('origin');
         const corsResponse = addCorsHeaders(NextResponse.next(), origin);
@@ -242,18 +292,23 @@ export async function middleware(request: NextRequest) {
         corsResponse.headers.set('x-tenant-slug', DEFAULT_TENANT_SLUG);
         return corsResponse;
       }
-      response.headers.set('x-plane', 'tenant');
-      response.headers.set('x-tenant-slug', DEFAULT_TENANT_SLUG);
-      return addCorsHeaders(withLocaleHeaders(response), request.headers.get('origin'));
+      return addCorsHeaders(
+        nextWithLocale(requestHeaders => {
+          requestHeaders.set('x-plane', 'tenant');
+          requestHeaders.set('x-tenant-slug', DEFAULT_TENANT_SLUG);
+        }),
+        request.headers.get('origin')
+      );
     }
-    response.headers.set('x-plane', 'tenant');
-    response.headers.set('x-tenant-slug', DEFAULT_TENANT_SLUG);
-    return withLocaleHeaders(response);
+
+    return nextWithLocale(requestHeaders => {
+      requestHeaders.set('x-plane', 'tenant');
+      requestHeaders.set('x-tenant-slug', DEFAULT_TENANT_SLUG);
+    });
   }
 
   // ── Tenant plane: *.netbones.co.za / custom domains ──
   if (isApiRoute || isAuthRouteCheck) {
-    // Handle CORS preflight for API routes
     if (request.method === 'OPTIONS') {
       const origin = request.headers.get('origin');
       const corsResponse = addCorsHeaders(NextResponse.next(), origin);
@@ -261,19 +316,23 @@ export async function middleware(request: NextRequest) {
       corsResponse.headers.set('x-tenant-slug', inferredTenantSlug);
       return corsResponse;
     }
-    response.headers.set('x-plane', 'tenant');
-    response.headers.set('x-tenant-slug', inferredTenantSlug);
-    return addCorsHeaders(withLocaleHeaders(response), request.headers.get('origin'));
+    return addCorsHeaders(
+      nextWithLocale(requestHeaders => {
+        requestHeaders.set('x-plane', 'tenant');
+        requestHeaders.set('x-tenant-slug', inferredTenantSlug);
+      }),
+      request.headers.get('origin')
+    );
   }
 
-  // Block platform routes on tenant domains
   if (isPlatformRoute(pathname)) {
-    return withLocaleHeaders(NextResponse.redirect(new URL('/', request.url)));
+    return withLocaleHeaders(NextResponse.redirect(new URL('/', request.url)), locale, request);
   }
 
-  response.headers.set('x-plane', 'tenant');
-  response.headers.set('x-tenant-slug', inferredTenantSlug);
-  return withLocaleHeaders(response);
+  return nextWithLocale(requestHeaders => {
+    requestHeaders.set('x-plane', 'tenant');
+    requestHeaders.set('x-tenant-slug', inferredTenantSlug);
+  });
 }
 
 export const config = {
