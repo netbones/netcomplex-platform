@@ -95,7 +95,7 @@ model twoFactor {
 
 model user {
   id                                                    String                    @id
-  tenantId                                              String
+  tenantId                                              String?
   email                                                 String                    @unique
   name                                                  String
   role                                                  Role                      @default(USER)

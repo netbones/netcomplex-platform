@@ -223,7 +223,7 @@ export async function recordUsage(
         await tx.insert(notifications).values(
           adminUsers.map(u => ({
             id: createId(),
-            tenantId: u.tenantId,
+            tenantId: options.tenantId,
             userId: u.id,
             title: 'AI token quota at 80%',
             message: `Your community has used ${Math.round(usagePct * 100)}% of its monthly AI token allowance (${month}). Some AI features may become unavailable before the end of the month.`,

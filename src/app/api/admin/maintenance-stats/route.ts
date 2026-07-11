@@ -1,10 +1,9 @@
 import {
   runWithRLS,
-  getRLSContext,
+  requireTenantRLS,
   maintenanceRequests,
   apiForbidden,
   apiSuccess,
-  apiUnauthorized,
   withErrorHandler,
   now,
 } from '@api/server';
@@ -15,14 +14,14 @@ export const maxDuration = 8;
 export const dynamic = 'force-dynamic';
 
 export const GET = withErrorHandler(async (request: Request) => {
-  const ctx = await getRLSContext(request);
-  if (!ctx) return apiUnauthorized();
+  const rls = await requireTenantRLS(request);
+  if (!rls.ok) return rls.response;
+  const { ctx, tenantId } = rls;
   if (!['BOARD', 'ADMIN'].includes(ctx.role)) {
     return apiForbidden();
   }
 
   return runWithRLS(ctx, async tx => {
-    const tenantId = ctx.tenantId;
     const ts = now();
     const startOfMonth = new Date(ts.getFullYear(), ts.getMonth(), 1);
 

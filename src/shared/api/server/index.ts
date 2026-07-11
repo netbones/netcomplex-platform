@@ -1,6 +1,7 @@
 export { db, runWithRLS, notDeleted, assertAddressUnique } from '../db';
 export type { RLSContext, DbSchema } from '../db';
 export { getRLSContext } from '../rls-context';
+export { requireTenantRLS } from '../require-tenant-rls';
 
 // ── Zod DTO schemas (ADR-024 — consolidated from server/dto) ──
 export * from '../dto';

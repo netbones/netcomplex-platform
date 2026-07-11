@@ -4,7 +4,7 @@ import {
   apiUnauthorized,
   requireAnyPermission,
   runWithRLS,
-  getRLSContext,
+  requireTenantRLS,
   maintenanceRequests,
   groupMembershipRequests,
   surveys,
@@ -26,12 +26,11 @@ export async function GET(request: Request) {
     const authError = await requireAnyPermission(['admin', 'settings']);
     if (authError) return authError;
 
-    const ctx = await getRLSContext(request);
-    if (!ctx) return apiUnauthorized();
+    const rls = await requireTenantRLS(request);
+    if (!rls.ok) return rls.response;
+    const { ctx, tenantId } = rls;
 
     return runWithRLS(ctx, async tx => {
-      const tenantId = ctx.tenantId;
-
       // Run queries sequentially — the transaction connection (single pg client)
       // cannot safely handle concurrent queries. Concurrent queries on one client
       // trigger the pg@8.x deprecation "client.query() when already executing".

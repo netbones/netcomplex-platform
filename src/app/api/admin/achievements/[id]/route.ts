@@ -4,12 +4,11 @@ import { z } from 'zod';
 import {
   getSessionAndRole,
   runWithRLS,
-  getRLSContext,
+  requireTenantRLS,
   apiSuccess,
   apiError,
   apiForbidden,
   apiInternalError,
-  apiUnauthorized,
   writeAuditLog,
   rateLimitByUser,
 } from '@api/server';
@@ -41,8 +40,9 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     });
     if (rateLimit) return rateLimit;
 
-    const ctx = await getRLSContext(request);
-    if (!ctx) return apiUnauthorized();
+    const rls = await requireTenantRLS(request);
+    if (!rls.ok) return rls.response;
+    const { ctx, tenantId } = rls;
 
     const body = await request.json();
     const parsed = patchBodySchema.safeParse(body);
@@ -73,7 +73,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
           .from(tenantAchievements)
           .where(
             and(
-              eq(tenantAchievements.tenantId, ctx.tenantId),
+              eq(tenantAchievements.tenantId, tenantId),
               eq(tenantAchievements.definitionId, definitionId)
             )
           )
@@ -92,7 +92,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         } else {
           await tx.insert(tenantAchievements).values({
             id: createId(),
-            tenantId: ctx.tenantId,
+            tenantId,
             definitionId,
             enabled: enabled ?? true,
             customThreshold: customThreshold ?? null,
@@ -104,7 +104,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       writeAuditLog({
         action: 'ACHIEVEMENT_CONFIG_CHANGED',
         actorId: sessionRole.userId,
-        tenantId: ctx.tenantId,
+        tenantId,
         details: { definitionId, changes: parsed.data },
       });
 

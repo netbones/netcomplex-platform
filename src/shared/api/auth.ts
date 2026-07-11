@@ -2,7 +2,6 @@ import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from '@better-auth/drizzle-adapter';
 import { twoFactor, organization, bearer, emailOTP, admin } from 'better-auth/plugins';
 import { passkey } from '@better-auth/passkey';
-import { ENV } from 'varlock/env';
 import {
   db,
   authDb,
@@ -126,15 +125,14 @@ export const auth = betterAuth({
 
       const tenantName = tenant?.name ?? 'Netcomplex';
 
-      sendEmail({
+      await sendEmail({
         to: user.email,
         subject: templates.verifyEmail.subject(tenantName),
         html: templates.verifyEmail.getHtml(user.name || '', url, tenantName),
         fromName: tenantName,
-      }).catch(err =>
-        authLogger.error({ err, email: user.email }, 'Verification email send failed')
-      );
+      });
     },
+    sendOnSignUp: true, // Send verification email immediately at sign-up (Phase 124 D-02 F3)
     sendOnSignIn: true, // Send verification email on sign-in if not verified
     autoSignInAfterVerification: true, // Auto sign-in user after email verification
     async afterEmailVerification(user) {
@@ -147,8 +145,7 @@ export const auth = betterAuth({
     additionalFields: {
       tenantId: {
         type: 'string',
-        required: true,
-        defaultValue: tenantConfig.defaultSlug,
+        required: false,
         input: true, // Allow signup route to set tenant via x-tenant-slug header
       },
       dashboardLayout: {
@@ -213,26 +210,32 @@ export const auth = betterAuth({
   ],
   advanced: {
     cookiePrefix: tenantConfig.auth.cookiePrefix,
+    crossSubDomainCookies: {
+      enabled: true,
+      domain: 'netbones.co.za',
+    },
   },
   baseURL: {
     allowedHosts: tenantConfig.auth.allowedHosts,
   },
   trustedOrigins: [
-    ENV.BETTER_AUTH_URL || 'http://localhost:3000',
+    process.env.BETTER_AUTH_URL || 'http://localhost:3000',
     // Include NEXT_PUBLIC_APP_URL as fallback for environments where
     // BETTER_AUTH_URL is not set separately.
-    ENV.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+    process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
     // Include common dev and preview origins so session cookies are
     // accepted from browsers accessing via different URLs (Vercel
     // previews, localhost ports, custom domains).
     ...(process.env.NODE_ENV === 'production'
-      ? []
+      ? ['https://app.netbones.co.za', 'https://soralia.netbones.co.za']
       : [
           'http://localhost:3001',
           'http://localhost:3002',
           'https://localhost:3000',
           'http://app.netbones.co.za',
+          'http://app.netbones.co.za:3000',
           'http://soralia.netbones.co.za',
+          'http://soralia.netbones.co.za:3000',
           'http://soralia.co.za',
           'http://solaris.co.za',
         ]),
@@ -253,7 +256,7 @@ export const auth = betterAuth({
           return {
             data: {
               ...user,
-              tenantId: tenant?.id ?? rawTenantId ?? tenantConfig.defaultSlug,
+              tenantId: tenant?.id ?? rawTenantId ?? null,
               profileSlug: generateProfileSlug(user.name),
               role: 'USER',
             },

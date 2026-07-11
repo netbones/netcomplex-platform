@@ -127,6 +127,29 @@ describe('Feature flag: marketplacePaypal', () => {
   });
 });
 
+// ===== User tenantId nullable migration (Phase 124) =====
+import { users } from '@schema/users';
+import { readFileSync } from 'fs';
+import path from 'path';
+
+describe('User schema — tenantId nullable (Phase 124)', () => {
+  // RED test: currently line 6 is `tenantId: text('tenantId').notNull(),`
+  // After migration: must be `tenantId: text('tenantId'),` (no .notNull())
+  it('tenantId column exists on users table', () => {
+    expect(users.tenantId).toBeDefined();
+  });
+
+  it('tenantId column is NOT marked notNull in generated Drizzle source', () => {
+    const src = readFileSync(path.resolve(__dirname, '..', 'schema', 'users.ts'), 'utf-8');
+    // The tenantId field should be `tenantId: text('tenantId')` (no .notNull())
+    // After the nullable migration, it must NOT have .notNull() chained
+    const hasNullableTenantId =
+      /tenantId:\s*text\('tenantId'\)\s*,/.test(src) &&
+      !/tenantId:\s*text\('tenantId'\)\s*\.notNull\(\)/.test(src);
+    expect(hasNullableTenantId).toBe(true);
+  });
+});
+
 describe('db/index.ts barrel exports', () => {
   it('exports service-bookings (importable at top of file)', () => {
     // serviceBookings is already imported at the top of this test file via @schema path

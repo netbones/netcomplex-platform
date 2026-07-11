@@ -2,31 +2,30 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 122
-current_phase_name: workspace-context-architecture
+current_phase: 124
+current_phase_name: onboarding-defer-provisioning
 status: executing
-stopped_at: Phase 04 UI-SPEC approved
-last_updated: '2026-07-09T08:07:29.070Z'
+stopped_at: Phase 124 Plan 06 complete — cleanup sweep; phase ready for merge
+last_updated: '2026-07-09T17:35:00.000Z'
 progress:
   total_phases: 71
-  completed_phases: 59
-  total_plans: 197
-  completed_plans: 180
-  percent: 83
+  completed_phases: 58
+  total_plans: 202
+  completed_plans: 184
+  percent: 91
 ---
 
 # Project State
 
 ## Current Position
 
-Phase: 123 — COMPLETE
-Plan: 7 of 7
+Phase: 124 (onboarding-defer-provisioning) — COMPLETE (6/6 plans executed)
 
 - **Phase:** Phase 122 (workspace-context-architecture) — Context gathered, ready for planning
 - **Previous:** Phase 120 (api-governance-hardening) — Plan 2 complete (identity router migration)
 - **Previous:** Phase 04 verified — content i18n locale wiring complete (11/11 must-haves)
 
-**Last Session:** 2026-07-09T07:42:06.282Z
+**Last Session:** 2026-07-09T13:51:42.534Z
 **Stopped at:** Phase 124 UI-SPEC approved
 
 ## Active Phase Decisions
@@ -322,6 +321,7 @@ Plan: 7 of 7
 - [Phase 44 UI-SPEC]: UI-SPEC approved as a "no-new-ui carry-forward" contract (6/6 carry-forward dimensions passed: D1 fidelity, D2 surface touch matrix, D3 regression checklist executability, D4 observability surfaces, D5 registry safety, D6 open questions). The phase is architectural hardening, not a feature phase — UI-SPEC documents the existing design system that any touched UI must respect, with a 38-item regression checklist for the executor. Touch matrix maps 44-01 (Steiger) through 44-08+ (FSD codemods) to existing UI surfaces (Header/Footer/SideDrawer/MobileMenu/SpaceChrome/MobileSpaceBar/GateGuard, ~10 admin widgets, MyHomeSpace). Sentry wiring must precede qjpa codemod (44-10) per RESEARCH §10.2.
 - [Phase 44 RESEARCH]: Pino + Sentry + @vercel/otel recommended as additive observability stack (not replacement). All 19 pnpm advisories (nn39) verified as dev/build-only paths; reclassify P1→P3 and add `pnpm audit:prod` script. FSD cluster `qjpa` (461 of 582 violations, 79%) is auto-fixable via jscodeshift codemod — highest-risk single item. Recommended execution order: 44-07 (pnpm, hours) → 44-06 (M4.5, days) → 44-02 (observability, ~1 week) → 44-03 (wave A) → 44-04 (wave B) → 44-05 (wave C) → 44-08/09/10/11 (FSD, ROI-ordered). 5 open questions: Sentry org, Vercel plan tier, Phase 47 collision on cs5, Property rename rollout safety, codemod test coverage.
 - [Phase 44 workflow note]: `gsd-sdk query state.record-session` is a low-level tool that overwrites STATE.md frontmatter fields without merging — clobbered the previous 44-01 completion content during UI-SPEC approval. Restored from git, manually re-applied planning note. Workflow should use `gsd-sdk query state.record-session` only for the "Last session" + "Resume File" fields, not for full state updates. Orchestrators should manually curate STATE.md for planning decisions.
+- [Phase 124-onboarding-defer-provisioning]: All 6 plans executed (124-01 nullable tenantId → 124-02 identity sign-up → 124-03 null-tenant landing → 124-04 relocated wizard → 124-05 authenticated provisioning → 124-06 cleanup sweep). 124-06 removed residual eager-provisioning pricing state from sign-up page; `useSignupForm.ts` + `auth.ts` already clean from prior plans. No reaper/TTL added (ADVISORY-031 Option C). Phase ready for `wt merge` (review by DavDev per merge gate).
 
 ## Performance Metrics
 
@@ -385,6 +385,9 @@ Plan: 7 of 7
 | Phase 123-setup-center P123-06                  | 388     | 5 tasks  | 6 files  |
 | Phase 123-setup-center P123-05                  | 519     | 6 tasks  | 7 files  |
 | Phase 123-setup-center P123-07                  | 24m 50s | 6 tasks  | 18 files |
+| Phase 124-onboarding-defer-provisioning P02     | 14min   | 3 tasks  | 5 files  |
+| Phase 124-onboarding-defer-provisioning P04     | 0min    | 3 tasks  | 3 files  |
+| Phase 124-onboarding-defer-provisioning P06     | 9min    | 2 tasks  | 1 files  |
 
 ## Accumulated Context
 

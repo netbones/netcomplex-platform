@@ -39,3 +39,4 @@ tsconfig.tsbuildinfo
 
 # Coverage
 coverage/
+node_modules

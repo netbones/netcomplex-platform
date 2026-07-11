@@ -3,7 +3,7 @@ import { eq, and } from 'drizzle-orm';
 import {
   getSessionAndRole,
   runWithRLS,
-  getRLSContext,
+  requireTenantRLS,
   apiSuccess,
   apiInternalError,
   apiUnauthorized,
@@ -22,8 +22,9 @@ export async function GET(request: NextRequest) {
     const sessionRole = await getSessionAndRole();
     if (!sessionRole) return apiUnauthorized();
 
-    const ctx = await getRLSContext(request);
-    if (!ctx) return apiUnauthorized();
+    const rls = await requireTenantRLS(request);
+    if (!rls.ok) return rls.response;
+    const { ctx, tenantId } = rls;
 
     return runWithRLS(ctx, async tx => {
       const rows = await tx
@@ -44,13 +45,13 @@ export async function GET(request: NextRequest) {
           tenantAchievements,
           and(
             eq(tenantAchievements.definitionId, userAchievementProgresses.definitionId),
-            eq(tenantAchievements.tenantId, ctx.tenantId)
+            eq(tenantAchievements.tenantId, tenantId)
           )
         )
         .where(
           and(
             eq(userAchievementProgresses.userId, sessionRole.userId),
-            eq(userAchievementProgresses.tenantId, ctx.tenantId)
+            eq(userAchievementProgresses.tenantId, tenantId)
           )
         );
 

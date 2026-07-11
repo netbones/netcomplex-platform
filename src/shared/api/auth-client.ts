@@ -20,7 +20,8 @@ function createClient() {
       emailOTPClient(),
       inferAdditionalFields({
         user: {
-          role: { type: 'string' },
+          role: { type: 'string', required: false, defaultValue: 'USER', input: false },
+          tenantId: { type: 'string', nullable: true, required: false, input: true },
         },
       }),
     ],

@@ -228,10 +228,18 @@ export const getTenantByDomain = unstable_cache(
   { revalidate: 60, tags: ['tenant-lookup'] }
 );
 
-export async function getTenantByUserId(userId: string): Promise<Tenant | undefined> {
+/**
+ * Get tenant for a user.
+ * - Returns `Tenant` if user has a valid tenant.
+ * - Returns `null` if user exists but has no tenant (deferred-provisioning).
+ * - Returns `undefined` if user not found.
+ */
+export async function getTenantByUserId(userId: string): Promise<Tenant | null | undefined> {
   const user = await db.select().from(users).where(eq(users.id, userId)).limit(1);
   if (!user[0]) return undefined;
-  return getTenantById(user[0].tenantId);
+  const tenantId = user[0].tenantId;
+  if (tenantId === null) return null;
+  return getTenantById(tenantId);
 }
 
 export async function listTenants(): Promise<Tenant[]> {

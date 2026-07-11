@@ -5,7 +5,7 @@ import {
   apiUnauthorized,
   requireAnyPermission,
   runWithRLS,
-  getRLSContext,
+  requireTenantRLS,
   maintenanceRequests,
   users,
   contents,
@@ -36,8 +36,9 @@ export async function GET(request: NextRequest) {
     const authError = await requireAnyPermission(['admin', 'settings']);
     if (authError) return authError;
 
-    const ctx = await getRLSContext(request);
-    if (!ctx) return apiUnauthorized();
+    const rls = await requireTenantRLS(request);
+    if (!rls.ok) return rls.response;
+    const { ctx, tenantId: defaultTenantId } = rls;
 
     return runWithRLS(ctx, async tx => {
       // Query params
@@ -50,7 +51,7 @@ export async function GET(request: NextRequest) {
       // Platform admin cross-tenant support
       // Uses ctx.isPlatformAdmin (cached from getRLSContext's user lookup) instead
       // of a fresh db.select to avoid duplicate queries + session-scope RLS leaks.
-      let tenantId = ctx.tenantId;
+      let tenantId: string = defaultTenantId;
       const requestedTenantId = searchParams.get('tenantId');
       if (requestedTenantId && ctx.isPlatformAdmin) {
         tenantId = requestedTenantId;

@@ -1,15 +1,20 @@
 import { NextRequest } from 'next/server';
 import { TIERS, type TierLevel } from '@entities/tenant';
 import {
+  auth,
   db,
   users,
   tenants,
   apiConflict,
+  apiCreated,
   apiError,
+  apiForbidden,
   apiInternalError,
-  apiSuccess,
+  apiUnauthorized,
+  apiValidationError,
+  withErrorHandler,
 } from '@api/server';
-
+import { z } from 'zod';
 import { eq } from 'drizzle-orm';
 import { logError } from '@shared/lib';
 import { createId } from '@shared/lib/id';
@@ -17,178 +22,144 @@ import { initTenantSetup } from '@entities/setup/server';
 
 export const maxDuration = 8;
 
-interface SignupRequest {
+// ── Request shape: tenant-only (user already exists in session) ──
+interface CommunitySetupRequest {
   name: string;
   slug: string;
   plan: TierLevel;
-  admin: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone?: string;
-    password: string;
-  };
 }
 
-const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL || 'http://localhost:3000';
+// ── Zod schema for request validation ──
+const communitySetupSchema = z.object({
+  name: z.string().min(1, 'Community name is required').max(100).trim(),
+  slug: z
+    .string()
+    .min(1, 'Subdomain is required')
+    .min(3, 'Subdomain must be at least 3 characters')
+    .max(50)
+    .regex(
+      /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/,
+      'Subdomain must use lowercase letters, numbers, and hyphens'
+    ),
+  plan: z.enum(['core', 'foundation', 'pro-max'], {
+    errorMap: () => ({ message: 'Invalid subscription plan' }),
+  }),
+});
 
-export async function POST(request: NextRequest) {
+/**
+ * POST /api/platform/tenants
+ *
+ * Authenticated tenant provisioning. Creates a new tenant and links
+ * the authenticated user as its ADMIN. The user MUST already exist
+ * (verified session required). No user creation happens here.
+ */
+export const POST = withErrorHandler(async (request: NextRequest) => {
+  // 1. Authenticate — require valid session
+  const session = await auth.api.getSession({ headers: request.headers });
+  if (!session) {
+    return apiUnauthorized('Authentication required');
+  }
+
+  // 2. Require verified email — prevents zombie tenants from throwaway emails
+  if (!session.user.emailVerified) {
+    return apiForbidden('Email must be verified before creating a community');
+  }
+
+  const userId = session.user.id;
+
+  // 3. Parse and validate request body
+  let body: unknown;
   try {
-    const body: SignupRequest = await request.json();
+    body = await request.json();
+  } catch {
+    return apiError('VALIDATION_ERROR', 'Invalid JSON body', 400);
+  }
 
-    // Validate the plan is a valid tier
-    if (!['core', 'foundation', 'pro-max'].includes(body.plan)) {
-      return apiError('VALIDATION_ERROR', 'Invalid subscription plan', 400);
-    }
+  const parsed = communitySetupSchema.safeParse(body);
+  if (!parsed.success) {
+    return apiValidationError(parsed.error.issues);
+  }
 
-    // Check if subdomain is already taken
-    const existingTenant = await db
-      .select()
-      .from(tenants)
-      .where(eq(tenants.slug, body.slug))
-      .limit(1);
+  const { name, slug, plan } = parsed.data;
 
-    if (existingTenant.length > 0) {
-      return apiConflict('Subdomain is already taken');
-    }
+  // 4. Slug uniqueness check
+  const existingTenant = await db.select().from(tenants).where(eq(tenants.slug, slug)).limit(1);
 
-    // Check if email is already taken
-    const existingUser = await db
-      .select()
-      .from(users)
-      .where(eq(users.email, body.admin.email))
-      .limit(1);
+  if (existingTenant.length > 0) {
+    return apiConflict('Subdomain is already taken');
+  }
 
-    if (existingUser.length > 0) {
-      return apiConflict('Email address is already registered');
-    }
+  // 5. Get tier configuration
+  const tierConfig = TIERS[plan];
 
-    // Get tier configuration
-    const tierConfig = TIERS[body.plan];
+  // 6. Atomic transaction: create tenant + link user as ADMIN
+  let tenantId = '';
+  try {
+    await db.transaction(async tx => {
+      const [newTenant] = await tx
+        .insert(tenants)
+        .values({
+          id: createId(),
+          name,
+          slug,
+          customDomain: null,
+          logoUrl: null,
+          faviconUrl: null,
+          primaryColor: '#4F46E5',
+          accentColor: null,
+          secondaryColor: null,
+          fontFamily: null,
+          customCss: null,
+          active: true,
+          subscriptionTier: plan,
+          tier: 'STANDARD',
+          maxPages: tierConfig.maxPages,
+          pageCount: 0,
+          featureFlags: {},
+          ownerId: userId,
+        })
+        .returning();
 
-    // Step 1: Create admin user via Better Auth (handles password hashing)
-    // We do this first because Better Auth handles its own internal transaction
-    const authResponse = await fetch(`${BETTER_AUTH_URL}/api/auth/sign-up/email`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Origin: BETTER_AUTH_URL,
-      },
-      body: JSON.stringify({
-        email: body.admin.email,
-        password: body.admin.password,
-        name: `${body.admin.firstName} ${body.admin.lastName}`,
-      }),
-    });
+      tenantId = newTenant.id;
 
-    if (!authResponse.ok) {
-      const authError = await authResponse.json();
-      if (authResponse.status === 422) {
-        return apiConflict('Email address is already registered');
-      }
-      const errMsg =
-        authError.message ||
-        authError.body?.message ||
-        authError.error?.message ||
-        String(authError.error || 'Failed to create user account');
-      return apiError('VALIDATION_ERROR', errMsg, authResponse.status);
-    }
-
-    const authData = await authResponse.json();
-    const userId = authData.user?.id;
-
-    if (!userId) {
-      return apiInternalError('Failed to retrieve user id from auth response');
-    }
-
-    let tenantId: string | undefined;
-
-    try {
-      // Step 2: Atomic transaction for tenant creation and role assignment
-      await db.transaction(async tx => {
-        // Create the tenant (UUID generated automatically)
-        const [newTenant] = await tx
-          .insert(tenants)
-          .values({
-            id: createId(),
-            name: body.name,
-            slug: body.slug,
-            customDomain: null,
-            logoUrl: null,
-            faviconUrl: null,
-            primaryColor: '#4F46E5',
-            accentColor: null,
-            secondaryColor: null,
-            fontFamily: null,
-            customCss: null,
-            active: true,
-            subscriptionTier: body.plan,
-            tier: 'STANDARD',
-            maxPages: tierConfig.maxPages,
-            pageCount: 0,
-            featureFlags: {},
-            ownerId: userId,
-          })
-          .returning();
-
-        tenantId = newTenant.id;
-
-        // Update the user to link to the tenant and set ADMIN role
-        await tx
-          .update(users)
-          .set({
-            tenantId: newTenant.id,
-            role: 'ADMIN',
-            isPlatformAdmin: false,
-          })
-          .where(eq(users.id, userId));
-      });
-    } catch (err) {
-      // If the transaction fails, we must clean up the user created in Step 1
-      // to avoid leaving a stranded user without a tenant.
-      await db.delete(users).where(eq(users.id, userId));
-      throw err;
-    }
-
-    // Step 3: Initialize Setup Center data (missions, progress tracker)
-    // Fire-and-forget — failure here should not block signup.
-    // If it fails we log and continue; the Setup Center will gracefully
-    // handle a missing TenantSetup on first access.
-    try {
-      await initTenantSetup(tenantId!, body.plan as TierLevel);
-    } catch (setupErr) {
-      logError(
-        { component: 'platform-tenants-api', operation: 'INIT_SETUP' },
-        'Failed to initialize Setup Center for tenant',
-        setupErr
-      );
-      // Explicitly do NOT throw — do not block signup
-    }
-
-    return apiSuccess(
-      {
-        tenantId: tenantId,
-        tenant: {
-          id: tenantId,
-          name: body.name,
-          slug: body.slug,
-          subscriptionTier: body.plan,
-        },
-        user: {
-          id: userId,
-          email: body.admin.email,
-          name: `${body.admin.firstName} ${body.admin.lastName}`,
+      // Link user to the new tenant as ADMIN
+      await tx
+        .update(users)
+        .set({
+          tenantId: newTenant.id,
           role: 'ADMIN',
-        },
-      },
-      { status: 201 }
-    );
-  } catch (error) {
+          isPlatformAdmin: false,
+        })
+        .where(eq(users.id, userId));
+    });
+  } catch (err) {
     logError(
-      { component: 'platform-tenants-api', operation: 'CREATE' },
-      'Failed to create tenant and user',
-      error
+      { component: 'platform-tenants-api', operation: 'CREATE_TENANT_TX' },
+      'Failed to create tenant',
+      err
     );
     return apiInternalError('Failed to create community. Please try again.');
   }
-}
+
+  // 7. Initialize Setup Center data (fire-and-forget)
+  try {
+    await initTenantSetup(tenantId, plan);
+  } catch (setupErr) {
+    logError(
+      { component: 'platform-tenants-api', operation: 'INIT_SETUP' },
+      'Failed to initialize Setup Center for tenant',
+      setupErr
+    );
+    // Explicitly do NOT throw — do not block tenant creation
+  }
+
+  return apiCreated({
+    tenantId: tenantId,
+    tenant: {
+      id: tenantId,
+      name,
+      slug,
+      subscriptionTier: plan,
+    },
+  });
+});

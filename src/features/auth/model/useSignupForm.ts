@@ -4,9 +4,10 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { signupSchema, type SignupFormData } from '@entities/tenant';
+import { authClient } from '@api/client';
+import { identitySignupSchema, type IdentitySignupFormData } from '@entities/tenant';
 
-type Step = 1 | 2 | 3;
+type Step = 1 | 2;
 
 export function useSignupForm() {
   const router = useRouter();
@@ -14,32 +15,26 @@ export function useSignupForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const form = useForm<SignupFormData>({
-    resolver: zodResolver(signupSchema),
+  const form = useForm<IdentitySignupFormData>({
+    resolver: zodResolver(identitySignupSchema),
     defaultValues: {
-      communityName: '',
-      subdomain: '',
       firstName: '',
       lastName: '',
       email: '',
       phone: '',
       password: '',
       confirmPassword: '',
-      plan: 'foundation',
     },
   });
 
   const validateCurrentStep = async () => {
-    let fieldsToValidate: (keyof SignupFormData)[];
+    let fieldsToValidate: (keyof IdentitySignupFormData)[];
 
     switch (step) {
       case 1:
-        fieldsToValidate = ['communityName', 'subdomain', 'plan'];
-        break;
-      case 2:
         fieldsToValidate = ['firstName', 'lastName', 'email', 'phone'];
         break;
-      case 3:
+      case 2:
         fieldsToValidate = ['password', 'confirmPassword'];
         break;
       default:
@@ -60,7 +55,7 @@ export function useSignupForm() {
     const isValid = await validateCurrentStep();
     if (!isValid) return;
 
-    if (step < 3) {
+    if (step < 2) {
       setStep((step + 1) as Step);
     } else {
       await handleSubmit();
@@ -86,50 +81,28 @@ export function useSignupForm() {
     try {
       const data = form.getValues();
 
-      const res = await fetch('/api/platform/tenants', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: data.communityName,
-          slug: data.subdomain,
-          plan: data.plan,
-          admin: {
-            firstName: data.firstName,
-            lastName: data.lastName,
-            email: data.email,
-            phone: data.phone || '',
-            password: data.password,
-          },
-        }),
+      const { error: signUpError } = await authClient.signUp.email({
+        email: data.email,
+        password: data.password,
+        name: `${data.firstName} ${data.lastName}`,
+        callbackURL: '/verify-email',
       });
 
-      if (!res.ok) {
-        const responseData = await res.json();
-        const msg =
-          typeof responseData.error === 'string'
-            ? responseData.error
-            : responseData.error?.message || 'Failed to create community';
-        throw new Error(msg);
+      if (signUpError) {
+        throw new Error(signUpError.message || 'Failed to create account');
       }
 
       // Account creation requires email verification before a session exists,
-      // so we cannot land the user on an authenticated destination (e.g. /setup
-      // or /onboarding) yet — doing so produced a 401 on /api/platform/setup.
+      // so we cannot land the user on an authenticated destination yet.
       // Send them to verify their email; after verifying + signing in they reach
-      // their community space (Setup Center when enable-setup-center is on).
-      await res.json();
+      // their community space.
       router.push(`/verify-email?email=${encodeURIComponent(data.email)}`);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to create community';
+      const message = err instanceof Error ? err.message : 'Failed to create account';
       setError(message);
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleSubdomainChange = (value: string) => {
-    const cleanValue = value.toLowerCase().replace(/[^a-z0-9-]/g, '');
-    form.setValue('subdomain', cleanValue);
   };
 
   return {
@@ -139,7 +112,6 @@ export function useSignupForm() {
     error,
     handleNext,
     handleBack,
-    handleSubdomainChange,
     setError,
   };
 }

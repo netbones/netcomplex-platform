@@ -12,7 +12,7 @@ const log = createComponentLogger('runWithRLS');
 
 export type RLSContext = {
   userId: string;
-  tenantId: string;
+  tenantId: string | null;
   role: string;
   isPlatformAdmin: boolean;
 };
@@ -359,7 +359,9 @@ export async function runWithRLS<T>(
       throw err;
     }
     await tx.execute(sql`SELECT set_config('app.user_id', ${ctx.userId}, true)`);
-    await tx.execute(sql`SELECT set_config('app.tenant_id', ${ctx.tenantId}, true)`);
+    if (ctx.tenantId !== null) {
+      await tx.execute(sql`SELECT set_config('app.tenant_id', ${ctx.tenantId}, true)`);
+    }
     await tx.execute(sql`SELECT set_config('app.user_role', ${ctx.role}, true)`);
     await tx.execute(
       sql`SELECT set_config('app.is_platform_admin', ${ctx.isPlatformAdmin ? 'true' : 'false'}, true)`

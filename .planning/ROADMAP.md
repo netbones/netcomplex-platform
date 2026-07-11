@@ -901,7 +901,7 @@ _Features shipping after the anchor tenant launch. Includes platform improvement
 
 **Goal:** Refactor the sign-up flow so no tenant, subdomain, or slug reservation exists until a verified identity is established. Relocate the community-naming wizard behind auth as an authenticated, re-invocable mutation. Eliminate the six failure modes (F1–F6) identified in discovery.
 
-**Status:** Planning Complete — 6 plans created
+**Status:** Complete — 6/6 plans executed
 
 **Source:** ADVISORY-031 — Defer Tenant Provisioning Until Post-Verification (Option C, "defer, don't reserve")
 **BD issue:** soralia-village-bawf (P1, GSD-escalated)
@@ -923,14 +923,14 @@ _Features shipping after the anchor tenant launch. Includes platform improvement
 
 **Plans:**
 
-| #                  | Plan                                                                                                                                                                                                                                              | Description |
+6/6 plans executed
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
-| [ ] 124-01-PLAN.md | `tenantId` nullable: Prisma→Drizzle migration, auth-config (required:false, no default), conditional `user.create.before` hook, bounded consumer audit (compile-clean + targeted inventory + runtime smoke). **Wave 1 — blocks all other plans.** |
-| [ ] 124-02-PLAN.md | Identity-only sign-up: collapse wizard step 1 to name+email+password, `sendOnSignUp: true` + surfaced delivery failures, `crossSubDomainCookies` for `.netbones.co.za`. **Depends on 124-01.**                                                    |
-| [ ] 124-03-PLAN.md | Post-verification null-tenant landing: `/home` route with demo/create-a-community choice; wizard relocated as a re-invocable component (not rebuilt). **Depends on 124-01; gated on G2 (demo path decision).**                                    |
-| [ ] 124-04-PLAN.md | Relocated community-naming wizard: same `useSignupForm` UI, re-served behind auth, exposed from landing + account menu + Setup Center. **Depends on 124-03.**                                                                                     |
-| [ ] 124-05-PLAN.md | Authenticated tenant provisioning: `POST /api/platform/tenants` requires verified session, creates tenant+slug+ADMIN role, runs `initTenantSetup()`. No orphan risk. **Depends on 124-01; gated on G4 (Setup Center entry assumptions).**         |
-| [ ] 124-06-PLAN.md | Cleanup: retire old eager-provisioning path, remove tenant creation from sign-up flow, no reaper/TTL needed. **Wave 5 — runs after 124-02, 124-04, and 124-05 are complete.**                                                                     |
+| [x] 124-01-PLAN.md | `tenantId` nullable: Prisma→Drizzle migration, auth-config (required:false, no default), conditional `user.create.before` hook, bounded consumer audit (compile-clean + targeted inventory + runtime smoke). **Wave 1 — blocks all other plans.** |
+| [x] 124-02-PLAN.md | Identity-only sign-up: collapse wizard step 1 to name+email+password, `sendOnSignUp: true` + surfaced delivery failures, `crossSubDomainCookies` for `.netbones.co.za`. **Depends on 124-01.** |
+| [x] 124-03-PLAN.md | Post-verification null-tenant landing: `/home` route with demo/create-a-community choice; wizard relocated as a re-invocable component (not rebuilt). **Depends on 124-01; gated on G2 (demo path decision).** |
+| [x] 124-04-PLAN.md | Relocated community-naming wizard: same `useSignupForm` UI, re-served behind auth, exposed from landing + account menu + Setup Center. **Depends on 124-03.** |
+| [x] 124-05-PLAN.md | Authenticated tenant provisioning: `POST /api/platform/tenants` requires verified session, creates tenant+slug+ADMIN role, runs `initTenantSetup()`. No orphan risk. **Depends on 124-01; gated on G4 (Setup Center entry assumptions).** |
+| [x] 124-06-PLAN.md | Cleanup: retire old eager-provisioning path, remove tenant creation from sign-up flow, no reaper/TTL needed. **Wave 5 — runs after 124-02, 124-04, and 124-05 are complete.** |
 
 **Decision gates:** G0 (defer direction) ✅ resolved; G1 (tenantId:null) → re-scoped to 124-01 migration; G2 (demo path) → open (124-03 demos card feature-flagged `showDemo=false`); G3 (CTA copy) → resolved (UI-SPEC: "Get Started" is acceptable as-is); G4 (Setup Center entry) → open (124-05 API does not depend on Setup Center entry). See ADVISORY-031 §9 and COMMUNIQUE-12 for full register.
 
@@ -996,6 +996,13 @@ _Features explicitly deferred to post-M5b. The 8 feature items originally in the
 | 3    | [ ] 46.1-04-PLAN.md | Tenant Portal: 3 pages at /tenant/billing (overview, invoices, payment-methods) + 5 UI components + checkout flow                   |
 
 Plans:
+
+- [x] 124-01-PLAN.md
+- [x] 124-02-PLAN.md
+- [x] 124-03-PLAN.md
+- [x] 124-04-PLAN.md
+- [x] 124-05-PLAN.md
+- [x] 124-06-PLAN.md
 
 - [x] 123-01-PLAN.md
 - [x] 123-02-PLAN.md

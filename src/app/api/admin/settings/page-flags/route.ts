@@ -7,12 +7,11 @@ import {
 import {
   getSessionAndRole,
   runWithRLS,
-  getRLSContext,
+  requireTenantRLS,
   apiError,
   apiForbidden,
   apiSuccess,
   apiInternalError,
-  apiUnauthorized,
   writeAuditLog,
   rateLimitByUser,
   CACHE_TAGS,
@@ -28,11 +27,12 @@ const log = createComponentLogger('page-flags-api');
 
 export async function GET(request: NextRequest) {
   try {
-    const ctx = await getRLSContext(request);
-    if (!ctx) return apiUnauthorized();
+    const rls = await requireTenantRLS(request);
+    if (!rls.ok) return rls.response;
+    const { ctx, tenantId } = rls;
 
     return runWithRLS(ctx, async tx => {
-      const flags = await getPlatformPageFlagsWithTx(tx, ctx.tenantId);
+      const flags = await getPlatformPageFlagsWithTx(tx, tenantId);
       return apiSuccess(flags);
     });
   } catch (error) {
@@ -75,8 +75,9 @@ export async function POST(request: NextRequest) {
     });
     if (rateLimit) return rateLimit;
 
-    const ctx = await getRLSContext(request);
-    if (!ctx) return apiUnauthorized();
+    const rls = await requireTenantRLS(request);
+    if (!rls.ok) return rls.response;
+    const { ctx, tenantId } = rls;
 
     const body = await request.json();
     const { key, value } = body as {
@@ -89,9 +90,9 @@ export async function POST(request: NextRequest) {
     }
 
     const result = await runWithRLS(ctx, async tx => {
-      const flags = await getPlatformPageFlagsWithTx(tx, ctx.tenantId);
+      const flags = await getPlatformPageFlagsWithTx(tx, tenantId);
       const oldValue = flags[key] ?? null;
-      const success = await setPlatformPageFlagWithTx(tx, ctx.tenantId, key, value);
+      const success = await setPlatformPageFlagWithTx(tx, tenantId, key, value);
       return { success, oldValue };
     });
 
@@ -99,7 +100,7 @@ export async function POST(request: NextRequest) {
       writeAuditLog({
         action: 'SETTINGS_CHANGED',
         actorId: sessionRole.userId,
-        tenantId: ctx.tenantId,
+        tenantId,
         details: { key, oldValue: result.oldValue, newValue: value, method: 'POST' },
       });
       revalidateTag(CACHE_TAGS.SETTINGS);
@@ -126,13 +127,14 @@ export async function PUT(request: NextRequest) {
     });
     if (rateLimit) return rateLimit;
 
-    const ctx = await getRLSContext(request);
-    if (!ctx) return apiUnauthorized();
+    const rls = await requireTenantRLS(request);
+    if (!rls.ok) return rls.response;
+    const { ctx, tenantId } = rls;
 
     const body = (await request.json()) as Record<string, unknown>;
 
     const { results, changes } = await runWithRLS(ctx, async tx => {
-      const flags = await getPlatformPageFlagsWithTx(tx, ctx.tenantId);
+      const flags = await getPlatformPageFlagsWithTx(tx, tenantId);
       const results: { key: string; success: boolean }[] = [];
       const changes: { key: string; oldValue: unknown; newValue: unknown }[] = [];
 
@@ -144,7 +146,7 @@ export async function PUT(request: NextRequest) {
 
         const success = await setPlatformPageFlagWithTx(
           tx,
-          ctx.tenantId,
+          tenantId,
           key as keyof PlatformPageFlags,
           value as string | boolean | string[]
         );
@@ -165,7 +167,7 @@ export async function PUT(request: NextRequest) {
       writeAuditLog({
         action: 'SETTINGS_CHANGED',
         actorId: sessionRole.userId,
-        tenantId: ctx.tenantId,
+        tenantId,
         details: { ...change, method: 'PUT' },
       });
     }

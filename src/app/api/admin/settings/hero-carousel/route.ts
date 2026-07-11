@@ -9,11 +9,10 @@ import {
 import {
   getSessionAndRole,
   runWithRLS,
-  getRLSContext,
+  requireTenantRLS,
   apiForbidden,
   apiSuccess,
   apiInternalError,
-  apiUnauthorized,
   apiValidationError,
   writeAuditLog,
   rateLimitByUser,
@@ -29,11 +28,12 @@ const log = createComponentLogger('hero-carousel-api');
 
 export async function GET(request: NextRequest) {
   try {
-    const ctx = await getRLSContext(request);
-    if (!ctx) return apiUnauthorized();
+    const rls = await requireTenantRLS(request);
+    if (!rls.ok) return rls.response;
+    const { ctx, tenantId } = rls;
 
     return runWithRLS(ctx, async tx => {
-      const config = await getHeroCarouselConfigWithTx(tx, ctx.tenantId);
+      const config = await getHeroCarouselConfigWithTx(tx, tenantId);
       return apiSuccess(config);
     });
   } catch (error) {
@@ -53,8 +53,9 @@ export async function PUT(request: NextRequest) {
     });
     if (rateLimit) return rateLimit;
 
-    const ctx = await getRLSContext(request);
-    if (!ctx) return apiUnauthorized();
+    const rls = await requireTenantRLS(request);
+    if (!rls.ok) return rls.response;
+    const { ctx, tenantId } = rls;
 
     const rawBody = await request.json();
     const parsed = heroCarouselConfigSchema.safeParse(rawBody);
@@ -67,8 +68,8 @@ export async function PUT(request: NextRequest) {
     const config: HeroCarouselConfig = { ...defaults, ...parsed.data };
 
     const result = await runWithRLS(ctx, async tx => {
-      const oldConfig = await getHeroCarouselConfigWithTx(tx, ctx.tenantId);
-      const success = await upsertHeroCarouselConfig(tx, ctx.tenantId, config);
+      const oldConfig = await getHeroCarouselConfigWithTx(tx, tenantId);
+      const success = await upsertHeroCarouselConfig(tx, tenantId, config);
       return { success, oldConfig };
     });
 
@@ -76,7 +77,7 @@ export async function PUT(request: NextRequest) {
       writeAuditLog({
         action: 'SETTINGS_CHANGED',
         actorId: sessionRole.userId,
-        tenantId: ctx.tenantId,
+        tenantId,
         details: {
           key: 'hero-carousel',
           oldValue: result.oldConfig,

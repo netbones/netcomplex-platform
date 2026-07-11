@@ -3,7 +3,7 @@ import { eq, and, or, isNull, sql } from 'drizzle-orm';
 import {
   getSessionAndRole,
   runWithRLS,
-  getRLSContext,
+  requireTenantRLS,
   apiSuccess,
   apiInternalError,
   apiUnauthorized,
@@ -22,8 +22,9 @@ export async function GET(request: NextRequest) {
     const sessionRole = await getSessionAndRole(request);
     if (!sessionRole) return apiUnauthorized();
 
-    const ctx = await getRLSContext(request);
-    if (!ctx) return apiUnauthorized();
+    const rls = await requireTenantRLS(request);
+    if (!rls.ok) return rls.response;
+    const { ctx, tenantId } = rls;
 
     return runWithRLS(ctx, async tx => {
       const rows = await tx
@@ -44,7 +45,7 @@ export async function GET(request: NextRequest) {
           tenantAchievements,
           and(
             eq(tenantAchievements.definitionId, achievementDefinitions.id),
-            eq(tenantAchievements.tenantId, ctx.tenantId)
+            eq(tenantAchievements.tenantId, tenantId)
           )
         )
         .leftJoin(
@@ -52,7 +53,7 @@ export async function GET(request: NextRequest) {
           and(
             eq(userAchievements.definitionId, achievementDefinitions.id),
             eq(userAchievements.userId, sessionRole.userId),
-            eq(userAchievements.tenantId, ctx.tenantId)
+            eq(userAchievements.tenantId, tenantId)
           )
         )
         .where(or(isNull(tenantAchievements.enabled), eq(tenantAchievements.enabled, true)));

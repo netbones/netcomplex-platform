@@ -3,7 +3,7 @@ import { roleEnum } from './role-enum';
 
 export const users = pgTable('user', {
   id: text('id').primaryKey(),
-  tenantId: text('tenantId').notNull(),
+  tenantId: text('tenantId'),
   email: text('email').notNull(),
   name: text('name').notNull(),
   role: roleEnum('role').default('USER').notNull(),
