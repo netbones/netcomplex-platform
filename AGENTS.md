@@ -607,7 +607,7 @@ deliberately — belt and suspenders.
 - Add relations with @relation
 - Run `npx prisma migrate dev` to evolve the database schema (creates and applies migration)
 - Run `npx prisma generate` after migration to regenerate the Drizzle schema sync
-- **Query layer**: Use Drizzle via `src/lib/db.ts` for all database queries (edge-compatible)
+- **Query layer**: Use Drizzle via `src/shared/api/db.ts` for all database queries (edge-compatible)
 
 ### Migration Status & Ad-Hoc SQL
 
