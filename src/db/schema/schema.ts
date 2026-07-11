@@ -18,6 +18,9 @@ import * as userDevices from './user-devices';
 import * as platformModules from './platform-modules';
 import * as tenantModules from './tenant-modules';
 import * as settings from './settings';
+import * as tenantSetups from './tenant-setups';
+import * as setupMissions from './setup-missions';
+import * as setupSettings from './setup-settings';
 import * as properties from './properties';
 import * as households from './households';
 import * as propertyListings from './property-listings';
@@ -129,6 +132,9 @@ import * as userDevicesRelations from './user-devices-relations';
 import * as platformModulesRelations from './platform-modules-relations';
 import * as tenantModulesRelations from './tenant-modules-relations';
 import * as settingsRelations from './settings-relations';
+import * as tenantSetupsRelations from './tenant-setups-relations';
+import * as setupMissionsRelations from './setup-missions-relations';
+import * as setupSettingsRelations from './setup-settings-relations';
 import * as propertiesRelations from './properties-relations';
 import * as householdsRelations from './households-relations';
 import * as propertyListingsRelations from './property-listings-relations';
@@ -241,6 +247,9 @@ export const schema = {
   ...platformModules,
   ...tenantModules,
   ...settings,
+  ...tenantSetups,
+  ...setupMissions,
+  ...setupSettings,
   ...properties,
   ...households,
   ...propertyListings,
@@ -352,6 +361,9 @@ export const schema = {
   ...platformModulesRelations,
   ...tenantModulesRelations,
   ...settingsRelations,
+  ...tenantSetupsRelations,
+  ...setupMissionsRelations,
+  ...setupSettingsRelations,
   ...propertiesRelations,
   ...householdsRelations,
   ...propertyListingsRelations,

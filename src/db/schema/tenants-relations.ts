@@ -91,6 +91,7 @@ import { tenantSubscriptions } from './tenant-subscriptions';
 import { assistSessions } from './assist-sessions';
 import { tenantAchievements } from './tenant-achievements';
 import { tenantModules } from './tenant-modules';
+import { tenantSetups } from './tenant-setups';
 
 export const tenantsRelations = relations(tenants, helpers => ({
   owner: helpers.one(users, {
@@ -234,4 +235,5 @@ export const tenantsRelations = relations(tenants, helpers => ({
     relationName: 'TenantToTenantAchievement',
   }),
   tenantModules: helpers.many(tenantModules, { relationName: 'TenantToTenantModule' }),
+  tenantSetup: helpers.one(tenantSetups),
 }));
