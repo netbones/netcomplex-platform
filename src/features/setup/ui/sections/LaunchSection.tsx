@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { useAutoSaveSetting } from '../../model/useAutoSaveSetting';
 
 interface LaunchSectionProps {
@@ -211,7 +212,13 @@ export default function LaunchSection({ tenantId }: LaunchSectionProps) {
         <div className="flex items-center gap-3">
           <div className="w-16 h-16 rounded-lg bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden">
             {fields.logoUrl ? (
-              <img src={fields.logoUrl} alt="Logo" className="w-full h-full object-cover" />
+              <Image
+                src={fields.logoUrl}
+                alt="Logo"
+                width={64}
+                height={64}
+                className="w-full h-full object-cover"
+              />
             ) : (
               <span className="text-gray-400 text-xs text-center">No logo</span>
             )}
@@ -322,7 +329,7 @@ export default function LaunchSection({ tenantId }: LaunchSectionProps) {
           placeholder="hello@soralia.co.za"
           fields={fields}
           setFields={setFields}
-          saveSetting={(_, v) => saveSetting('launch.contact', serializeContact(fields))}
+          saveSetting={(_, _v) => saveSetting('launch.contact', serializeContact(fields))}
           isSaving={isSaving}
         />
         <InlineTextInput
@@ -332,7 +339,7 @@ export default function LaunchSection({ tenantId }: LaunchSectionProps) {
           placeholder="+27 11 234 5678"
           fields={fields}
           setFields={setFields}
-          saveSetting={(_, v) => saveSetting('launch.contact', serializeContact(fields))}
+          saveSetting={(_, _v) => saveSetting('launch.contact', serializeContact(fields))}
           isSaving={isSaving}
         />
       </MissionCard>
@@ -398,7 +405,7 @@ export default function LaunchSection({ tenantId }: LaunchSectionProps) {
           placeholder="123 Village Road"
           fields={fields}
           setFields={setFields}
-          saveSetting={(_, v) => saveSetting('launch.address', serializeAddress(fields))}
+          saveSetting={(_, _v) => saveSetting('launch.address', serializeAddress(fields))}
           isSaving={isSaving}
         />
         <InlineTextInput
@@ -408,7 +415,7 @@ export default function LaunchSection({ tenantId }: LaunchSectionProps) {
           placeholder="Johannesburg"
           fields={fields}
           setFields={setFields}
-          saveSetting={(_, v) => saveSetting('launch.address', serializeAddress(fields))}
+          saveSetting={(_, _v) => saveSetting('launch.address', serializeAddress(fields))}
           isSaving={isSaving}
         />
         <InlineTextInput
@@ -418,7 +425,7 @@ export default function LaunchSection({ tenantId }: LaunchSectionProps) {
           placeholder="Gauteng"
           fields={fields}
           setFields={setFields}
-          saveSetting={(_, v) => saveSetting('launch.address', serializeAddress(fields))}
+          saveSetting={(_, _v) => saveSetting('launch.address', serializeAddress(fields))}
           isSaving={isSaving}
         />
         <InlineTextInput
@@ -428,7 +435,7 @@ export default function LaunchSection({ tenantId }: LaunchSectionProps) {
           placeholder="2000"
           fields={fields}
           setFields={setFields}
-          saveSetting={(_, v) => saveSetting('launch.address', serializeAddress(fields))}
+          saveSetting={(_, _v) => saveSetting('launch.address', serializeAddress(fields))}
           isSaving={isSaving}
         />
       </MissionCard>

@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import type { TierLevel } from '@/entities/tenant';
 import type { TenantSetup, SetupMission } from '@/entities/setup';
-import { getRecommendations, type RecommendedMission } from '../../model/recommendations';
+import { getRecommendations } from '../../model/recommendations';
 
 interface GrowSectionProps {
   tenantId: string;

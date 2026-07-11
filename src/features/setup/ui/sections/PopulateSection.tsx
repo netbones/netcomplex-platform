@@ -54,7 +54,7 @@ function MissionCard({
   );
 }
 
-export default function PopulateSection({ tenantId }: PopulateSectionProps) {
+export default function PopulateSection({ tenantId: _tenantId }: PopulateSectionProps) {
   // ── 1. Invite Board Members ────────────────────────────────────
   const [boardEmail, setBoardEmail] = useState('');
   const [boardRole, setBoardRole] = useState('BOARD');

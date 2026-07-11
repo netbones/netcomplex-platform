@@ -111,12 +111,6 @@ function buildRequest(method: string, url: string, body?: unknown): Request {
 }
 
 const OWNER_TENANT = { ownerId: 'user-1' };
-const SETUP_ROW = {
-  id: 'setup-1',
-  tenantId: 'tenant-1',
-  completionPercent: 50,
-  completedSections: [],
-};
 
 // ── Tests ───────────────────────────────────────────────────────────────
 

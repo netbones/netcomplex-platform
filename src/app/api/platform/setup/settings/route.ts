@@ -12,7 +12,7 @@ import {
   withErrorHandler,
 } from '@api/server';
 
-import { eq, and } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { upsertSetupSetting } from '@entities/setup/server';
 

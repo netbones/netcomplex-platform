@@ -38,7 +38,7 @@ interface SetupResponse {
  * Provides server-state for the full setup progress view plus mutations
  * to toggle mission completion and update settings.
  */
-export function useSetupProgress(tenantId: string, initial?: SetupData | null) {
+export function useSetupProgress(tenantId: string, _initial?: SetupData | null) {
   const queryClient = useQueryClient();
 
   const {

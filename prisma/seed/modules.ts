@@ -1,4 +1,6 @@
-import { PrismaClient, type Tier } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
+
+type Tier = 'STANDARD' | 'PREMIUM' | 'ENTERPRISE';
 
 const prisma = new PrismaClient();
 
