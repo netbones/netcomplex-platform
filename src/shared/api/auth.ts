@@ -165,6 +165,12 @@ export const auth = betterAuth({
         defaultValue: 'USER',
         input: false, // Role is managed by admins, not settable during signup
       },
+      isPlatformAdmin: {
+        type: 'boolean',
+        required: false,
+        defaultValue: false,
+        input: false, // Managed by platform, not settable by users
+      },
     },
   },
   plugins: [

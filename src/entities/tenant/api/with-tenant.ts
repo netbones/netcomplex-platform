@@ -1,7 +1,6 @@
 import 'server-only';
 
-import { auth, db, users } from '@api/server';
-import { eq } from 'drizzle-orm';
+import { auth } from '@api/server';
 import { headers } from 'next/headers';
 import { resolveTenantFromRequestHeaders } from './base';
 
@@ -22,13 +21,8 @@ async function assertSessionTenantMatch(
   const session = await auth.api.getSession({ headers: headersList });
   if (!session?.user?.id) return;
 
-  const [user] = await db
-    .select({ tenantId: users.tenantId, isPlatformAdmin: users.isPlatformAdmin })
-    .from(users)
-    .where(eq(users.id, session.user.id))
-    .limit(1);
-
-  if (!user?.tenantId || user.isPlatformAdmin) return;
+  const user = session.user as { tenantId?: string | null; isPlatformAdmin?: boolean };
+  if (!user.tenantId || user.isPlatformAdmin) return;
   if (user.tenantId !== resolvedTenantId) throw new TenantMismatchError();
 }
 
