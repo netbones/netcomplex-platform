@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useSafeTranslation } from '@shared/lib';
 import { useLocalStorage } from 'usehooks-ts';
+import { authClient } from '@api/client';
 import { ServicesCommandBar, type ServicesCommandBarUrgency } from './ServicesCommandBar';
 import { SERVICES_DOMAIN_DEFINITIONS, type ServicesDomainDef } from './ServicesSubLauncher';
 
@@ -33,8 +34,14 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.descriptions.marketplace': 'Browse and book community service providers',
   'domains.education': 'Education Portal',
   'domains.descriptions.education': 'Bursaries, scholarships, and free learning resources',
-  'domains.disputes': 'Disputes',
-  'domains.descriptions.disputes': 'File and track community disputes',
+  'domains.directory': 'Directory',
+  'domains.descriptions.directory': 'Find and connect with neighbours',
+  'domains.groups': 'Groups',
+  'domains.descriptions.groups': 'Join community groups and committees',
+  'domains.resources': 'Resources',
+  'domains.descriptions.resources': 'Community documents and guidelines',
+  'domains.conservation': 'Conservation',
+  'domains.descriptions.conservation': 'Sustainability and conservation initiatives',
 };
 
 // ═══════════════════════════════════════════════════════════════
@@ -91,7 +98,7 @@ function ServicesLayerSkeleton() {
     <div className="p-6 max-w-5xl mx-auto space-y-6 animate-pulse">
       {/* CommandBar skeleton */}
       <div className="bg-white rounded-lg border border-gray-200 p-4 h-24" />
-      {/* Service Areas skeleton */}
+      {/* Core Services skeleton */}
       <div>
         <div className="h-6 bg-gray-200 rounded w-32 mb-3" />
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
@@ -100,20 +107,31 @@ function ServicesLayerSkeleton() {
           ))}
         </div>
       </div>
-      {/* Competitions & Surveys skeleton */}
+      {/* Community & Engagement skeleton */}
       <div>
         <div className="h-6 bg-gray-200 rounded w-48 mb-3" />
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-          {Array.from({ length: 2 }).map((_, i) => (
+          {Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className="bg-gray-100 rounded-lg h-20" />
           ))}
         </div>
       </div>
-      {/* My Learning skeleton */}
+      {/* Learning & Growth skeleton */}
       <div>
-        <div className="h-6 bg-gray-200 rounded w-28 mb-3" />
+        <div className="h-6 bg-gray-200 rounded w-36 mb-3" />
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-          <div className="bg-gray-100 rounded-lg h-20" />
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="bg-gray-100 rounded-lg h-20" />
+          ))}
+        </div>
+      </div>
+      {/* Finance & Markets skeleton */}
+      <div>
+        <div className="h-6 bg-gray-200 rounded w-36 mb-3" />
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <div key={i} className="bg-gray-100 rounded-lg h-20" />
+          ))}
         </div>
       </div>
     </div>
@@ -147,6 +165,8 @@ export function ServicesLayer() {
   const [urgency, setUrgency] = useState<UrgencyResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const { data: session } = authClient.useSession();
+  const role = session?.user?.role;
 
   const fetchUrgency = useCallback(async () => {
     setLoading(true);
@@ -177,16 +197,45 @@ export function ServicesLayer() {
     return <ServicesLayerSkeleton />;
   }
 
-  const serviceDomains = SERVICES_DOMAIN_DEFINITIONS.filter(
-    d => d.id !== 'surveys' && d.id !== 'competitions' && d.id !== 'marketplace'
-  );
-  const engagementDomains = SERVICES_DOMAIN_DEFINITIONS.filter(
-    d => d.id === 'surveys' || d.id === 'competitions'
-  );
+  const isAdmin = role === 'ADMIN' || role === 'BOARD';
+
+  const coreDomainIds = ['maintenance', 'bookings', 'amenities', 'my-services', 'events'];
+  const engagementDomainIds = ['competitions', 'surveys', 'communication'];
+
+  function ServiceLinkCard({
+    href,
+    icon,
+    label,
+    description,
+  }: {
+    href: string;
+    icon: string;
+    label: string;
+    description: string;
+  }) {
+    return (
+      <Link
+        href={href}
+        className="group relative flex items-start gap-3 p-3 bg-white rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md transition-all border border-gray-100"
+      >
+        <div className="flex-shrink-0 w-10 h-10 relative">
+          <Image src={icon} alt="" fill className="w-full h-full" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition truncate">
+            {tx(label, DOMAIN_FALLBACKS[label] || label)}
+          </h3>
+          <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">
+            {tx(description, DOMAIN_FALLBACKS[description] || description)}
+          </p>
+        </div>
+      </Link>
+    );
+  }
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
-      {/* Section: Command Bar (reactive CTAs + creation shortcuts) */}
+      {/* Command Bar */}
       <section aria-label="Services command bar">
         <ServicesCommandBar
           urgency={urgency.commandBar}
@@ -195,13 +244,13 @@ export function ServicesLayer() {
         />
       </section>
 
-      {/* Section: Service Areas */}
-      <section aria-label="Service areas">
+      {/* Row 1: Core Services */}
+      <section aria-label="Core services">
         <h2 className="text-lg font-semibold text-gray-900 mb-3">
-          {tx('sections.serviceAreas', 'Service Areas')}
+          {tx('sections.coreServices', 'Core Services')}
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-          {serviceDomains.map(domain => (
+          {SERVICES_DOMAIN_DEFINITIONS.filter(d => coreDomainIds.includes(d.id)).map(domain => (
             <DomainCard
               key={domain.id}
               domain={domain}
@@ -211,88 +260,83 @@ export function ServicesLayer() {
         </div>
       </section>
 
-      {/* Section: Competitions, Surveys & Campaigns */}
-      <section aria-label="Competitions, surveys and campaigns">
+      {/* Row 2: Community & Engagement */}
+      <section aria-label="Community and engagement">
         <h2 className="text-lg font-semibold text-gray-900 mb-3">
-          {tx('sections.competitionsAndSurveys', 'Competitions & Surveys')}
+          {tx('sections.communityEngagement', 'Community & Engagement')}
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-          {engagementDomains.map(domain => (
-            <DomainCard
-              key={domain.id}
-              domain={domain}
-              badge={urgency.domainBadges[domain.id] ?? 0}
+          <ServiceLinkCard
+            href="/directory"
+            icon="/platform/users.svg"
+            label="domains.directory"
+            description="domains.descriptions.directory"
+          />
+          <ServiceLinkCard
+            href="/groups"
+            icon="/platform/teams-nc.svg"
+            label="domains.groups"
+            description="domains.descriptions.groups"
+          />
+          {SERVICES_DOMAIN_DEFINITIONS.filter(d => engagementDomainIds.includes(d.id)).map(
+            domain => (
+              <DomainCard
+                key={domain.id}
+                domain={domain}
+                badge={urgency.domainBadges[domain.id] ?? 0}
+              />
+            )
+          )}
+          {isAdmin && (
+            <ServiceLinkCard
+              href="/admin/groups"
+              icon="/platform/system.svg"
+              label="Group Admin"
+              description="Manage community groups"
             />
-          ))}
-          <Link
-            href="/campaign"
-            className="group relative flex items-start gap-3 p-3 bg-white rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md transition-all border border-gray-100"
-          >
-            <div className="flex-shrink-0 w-10 h-10 relative">
-              <Image src="/platform/campaigns.svg" alt="" fill className="w-full h-full" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition truncate">
-                {tx('campaigns.title', 'Campaigns')}
-              </h3>
-              <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">
-                {tx('campaigns.description', 'Community pride campaigns and initiatives')}
-              </p>
-            </div>
-          </Link>
+          )}
         </div>
       </section>
 
-      {/* Section: My Learning */}
-      <section aria-label="My Learning">
+      {/* Row 3: Learning & Growth */}
+      <section aria-label="Learning and growth">
         <h2 className="text-lg font-semibold text-gray-900 mb-3">
-          {tx('sections.myLearning', 'My Learning')}
+          {tx('sections.learningGrowth', 'Learning & Growth')}
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-          <Link
+          <ServiceLinkCard
             href="/education"
-            className="group relative flex items-start gap-3 p-3 bg-white rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md transition-all border border-gray-100"
-          >
-            <div className="flex-shrink-0 w-10 h-10 relative">
-              <Image src="/platform/education-red.svg" alt="" fill className="w-full h-full" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition truncate">
-                {tx('domains.education', 'Education Portal')}
-              </h3>
-              <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">
-                {tx(
-                  'domains.descriptions.education',
-                  'Bursaries, scholarships, and free learning resources'
-                )}
-              </p>
-            </div>
-          </Link>
+            icon="/platform/education-red.svg"
+            label="domains.education"
+            description="domains.descriptions.education"
+          />
+          <ServiceLinkCard
+            href="/resources"
+            icon="/platform/resources.svg"
+            label="domains.resources"
+            description="domains.descriptions.resources"
+          />
+          <ServiceLinkCard
+            href="/conservation"
+            icon="/platform/merits.svg"
+            label="domains.conservation"
+            description="domains.descriptions.conservation"
+          />
         </div>
       </section>
 
-      {/* Section: Finance & Markets */}
-      <section aria-label="Finance & Markets">
+      {/* Row 4: Finance & Markets */}
+      <section aria-label="Finance and markets">
         <h2 className="text-lg font-semibold text-gray-900 mb-3">
           {tx('sections.financeAndMarkets', 'Finance & Markets')}
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-          <Link
+          <ServiceLinkCard
             href="/dashboard/wallet"
-            className="group relative flex items-start gap-3 p-3 bg-white rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md transition-all border border-gray-100"
-          >
-            <div className="flex-shrink-0 w-10 h-10 relative">
-              <Image src="/platform/wallet-red.svg" alt="" fill className="w-full h-full" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition truncate">
-                dWallet
-              </h3>
-              <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">
-                {tx('dWallet.subheading', 'Your data, your consent, your rewards')}
-              </p>
-            </div>
-          </Link>
+            icon="/platform/wallet-red.svg"
+            label="dWallet"
+            description="dWallet.subheading"
+          />
           {SERVICES_DOMAIN_DEFINITIONS.filter(d => d.id === 'marketplace').map(domain => (
             <DomainCard
               key={domain.id}
@@ -303,28 +347,18 @@ export function ServicesLayer() {
         </div>
       </section>
 
-      {/* Section: Settings */}
+      {/* Settings */}
       <section aria-label="Settings">
         <h2 className="text-lg font-semibold text-gray-900 mb-3">
           {tx('settings.title', 'Settings')}
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-          <Link
+          <ServiceLinkCard
             href="/profile"
-            className="group relative flex items-start gap-3 p-3 bg-white rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md transition-all border border-gray-100"
-          >
-            <div className="flex-shrink-0 w-10 h-10 relative">
-              <Image src="/platform/settings.svg" alt="" fill className="w-full h-full" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition truncate">
-                {tx('settings.title', 'Settings')}
-              </h3>
-              <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">
-                {tx('settings.description', 'Manage your account, privacy, and preferences')}
-              </p>
-            </div>
-          </Link>
+            icon="/platform/settings.svg"
+            label="settings.title"
+            description="settings.description"
+          />
         </div>
       </section>
     </div>

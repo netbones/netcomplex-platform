@@ -103,4 +103,32 @@ export const SERVICES_DOMAIN_DEFINITIONS: ServicesDomainDef[] = [
     icon: '/platform/education-red.svg',
     description: 'Bursaries, scholarships, and free learning resources',
   },
+  {
+    id: 'directory',
+    labelKey: 'domains.directory',
+    descriptionKey: 'domains.descriptions.directory',
+    icon: '/platform/users.svg',
+    description: 'Find and connect with neighbours',
+  },
+  {
+    id: 'groups',
+    labelKey: 'domains.groups',
+    descriptionKey: 'domains.descriptions.groups',
+    icon: '/platform/teams-nc.svg',
+    description: 'Join community groups and committees',
+  },
+  {
+    id: 'resources',
+    labelKey: 'domains.resources',
+    descriptionKey: 'domains.descriptions.resources',
+    icon: '/platform/resources.svg',
+    description: 'Community documents and guidelines',
+  },
+  {
+    id: 'conservation',
+    labelKey: 'domains.conservation',
+    descriptionKey: 'domains.descriptions.conservation',
+    icon: '/platform/merits.svg',
+    description: 'Sustainability and conservation initiatives',
+  },
 ];
