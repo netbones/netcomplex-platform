@@ -300,12 +300,20 @@ export function ServicesLayer() {
             )
           )}
           {isAdmin && (
-            <ServiceLinkCard
+            <Link
               href="/admin/groups"
-              icon="/platform/system.svg"
-              label="Group Admin"
-              description="Manage community groups"
-            />
+              className="group relative flex items-start gap-3 p-3 bg-white rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md transition-all border border-gray-100"
+            >
+              <div className="flex-shrink-0 w-10 h-10 relative">
+                <Image src="/platform/system.svg" alt="" fill className="w-full h-full" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition truncate">
+                  Group Admin
+                </h3>
+                <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">Manage community groups</p>
+              </div>
+            </Link>
           )}
         </div>
       </section>
@@ -330,7 +338,7 @@ export function ServicesLayer() {
           />
           <ServiceLinkCard
             href="/conservation"
-            icon="/platform/merits.svg"
+            icon="/platform/conservation.svg"
             label="domains.conservation"
             description="domains.descriptions.conservation"
           />
@@ -343,12 +351,22 @@ export function ServicesLayer() {
           {tx('sections.financeAndMarkets', 'Finance & Markets')}
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-          <ServiceLinkCard
+          <Link
             href="/dashboard/wallet"
-            icon="/platform/wallet-red.svg"
-            label="dWallet"
-            description="dWallet.subheading"
-          />
+            className="group relative flex items-start gap-3 p-3 bg-white rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md transition-all border border-gray-100"
+          >
+            <div className="flex-shrink-0 w-10 h-10 relative">
+              <Image src="/platform/wallet-red.svg" alt="" fill className="w-full h-full" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition truncate">
+                dWallet
+              </h3>
+              <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">
+                {tx('dWallet.subheading', 'Your data, your consent, your rewards')}
+              </p>
+            </div>
+          </Link>
           {SERVICES_DOMAIN_DEFINITIONS.filter(d => d.id === 'marketplace').map(domain => (
             <DomainCard
               key={domain.id}
