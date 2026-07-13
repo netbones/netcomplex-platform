@@ -622,7 +622,9 @@ export function HomeLayer() {
 
   return (
     <div>
-      {tenant?.id && <SetupProgressCard tenantId={tenant.id} />}
+      {tenant?.id && (role === 'ADMIN' || role === 'BOARD') && (
+        <SetupProgressCard tenantId={tenant.id} />
+      )}
       <UrgencyZone
         urgentAnnouncements={data.urgentAnnouncements}
         overdueMaintenance={data.overdueMaintenance}

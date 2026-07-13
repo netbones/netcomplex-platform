@@ -34,7 +34,7 @@ export const GET = withErrorHandler(async (request: Request) => {
     return apiError('AUTH_REQUIRED', 'Authentication required', 401);
   }
 
-  // Tenant-scoped auth: user must be the tenant owner
+  // Tenant-scoped auth: user must be the tenant owner, a platform admin, or a tenant ADMIN
   const tenant = await db
     .select({ ownerId: tenants.ownerId })
     .from(tenants)
@@ -45,7 +45,12 @@ export const GET = withErrorHandler(async (request: Request) => {
     return apiNotFound('Tenant not found');
   }
 
-  if (session.user.id !== tenant[0].ownerId) {
+  const user = session.user as { id: string; role?: string; isPlatformAdmin?: boolean };
+  const isOwner = tenant[0].ownerId != null && user.id === tenant[0].ownerId;
+  const isTenantAdmin = user.role === 'ADMIN' || user.role === 'BOARD';
+  const isPlatformAdmin = user.isPlatformAdmin === true;
+
+  if (!isOwner && !isTenantAdmin && !isPlatformAdmin) {
     return apiForbidden('You do not have access to this tenant');
   }
 
