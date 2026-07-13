@@ -2,6 +2,7 @@ import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from '@better-auth/drizzle-adapter';
 import { twoFactor, organization, bearer, emailOTP, admin } from 'better-auth/plugins';
 import { passkey } from '@better-auth/passkey';
+import { nextCookies } from 'better-auth/next-js';
 import {
   db,
   authDb,
@@ -207,16 +208,24 @@ export const auth = betterAuth({
       { path: '/reset-password', schema: resetPasswordSchema },
       { path: '/email-otp/send-verification-otp', schema: sendOtpSchema },
     ]),
+    nextCookies(), // must be last in plugins array to capture all Set-Cookie headers
   ],
   advanced: {
     cookiePrefix: tenantConfig.auth.cookiePrefix,
-    crossSubDomainCookies: {
-      enabled: true,
-      domain: 'netbones.co.za',
-    },
+    // Cross-subdomain cookies only work on *.netbones.co.za — on localhost
+    // the Domain attribute causes the browser to silently reject Set-Cookie
+    // headers, making every subsequent request unauthenticated (401).
+    crossSubDomainCookies:
+      process.env.NODE_ENV === 'production'
+        ? { enabled: true, domain: 'netbones.co.za' }
+        : { enabled: false },
   },
   baseURL: {
     allowedHosts: tenantConfig.auth.allowedHosts,
+    fallback:
+      process.env.BETTER_AUTH_URL ||
+      process.env.NEXT_PUBLIC_BETTER_AUTH_URL ||
+      'http://localhost:3000',
   },
   trustedOrigins: [
     process.env.BETTER_AUTH_URL || 'http://localhost:3000',
