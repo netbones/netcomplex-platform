@@ -42,6 +42,11 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.descriptions.resources': 'Community documents and guidelines',
   'domains.conservation': 'Conservation',
   'domains.descriptions.conservation': 'Sustainability and conservation initiatives',
+  dWallet: 'dWallet',
+  'dWallet.subheading': 'Your data, your consent, your rewards',
+  'settings.title': 'Settings',
+  'settings.description': 'Manage your account, privacy, and preferences',
+  'Group Admin': 'Group Admin',
 };
 
 // ═══════════════════════════════════════════════════════════════
