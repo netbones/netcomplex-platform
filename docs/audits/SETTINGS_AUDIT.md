@@ -118,7 +118,7 @@ Research Report: System-Level Settings, Analytics, and Configuration
 - UI: PageSettingsWidget — admin UI with toggle switches
   B. Tenant Subscription Feature Registry (tier-based)
 - Registry: /home/ubuntupunk/Projects/soralia-village/src/entities/tenant/api/features/registry.ts (lines 1-514)
-- FEATURE_REGISTRY (line 43): 24 features across categories page/feature/widget, tiers: foundation/depth/core
+- FEATURE_REGISTRY (line 43): 24 features across categories page/feature/widget, tiers: foundation/core/pro-max
 - WIDGET_REGISTRY (line 262): 22 widgets across categories community/admin/marketplace/utility
 - An analytics-widget (line 372) exists in the widget registry at tier core, but has NO registered widget implementation in widgets.ts
 - No analytics page, route, or component currently exists

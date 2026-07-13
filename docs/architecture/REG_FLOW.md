@@ -115,7 +115,7 @@ autoSignInAfterVerification: true
   ├─ Step 1: Community Details
   │   ├─ Community Name (e.g., "Soralia Village HOA")
   │   ├─ Subdomain (e.g., "soralia" → soralia.netbones.co.za)
-  │   └─ Plan selection (foundation/depth/core)
+  │   └─ Plan selection (foundation/core/pro-max)
   │
   ├─ Step 2: Admin Personal Details
   │   ├─ First Name, Last Name

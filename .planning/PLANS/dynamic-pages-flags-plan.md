@@ -1017,7 +1017,7 @@ Component requests /api/flags
 ### Tenant Onboarding Integration
 ```
 
-1. Tenant chooses tier (Foundation/Depth/Core)
+1. Tenant chooses tier (Foundation/Core/Pro-Max)
 2. Tier modules → tenant.modules (existing)
 3. Default page toggles → settings table (NEW)
 4. tenant.settings['page_campaign_enabled'] = true (from tier defaults)

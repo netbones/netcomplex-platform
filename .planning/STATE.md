@@ -42,7 +42,7 @@ Phase: 124 (onboarding-defer-provisioning) — COMPLETE (6/6 plans executed)
   - [x] [Phase 41]: Module key as canonical FeatureKey namespace (most stable of the three systems' key formats)
 
 - [x] [Phase 41]: Role as Layer 0 (prerequisite) — runs before tier; synchronous in-memory lookup against ROLE_PERMISSIONS
-- [x] [Phase 41]: Two-tier-system bridge — server uses TenantTier (STANDARD/PREMIUM/ENTERPRISE), client uses TierLevel (foundation/depth/core); conversion via tenantTierToTierLevel() helper
+- [x] [Phase 41]: Two-tier-system bridge — server uses TenantTier (STANDARD/PREMIUM/ENTERPRISE), client uses TierLevel (foundation/core/pro-max); conversion via tenantTierToTierLevel() helper
 - [x] [Phase 41]: Explicit null values in mapping tables (load-bearing — documents "no gate at this layer")
 - [x] [Phase 41]: Client skips Module layer check (server is source of truth; client relies on server 403 + Flag layer)
 - [x] [Phase 41]: Phase 1 is purely additive — no existing callsites change; CI test prevents future drift

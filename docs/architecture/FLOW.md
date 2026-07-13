@@ -10,7 +10,7 @@ Post-Registration Actions
   Step 1: Community Details
 - Community Name (e.g., "Soralia Village HOA")
 - Subdomain (e.g., "soralia" -> soralia.netbones.co.za)
-- Plan selection (foundation/depth/core) - fetched from GET /api/pricing
+- Plan selection (foundation/core/pro-max) - fetched from GET /api/pricing
   Step 2: Admin Personal Details
 - First Name, Last Name
 - Email Address
@@ -104,7 +104,7 @@ Post-Registration Actions
 - id: UUID
 - name: Community name
 - slug: Subdomain
-- subscriptionTier: Selected plan (foundation/depth/core)
+- subscriptionTier: Selected plan (foundation/core/pro-max)
 - tier: STANDARD (default)
 - maxPages: Based on tier config
 - pageCount: 0
@@ -140,7 +140,7 @@ Post-Registration Actions
 - Schema: signupSchema in /home/ubuntupunk/Projects/soralia-village/src/shared/api/schemas.ts
 - Subdomain validation: lowercase alphanumeric + hyphens, 3-50 chars
 - Password: min 8 chars, uppercase, lowercase, number required
-- Plan: enum 'foundation', 'depth', 'core'
+- Plan: enum 'foundation', 'core', 'pro-max'
   Purpose: New tenant administrators configure their community after signup.
   Step 1: Branding (NOT skippable)
 - Logo upload (PNG/JPEG, max 2MB)

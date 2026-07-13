@@ -46,8 +46,8 @@ export interface RecommendationInput {
 
 const TIER_INDEX: Record<TierLevel, number> = {
   foundation: 0,
-  depth: 1,
-  core: 2,
+  core: 1,
+  'pro-max': 2,
 };
 
 function meetsTierThreshold(tenantTier: TierLevel, requiredTier: TierLevel): boolean {
@@ -177,7 +177,7 @@ const CATALOG: RecommendationDef[] = [
     estimatedTime: '5 min',
     benefits: ['Facility reservations', 'Time-slot management', 'Revenue from bookings'],
     basePriority: 11,
-    minTier: 'depth',
+    minTier: 'core',
     predicate: input =>
       isModuleEnabled(input.settings, 'bookings') &&
       !isMissionCompleted(input.missions, 'configure.bookings'),
@@ -189,7 +189,7 @@ const CATALOG: RecommendationDef[] = [
     estimatedTime: '4 min',
     benefits: ['Data revenue sharing', 'Community value distribution'],
     basePriority: 12,
-    minTier: 'depth',
+    minTier: 'core',
     predicate: input =>
       isModuleEnabled(input.settings, 'dwallet') &&
       !isRevenueStreamSeeded(input.settings) &&
@@ -202,7 +202,7 @@ const CATALOG: RecommendationDef[] = [
     estimatedTime: '3 min',
     benefits: ['Resident feedback', 'Community insights', 'Data-driven decisions'],
     basePriority: 13,
-    minTier: 'depth',
+    minTier: 'core',
     predicate: input =>
       isModuleEnabled(input.settings, 'surveys') &&
       !isMissionCompleted(input.missions, 'grow.surveys'),
@@ -214,7 +214,7 @@ const CATALOG: RecommendationDef[] = [
     estimatedTime: '4 min',
     benefits: ['Community engagement', 'Leaderboards', 'Friendly competition'],
     basePriority: 14,
-    minTier: 'depth',
+    minTier: 'core',
     predicate: input =>
       isModuleEnabled(input.settings, 'competitions') &&
       !isMissionCompleted(input.missions, 'configure.competitions'),
@@ -226,7 +226,7 @@ const CATALOG: RecommendationDef[] = [
     estimatedTime: '5 min',
     benefits: ['Recognition system', 'Resident engagement', 'Milestone tracking'],
     basePriority: 15,
-    minTier: 'depth',
+    minTier: 'core',
     predicate: input =>
       isModuleEnabled(input.settings, 'achievements') &&
       !isMissionCompleted(input.missions, 'configure.achievements'),
@@ -238,7 +238,7 @@ const CATALOG: RecommendationDef[] = [
     estimatedTime: '4 min',
     benefits: ['Local economy', 'Service discovery', 'Resident entrepreneurship'],
     basePriority: 16,
-    minTier: 'depth',
+    minTier: 'core',
     predicate: input =>
       isModuleEnabled(input.settings, 'marketplace') &&
       !isMissionCompleted(input.missions, 'grow.marketplace'),
