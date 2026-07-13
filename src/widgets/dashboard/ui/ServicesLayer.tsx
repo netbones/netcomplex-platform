@@ -204,7 +204,14 @@ export function ServicesLayer() {
 
   const isAdmin = role === 'ADMIN' || role === 'BOARD';
 
-  const coreDomainIds = ['maintenance', 'bookings', 'amenities', 'my-services', 'events'];
+  const coreDomainIds = [
+    'maintenance',
+    'bookings',
+    'amenities',
+    'my-services',
+    'events',
+    'disputes',
+  ];
   const engagementDomainIds = ['competitions', 'surveys', 'communication'];
 
   function ServiceLinkCard({
