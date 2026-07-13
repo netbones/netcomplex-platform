@@ -3,7 +3,16 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { authClient } from '@api/client';
-import { AlertTriangle, Calendar, Bell, Wrench, Activity, Megaphone, Clock } from 'lucide-react';
+import {
+  AlertTriangle,
+  Calendar,
+  Bell,
+  Wrench,
+  Activity,
+  Megaphone,
+  Clock,
+  ChevronRight,
+} from 'lucide-react';
 import { getLocalizedValue } from '@shared/lib/i18n/config';
 import { useLanguage } from '@shared/lib/hooks/useSafeTranslation';
 import { useTenant } from '@entities/tenant';
@@ -34,6 +43,8 @@ const BADGE_STYLES: Record<string, string> = {
   Event: 'text-green-700 bg-green-100',
   Booking: 'text-blue-700 bg-blue-100',
   Message: 'text-indigo-700 bg-indigo-100',
+  News: 'text-sky-700 bg-sky-100',
+  Blog: 'text-teal-700 bg-teal-100',
 };
 
 const ROW_TINT: Record<string, string> = {
@@ -42,6 +53,8 @@ const ROW_TINT: Record<string, string> = {
   Event: 'bg-green-50',
   Booking: 'bg-blue-50',
   Message: 'bg-indigo-50',
+  News: 'bg-sky-50',
+  Blog: 'bg-teal-50',
 };
 
 interface Announcement {
@@ -49,6 +62,7 @@ interface Announcement {
   title: string | Record<string, unknown>;
   priority: string;
   createdAt: string;
+  content?: string;
 }
 
 function resolveTitle(title: Announcement['title'], locale: string): string {
@@ -94,6 +108,7 @@ interface ActivityItem {
   type: string;
   createdAt: string;
   summary?: string;
+  content?: string;
 }
 
 interface HomeLayerData {
@@ -311,6 +326,19 @@ function ActivityZone({
   language: string;
 }) {
   const hasItems = recentActivity.length > 0 || communityAnnouncements.length > 0;
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+
+  const toggleExpand = (id: string) => {
+    setExpandedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
 
   return (
     <section aria-label="Recent activity" className="mb-6">
@@ -323,23 +351,20 @@ function ActivityZone({
           {communityAnnouncements.map(a => (
             <ActivityCard
               key={a.id}
-              href={`/news#announcement-${a.id}`}
+              id={a.id}
               icon={<Megaphone className="w-4 h-4 text-purple-500" />}
               title={resolveTitle(a.title, language)}
               date={a.createdAt}
               type="Announcement"
+              content={a.content}
+              expanded={expandedIds.has(a.id)}
+              onToggle={() => toggleExpand(a.id)}
             />
           ))}
           {recentActivity.map(a => (
             <ActivityCard
               key={a.id}
-              href={
-                a.type === 'Maintenance'
-                  ? `/dashboard/services/maintenance?id=${a.id}`
-                  : a.type === 'Announcement'
-                    ? `/news#announcement-${a.id}`
-                    : '/dashboard/community'
-              }
+              id={a.id}
               icon={
                 a.type === 'Maintenance' ? (
                   <Wrench className="w-4 h-4 text-indigo-500" />
@@ -350,6 +375,9 @@ function ActivityZone({
               title={a.title}
               date={a.createdAt}
               type={a.type}
+              content={a.content}
+              expanded={expandedIds.has(a.id)}
+              onToggle={() => toggleExpand(a.id)}
             />
           ))}
         </div>
@@ -362,37 +390,100 @@ function ActivityZone({
   );
 }
 
+function getActivityHref(id: string, type: string): string | null {
+  switch (type) {
+    case 'Maintenance':
+      return `/dashboard/services/maintenance?id=${id}`;
+    case 'News':
+    case 'Blog':
+      return `/news/${id}`;
+    case 'Announcement':
+      // Announcements expand inline — no navigation href
+      return null;
+    default:
+      return '/dashboard/community';
+  }
+}
+
 function ActivityCard({
-  href,
+  id,
   icon,
   title,
   date,
   type,
+  content,
+  expanded,
+  onToggle,
 }: {
-  href: string;
+  id: string;
   icon: React.ReactNode;
   title: string;
   date: string;
   type: string;
+  content?: string;
+  expanded: boolean;
+  onToggle: () => void;
 }) {
   const timeAgo = formatTimeAgo(date);
+  const href = getActivityHref(id, type);
+  const isExpandable = type === 'Announcement' && content;
 
-  return (
-    <Link
-      href={href}
-      className={`flex items-center gap-3 p-3 rounded-lg shadow-sm hover:brightness-95 transition ${ROW_TINT[type] ?? 'bg-white'}`}
-    >
-      {icon}
+  const contentPreview = content
+    ? content.length > 200
+      ? content.slice(0, 200) + '…'
+      : content
+    : null;
+
+  const rowClass = `flex items-start gap-3 p-3 rounded-lg shadow-sm transition cursor-pointer ${
+    ROW_TINT[type] ?? 'bg-white'
+  } hover:brightness-95`;
+
+  const inner = (
+    <>
+      <div className="flex-shrink-0 mt-0.5">{icon}</div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-gray-900 truncate">{title}</p>
         <p className="text-xs text-gray-500">{timeAgo}</p>
+        {expanded && contentPreview && (
+          <p className="text-sm text-gray-700 mt-2 leading-relaxed">{contentPreview}</p>
+        )}
       </div>
       <span
-        className={`text-xs px-2 py-0.5 rounded-full ${BADGE_STYLES[type] ?? 'text-gray-400 bg-gray-100'}`}
+        className={`text-xs px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0 ${
+          BADGE_STYLES[type] ?? 'text-gray-400 bg-gray-100'
+        }`}
       >
         {type}
       </span>
-    </Link>
+      {isExpandable && (
+        <ChevronRight
+          className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ${
+            expanded ? 'rotate-90' : ''
+          }`}
+        />
+      )}
+    </>
+  );
+
+  if (href) {
+    return (
+      <Link href={href} className={rowClass}>
+        {inner}
+      </Link>
+    );
+  }
+
+  // Non-navigable cards (announcements) — expand on click
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      className={rowClass}
+      onClick={onToggle}
+      onKeyDown={e => e.key === 'Enter' && onToggle()}
+    >
+      {inner}
+    </div>
   );
 }
 
@@ -576,6 +667,7 @@ export function HomeLayer() {
                 type: 'Announcement' as const,
                 createdAt: a.createdAt,
                 summary: undefined,
+                content: a.content,
               }));
 
             const recentActivity = [...announcementActivity, ...maintenanceActivity]
