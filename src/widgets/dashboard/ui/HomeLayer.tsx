@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { authClient } from '@api/client';
 import { AlertTriangle, Calendar, Bell, Wrench, Activity, Megaphone, Clock } from 'lucide-react';
@@ -495,107 +495,119 @@ export function HomeLayer() {
   const role = session?.user?.role || 'RESIDENT';
   const userId = session?.user?.id;
 
-  const fetchData = useCallback(() => {
-    setLoading(true);
-    setError(false);
+  // Prevent duplicate fetch waves when Better Auth fires multiple session renders
+  // during hydration (undefined → session object → stable). Without this guard,
+  // each userId/role change recreates fetchData and re-fires the 8-request wave.
+  const fetchedForUser = useRef<string | null>(null);
 
-    // Single Promise.all for all zone data — avoids sequential render cascade
-    Promise.all([
-      // Urgent announcements
-      fetchJson<Announcement>('/api/announcements?priority=urgent'),
+  const fetchData = useCallback(
+    (manual = false) => {
+      // Skip if we already fetched for this user, unless manually retried
+      if (!manual && fetchedForUser.current === (userId ?? 'anon')) return;
+      fetchedForUser.current = userId ?? 'anon';
 
-      // Overdue maintenance (resident: own; admin: all)
-      fetchJson<MaintenanceItem>(
-        userId
-          ? `/api/maintenance?overdue=true${role.toUpperCase() === 'RESIDENT' ? `&userId=${userId}` : ''}`
-          : '/api/maintenance?overdue=true'
-      ),
+      setLoading(true);
+      setError(false);
 
-      // Unread message count
-      fetch('/api/messages/unread')
-        .then(r => r.json())
-        .then(d => d?.data?.totalUnread ?? 0)
-        .catch(() => 0),
+      // Single Promise.all for all zone data — avoids sequential render cascade
+      Promise.all([
+        // Urgent announcements
+        fetchJson<Announcement>('/api/announcements?priority=urgent'),
 
-      // Upcoming events (filter today/tomorrow client-side)
-      getUpcomingEvents(),
+        // Overdue maintenance (resident: own; admin: all)
+        fetchJson<MaintenanceItem>(
+          userId
+            ? `/api/maintenance?overdue=true${role.toUpperCase() === 'RESIDENT' ? `&userId=${userId}` : ''}`
+            : '/api/maintenance?overdue=true'
+        ),
 
-      // Bookings today
-      fetchJson<BookingItem>('/api/bookings?date=today'),
+        // Unread message count
+        fetch('/api/messages/unread')
+          .then(r => r.json())
+          .then(d => d?.data?.totalUnread ?? 0)
+          .catch(() => 0),
 
-      // Recent announcements (used for activity + community section)
-      fetchJson<Announcement>('/api/announcements?limit=5'),
+        // Upcoming events (filter today/tomorrow client-side)
+        getUpcomingEvents(),
 
-      // Community announcements (non-urgent)
-      fetchJson<Announcement>('/api/announcements?limit=5&priority=normal'),
+        // Bookings today
+        fetchJson<BookingItem>('/api/bookings?date=today'),
 
-      // User's own maintenance requests for activity zone (scope=mine forces user-scoped view)
-      fetchJson<MaintenanceActivityRow>('/api/maintenance?limit=5&scope=mine'),
-    ])
-      .then(
-        ([
-          urgentAnnouncements,
-          overdueMaintenance,
-          unreadMessageCount,
-          upcomingEvents,
-          todayBookings,
-          recentAnnouncements,
-          communityAnnouncements,
-          maintenanceRows,
-        ]) => {
-          // Filter events to today/tomorrow
-          const todayEvents = (upcomingEvents as EventItem[]).filter(
-            e => isToday(e.startDate) || isTomorrow(e.startDate)
-          );
+        // Recent announcements (used for activity + community section)
+        fetchJson<Announcement>('/api/announcements?limit=5'),
 
-          // Transform maintenance items into activity items
-          const maintenanceActivity = (maintenanceRows as MaintenanceActivityRow[]).map(m => ({
-            id: m.id,
-            title: `${m.ticketNumber || 'Request'} — ${m.status.replace('_', ' ')}`,
-            type: 'Maintenance',
-            createdAt: m.updatedAt || m.createdAt,
-            summary: m.category,
-          }));
+        // Community announcements (non-urgent)
+        fetchJson<Announcement>('/api/announcements?limit=5&priority=normal'),
 
-          // Merge announcements + maintenance, sort by date, take top 5
-          const announcementActivity = (recentAnnouncements as Announcement[])
-            .filter(a => a.priority !== 'urgent')
-            .map(a => ({
-              id: a.id,
-              title: resolveTitle(a.title, language),
-              type: 'Announcement' as const,
-              createdAt: a.createdAt,
-              summary: undefined,
+        // User's own maintenance requests for activity zone (scope=mine forces user-scoped view)
+        fetchJson<MaintenanceActivityRow>('/api/maintenance?limit=5&scope=mine'),
+      ])
+        .then(
+          ([
+            urgentAnnouncements,
+            overdueMaintenance,
+            unreadMessageCount,
+            upcomingEvents,
+            todayBookings,
+            recentAnnouncements,
+            communityAnnouncements,
+            maintenanceRows,
+          ]) => {
+            // Filter events to today/tomorrow
+            const todayEvents = (upcomingEvents as EventItem[]).filter(
+              e => isToday(e.startDate) || isTomorrow(e.startDate)
+            );
+
+            // Transform maintenance items into activity items
+            const maintenanceActivity = (maintenanceRows as MaintenanceActivityRow[]).map(m => ({
+              id: m.id,
+              title: `${m.ticketNumber || 'Request'} — ${m.status.replace('_', ' ')}`,
+              type: 'Maintenance',
+              createdAt: m.updatedAt || m.createdAt,
+              summary: m.category,
             }));
 
-          const recentActivity = [...announcementActivity, ...maintenanceActivity]
-            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-            .slice(0, 5);
+            // Merge announcements + maintenance, sort by date, take top 5
+            const announcementActivity = (recentAnnouncements as Announcement[])
+              .filter(a => a.priority !== 'urgent')
+              .map(a => ({
+                id: a.id,
+                title: resolveTitle(a.title, language),
+                type: 'Announcement' as const,
+                createdAt: a.createdAt,
+                summary: undefined,
+              }));
 
-          setData({
-            urgentAnnouncements: urgentAnnouncements as Announcement[],
-            overdueMaintenance: overdueMaintenance as MaintenanceItem[],
-            unreadMessageCount: unreadMessageCount as number,
-            todayEvents,
-            todayBookings: todayBookings as BookingItem[],
-            recentActivity,
-            communityAnnouncements: communityAnnouncements as Announcement[],
-          });
+            const recentActivity = [...announcementActivity, ...maintenanceActivity]
+              .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+              .slice(0, 5);
+
+            setData({
+              urgentAnnouncements: urgentAnnouncements as Announcement[],
+              overdueMaintenance: overdueMaintenance as MaintenanceItem[],
+              unreadMessageCount: unreadMessageCount as number,
+              todayEvents,
+              todayBookings: todayBookings as BookingItem[],
+              recentActivity,
+              communityAnnouncements: communityAnnouncements as Announcement[],
+            });
+            setLoading(false);
+          }
+        )
+        .catch(() => {
+          setError(true);
           setLoading(false);
-        }
-      )
-      .catch(() => {
-        setError(true);
-        setLoading(false);
-      });
-  }, [userId, role]);
+        });
+    },
+    [userId, role]
+  );
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
   if (error) {
-    return <ZoneError onRetry={fetchData} />;
+    return <ZoneError onRetry={() => fetchData(true)} />;
   }
 
   if (loading) {

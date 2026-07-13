@@ -1,8 +1,6 @@
 import {
   auth,
   revalidateDashboard,
-  db,
-  users,
   apiCreated,
   apiError,
   apiInternalError,
@@ -20,7 +18,6 @@ import { toBookingDTO } from '@api/server';
 
 import { apiLogger } from '@shared/lib';
 
-import { eq } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import {
   listBookings,
@@ -46,13 +43,10 @@ async function getSessionAndRole(request: Request) {
     return null;
   }
 
-  // Use Drizzle instead of Prisma
-  const userResult = await db.select().from(users).where(eq(users.id, session.user.id)).limit(1);
-
   return {
     session,
     userId: session.user.id,
-    role: userResult[0]?.role || 'RESIDENT',
+    role: (session.user as { role?: string }).role || 'RESIDENT',
   };
 }
 

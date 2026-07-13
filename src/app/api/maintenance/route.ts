@@ -9,7 +9,6 @@ import {
   revalidateDashboard,
   db,
   emitEvent,
-  users,
   notifications,
   residentDelegations,
 } from '@api/server';
@@ -46,13 +45,10 @@ async function getSessionAndRole(request: Request) {
     return null;
   }
 
-  // Use Drizzle instead of Prisma
-  const userResult = await db.select().from(users).where(eq(users.id, session.user.id)).limit(1);
-
   return {
     session,
     userId: session.user.id,
-    role: userResult[0]?.role || 'RESIDENT',
+    role: (session.user as { role?: string }).role || 'RESIDENT',
   };
 }
 

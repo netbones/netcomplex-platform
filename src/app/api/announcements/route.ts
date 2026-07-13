@@ -38,31 +38,21 @@ const FANOUT_BATCH = 500;
  * @returns Session data with user ID and role, or null if not authenticated
  */
 async function getSessionAndRole(request: Request) {
-  console.log('[auth-debug] cookie:', request.headers.get('cookie')?.slice(0, 80));
-  console.log('[auth-debug] host:', request.headers.get('host'));
   let session;
   try {
     session = await auth.api.getSession({ headers: request.headers });
-  } catch (e) {
-    console.error('[auth-debug] getSession threw:', e);
+  } catch {
     return null;
   }
-  console.log('[auth-debug] session user:', session?.user?.id ?? 'null');
 
   if (!session?.user?.id) {
     return null;
   }
 
-  const [user] = await db
-    .select({ role: users.role })
-    .from(users)
-    .where(eq(users.id, session.user.id))
-    .limit(1);
-
   return {
     session,
     userId: session.user.id,
-    role: user?.role || 'RESIDENT',
+    role: (session.user as { role?: string }).role || 'RESIDENT',
   };
 }
 

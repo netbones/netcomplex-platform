@@ -2,7 +2,6 @@ import { NextRequest } from 'next/server';
 import {
   apiSuccess,
   apiInternalError,
-  apiUnauthorized,
   requireAnyPermission,
   runWithRLS,
   requireTenantRLS,
@@ -58,10 +57,13 @@ export async function GET(request: NextRequest) {
       }
 
       // Build per-domain queries conditionally based on domain filter
-      const domainQueries: Promise<ActivityItemRaw[]>[] = [];
+      // Use thunks (not eager promises) so queries only start when awaited sequentially.
+      // Eager promises would all fire at once on the same pg client, triggering the
+      // "client.query() when already executing" deprecation warning.
+      const domainQueries: (() => Promise<ActivityItemRaw[]>)[] = [];
 
       if (domain === 'all' || domain === 'maintenance') {
-        domainQueries.push(
+        domainQueries.push(() =>
           tx
             .select({
               id: maintenanceRequests.id,
@@ -102,7 +104,7 @@ export async function GET(request: NextRequest) {
       }
 
       if (domain === 'all' || domain === 'users') {
-        domainQueries.push(
+        domainQueries.push(() =>
           tx
             .select({
               id: users.id,
@@ -127,7 +129,7 @@ export async function GET(request: NextRequest) {
       }
 
       if (domain === 'all' || domain === 'content') {
-        domainQueries.push(
+        domainQueries.push(() =>
           tx
             .select({
               id: contents.id,
@@ -152,7 +154,7 @@ export async function GET(request: NextRequest) {
       }
 
       if (domain === 'all' || domain === 'surveys') {
-        domainQueries.push(
+        domainQueries.push(() =>
           tx
             .select({
               id: surveys.id,
@@ -183,7 +185,7 @@ export async function GET(request: NextRequest) {
       }
 
       if (domain === 'all' || domain === 'events') {
-        domainQueries.push(
+        domainQueries.push(() =>
           tx
             .select({
               id: events.id,
@@ -209,11 +211,9 @@ export async function GET(request: NextRequest) {
 
       // Run domain queries sequentially — the transaction connection
       // (single pg client) cannot safely handle concurrent queries.
-      // Concurrent queries on one client trigger the pg@8.x deprecation
-      // "client.query() when already executing" and can lose results.
       const results: ActivityItemRaw[][] = [];
       for (const q of domainQueries) {
-        results.push(await q);
+        results.push(await q());
       }
 
       // Flatten, sort by createdAt desc, slice to limit
