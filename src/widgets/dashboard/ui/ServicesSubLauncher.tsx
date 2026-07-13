@@ -128,7 +128,7 @@ export const SERVICES_DOMAIN_DEFINITIONS: ServicesDomainDef[] = [
     id: 'conservation',
     labelKey: 'domains.conservation',
     descriptionKey: 'domains.descriptions.conservation',
-    icon: '/platform/merits.svg',
+    icon: '/platform/conservation.svg',
     description: 'Sustainability and conservation initiatives',
   },
 ];
