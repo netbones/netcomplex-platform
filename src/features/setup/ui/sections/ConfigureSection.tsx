@@ -37,7 +37,7 @@ const CONFIGURE_MODULES: ConfigureModule[] = [
     label: 'Bookings',
     description: 'Facility booking system with time slots and pricing.',
     moduleKey: 'bookings',
-    minTier: 'depth',
+    minTier: 'pro-max',
     settingKey: 'configure.bookings.facilities',
     configUrl: '/admin/bookings',
   },
@@ -45,7 +45,7 @@ const CONFIGURE_MODULES: ConfigureModule[] = [
     key: 'dwallet',
     label: 'dWallet',
     description: 'Data-sharing revenue and community value distribution.',
-    minTier: 'depth',
+    minTier: 'pro-max',
     settingKey: 'configure.wallet',
     configUrl: '/admin/dwallet',
   },
@@ -54,7 +54,7 @@ const CONFIGURE_MODULES: ConfigureModule[] = [
     label: 'Surveys',
     description: 'Community polls and resident feedback collection.',
     moduleKey: 'surveys',
-    minTier: 'depth',
+    minTier: 'pro-max',
     settingKey: 'configure.surveys',
     configUrl: '/admin/surveys',
   },
@@ -62,7 +62,7 @@ const CONFIGURE_MODULES: ConfigureModule[] = [
     key: 'competitions',
     label: 'Competitions',
     description: 'Community competitions and leaderboards.',
-    minTier: 'depth',
+    minTier: 'pro-max',
     settingKey: 'configure.competitions',
     configUrl: '/admin/competitions',
   },
@@ -70,7 +70,7 @@ const CONFIGURE_MODULES: ConfigureModule[] = [
     key: 'achievements',
     label: 'Achievements',
     description: 'Community achievement system and recognition badges.',
-    minTier: 'depth',
+    minTier: 'pro-max',
     settingKey: 'configure.achievements',
     configUrl: '/admin/achievements',
   },
@@ -79,16 +79,16 @@ const CONFIGURE_MODULES: ConfigureModule[] = [
     label: 'Services / Marketplace',
     description: 'Let residents offer and find local services.',
     moduleKey: 'marketplace',
-    minTier: 'depth',
+    minTier: 'pro-max',
     settingKey: 'configure.marketplace',
     configUrl: '/admin/marketplace',
   },
 ];
 
 const TIER_ORDER: Record<TierLevel, number> = {
-  foundation: 0,
-  depth: 1,
-  core: 2,
+  core: 0,
+  foundation: 1,
+  'pro-max': 2,
 };
 
 function canAccessModuleTier(tier: TierLevel, minTier: TierLevel): boolean {
@@ -278,8 +278,8 @@ export default function ConfigureSection({ tenantId, tier }: ConfigureSectionPro
             <div>
               <h4 className="text-sm font-semibold text-amber-800">Upgrade for More Modules</h4>
               <p className="text-sm text-amber-700 mt-1">
-                Your Foundation tier includes core community features. Upgrade to Depth or Core to
-                unlock maintenance tracking, bookings, surveys, marketplace, and more.
+                Your Foundation tier includes core community features. Upgrade to Foundation or
+                Pro-Max to unlock maintenance tracking, bookings, surveys, marketplace, and more.
               </p>
             </div>
           </div>
