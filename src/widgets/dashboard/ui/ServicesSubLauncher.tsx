@@ -86,7 +86,7 @@ export const SERVICES_DOMAIN_DEFINITIONS: ServicesDomainDef[] = [
     id: 'disputes',
     labelKey: 'domains.disputes',
     descriptionKey: 'domains.descriptions.disputes',
-    icon: '/platform/communication.svg',
+    icon: '/platform/disputes.svg',
     description: 'File and track community disputes',
   },
   {
