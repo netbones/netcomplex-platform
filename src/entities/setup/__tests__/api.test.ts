@@ -284,7 +284,7 @@ describe('Setup Center API', () => {
     });
 
     it('creates TenantSetup and seeds for depth tier', async () => {
-      await expect(initTenantSetup('tenant-depth', 'depth')).resolves.toBeDefined();
+      await expect(initTenantSetup('tenant-depth', 'pro-max')).resolves.toBeDefined();
     });
 
     it('creates TenantSetup and seeds for core tier', async () => {

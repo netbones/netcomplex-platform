@@ -323,7 +323,7 @@ describe('GrowSection', () => {
     render(
       <GrowSection
         tenantId="tenant-1"
-        tier="depth"
+        tier="pro-max"
         setup={makeSetup({ completionPercent: 80 })}
         missions={{
           'launch.identity': makeMission('launch.identity', true),

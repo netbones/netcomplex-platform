@@ -1,0 +1,9 @@
+export { identityRouter } from './identity';
+export { householdsRouter } from './households';
+export { invitationsRouter } from './invitations';
+export { delegationsRouter } from './delegations';
+export { settingsRouter } from './settings';
+export { platformRouter } from './platform';
+export { contentRouter } from './content';
+export { resourcesRouter } from './resources';
+export { coreRouter } from './core';

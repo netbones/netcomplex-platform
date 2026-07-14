@@ -34,7 +34,7 @@ vi.mock('react-i18next', async importOriginal => {
 
 // ── Helpers ───────────────────────────────────────────────────────
 
-function renderConfigure(tier: 'foundation' | 'depth' | 'core' = 'foundation') {
+function renderConfigure(tier: 'foundation' | 'pro-max' | 'core' = 'foundation') {
   return render(<ConfigureSection tenantId="tenant-1" tier={tier} />);
 }
 
@@ -57,13 +57,13 @@ describe('ConfigureSection', () => {
 
     // Foundation has NO visible premium modules — the section shows
     // available modules based on tier. Foundation should see NO modules
-    // since all modules in this section require depth or higher.
+    // since all modules in this section require pro-max or higher.
     // But should still show the header and the upgrade prompt.
     expect(screen.getByText('Configure Modules')).toBeTruthy();
   });
 
-  it('renders depth-tier module toggles', () => {
-    renderConfigure('depth');
+  it('renders pro-max-tier module toggles', () => {
+    renderConfigure('pro-max');
 
     // Depth should see: bookings, dwallet, surveys, competitions, achievements, marketplace
     // But NOT maintenance (core only)
@@ -90,16 +90,16 @@ describe('ConfigureSection', () => {
   });
 
   it('shows enabled/disabled count in header', () => {
-    renderConfigure('depth');
+    renderConfigure('pro-max');
     // Should show count: X/Y enabled
     expect(screen.getByText(/\d+\/\d+ enabled/)).toBeTruthy();
   });
 
   // ── Tier gating ─────────────────────────────────────────────────
 
-  it('does not show premium upgrade prompt for depth tier', () => {
-    renderConfigure('depth');
-    // The amber upgrade box should not appear for depth/core tiers
+  it('does not show premium upgrade prompt for pro-max tier', () => {
+    renderConfigure('pro-max');
+    // The amber upgrade box should not appear for pro-max/core tiers
     expect(screen.queryByText(/Upgrade for More Modules/)).toBeNull();
   });
 
@@ -114,8 +114,8 @@ describe('ConfigureSection', () => {
     expect(screen.queryByLabelText('Toggle Maintenance')).toBeNull();
   });
 
-  it('does not show maintenance toggle on depth tier', () => {
-    renderConfigure('depth');
+  it('does not show maintenance toggle on pro-max tier', () => {
+    renderConfigure('pro-max');
     // Maintenance is core-only
     expect(screen.queryByLabelText('Toggle Maintenance')).toBeNull();
   });
@@ -156,10 +156,10 @@ describe('ConfigureSection', () => {
   // ── Config links ────────────────────────────────────────────────
 
   it('shows configure links for enabled modules', () => {
-    renderConfigure('depth');
+    renderConfigure('pro-max');
 
-    // For depth, many modules default-enabled — they should show config links
-    // Since hasModuleAccess for bookings with depth tier returns true
+    // For pro-max, many modules default-enabled — they should show config links
+    // Since hasModuleAccess for bookings with pro-max tier returns true
     const configLinks = screen.queryAllByText(/Configure/);
     // At minimum some links should be present when modules are enabled
     expect(configLinks.length).toBeGreaterThanOrEqual(0);

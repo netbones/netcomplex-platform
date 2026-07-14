@@ -85,7 +85,7 @@ describe('getRecommendations', () => {
 
     it('depth tier: appears when tier is depth', () => {
       const input = makeInput({
-        tier: 'depth',
+        tier: 'pro-max',
         setup: makeSetup({ completionPercent: 80 }),
         missions: {
           'launch.identity': makeMission('launch.identity', true),
@@ -161,7 +161,7 @@ describe('getRecommendations', () => {
           'configure.modules.bookings.enabled': true,
           'populate.stats': { count: 2 },
         },
-        tier: 'depth',
+        tier: 'pro-max',
       });
 
       const results = getRecommendations(input);
@@ -349,7 +349,7 @@ describe('getRecommendations', () => {
   describe('module enabled but not configured', () => {
     it('bookings enabled but not configured: recommends configuration', () => {
       const input = makeInput({
-        tier: 'depth',
+        tier: 'pro-max',
         setup: makeSetup({ completionPercent: 80 }),
         missions: {
           'launch.identity': makeMission('launch.identity', true),
@@ -370,7 +370,7 @@ describe('getRecommendations', () => {
 
     it('surveys enabled: recommends creating first survey', () => {
       const input = makeInput({
-        tier: 'depth',
+        tier: 'pro-max',
         setup: makeSetup({ completionPercent: 80 }),
         missions: {
           'launch.identity': makeMission('launch.identity', true),
@@ -392,7 +392,7 @@ describe('getRecommendations', () => {
 
     it('dwallet enabled but revenue stream not seeded: recommends setup', () => {
       const input = makeInput({
-        tier: 'depth',
+        tier: 'pro-max',
         setup: makeSetup({ completionPercent: 80 }),
         missions: {
           'launch.identity': makeMission('launch.identity', true),
@@ -413,7 +413,7 @@ describe('getRecommendations', () => {
 
     it('dwallet enabled AND revenue stream seeded: no recommendation', () => {
       const input = makeInput({
-        tier: 'depth',
+        tier: 'pro-max',
         setup: makeSetup({ completionPercent: 80 }),
         missions: {
           'launch.identity': makeMission('launch.identity', true),
@@ -435,7 +435,7 @@ describe('getRecommendations', () => {
 
     it('module NOT enabled: no configuration recommendation', () => {
       const input = makeInput({
-        tier: 'depth',
+        tier: 'pro-max',
         setup: makeSetup({ completionPercent: 80 }),
         missions: {
           'launch.identity': makeMission('launch.identity', true),
@@ -456,7 +456,7 @@ describe('getRecommendations', () => {
 
     it('bookings enabled AND already configured: no recommendation', () => {
       const input = makeInput({
-        tier: 'depth',
+        tier: 'pro-max',
         setup: makeSetup({ completionPercent: 80 }),
         missions: {
           'launch.identity': makeMission('launch.identity', true),
@@ -505,7 +505,7 @@ describe('getRecommendations', () => {
   describe('output shape', () => {
     it('each recommendation has all required fields', () => {
       const input = makeInput({
-        tier: 'depth',
+        tier: 'pro-max',
         settings: {
           'configure.modules.bookings.enabled': true,
           'populate.stats': { count: 3 },

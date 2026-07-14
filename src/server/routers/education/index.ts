@@ -1,0 +1,1 @@
+export { educationRouter } from './education';

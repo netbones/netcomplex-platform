@@ -20,7 +20,7 @@ import { toEnvelope } from '@api/server';
 import { eventDto } from '@api/server';
 
 import { TRPCError } from '@trpc/server';
-import { requireContentPermission } from './content';
+import { requireContentPermission } from '../core/content';
 
 import { eq, and, count, inArray } from 'drizzle-orm';
 

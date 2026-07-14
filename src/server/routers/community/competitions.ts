@@ -113,7 +113,7 @@ function toParticipantDTO(
 // Router
 // ──────────────────────────────────────────
 
-export const competitionRouter = router({
+export const competitionsRouter = router({
   /** List active competitions — no auth required.
    * @public
    *
