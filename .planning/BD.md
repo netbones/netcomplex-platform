@@ -8,8 +8,8 @@
 > `soralia-village-zbvq` (401 hotfix, committed), `soralia-village-0jh1` (Setup Center).
 > Docs: `docs/advisories/ADVISORY-031.md` (supersedes ADVISORY-030), `ONBOARDING_REFACTOR.md`.
 
-> **Last updated:** 2026-07-08 (Session 16 — onboarding refactor discovery)
-> **Total remaining:** 43 issues
+> **Last updated:** 2026-07-14 (Session 17 — CMS post-M5 phase candidates)
+> **Total remaining:** 44 issues
 > **Closed this session:** 7 (`0orq`, `7a02`, `gb5p`, `tbtr`, `2pxb`, `owuh`, `bnxu`)
 > **Created this session:** 21 (`5z3g`, `0orq`, `7a02`, `gb5p`, `tbtr`, `7tqj`, `sioz`, `g8c3`, `2pxb`, `8rve`, `owuh`, `h9o4`, `e8hs`, `tkt5`, `ee5p`, `3m0h`, `qzll`, `axh6`, `vukt`, `c3zg`, `bnxu`)
 > **Note:** BD is for quick fixes and small tasks. **Any BD issue touching 5+ files across multiple FSD slices, or requiring new directories/types, is GSD territory — escalate it.**
@@ -19,7 +19,7 @@
 | Priority | Open  | Focus                                              |
 | -------- | ----- | -------------------------------------------------- |
 | **P1**   | **1** | **Supply-chain: pnpm audit high-severity cleanup** |
-| P2       | 8     | Core features, epics, bugs, **architecture**       |
+| P2       | 9     | Core features, epics, bugs, **architecture**       |
 | P3       | 25    | Tech debt, Phase 4/5 features, enhancements        |
 | P4       | 10    | Backlog, blocked events                            |
 
@@ -27,7 +27,7 @@
 
 | Status        | Count |
 | ------------- | ----- |
-| ○ Open        | 29    |
+| ○ Open        | 30    |
 | ◐ In Progress | 1     |
 
 ---
@@ -49,20 +49,21 @@
 
 ### Features & Tasks
 
-| ID     | Type    | Title                                                                                           | Status |
-| ------ | ------- | ----------------------------------------------------------------------------------------------- | ------ |
-| `2at`  | feature | Phase 35: Community Merits & Standing System                                                    | ○      |
-| `k3h`  | task    | Verify external API consumers can access the OpenAPI spec                                       | ○      |
-| `qig`  | task    | Architecture: Build shared HTTP client (src/shared/api/client.ts)                               | ○      |
-| `fpc`  | task    | Architecture: Expand tRPC coverage from 2 to all entities                                       | ○      |
-| `22a`  | task    | Add connection pool config + retry to Drizzle singleton                                         | ○      |
-| `4a6`  | task    | **RLS migration: move add_rls.sql into proper Prisma migration, narrow to 14 tables, fix bugs** | ○      |
-| `5m7l` | task    | Confirm Schedule F Table 2 revenue share percentages with anchor tenant (Soralia Village)       | ○      |
-| `5z3g` | task    | Define USER role + role lifecycle for sign-ups, adoptions, and providers                        | ○      |
-| `0orq` | task    | AI Pool: Add estimatedCostUSD to AiUsageEvent + pricing.ts + wire into recordUsage()            | ✅     |
-| `7a02` | task    | AI Pool: Add estimatedCostUSD aggregation to platform admin usage routes                        | ✅     |
-| `gb5p` | task    | AI Pool: Make capability required on AiCompletionOptions (type-level enforcement)               | ✅     |
-| `tbtr` | task    | AI Pool: Fix ENTERPRISE seed overageTokens (500k→250k) and migrate to Drizzle pattern           | ✅     |
+| ID     | Type    | Title                                                                                                            | Status |
+| ------ | ------- | ---------------------------------------------------------------------------------------------------------------- | ------ |
+| `2at`  | feature | Phase 35: Community Merits & Standing System                                                                     | ○      |
+| `k3h`  | task    | Verify external API consumers can access the OpenAPI spec                                                        | ○      |
+| `qig`  | task    | Architecture: Build shared HTTP client (src/shared/api/client.ts)                                                | ○      |
+| `fpc`  | task    | Architecture: Expand tRPC coverage from 2 to all entities                                                        | ○      |
+| `22a`  | task    | Add connection pool config + retry to Drizzle singleton                                                          | ○      |
+| `4a6`  | task    | **RLS migration: move add_rls.sql into proper Prisma migration, narrow to 14 tables, fix bugs**                  | ○      |
+| `5m7l` | task    | Confirm Schedule F Table 2 revenue share percentages with anchor tenant (Soralia Village)                        | ○      |
+| `d982` | task    | CMS post-M5 phase candidates: versioning, audit logging, block-based editing, image transforms, content releases | ○      |
+| `5z3g` | task    | Define USER role + role lifecycle for sign-ups, adoptions, and providers                                         | ○      |
+| `0orq` | task    | AI Pool: Add estimatedCostUSD to AiUsageEvent + pricing.ts + wire into recordUsage()                             | ✅     |
+| `7a02` | task    | AI Pool: Add estimatedCostUSD aggregation to platform admin usage routes                                         | ✅     |
+| `gb5p` | task    | AI Pool: Make capability required on AiCompletionOptions (type-level enforcement)                                | ✅     |
+| `tbtr` | task    | AI Pool: Fix ENTERPRISE seed overageTokens (500k→250k) and migrate to Drizzle pattern                            | ✅     |
 
 ### Blocked Tasks
 

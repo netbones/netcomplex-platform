@@ -1712,3 +1712,19 @@ _Turborepo + pnpm workspaces monorepo for web (Next.js) + mobile (Expo) code sha
 **Plans:**
 
 - [x] 99-01-PLAN.md — Import path fixes for 6 API routes (bookings, maintenance/[id|notify|notes|history], admin/board-members) ✅
+
+---
+
+## Phase 125: Proxy Vote Module
+
+**Goal:** Implement proxy voting workflow for HOA meetings — attach to AGM/SGM/Trustee Election events, 6-step resident journey (cannot attend → appoint proxy → upload form → proxy acceptance → digital signature → complete), HOA admin approval, and notification system.
+
+**Status:** Planning — CONTEXT.md created
+
+**Source:** `docs/PROXY_SIG_DISCUSSION.md`
+
+**Milestone:** M5+ Post-Launch Features
+
+**Depends on:** Phase 30 (Focus Spaces), Phase 10 (Notifications), Phase 21 (Events)
+
+**Plans:** TBD — run `/gsd-plan-phase 125-proxy-vote-module` to create detailed implementation plan.
