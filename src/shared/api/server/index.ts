@@ -201,9 +201,11 @@ export {
   agentProcedure,
   tenantProcedure,
   privilegedProcedure,
+  moduleProcedure,
+  privilegedModuleProcedure,
   rateLimitMiddleware,
 } from '../trpc/server';
-export type { Context } from '../trpc/server';
+export type { Context, TRPCMeta } from '../trpc/server';
 // appRouter/AppRouter NOT re-exported here to avoid circular dependency:
 //   identity.ts → @api/server → routers.ts → @server/routers → identity.ts
 // Import them directly from '@api/trpc/routers' instead.

@@ -1,8 +1,8 @@
 import { notDeleted, toEnvelope } from '@api/server';
 import {
   z,
-  tenantProcedure,
-  privilegedProcedure,
+  moduleProcedure,
+  privilegedModuleProcedure,
   db,
   maintenanceCategories,
   TRPCError,
@@ -20,7 +20,8 @@ export const maintenanceCategoryProcedures = {
    * List maintenance categories in the current tenant.
    * @tenant
    */
-  listCategories: tenantProcedure
+  listCategories: moduleProcedure
+    .meta({ requiredModule: 'maintenance' })
     .input(z.object({ isActive: z.boolean().optional() }).optional())
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
@@ -47,48 +48,52 @@ export const maintenanceCategoryProcedures = {
    * Create a maintenance category. Requires elevated permissions.
    * @privileged
    */
-  createCategory: privilegedProcedure.input(CategoryInput).mutation(async ({ input, ctx }) => {
-    requireRequestsPermission(ctx.role);
+  createCategory: privilegedModuleProcedure
+    .meta({ requiredModule: 'maintenance' })
+    .input(CategoryInput)
+    .mutation(async ({ input, ctx }) => {
+      requireRequestsPermission(ctx.role);
 
-    const tenantId = ctx.tenantId;
+      const tenantId = ctx.tenantId;
 
-    // Check for duplicate value
-    const [existing] = await db
-      .select()
-      .from(maintenanceCategories)
-      .where(
-        and(
-          eq(maintenanceCategories.tenantId, tenantId),
-          eq(maintenanceCategories.value, input.value),
-          notDeleted(maintenanceCategories)
-        )
-      );
+      // Check for duplicate value
+      const [existing] = await db
+        .select()
+        .from(maintenanceCategories)
+        .where(
+          and(
+            eq(maintenanceCategories.tenantId, tenantId),
+            eq(maintenanceCategories.value, input.value),
+            notDeleted(maintenanceCategories)
+          )
+        );
 
-    if (existing) {
-      throw new TRPCError({ code: 'CONFLICT', message: 'Category value already exists' });
-    }
+      if (existing) {
+        throw new TRPCError({ code: 'CONFLICT', message: 'Category value already exists' });
+      }
 
-    const [created] = await db
-      .insert(maintenanceCategories)
-      .values({
-        id: createId(),
-        tenantId,
-        value: input.value,
-        label: input.label,
-        description: input.description || null,
-        isActive: true,
-        createdAt: new Date(),
-      })
-      .returning();
+      const [created] = await db
+        .insert(maintenanceCategories)
+        .values({
+          id: createId(),
+          tenantId,
+          value: input.value,
+          label: input.label,
+          description: input.description || null,
+          isActive: true,
+          createdAt: new Date(),
+        })
+        .returning();
 
-    return toEnvelope(created);
-  }),
+      return toEnvelope(created);
+    }),
 
   /**
    * Update a maintenance category. Requires elevated permissions.
    * @privileged
    */
-  updateCategory: privilegedProcedure
+  updateCategory: privilegedModuleProcedure
+    .meta({ requiredModule: 'maintenance' })
     .input(UpdateCategoryInput)
     .mutation(async ({ input, ctx }) => {
       requireRequestsPermission(ctx.role);
@@ -130,7 +135,8 @@ export const maintenanceCategoryProcedures = {
    * Soft-delete a maintenance category. Requires elevated permissions.
    * @privileged
    */
-  deleteCategory: privilegedProcedure
+  deleteCategory: privilegedModuleProcedure
+    .meta({ requiredModule: 'maintenance' })
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
       requireRequestsPermission(ctx.role);

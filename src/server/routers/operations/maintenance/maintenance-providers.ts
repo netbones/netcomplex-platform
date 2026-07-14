@@ -1,8 +1,8 @@
 import { notDeleted, toEnvelope } from '@api/server';
 import {
   z,
-  tenantProcedure,
-  privilegedProcedure,
+  moduleProcedure,
+  privilegedModuleProcedure,
   db,
   serviceProviders,
   TRPCError,
@@ -20,7 +20,8 @@ export const maintenanceProviderProcedures = {
    * List service providers in the current tenant.
    * @tenant
    */
-  listProviders: tenantProcedure
+  listProviders: moduleProcedure
+    .meta({ requiredModule: 'maintenance' })
     .input(z.object({ isActive: z.boolean().optional() }).optional())
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
@@ -44,35 +45,39 @@ export const maintenanceProviderProcedures = {
    * Create a service provider. Requires elevated permissions.
    * @privileged
    */
-  createProvider: privilegedProcedure.input(ProviderInput).mutation(async ({ input, ctx }) => {
-    requireRequestsPermission(ctx.role);
+  createProvider: privilegedModuleProcedure
+    .meta({ requiredModule: 'maintenance' })
+    .input(ProviderInput)
+    .mutation(async ({ input, ctx }) => {
+      requireRequestsPermission(ctx.role);
 
-    const tenantId = ctx.tenantId;
+      const tenantId = ctx.tenantId;
 
-    const [created] = await db
-      .insert(serviceProviders)
-      .values({
-        id: createId(),
-        tenantId,
-        companyName: input.companyName,
-        trade: input.trade,
-        contactName: input.contactName || null,
-        phone: input.phone || null,
-        email: input.email || null,
-        isActive: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      })
-      .returning();
+      const [created] = await db
+        .insert(serviceProviders)
+        .values({
+          id: createId(),
+          tenantId,
+          companyName: input.companyName,
+          trade: input.trade,
+          contactName: input.contactName || null,
+          phone: input.phone || null,
+          email: input.email || null,
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .returning();
 
-    return toEnvelope(created);
-  }),
+      return toEnvelope(created);
+    }),
 
   /**
    * Update a service provider. Requires elevated permissions.
    * @privileged
    */
-  updateProvider: privilegedProcedure
+  updateProvider: privilegedModuleProcedure
+    .meta({ requiredModule: 'maintenance' })
     .input(UpdateProviderInput)
     .mutation(async ({ input, ctx }) => {
       requireRequestsPermission(ctx.role);
@@ -115,7 +120,8 @@ export const maintenanceProviderProcedures = {
    * Soft-delete a service provider. Requires elevated permissions.
    * @privileged
    */
-  deleteProvider: privilegedProcedure
+  deleteProvider: privilegedModuleProcedure
+    .meta({ requiredModule: 'maintenance' })
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
       requireRequestsPermission(ctx.role);

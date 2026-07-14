@@ -6,6 +6,7 @@ import { auth } from '../auth';
 import { db, users, tenants, platformSuspensions } from '../db';
 import { eq, and } from 'drizzle-orm';
 import { tRPCCodeToCanonical } from '../envelope';
+import type { ModuleKey } from '@/shared/lib';
 
 export interface Context {
   session: Awaited<ReturnType<typeof auth.api.getSession>>;
@@ -60,34 +61,53 @@ export async function createContext(opts: { headers: Headers }): Promise<Context
   };
 }
 
-// Main tRPC instance with superjson for internal use
-const t = initTRPC.context<Context>().create({
-  transformer: superjson,
-  errorFormatter({ shape, error }) {
-    // Determine canonical code — check for special message signals first
-    let canonicalCode: string;
-    if (error.message === 'SUSPENDED_USER') {
-      canonicalCode = 'SUSPENDED_USER';
-    } else if (error.message === 'FEATURE_DISABLED') {
-      canonicalCode = 'FEATURE_DISABLED';
-    } else {
-      canonicalCode = tRPCCodeToCanonical(error.code);
-    }
+/**
+ * tRPC procedure metadata for OpenAPI + feature flags.
+ * Add `requiredModule` to any procedure to gate it behind a tenant module check.
+ */
+export interface TRPCMeta {
+  openapi?: {
+    method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+    path: string;
+    protect?: boolean;
+    tags?: string[];
+    summary?: string;
+    [key: string]: unknown;
+  };
+  requiredModule?: ModuleKey;
+}
 
-    return {
-      ...shape,
-      data: {
-        ...shape.data,
-        code: canonicalCode,
-        httpStatus: shape.data.httpStatus,
-        zodError:
-          error.code === 'BAD_REQUEST' && error.cause instanceof ZodError
-            ? error.cause.flatten()
-            : null,
-      },
-    };
-  },
-});
+// Main tRPC instance with superjson for internal use
+const t = initTRPC
+  .context<Context>()
+  .meta<TRPCMeta>()
+  .create({
+    transformer: superjson,
+    errorFormatter({ shape, error }) {
+      // Determine canonical code — check for special message signals first
+      let canonicalCode: string;
+      if (error.message === 'SUSPENDED_USER') {
+        canonicalCode = 'SUSPENDED_USER';
+      } else if (error.message === 'FEATURE_DISABLED') {
+        canonicalCode = 'FEATURE_DISABLED';
+      } else {
+        canonicalCode = tRPCCodeToCanonical(error.code);
+      }
+
+      return {
+        ...shape,
+        data: {
+          ...shape.data,
+          code: canonicalCode,
+          httpStatus: shape.data.httpStatus,
+          zodError:
+            error.code === 'BAD_REQUEST' && error.cause instanceof ZodError
+              ? error.cause.flatten()
+              : null,
+        },
+      };
+    },
+  });
 
 export const router = t.router;
 export const publicProcedure = t.procedure;
@@ -197,6 +217,50 @@ export const privilegedProcedure = tenantProcedure.use(async ({ ctx, next }) => 
   }
   // Step 4: Suspension check
   await checkNotSuspended(ctx);
+  return next({ ctx });
+});
+
+/**
+ * Module-gated tenant procedure — extends tenantProcedure with a module-guard.
+ * Reads `requiredModule` from procedure meta and rejects with FEATURE_DISABLED
+ * if the module is not enabled for the tenant.
+ *
+ * Inlined rather than using t.middleware() so that the narrowed Context type
+ * (with `tenantId: string`) propagates correctly through the chain.
+ *
+ * Usage:
+ *   moduleProcedure
+ *     .meta({ requiredModule: 'maintenance' })
+ *     .input(...)
+ *     .query(...)
+ */
+export const moduleProcedure = tenantProcedure.use(async ({ ctx, next, meta }) => {
+  if (meta?.requiredModule && ctx.tenantId) {
+    const { isModuleEnabled } = await import('@entities/tenant/server');
+    if (!(await isModuleEnabled(ctx.tenantId, meta.requiredModule))) {
+      throw new TRPCError({ code: 'FORBIDDEN', message: 'FEATURE_DISABLED' });
+    }
+  }
+  return next({ ctx });
+});
+
+/**
+ * Module-gated privileged procedure — extends privilegedProcedure with module-guard middleware.
+ * Use for staff/admin endpoints that require both privilege AND a specific module.
+ *
+ * Usage:
+ *   privilegedModuleProcedure
+ *     .meta({ requiredModule: 'maintenance' })
+ *     .input(...)
+ *     .mutation(...)
+ */
+export const privilegedModuleProcedure = privilegedProcedure.use(async ({ ctx, next, meta }) => {
+  if (meta?.requiredModule && ctx.tenantId) {
+    const { isModuleEnabled } = await import('@entities/tenant/server');
+    if (!(await isModuleEnabled(ctx.tenantId, meta.requiredModule))) {
+      throw new TRPCError({ code: 'FORBIDDEN', message: 'FEATURE_DISABLED' });
+    }
+  }
   return next({ ctx });
 });
 

@@ -2,8 +2,8 @@ import { notDeleted, toEnvelope } from '@api/server';
 import { maintenanceRequestDto, maintenanceRequestDetailDto } from '@api/server';
 import {
   z,
-  tenantProcedure,
-  privilegedProcedure,
+  moduleProcedure,
+  privilegedModuleProcedure,
   db,
   maintenanceRequests,
   maintenanceTeams,
@@ -42,199 +42,219 @@ export const maintenanceRequestProcedures = {
    * List maintenance requests in the current tenant.
    * @tenant
    */
-  listRequests: tenantProcedure.input(ListRequestsInput).query(async ({ input, ctx }) => {
-    const tenantId = ctx.tenantId;
+  listRequests: moduleProcedure
+    .meta({ requiredModule: 'maintenance' })
+    .input(ListRequestsInput)
+    .query(async ({ input, ctx }) => {
+      const tenantId = ctx.tenantId;
 
-    const canViewAll = hasPermission(ctx.role, 'requests');
-    const scope = input?.scope || 'all';
+      const canViewAll = hasPermission(ctx.role, 'requests');
+      const scope = input?.scope || 'all';
 
-    const rows = await listMaintenanceRequests({
-      tenantId,
-      userId: ctx.userId,
-      canViewAll,
-      scope: scope === 'community' ? 'all' : scope,
-      status: input?.status || null,
-      priority: input?.priority || null,
-      category: input?.category || null,
-      dateFrom: input?.dateFrom || null,
-      dateTo: input?.dateTo || null,
-    });
+      const rows = await listMaintenanceRequests({
+        tenantId,
+        userId: ctx.userId,
+        canViewAll,
+        scope: scope === 'community' ? 'all' : scope,
+        status: input?.status || null,
+        priority: input?.priority || null,
+        category: input?.category || null,
+        dateFrom: input?.dateFrom || null,
+        dateTo: input?.dateTo || null,
+      });
 
-    return toEnvelope(
-      toMaintenanceRequestViewList(rows, scope).map(r => maintenanceRequestDto.parse(r))
-    );
-  }),
+      return toEnvelope(
+        toMaintenanceRequestViewList(rows, scope).map(r => maintenanceRequestDto.parse(r))
+      );
+    }),
 
   /**
    * Get a single maintenance request in the current tenant.
    * @tenant
    */
-  getRequest: tenantProcedure.input(RequestIdInput).query(async ({ input, ctx }) => {
-    const tenantId = ctx.tenantId;
+  getRequest: moduleProcedure
+    .meta({ requiredModule: 'maintenance' })
+    .input(RequestIdInput)
+    .query(async ({ input, ctx }) => {
+      const tenantId = ctx.tenantId;
 
-    const req = await getTenantRequest(input.id, tenantId);
+      const req = await getTenantRequest(input.id, tenantId);
 
-    // Residents can only see their own requests unless they have requests permission
-    if (!hasPermission(ctx.role, 'requests') && req.userId !== ctx.userId) {
-      throw new TRPCError({ code: 'FORBIDDEN', message: 'Access denied' });
-    }
+      // Residents can only see their own requests unless they have requests permission
+      if (!hasPermission(ctx.role, 'requests') && req.userId !== ctx.userId) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Access denied' });
+      }
 
-    const [userResult, propertyResult, teamResult, providerResult] = await Promise.all([
-      db
-        .select({ id: users.id, name: users.name, email: users.email })
-        .from(users)
-        .where(eq(users.id, req.userId))
-        .limit(1),
-      req.propertyId
-        ? db
-            .select({ id: properties.id, street: properties.street, unit: properties.unit })
-            .from(properties)
-            .where(eq(properties.id, req.propertyId))
-            .limit(1)
-        : Promise.resolve([]),
-      req.assignedTeamId
-        ? db
-            .select()
-            .from(maintenanceTeams)
-            .where(eq(maintenanceTeams.id, req.assignedTeamId))
-            .limit(1)
-        : Promise.resolve([]),
-      req.assignedProviderId
-        ? db
-            .select()
-            .from(serviceProviders)
-            .where(eq(serviceProviders.id, req.assignedProviderId))
-            .limit(1)
-        : Promise.resolve([]),
-    ]);
+      const [userResult, propertyResult, teamResult, providerResult] = await Promise.all([
+        db
+          .select({ id: users.id, name: users.name, email: users.email })
+          .from(users)
+          .where(eq(users.id, req.userId))
+          .limit(1),
+        req.propertyId
+          ? db
+              .select({ id: properties.id, street: properties.street, unit: properties.unit })
+              .from(properties)
+              .where(eq(properties.id, req.propertyId))
+              .limit(1)
+          : Promise.resolve([]),
+        req.assignedTeamId
+          ? db
+              .select()
+              .from(maintenanceTeams)
+              .where(eq(maintenanceTeams.id, req.assignedTeamId))
+              .limit(1)
+          : Promise.resolve([]),
+        req.assignedProviderId
+          ? db
+              .select()
+              .from(serviceProviders)
+              .where(eq(serviceProviders.id, req.assignedProviderId))
+              .limit(1)
+          : Promise.resolve([]),
+      ]);
 
-    const user = userResult[0] ?? null;
-    const property = propertyResult[0] ?? null;
-    const team = teamResult[0] ?? null;
-    const provider = providerResult[0] ?? null;
+      const user = userResult[0] ?? null;
+      const property = propertyResult[0] ?? null;
+      const team = teamResult[0] ?? null;
+      const provider = providerResult[0] ?? null;
 
-    return toEnvelope(
-      maintenanceRequestDetailDto.parse({
-        ...req,
-        user,
-        property,
-        assignedTeam: team,
-        assignedProvider: provider,
-      })
-    );
-  }),
+      return toEnvelope(
+        maintenanceRequestDetailDto.parse({
+          ...req,
+          user,
+          property,
+          assignedTeam: team,
+          assignedProvider: provider,
+        })
+      );
+    }),
 
   /**
    * Create a maintenance request in the current tenant.
    * @tenant
    */
-  createRequest: tenantProcedure.input(CreateRequestInput).mutation(async ({ input, ctx }) => {
-    const tenantId = ctx.tenantId;
+  createRequest: moduleProcedure
+    .meta({ requiredModule: 'maintenance' })
+    .input(CreateRequestInput)
+    .mutation(async ({ input, ctx }) => {
+      const tenantId = ctx.tenantId;
 
-    const [created] = await createMaintenanceRequest({
-      id: createId(),
-      tenantId,
-      userId: ctx.userId,
-      propertyId: input.propertyId || null,
-      category: input.category,
-      priority: input.priority,
-      description: input.description,
-      images: input.images || [],
-      preferredDate: input.preferredDate || null,
-      preferredTime: input.preferredTime || null,
-    });
+      const [created] = await createMaintenanceRequest({
+        id: createId(),
+        tenantId,
+        userId: ctx.userId,
+        propertyId: input.propertyId || null,
+        category: input.category,
+        priority: input.priority,
+        description: input.description,
+        images: input.images || [],
+        preferredDate: input.preferredDate || null,
+        preferredTime: input.preferredTime || null,
+      });
 
-    emitEvent('maintenance.created', {
-      requestId: created.id,
-      tenantId,
-      userId: ctx.userId,
-      category: input.category,
-    });
+      emitEvent('maintenance.created', {
+        requestId: created.id,
+        tenantId,
+        userId: ctx.userId,
+        category: input.category,
+      });
 
-    revalidateDashboard();
-    return toEnvelope(maintenanceRequestDto.parse(created));
-  }),
+      revalidateDashboard();
+      return toEnvelope(maintenanceRequestDto.parse(created));
+    }),
 
   /**
    * Update a maintenance request. Requires elevated permissions.
    * @privileged
    */
-  updateRequest: privilegedProcedure.input(UpdateRequestInput).mutation(async ({ input, ctx }) => {
-    requireRequestsPermission(ctx.role);
+  updateRequest: privilegedModuleProcedure
+    .meta({ requiredModule: 'maintenance' })
+    .input(UpdateRequestInput)
+    .mutation(async ({ input, ctx }) => {
+      requireRequestsPermission(ctx.role);
 
-    const tenantId = ctx.tenantId;
+      const tenantId = ctx.tenantId;
 
-    const existing = await getTenantRequest(input.id, tenantId);
+      const existing = await getTenantRequest(input.id, tenantId);
 
-    const updateData: Record<string, unknown> = {
-      updatedAt: now(),
-    };
+      const updateData: Record<string, unknown> = {
+        updatedAt: now(),
+      };
 
-    if (input.status !== undefined) {
-      const parsed = RequestStatusEnum.safeParse(input.status);
-      if (!parsed.success) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invalid status value' });
+      if (input.status !== undefined) {
+        const parsed = RequestStatusEnum.safeParse(input.status);
+        if (!parsed.success) {
+          throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invalid status value' });
+        }
+        updateData.status = input.status;
+
+        if (input.status === 'COMPLETED') {
+          updateData.completedAt = new Date();
+        }
       }
-      updateData.status = input.status;
-
-      if (input.status === 'COMPLETED') {
-        updateData.completedAt = new Date();
+      if (input.priority !== undefined) updateData.priority = input.priority;
+      if (input.description !== undefined) updateData.description = input.description;
+      if (input.assignedTo !== undefined) updateData.assignedTo = input.assignedTo;
+      if (input.vendor !== undefined) updateData.vendor = input.vendor;
+      if (input.scheduledDate !== undefined) {
+        updateData.scheduledDate = new Date(input.scheduledDate);
       }
-    }
-    if (input.priority !== undefined) updateData.priority = input.priority;
-    if (input.description !== undefined) updateData.description = input.description;
-    if (input.assignedTo !== undefined) updateData.assignedTo = input.assignedTo;
-    if (input.vendor !== undefined) updateData.vendor = input.vendor;
-    if (input.scheduledDate !== undefined) {
-      updateData.scheduledDate = new Date(input.scheduledDate);
-    }
-    if (input.estimatedCost !== undefined) updateData.estimatedCost = input.estimatedCost;
-    if (input.actualCost !== undefined) updateData.actualCost = input.actualCost;
-    if (input.resolution !== undefined) updateData.resolution = input.resolution;
-    if (input.assignedTeamId !== undefined) {
-      updateData.assignedTeamId = input.assignedTeamId;
-    }
-    if (input.assignedProviderId !== undefined) {
-      updateData.assignedProviderId = input.assignedProviderId;
-    }
+      if (input.estimatedCost !== undefined) updateData.estimatedCost = input.estimatedCost;
+      if (input.actualCost !== undefined) updateData.actualCost = input.actualCost;
+      if (input.resolution !== undefined) updateData.resolution = input.resolution;
+      if (input.assignedTeamId !== undefined) {
+        updateData.assignedTeamId = input.assignedTeamId;
+      }
+      if (input.assignedProviderId !== undefined) {
+        updateData.assignedProviderId = input.assignedProviderId;
+      }
 
-    const [updated] = await db
-      .update(maintenanceRequests)
-      .set(updateData)
-      .where(and(eq(maintenanceRequests.id, input.id), eq(maintenanceRequests.tenantId, tenantId)))
-      .returning();
+      const [updated] = await db
+        .update(maintenanceRequests)
+        .set(updateData)
+        .where(
+          and(eq(maintenanceRequests.id, input.id), eq(maintenanceRequests.tenantId, tenantId))
+        )
+        .returning();
 
-    await trackRequestChanges(input.id, ctx.userId, existing, updateData);
+      await trackRequestChanges(input.id, ctx.userId, existing, updateData);
 
-    revalidateDashboard();
-    return toEnvelope(maintenanceRequestDto.parse(updated));
-  }),
+      revalidateDashboard();
+      return toEnvelope(maintenanceRequestDto.parse(updated));
+    }),
 
   /**
    * Soft-delete a maintenance request. Requires elevated permissions.
    * @privileged
    */
-  deleteRequest: privilegedProcedure.input(RequestIdInput).mutation(async ({ input, ctx }) => {
-    requireRequestsPermission(ctx.role);
+  deleteRequest: privilegedModuleProcedure
+    .meta({ requiredModule: 'maintenance' })
+    .input(RequestIdInput)
+    .mutation(async ({ input, ctx }) => {
+      requireRequestsPermission(ctx.role);
 
-    const tenantId = ctx.tenantId;
+      const tenantId = ctx.tenantId;
 
-    await getTenantRequest(input.id, tenantId);
+      await getTenantRequest(input.id, tenantId);
 
-    await db
-      .update(maintenanceRequests)
-      .set({ deletedAt: now() })
-      .where(and(eq(maintenanceRequests.id, input.id), eq(maintenanceRequests.tenantId, tenantId)));
+      await db
+        .update(maintenanceRequests)
+        .set({ deletedAt: now() })
+        .where(
+          and(eq(maintenanceRequests.id, input.id), eq(maintenanceRequests.tenantId, tenantId))
+        );
 
-    revalidateDashboard();
-    return toEnvelope({ success: true });
-  }),
+      revalidateDashboard();
+      return toEnvelope({ success: true });
+    }),
 
   /**
    * List notes for a maintenance request in the current tenant.
    * @tenant
    */
-  listNotes: tenantProcedure
+  listNotes: moduleProcedure
+    .meta({ requiredModule: 'maintenance' })
     .input(z.object({ requestId: z.string() }))
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
@@ -305,120 +325,126 @@ export const maintenanceRequestProcedures = {
    * Create a note on a maintenance request. Requires elevated permissions.
    * @privileged
    */
-  createNote: privilegedProcedure.input(CreateNoteInput).mutation(async ({ input, ctx }) => {
-    requireRequestsPermission(ctx.role);
+  createNote: privilegedModuleProcedure
+    .meta({ requiredModule: 'maintenance' })
+    .input(CreateNoteInput)
+    .mutation(async ({ input, ctx }) => {
+      requireRequestsPermission(ctx.role);
 
-    const tenantId = ctx.tenantId;
+      const tenantId = ctx.tenantId;
 
-    await getTenantRequest(input.requestId, tenantId);
+      await getTenantRequest(input.requestId, tenantId);
 
-    const noteId = createId();
-    const createdAt = new Date();
+      const noteId = createId();
+      const createdAt = new Date();
 
-    if (input.isInternal) {
+      if (input.isInternal) {
+        const [note] = await db
+          .insert(internalMaintenanceNotes)
+          .values({
+            id: noteId,
+            requestId: input.requestId,
+            userId: ctx.userId,
+            content: input.content,
+            createdAt,
+            updatedAt: createdAt,
+          })
+          .returning();
+
+        revalidateDashboard();
+        return toEnvelope({ ...note, isInternal: true as const });
+      }
+
       const [note] = await db
-        .insert(internalMaintenanceNotes)
+        .insert(requestNotes)
         .values({
           id: noteId,
           requestId: input.requestId,
           userId: ctx.userId,
           content: input.content,
           createdAt,
-          updatedAt: createdAt,
         })
         .returning();
 
       revalidateDashboard();
-      return toEnvelope({ ...note, isInternal: true as const });
-    }
-
-    const [note] = await db
-      .insert(requestNotes)
-      .values({
-        id: noteId,
-        requestId: input.requestId,
-        userId: ctx.userId,
-        content: input.content,
-        createdAt,
-      })
-      .returning();
-
-    revalidateDashboard();
-    return toEnvelope({ ...note, isInternal: false as const });
-  }),
+      return toEnvelope({ ...note, isInternal: false as const });
+    }),
 
   /**
    * Assign a maintenance request to a team or provider. Requires elevated permissions.
    * @privileged
    */
-  assignRequest: privilegedProcedure.input(AssignRequestInput).mutation(async ({ input, ctx }) => {
-    requireRequestsPermission(ctx.role);
+  assignRequest: privilegedModuleProcedure
+    .meta({ requiredModule: 'maintenance' })
+    .input(AssignRequestInput)
+    .mutation(async ({ input, ctx }) => {
+      requireRequestsPermission(ctx.role);
 
-    const tenantId = ctx.tenantId;
+      const tenantId = ctx.tenantId;
 
-    if (!input.teamId && !input.providerId) {
-      throw new TRPCError({
-        code: 'BAD_REQUEST',
-        message: 'At least one of teamId or providerId is required',
-      });
-    }
-
-    const existing = await getTenantRequest(input.requestId, tenantId);
-
-    // Validate team exists and is active
-    if (input.teamId) {
-      const [team] = await db
-        .select()
-        .from(maintenanceTeams)
-        .where(
-          and(
-            eq(maintenanceTeams.id, input.teamId),
-            eq(maintenanceTeams.tenantId, tenantId),
-            eq(maintenanceTeams.isActive, true),
-            notDeleted(maintenanceTeams)
-          )
-        );
-      if (!team) {
-        throw new TRPCError({ code: 'NOT_FOUND', message: 'Team not found or inactive' });
+      if (!input.teamId && !input.providerId) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'At least one of teamId or providerId is required',
+        });
       }
-    }
 
-    // Validate provider exists and is active
-    if (input.providerId) {
-      const [provider] = await db
-        .select()
-        .from(serviceProviders)
-        .where(
-          and(
-            eq(serviceProviders.id, input.providerId),
-            eq(serviceProviders.tenantId, tenantId),
-            eq(serviceProviders.isActive, true),
-            notDeleted(serviceProviders)
-          )
-        );
-      if (!provider) {
-        throw new TRPCError({ code: 'NOT_FOUND', message: 'Provider not found or inactive' });
+      const existing = await getTenantRequest(input.requestId, tenantId);
+
+      // Validate team exists and is active
+      if (input.teamId) {
+        const [team] = await db
+          .select()
+          .from(maintenanceTeams)
+          .where(
+            and(
+              eq(maintenanceTeams.id, input.teamId),
+              eq(maintenanceTeams.tenantId, tenantId),
+              eq(maintenanceTeams.isActive, true),
+              notDeleted(maintenanceTeams)
+            )
+          );
+        if (!team) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Team not found or inactive' });
+        }
       }
-    }
 
-    const updateData: Record<string, unknown> = { updatedAt: now() };
-    if (input.teamId !== undefined) updateData.assignedTeamId = input.teamId;
-    if (input.providerId !== undefined) updateData.assignedProviderId = input.providerId;
+      // Validate provider exists and is active
+      if (input.providerId) {
+        const [provider] = await db
+          .select()
+          .from(serviceProviders)
+          .where(
+            and(
+              eq(serviceProviders.id, input.providerId),
+              eq(serviceProviders.tenantId, tenantId),
+              eq(serviceProviders.isActive, true),
+              notDeleted(serviceProviders)
+            )
+          );
+        if (!provider) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Provider not found or inactive' });
+        }
+      }
 
-    // Auto-transition SUBMITTED → ASSIGNED
-    if (existing.status === 'SUBMITTED') {
-      updateData.status = 'ASSIGNED';
-    }
+      const updateData: Record<string, unknown> = { updatedAt: now() };
+      if (input.teamId !== undefined) updateData.assignedTeamId = input.teamId;
+      if (input.providerId !== undefined) updateData.assignedProviderId = input.providerId;
 
-    const [updated] = await db
-      .update(maintenanceRequests)
-      .set(updateData)
-      .where(eq(maintenanceRequests.id, input.requestId))
-      .returning();
+      // Auto-transition SUBMITTED → ASSIGNED
+      if (existing.status === 'SUBMITTED') {
+        updateData.status = 'ASSIGNED';
+      }
 
-    await trackRequestChanges(input.requestId, ctx.userId, existing, updateData);
+      const [updated] = await db
+        .update(maintenanceRequests)
+        .set(updateData)
+        .where(eq(maintenanceRequests.id, input.requestId))
+        .returning();
 
-    revalidateDashboard();
-    return toEnvelope(maintenanceRequestDto.parse(updated));
-  }),
+      await trackRequestChanges(input.requestId, ctx.userId, existing, updateData);
+
+      revalidateDashboard();
+      return toEnvelope(maintenanceRequestDto.parse(updated));
+    }),
 };
