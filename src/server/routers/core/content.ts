@@ -77,7 +77,10 @@ const LicenseEnum = z.enum(['CC0', 'CC_BY', 'CC_BY_SA', 'CC_BY_NC', 'ALL_RIGHTS_
 
 const ModerationEnum = z.enum(['DRAFT', 'PUBLISHED', 'UNPUBLISHED', 'FLAGGED']);
 
-const LocaleRecord = z.record(z.string(), z.string());
+const LocaleRecord = z.record(
+  z.string(),
+  z.string().max(102_400, 'Content per locale must not exceed 100KB')
+);
 
 const CreateContentInput = z.object({
   title: LocaleRecord,

@@ -1,10 +1,17 @@
+interface TipTapMark {
+  type: string;
+  attrs?: Record<string, unknown>;
+}
+
 interface TipTapNode {
   type: string;
   content?: TipTapNode[];
   attrs?: Record<string, unknown>;
   text?: string;
-  marks?: Array<{ type: string }>;
+  marks?: TipTapMark[];
 }
+
+const MAX_DEPTH = 50;
 
 function renderText(node: TipTapNode): React.ReactNode {
   let result: React.ReactNode = node.text || '';
@@ -14,14 +21,28 @@ function renderText(node: TipTapNode): React.ReactNode {
       if (mark.type === 'italic') result = <em>{result}</em>;
       if (mark.type === 'underline') result = <u>{result}</u>;
       if (mark.type === 'strike') result = <s>{result}</s>;
+      if (mark.type === 'link') {
+        const href = (mark.attrs?.href as string) || '#';
+        result = (
+          <a
+            href={href}
+            target={(mark.attrs?.target as string) || '_blank'}
+            rel={(mark.attrs?.rel as string) || 'noopener noreferrer'}
+            className="text-indigo-600 underline"
+          >
+            {result}
+          </a>
+        );
+      }
     }
   }
   return result;
 }
 
-function renderNode(node: TipTapNode, key: number): React.ReactNode {
+function renderNode(node: TipTapNode, key: number, depth = 0): React.ReactNode {
   const { type, content, attrs } = node;
   if (!type) return null;
+  if (depth > MAX_DEPTH) return null;
 
   switch (type) {
     case 'heading': {
@@ -48,7 +69,7 @@ function renderNode(node: TipTapNode, key: number): React.ReactNode {
       return (
         <ul key={key} className="list-disc list-inside space-y-2 mb-4 text-gray-700">
           {content?.map((item, i) => (
-            <li key={i}>{item.content?.map((child, j) => renderNode(child, j))}</li>
+            <li key={i}>{item.content?.map((child, j) => renderNode(child, j, depth + 1))}</li>
           ))}
         </ul>
       );
@@ -56,14 +77,14 @@ function renderNode(node: TipTapNode, key: number): React.ReactNode {
       return (
         <ol key={key} className="list-decimal list-inside space-y-2 mb-4 text-gray-700">
           {content?.map((item, i) => (
-            <li key={i}>{item.content?.map((child, j) => renderNode(child, j))}</li>
+            <li key={i}>{item.content?.map((child, j) => renderNode(child, j, depth + 1))}</li>
           ))}
         </ol>
       );
     case 'blockquote':
       return (
         <blockquote key={key} className="border-l-4 border-gray-300 pl-4 italic text-gray-600 mb-4">
-          {content?.map((child, i) => renderNode(child, i))}
+          {content?.map((child, i) => renderNode(child, i, depth + 1))}
         </blockquote>
       );
     case 'codeBlock':
@@ -74,6 +95,35 @@ function renderNode(node: TipTapNode, key: number): React.ReactNode {
       );
     case 'horizontalRule':
       return <hr key={key} className="my-6 border-gray-200" />;
+    case 'table':
+      return (
+        <div key={key} className="overflow-x-auto mb-4">
+          <table className="min-w-full border-collapse border border-gray-300">
+            {content?.map((child, i) => renderNode(child, i, depth + 1))}
+          </table>
+        </div>
+      );
+    case 'tableRow':
+      return (
+        <tr key={key} className="border border-gray-300">
+          {content?.map((child, i) => renderNode(child, i, depth + 1))}
+        </tr>
+      );
+    case 'tableHeader':
+      return (
+        <th
+          key={key}
+          className="border border-gray-300 bg-gray-100 px-3 py-2 text-left font-semibold text-gray-900"
+        >
+          {content?.map((child, i) => renderNode(child, i, depth + 1))}
+        </th>
+      );
+    case 'tableCell':
+      return (
+        <td key={key} className="border border-gray-300 px-3 py-2 text-gray-700">
+          {content?.map((child, i) => renderNode(child, i, depth + 1))}
+        </td>
+      );
     case 'text':
       return <span key={key}>{renderText(node)}</span>;
     default:

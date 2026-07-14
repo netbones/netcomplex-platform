@@ -1,6 +1,9 @@
 import { z } from 'zod';
 
-const localeContentSchema = z.record(z.string(), z.string());
+const localeContentSchema = z.record(
+  z.string(),
+  z.string().max(102_400, 'Content per locale must not exceed 100KB')
+);
 
 /**
  * Zod schema for content (articles, campaigns, etc.) form validation.

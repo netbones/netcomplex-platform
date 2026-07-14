@@ -40,6 +40,31 @@ const BUCKET_NAME = process.env.STORAGE_BUCKET || 'content-image';
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
+const MAGIC_BYTES: Record<string, number[]> = {
+  'image/jpeg': [0xff, 0xd8, 0xff],
+  'image/png': [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a],
+  'image/gif': [0x47, 0x49, 0x46, 0x38],
+  'image/webp': [0x52, 0x49, 0x46, 0x46],
+};
+
+function validateMagicBytes(buffer: Buffer, mimeType: string): boolean {
+  const expected = MAGIC_BYTES[mimeType];
+  if (!expected) return false;
+  if (buffer.length < expected.length) return false;
+  const matches = expected.every((byte, i) => buffer[i] === byte);
+  if (!matches) return false;
+  if (mimeType === 'image/webp') {
+    return (
+      buffer.length >= 12 &&
+      buffer[8] === 0x57 &&
+      buffer[9] === 0x45 &&
+      buffer[10] === 0x42 &&
+      buffer[11] === 0x50
+    );
+  }
+  return true;
+}
+
 export interface UploadResult {
   url: string;
   key: string;
@@ -70,6 +95,14 @@ export async function uploadImage(file: File, userId: string): Promise<UploadRes
   try {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
+
+    if (!validateMagicBytes(buffer, file.type)) {
+      return {
+        url: '',
+        key: '',
+        error: 'File content does not match its type. Possible MIME spoofing.',
+      };
+    }
 
     const ext = file.name.split('.').pop() || 'jpg';
     const key = `users/${userId}/${createId()}.${ext}`;
@@ -162,6 +195,14 @@ export async function uploadTenantImage(file: File, tenantId: string): Promise<U
   try {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
+
+    if (!validateMagicBytes(buffer, file.type)) {
+      return {
+        url: '',
+        key: '',
+        error: 'File content does not match its type. Possible MIME spoofing.',
+      };
+    }
 
     const ext = file.name.split('.').pop() || 'jpg';
     const key = `tenants/${tenantId}/system/${createId()}.${ext}`;

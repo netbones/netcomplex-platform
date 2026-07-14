@@ -13,6 +13,8 @@ import { Color } from '@tiptap/extension-color';
 import TextAlign from '@tiptap/extension-text-align';
 import Highlight from '@tiptap/extension-highlight';
 import Underline from '@tiptap/extension-underline';
+import Link from '@tiptap/extension-link';
+import { Table, TableRow, TableHeader, TableCell } from '@tiptap/extension-table';
 import { FontSize } from './FontSize';
 import { FontFamily } from './FontFamily';
 import { common, createLowlight } from 'lowlight';
@@ -103,10 +105,15 @@ export function RichTextEditor({
   const [showColor, setShowColor] = useState(false);
   const [showFontFamily, setShowFontFamily] = useState(false);
   const [showHeading, setShowHeading] = useState(false);
+  const [showLink, setShowLink] = useState(false);
+  const [linkUrl, setLinkUrl] = useState('');
+  const [showTable, setShowTable] = useState(false);
   const fontSizeRef = useRef<HTMLDivElement>(null);
   const colorRef = useRef<HTMLDivElement>(null);
   const fontFamilyRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLDivElement>(null);
+  const linkRef = useRef<HTMLDivElement>(null);
+  const tableRef = useRef<HTMLDivElement>(null);
 
   const editor = useEditor({
     extensions: [
@@ -151,6 +158,18 @@ export function RichTextEditor({
         multicolor: true,
       }),
       Underline,
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          rel: 'noopener noreferrer',
+          target: '_blank',
+          class: 'text-indigo-600 underline',
+        },
+      }),
+      Table.configure({ resizable: true }),
+      TableRow,
+      TableHeader,
+      TableCell,
       FontSize,
       FontFamily,
     ],
@@ -267,6 +286,44 @@ export function RichTextEditor({
     setShowHeading(false);
   };
 
+  const applyLink = () => {
+    if (!editor) return;
+    const url = linkUrl.trim();
+    if (!url) {
+      editor.chain().focus().unsetLink().run();
+    } else {
+      editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+    }
+    setLinkUrl('');
+    setShowLink(false);
+  };
+
+  const openLinkInput = () => {
+    if (!editor) return;
+    const existing = editor.getAttributes('link').href as string | undefined;
+    setLinkUrl(existing || '');
+    setShowLink(true);
+    setShowTable(false);
+  };
+
+  const insertTable = () => {
+    editor?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
+    setShowTable(false);
+  };
+
+  const addRowAfter = () => {
+    editor?.chain().focus().addRowAfter().run();
+  };
+
+  const addColumnAfter = () => {
+    editor?.chain().focus().addColumnAfter().run();
+  };
+
+  const deleteTable = () => {
+    editor?.chain().focus().deleteTable().run();
+    setShowTable(false);
+  };
+
   const getCurrentHeading = () => {
     if (!editor) return 'H';
     if (editor.isActive('paragraph')) return 'P';
@@ -292,6 +349,12 @@ export function RichTextEditor({
       }
       if (fontFamilyRef.current && !fontFamilyRef.current.contains(e.target as Node)) {
         setShowFontFamily(false);
+      }
+      if (linkRef.current && !linkRef.current.contains(e.target as Node)) {
+        setShowLink(false);
+      }
+      if (tableRef.current && !tableRef.current.contains(e.target as Node)) {
+        setShowTable(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -557,6 +620,112 @@ export function RichTextEditor({
         >
           <i className="fas fa-code"></i>
         </ToolbarButton>
+
+        <span className="w-px h-6 bg-gray-300 mx-1"></span>
+
+        {/* Link */}
+        <div className="relative" ref={linkRef}>
+          <ToolbarButton
+            title="Insert Link"
+            type="button"
+            onClick={openLinkInput}
+            className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('link') ? 'bg-gray-200' : ''}`}
+          >
+            <i className="fas fa-link"></i>
+          </ToolbarButton>
+          {showLink && (
+            <div className="absolute top-full left-0 mt-1 bg-white border rounded-lg shadow-lg z-20 p-2 min-w-[280px]">
+              <div className="flex items-center gap-2">
+                <input
+                  type="url"
+                  value={linkUrl}
+                  onChange={e => setLinkUrl(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      applyLink();
+                    } else if (e.key === 'Escape') {
+                      setShowLink(false);
+                      setLinkUrl('');
+                    }
+                  }}
+                  placeholder="https://example.com"
+                  className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded focus:border-indigo-500 focus:outline-none"
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  onClick={applyLink}
+                  className="px-3 py-1.5 text-xs font-medium text-white bg-indigo-600 rounded hover:bg-indigo-700"
+                >
+                  Apply
+                </button>
+              </div>
+              {editor.isActive('link') && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    editor.chain().focus().unsetLink().run();
+                    setShowLink(false);
+                    setLinkUrl('');
+                  }}
+                  className="mt-2 text-xs text-red-600 hover:text-red-800"
+                >
+                  Remove link
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Table */}
+        <div className="relative" ref={tableRef}>
+          <ToolbarButton
+            title="Table"
+            type="button"
+            onClick={() => {
+              setShowTable(!showTable);
+              setShowLink(false);
+            }}
+            className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('table') ? 'bg-gray-200' : ''}`}
+          >
+            <i className="fas fa-table"></i>
+          </ToolbarButton>
+          {showTable && (
+            <div className="absolute top-full left-0 mt-1 bg-white border rounded-lg shadow-lg z-20 p-1 min-w-[160px]">
+              <button
+                onClick={insertTable}
+                className="w-full text-left px-3 py-2 text-sm rounded hover:bg-gray-100"
+              >
+                Insert Table (3×3)
+              </button>
+              {editor.isActive('table') && (
+                <>
+                  <div className="border-t border-gray-100 my-1"></div>
+                  <button
+                    onClick={addRowAfter}
+                    className="w-full text-left px-3 py-2 text-sm rounded hover:bg-gray-100"
+                  >
+                    Add Row Below
+                  </button>
+                  <button
+                    onClick={addColumnAfter}
+                    className="w-full text-left px-3 py-2 text-sm rounded hover:bg-gray-100"
+                  >
+                    Add Column Right
+                  </button>
+                  <div className="border-t border-gray-100 my-1"></div>
+                  <button
+                    onClick={deleteTable}
+                    className="w-full text-left px-3 py-2 text-sm rounded hover:bg-gray-100 text-red-600"
+                  >
+                    Delete Table
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+        </div>
 
         <span className="w-px h-6 bg-gray-300 mx-1"></span>
 
