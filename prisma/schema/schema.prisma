@@ -2528,6 +2528,46 @@ model Bursary {
   @@index([fieldId])
 }
 
+/// Transactional outbox for durable domain-event side effects (TOPOLOGY.md Lane A).
+/// Events are written in the same DB transaction as the business write, then
+/// drained by the Outbox Dispatcher and fanned out to registry-driven handlers.
+model Outbox {
+  id            String   @id @default(uuid())
+  type          String
+  version       Int      @default(1)
+  tenantId      String
+  correlationId String
+  causationId   String?
+  actorId       String?
+  payload       Json
+  createdAt     DateTime @default(now())
+  processedAt   DateTime?
+  attempts      Int      @default(0)
+  error         String?
+
+  @@index([processedAt])
+  @@index([type])
+}
+
+/// Dead Letter Queue for events that exhausted Outbox retry attempts
+/// (ADVISORY-033 §7). Preserves event, payload, error, handler, and retry count.
+model OutboxDeadLetter {
+  id             String    @id @default(uuid())
+  outboxId       String?
+  type           String
+  version        Int
+  tenantId       String
+  correlationId  String?
+  payload        Json
+  error          String?
+  handler        String?
+  attempts       Int?
+  deadLetteredAt DateTime  @default(now())
+
+  @@index([type])
+  @@index([tenantId])
+}
+
 enum DelegationStatus {
   PENDING
   ACTIVE

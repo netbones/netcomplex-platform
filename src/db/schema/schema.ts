@@ -112,6 +112,8 @@ import * as disputeMessages from './dispute-messages';
 import * as disputeMessageVersions from './dispute-message-versions';
 import * as disputeNotifications from './dispute-notifications';
 import * as bursaries from './bursaries';
+import * as outboxes from './outboxes';
+import * as outboxDeadLetters from './outbox-dead-letters';
 import * as tenants from './tenants';
 import * as accountsRelations from './accounts-relations';
 import * as passkeysRelations from './passkeys-relations';
@@ -341,6 +343,8 @@ export const schema = {
   ...disputeMessageVersions,
   ...disputeNotifications,
   ...bursaries,
+  ...outboxes,
+  ...outboxDeadLetters,
   ...tenants,
   ...accountsRelations,
   ...passkeysRelations,
