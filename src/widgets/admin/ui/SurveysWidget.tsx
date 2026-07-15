@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ErrorBoundary } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
 
+import { AlertCircle, BarChart3, HelpCircle, Plus, Reply } from 'lucide-react';
 const log = createComponentLogger('SurveysWidget');
 
 export interface SurveyItem {
@@ -83,7 +84,7 @@ export function SurveysWidget() {
     return (
       <ErrorBoundary>
         <div className="text-center py-4">
-          <i className="fas fa-exclamation-circle text-2xl text-red-500 mb-2"></i>
+          <AlertCircle className="text-2xl text-red-500 mb-2" />
           <p className="text-sm text-gray-600 mb-3">{error}</p>
           <button
             onClick={handleRetry}
@@ -100,13 +101,13 @@ export function SurveysWidget() {
     return (
       <ErrorBoundary>
         <div className="text-center py-6">
-          <i className="fas fa-poll text-3xl text-gray-400 mb-3"></i>
+          <BarChart3 className="text-3xl text-gray-400 mb-3" />
           <p className="text-sm text-gray-600 mb-3">No surveys yet</p>
           <Link
             href="/admin/surveys/new"
             className="inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
           >
-            <i className="fas fa-plus"></i>
+            <Plus />
             Create Survey
           </Link>
         </div>
@@ -124,7 +125,7 @@ export function SurveysWidget() {
               className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
             >
               <div className="flex-shrink-0 mt-0.5">
-                <i className="fas fa-poll text-indigo-500"></i>
+                <BarChart3 className="text-indigo-500" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
@@ -137,11 +138,11 @@ export function SurveysWidget() {
                 </div>
                 <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
                   <span>
-                    <i className="fas fa-question-circle mr-1"></i>
+                    <HelpCircle className="mr-1" />
                     {survey._count?.questions ?? 0} questions
                   </span>
                   <span>
-                    <i className="fas fa-reply mr-1"></i>
+                    <Reply className="mr-1" />
                     {survey._count?.responses ?? 0} responses
                   </span>
                 </div>

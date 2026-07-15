@@ -28,6 +28,15 @@ import { TagCloudWidget } from './TagCloudWidget';
 import { QuickStatsWidget } from './QuickStatsWidget';
 import { WeatherWidget } from './WeatherWidget';
 
+import { BarChart3, EyeOff, Inbox, Plus, Share2, Sun, Tags, X } from 'lucide-react';
+import { ReactNode } from 'react';
+
+const ICON_MAP: Record<string, ReactNode> = {
+  'share-alt': <Share2 className="text-indigo-600 w-4" />,
+  tags: <Tags className="text-indigo-600 w-4" />,
+  'chart-bar': <BarChart3 className="text-indigo-600 w-4" />,
+  sun: <Sun className="text-indigo-600 w-4" />,
+};
 interface SidebarWidget {
   id: string;
   type: string;
@@ -44,10 +53,10 @@ interface AvailableWidget {
 }
 
 const AVAILABLE_WIDGETS: AvailableWidget[] = [
-  { id: 'social-media', type: 'social-media', title: 'Social Media', icon: 'fab fa-share-alt' },
-  { id: 'tag-cloud', type: 'tag-cloud', title: 'Tag Cloud', icon: 'fas fa-tags' },
-  { id: 'quick-stats', type: 'quick-stats', title: 'Quick Stats', icon: 'fas fa-chart-bar' },
-  { id: 'weather', type: 'weather', title: 'Weather', icon: 'fas fa-sun' },
+  { id: 'social-media', type: 'social-media', title: 'Social Media', icon: 'share-alt' },
+  { id: 'tag-cloud', type: 'tag-cloud', title: 'Tag Cloud', icon: 'tags' },
+  { id: 'quick-stats', type: 'quick-stats', title: 'Quick Stats', icon: 'chart-bar' },
+  { id: 'weather', type: 'weather', title: 'Weather', icon: 'sun' },
 ];
 
 /*
@@ -148,7 +157,7 @@ export function SidebarWidgetBox({ maxWidgets = 6 }: SidebarWidgetBoxProps) {
               onClick={() => setIsAddingWidget(!isAddingWidget)}
               className="text-sm text-indigo-600 hover:text-indigo-800"
             >
-              <i className="fas fa-plus mr-1"></i>
+              <Plus className="mr-1" />
               {t('addWidget', 'Add')}
             </button>
           )}
@@ -167,7 +176,7 @@ export function SidebarWidgetBox({ maxWidgets = 6 }: SidebarWidgetBoxProps) {
                     onClick={() => addWidget(widget.type)}
                     className="w-full flex items-center gap-2 p-2 rounded hover:bg-indigo-50 text-left"
                   >
-                    <i className={`${widget.icon} text-indigo-600 w-4`}></i>
+                    {ICON_MAP[widget.icon]}
                     <span className="text-sm">{widget.title}</span>
                   </button>
                 )
@@ -197,7 +206,7 @@ export function SidebarWidgetBox({ maxWidgets = 6 }: SidebarWidgetBoxProps) {
                     className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700 text-xs"
                     title={t('removeWidget', 'Remove Widget')}
                   >
-                    <i className="fas fa-times"></i>
+                    <X />
                   </button>
                 </div>
                 {renderWidget(widget.type, widget.id, session?.user?.id || '')}
@@ -207,7 +216,7 @@ export function SidebarWidgetBox({ maxWidgets = 6 }: SidebarWidgetBoxProps) {
 
         {widgets.length === 0 && (
           <div className="text-center py-6 text-gray-500">
-            <i className="fas fa-inbox text-2xl mb-2"></i>
+            <Inbox className="text-2xl mb-2" />
             <p className="text-sm">{t('noSidebarWidgets', 'No sidebar widgets yet')}</p>
             <button
               onClick={() => setIsAddingWidget(true)}
@@ -232,7 +241,7 @@ export function SidebarWidgetBox({ maxWidgets = 6 }: SidebarWidgetBoxProps) {
                     onClick={() => toggleWidgetVisibility(widget.id)}
                     className="w-full flex items-center gap-2 p-2 rounded hover:bg-gray-50 text-left text-sm text-gray-600"
                   >
-                    <i className="fas fa-eye-slash w-4"></i>
+                    <EyeOff className="w-4" />
                     <span>{widget.title}</span>
                   </button>
                 ))}

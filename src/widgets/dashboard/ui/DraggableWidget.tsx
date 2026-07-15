@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { Rnd } from 'react-rnd';
 import { useSafeTranslation } from '@shared/lib';
 import { useWidgetStore } from '@entities/widget';
+import { ChevronDown, ChevronUp, GripVertical, Wrench, X } from 'lucide-react';
 
 interface DraggableWidgetProps {
   id: string;
@@ -20,7 +21,7 @@ interface DraggableWidgetProps {
 export function DraggableWidget({
   id,
   title,
-  icon,
+  icon: _icon,
   children,
   removable = false,
   onRemove,
@@ -133,8 +134,8 @@ export function DraggableWidget({
         className={`drag-handle flex items-center justify-between p-4 bg-gradient-to-r from-indigo-500 to-purple-600 ${isEditMode ? 'cursor-move' : ''}`}
       >
         <div className="flex items-center gap-3">
-          {isEditMode && <i className="fas fa-grip-vertical text-white/50 mr-2"></i>}
-          <i className={`fas ${icon} text-white text-lg`}></i>
+          {isEditMode && <GripVertical className="text-white/50 mr-2" />}
+          <Wrench className="text-white text-lg" />
           <h3 className="text-lg font-semibold text-white">{title}</h3>
         </div>
         <div className="flex items-center gap-2">
@@ -150,9 +151,11 @@ export function DraggableWidget({
                 layout.isCollapsed ? tx('expandWidget', 'Expand') : tx('collapseWidget', 'Collapse')
               }
             >
-              <i
-                className={`fas fa-chevron-${layout.isCollapsed ? 'down' : 'up'} text-white text-sm`}
-              ></i>
+              {layout.isCollapsed ? (
+                <ChevronDown className="text-white text-sm" />
+              ) : (
+                <ChevronUp className="text-white text-sm" />
+              )}
             </button>
           )}
           {isEditMode && removable && onRemove && (
@@ -165,7 +168,7 @@ export function DraggableWidget({
               className="p-1 rounded transition-colors pointer-events-auto"
               title={tx('removeWidget', 'Remove widget')}
             >
-              <i className="fas fa-times text-white/70 hover:text-red-400 text-sm transition-colors"></i>
+              <X className="text-white/70 hover:text-red-400 text-sm transition-colors" />
             </button>
           )}
         </div>

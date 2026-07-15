@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslation } from 'react-i18next';
 
+import { AlertCircle, AlertTriangle, Building2, Key } from 'lucide-react';
 interface ManagedProperty {
   id: string;
   street: string;
@@ -64,7 +65,7 @@ export function AgentDashboardWidget() {
     return (
       <div className="text-center py-6">
         <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-red-50 flex items-center justify-center">
-          <i className="fas fa-exclamation-circle text-red-400"></i>
+          <AlertCircle className="text-red-400" />
         </div>
         <p className="text-red-500 text-sm">{error}</p>
       </div>
@@ -75,7 +76,7 @@ export function AgentDashboardWidget() {
     return (
       <div className="text-center py-6">
         <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center">
-          <i className="fas fa-key text-gray-400"></i>
+          <Key className="text-gray-400" />
         </div>
         <p className="text-gray-500 text-sm">{t('noManagedProperties', 'No properties managed')}</p>
         <p className="text-gray-400 text-xs mt-1">Property owners can grant you access</p>
@@ -106,7 +107,7 @@ export function AgentDashboardWidget() {
               />
             ) : (
               <div className="w-14 h-14 rounded-lg bg-indigo-100 flex items-center justify-center">
-                <i className="fas fa-building text-indigo-400"></i>
+                <Building2 className="text-indigo-400" />
               </div>
             )}
             <div className="flex-1 min-w-0">
@@ -114,7 +115,7 @@ export function AgentDashboardWidget() {
                 <h3 className="font-semibold text-gray-900">Unit {household.unit}</h3>
                 {isExpiringSoon(household.accessExpiresAt) && (
                   <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded flex items-center gap-1">
-                    <i className="fas fa-exclamation-triangle"></i>
+                    <AlertTriangle />
                     {t('expiring', 'Expiring')}
                   </span>
                 )}

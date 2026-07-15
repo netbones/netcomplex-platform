@@ -11,6 +11,7 @@ import { usePageLoading } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
 import { trpc } from '@api/client';
 
+import { LayoutGrid, List, Users, Wrench } from 'lucide-react';
 const log = createComponentLogger('DirectoryPage');
 
 export function DirectoryPage() {
@@ -256,7 +257,7 @@ export function DirectoryPage() {
                   : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
             >
-              <i className="fas fa-users mr-2"></i>
+              <Users className="mr-2" />
               Residents
             </button>
             <button
@@ -267,7 +268,7 @@ export function DirectoryPage() {
                   : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
             >
-              <i className="fas fa-tools mr-2"></i>
+              <Wrench className="mr-2" />
               Services
             </button>
           </div>
@@ -286,7 +287,7 @@ export function DirectoryPage() {
                 }`}
                 aria-label="Grid view"
               >
-                <i className="fas fa-th-large" aria-hidden="true"></i>
+                <LayoutGrid />
               </button>
               <button
                 onClick={() =>
@@ -299,7 +300,7 @@ export function DirectoryPage() {
                 }`}
                 aria-label="List view"
               >
-                <i className="fas fa-list" aria-hidden="true"></i>
+                <List className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
           </div>

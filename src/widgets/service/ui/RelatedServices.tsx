@@ -6,6 +6,7 @@ import { ReviewStars, PricingDisplay, ServiceListing } from '@entities/service';
 import Image from 'next/image';
 import { createComponentLogger } from '@shared/lib';
 
+import { User } from 'lucide-react';
 const log = createComponentLogger('RelatedServices');
 
 interface RelatedServicesProps {
@@ -74,7 +75,7 @@ export function RelatedServices({ serviceId }: RelatedServicesProps) {
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-gray-400">
-                  <i className="fas fa-image text-2xl"></i>
+                  <Image className="text-2xl" />
                 </div>
               )}
             </div>
@@ -94,7 +95,7 @@ export function RelatedServices({ serviceId }: RelatedServicesProps) {
             )}
             {service.provider?.name && (
               <p className="text-sm text-gray-500 mt-2 truncate">
-                <i className="fas fa-user mr-1"></i>
+                <User className="mr-1" />
                 {service.provider.name}
               </p>
             )}

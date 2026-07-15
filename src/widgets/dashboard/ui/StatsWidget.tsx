@@ -1,5 +1,15 @@
 import Link from 'next/link';
+import { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+
+import { Bell, CalendarCheck, ChevronRight, MessageCircle, Wrench } from 'lucide-react';
+
+const ICON_MAP: Record<string, ReactNode> = {
+  'fa-wrench': <Wrench className="text-lg" />,
+  'fa-calendar-check': <CalendarCheck className="text-lg" />,
+  'fa-comments': <MessageCircle className="text-lg" />,
+  'fa-bell': <Bell className="text-lg" />,
+};
 
 interface StatsData {
   requests: number;
@@ -41,14 +51,14 @@ export function StatCard({
         <div
           className={`w-12 h-12 rounded-xl flex items-center justify-center ${color} group-hover:scale-110 transition-transform`}
         >
-          <i className={`fas ${icon} text-lg`}></i>
+          {ICON_MAP[icon]}
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-gray-500 truncate">{title}</p>
           <p className="text-2xl font-bold text-gray-900">{value}</p>
         </div>
         {href && (
-          <i className="fas fa-chevron-right text-gray-300 group-hover:text-indigo-500 transition-colors"></i>
+          <ChevronRight className="text-gray-300 group-hover:text-indigo-500 transition-colors" />
         )}
       </div>
     </div>

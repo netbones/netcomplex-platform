@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { AlertCircle, Clock } from 'lucide-react';
 interface AgentActivity {
   id: string;
   type: string;
@@ -80,7 +81,7 @@ export function AgentActivityWidget() {
     return (
       <div className="text-center py-6">
         <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-red-50 flex items-center justify-center">
-          <i className="fas fa-exclamation-circle text-red-400"></i>
+          <AlertCircle className="text-red-400" />
         </div>
         <p className="text-red-500 text-sm">{error}</p>
       </div>
@@ -91,7 +92,7 @@ export function AgentActivityWidget() {
     return (
       <div className="text-center py-6">
         <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center">
-          <i className="fas fa-clock text-gray-400"></i>
+          <Clock className="text-gray-400" />
         </div>
         <p className="text-gray-500 text-sm">{t('noAgentActivity', 'No recent activity')}</p>
         <p className="text-gray-400 text-xs mt-1">Your agent&apos;s activity will appear here</p>

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { StandingBadge } from '@entities/merit';
 import type { Resident } from '../model/types';
 
+import { Home, Mail, MessageSquare, Phone } from 'lucide-react';
 interface UnifiedResidentCardProps {
   resident: Resident;
   viewMode: 'grid' | 'list';
@@ -88,7 +89,7 @@ export function UnifiedResidentCard({
         viewMode === 'list' ? 'flex relative overflow-hidden min-h-32' : 'overflow-hidden'
       }`}
     >
-      {/* Property Image - Grid view only (above header) */}
+      {/* Property  - Grid view only (above header) */}
       {viewMode === 'grid' && (
         <div className="h-32 w-full flex relative">
           {/* Owner card: full width image */}
@@ -133,7 +134,7 @@ export function UnifiedResidentCard({
           {isRenter() && (
             <div className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center pl-4">
               <div className="flex items-center gap-2 text-white">
-                <i className="fas fa-home text-lg"></i>
+                <Home className="text-lg" />
                 <span className="text-sm font-medium">
                   {tx('home.rentalProperty', 'Rental Property')}
                 </span>
@@ -145,7 +146,7 @@ export function UnifiedResidentCard({
           {isRenter() && !hasHomeImage && (
             <div className="w-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center">
               <div className="flex items-center gap-2 text-white px-4">
-                <i className="fas fa-home text-lg"></i>
+                <Home className="text-lg" />
                 <span className="text-sm font-medium">
                   {tx('home.rentalProperty', 'Rental Property')}
                 </span>
@@ -200,7 +201,7 @@ export function UnifiedResidentCard({
                   : 'Start chat'
               }
             >
-              <i className="fas fa-comment text-xl" aria-hidden="true"></i>
+              <MessageSquare className="text-xl" />
               {isCurrentUser && unreadCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
                   {unreadCount > 9 ? '9+' : unreadCount}
@@ -222,7 +223,7 @@ export function UnifiedResidentCard({
         <div className={`${viewMode === 'list' ? 'flex-1' : 'flex-1'}`}>
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center">
-              <i className="fas fa-home text-soralia-secondary mr-2" aria-hidden="true"></i>
+              <Home className="text-soralia-secondary mr-2" />
               <span className="text-sm text-gray-600">{getResidentLabel()}</span>
             </div>
             {/* Chat button in content for grid view */}
@@ -247,7 +248,7 @@ export function UnifiedResidentCard({
                     : 'Start chat'
                 }
               >
-                <i className="fas fa-comment text-xl" aria-hidden="true"></i>
+                <MessageSquare className="text-xl" />
                 {isCurrentUser && unreadCount > 0 && (
                   <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
                     {unreadCount > 9 ? '9+' : unreadCount}
@@ -259,12 +260,12 @@ export function UnifiedResidentCard({
           {resident.isPublic && (
             <>
               <div className="flex items-center mb-2">
-                <i className="fas fa-envelope text-soralia-secondary mr-2" aria-hidden="true"></i>
+                <Mail className="text-soralia-secondary mr-2" />
                 <span className="text-sm text-gray-600">{resident.email}</span>
               </div>
               {resident.phone && (
                 <div className="flex items-center mb-2">
-                  <i className="fas fa-phone text-soralia-secondary mr-2" aria-hidden="true"></i>
+                  <Phone className="text-soralia-secondary mr-2" />
                   <span className="text-sm text-gray-600">{resident.phone}</span>
                 </div>
               )}
@@ -287,7 +288,7 @@ export function UnifiedResidentCard({
         </div>
       </div>
 
-      {/* Property Image - List view only */}
+      {/* Property  - List view only */}
       {viewMode === 'list' && (
         <div className="absolute inset-y-0 right-0 w-48 flex z-0">
           {/* Owner card: full width image */}
@@ -331,7 +332,7 @@ export function UnifiedResidentCard({
           {isRenter() && (
             <div className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center">
               <div className="flex items-center gap-2 text-white px-2">
-                <i className="fas fa-home text-sm"></i>
+                <Home className="text-sm" />
                 <span className="text-xs font-medium">{tx('home.rental', 'Rental')}</span>
               </div>
             </div>
@@ -341,7 +342,7 @@ export function UnifiedResidentCard({
           {isRenter() && !hasHomeImage && (
             <div className="w-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center">
               <div className="flex items-center gap-2 text-white px-2">
-                <i className="fas fa-home text-sm"></i>
+                <Home className="text-sm" />
                 <span className="text-xs font-medium">{tx('home.rental', 'Rental')}</span>
               </div>
             </div>

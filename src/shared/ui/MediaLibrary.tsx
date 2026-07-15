@@ -7,6 +7,16 @@ import { Tooltip, TooltipTrigger, TooltipContent } from './tooltip';
 import { authClient } from '@api/client';
 import { createComponentLogger } from '@shared/lib';
 
+import {
+  ChevronLeft,
+  ChevronRight,
+  ExternalLink,
+  Images,
+  LayoutGrid,
+  Link,
+  Trash2,
+  Upload,
+} from 'lucide-react';
 const log = createComponentLogger('MediaLibrary');
 
 interface MediaItem {
@@ -139,7 +149,7 @@ export function MediaLibrary({
                 onClick={() => setViewMode('grid')}
                 className={`p-2 rounded-md ${viewMode === 'grid' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
               >
-                <i className="fas fa-th-large"></i>
+                <LayoutGrid />
               </button>
             </TooltipTrigger>
             <TooltipContent>Grid view</TooltipContent>
@@ -150,7 +160,7 @@ export function MediaLibrary({
                 onClick={() => setViewMode('carousel')}
                 className={`p-2 rounded-md ${viewMode === 'carousel' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
               >
-                <i className="fas fa-images"></i>
+                <Images />
               </button>
             </TooltipTrigger>
             <TooltipContent>Carousel view</TooltipContent>
@@ -187,9 +197,9 @@ export function MediaLibrary({
               onChange={e => handleUpload(e.target.files)}
             />
             <div className="cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-              <i
-                className={`fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2 ${uploading ? 'animate-bounce' : ''}`}
-              ></i>
+              <Upload
+                className={`text-4xl text-gray-400 mb-2 ${uploading ? 'animate-bounce' : ''}`}
+              />
               <p className="text-gray-600">
                 {uploading ? 'Uploading...' : 'Drag & drop images here or click to browse'}
               </p>
@@ -223,7 +233,7 @@ export function MediaLibrary({
                           }}
                           className="p-2 bg-white rounded-full text-gray-700 hover:bg-gray-100"
                         >
-                          <i className="fas fa-link"></i>
+                          <Link />
                         </button>
                       </TooltipTrigger>
                       <TooltipContent>Copy URL</TooltipContent>
@@ -237,7 +247,7 @@ export function MediaLibrary({
                           }}
                           className="p-2 bg-white rounded-full text-gray-700 hover:bg-gray-100"
                         >
-                          <i className="fas fa-external-link-alt"></i>
+                          <ExternalLink />
                         </button>
                       </TooltipTrigger>
                       <TooltipContent>View</TooltipContent>
@@ -251,7 +261,7 @@ export function MediaLibrary({
                           }}
                           className="p-2 bg-red-500 rounded-full text-white hover:bg-red-600"
                         >
-                          <i className="fas fa-trash"></i>
+                          <Trash2 />
                         </button>
                       </TooltipTrigger>
                       <TooltipContent>Delete</TooltipContent>
@@ -293,7 +303,7 @@ export function MediaLibrary({
                       }
                       className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors"
                     >
-                      <i className="fas fa-chevron-left"></i>
+                      <ChevronLeft />
                     </button>
                     <button
                       onClick={() =>
@@ -301,7 +311,7 @@ export function MediaLibrary({
                       }
                       className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors"
                     >
-                      <i className="fas fa-chevron-right"></i>
+                      <ChevronRight />
                     </button>
                   </>
                 )}
@@ -317,7 +327,7 @@ export function MediaLibrary({
                         onClick={() => copyToClipboard(images[selectedIndex].url)}
                         className="p-2 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors"
                       >
-                        <i className="fas fa-link"></i>
+                        <Link />
                       </button>
                     </TooltipTrigger>
                     <TooltipContent>Copy URL</TooltipContent>
@@ -328,7 +338,7 @@ export function MediaLibrary({
                         onClick={() => window.open(images[selectedIndex].url, '_blank')}
                         className="p-2 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors"
                       >
-                        <i className="fas fa-external-link-alt"></i>
+                        <ExternalLink />
                       </button>
                     </TooltipTrigger>
                     <TooltipContent>View full</TooltipContent>
@@ -339,7 +349,7 @@ export function MediaLibrary({
                         onClick={() => handleDelete(images[selectedIndex].key)}
                         className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
                       >
-                        <i className="fas fa-trash"></i>
+                        <Trash2 />
                       </button>
                     </TooltipTrigger>
                     <TooltipContent>Delete</TooltipContent>
@@ -398,9 +408,9 @@ export function MediaLibrary({
               onChange={e => handleUpload(e.target.files)}
             />
             <div className="cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-              <i
-                className={`fas fa-cloud-upload-alt text-2xl text-gray-400 mb-2 ${uploading ? 'animate-bounce' : ''}`}
-              ></i>
+              <Upload
+                className={`text-2xl text-gray-400 mb-2 ${uploading ? 'animate-bounce' : ''}`}
+              />
               <p className="text-gray-600 text-sm">
                 {uploading ? 'Uploading...' : 'Drop images here or click to upload'}
               </p>

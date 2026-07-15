@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createComponentLogger } from '@shared/lib';
+import { TrendingUp } from 'lucide-react';
 
 const log = createComponentLogger('MarketplaceAnalyticsWidget');
 
@@ -72,7 +73,7 @@ export function MarketplaceAnalyticsWidget() {
   return (
     <div className="bg-white rounded-lg shadow-md p-4">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">
-        <i className="fas fa-chart-line mr-2 text-indigo-600" />
+        <TrendingUp className="mr-2 text-indigo-600" />
         {t('marketplaceAnalytics', 'Marketplace Analytics')}
       </h3>
 

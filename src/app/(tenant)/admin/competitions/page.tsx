@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Breadcrumbs } from '@shared/ui';
 import { CompetitionList } from '@widgets/admin';
 
+import { Plus } from 'lucide-react';
 export default function CompetitionsPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
@@ -18,7 +19,8 @@ export default function CompetitionsPage() {
           href="/admin/competitions/new"
           className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
         >
-          <i className="fas fa-plus mr-2"></i>New Competition
+          <Plus className="mr-2" />
+          New Competition
         </Link>
       </div>
 

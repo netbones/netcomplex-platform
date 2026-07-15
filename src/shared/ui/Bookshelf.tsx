@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useSafeTranslation } from '@shared/lib';
 import { createId } from '@shared/lib/id';
 
+import { ChevronLeft, ChevronRight, ExternalLink, Images, LayoutGrid, Trash2 } from 'lucide-react';
 interface Book {
   id: string;
   title: string;
@@ -114,14 +115,14 @@ export function Bookshelf({
               className={`p-2 rounded-md ${viewMode === 'grid' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
               title="Grid view"
             >
-              <i className="fas fa-th-large"></i>
+              <LayoutGrid />
             </button>
             <button
               onClick={() => setViewMode('carousel')}
               className={`p-2 rounded-md ${viewMode === 'carousel' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
               title="Carousel view"
             >
-              <i className="fas fa-images"></i>
+              <Images />
             </button>
           </div>
           {editable && !isEditing && (
@@ -155,7 +156,7 @@ export function Bookshelf({
             />
             <input
               type="url"
-              placeholder={tx('coverUrl', 'Cover Image URL')}
+              placeholder={tx('coverUrl', 'Cover  URL')}
               value={newBook.coverUrl}
               onChange={e => setNewBook({ ...newBook, coverUrl: e.target.value })}
               className="px-3 py-2 border border-gray-300 rounded-md text-sm"
@@ -279,7 +280,7 @@ export function Bookshelf({
                           }
                           className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-white/80 text-gray-700 rounded-full hover:bg-white shadow-lg transition-all"
                         >
-                          <i className="fas fa-chevron-left"></i>
+                          <ChevronLeft />
                         </button>
                         <button
                           onClick={() =>
@@ -287,7 +288,7 @@ export function Bookshelf({
                           }
                           className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-white/80 text-gray-700 rounded-full hover:bg-white shadow-lg transition-all"
                         >
-                          <i className="fas fa-chevron-right"></i>
+                          <ChevronRight />
                         </button>
                       </>
                     )}
@@ -304,7 +305,7 @@ export function Bookshelf({
                         className="absolute top-4 right-4 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 shadow-lg"
                         title="Remove book"
                       >
-                        <i className="fas fa-trash"></i>
+                        <Trash2 />
                       </button>
                     )}
                   </div>
@@ -325,7 +326,7 @@ export function Bookshelf({
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-800 mt-2"
                     >
-                      <i className="fas fa-external-link-alt"></i>
+                      <ExternalLink />
                       View Book
                     </a>
                   )}

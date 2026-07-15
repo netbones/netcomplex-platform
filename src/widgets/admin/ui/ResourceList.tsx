@@ -6,6 +6,18 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 import { ToastMsg } from '@shared/lib/hooks';
 
+import {
+  ChevronDown,
+  ChevronRight,
+  Download,
+  ExternalLink,
+  File,
+  FileSpreadsheet,
+  FileText,
+  FolderOpen,
+  PenSquare,
+  Trash2,
+} from 'lucide-react';
 const RESOURCE_CATEGORIES = [
   { value: 'ARCHITECTURAL', label: 'Architectural' },
   { value: 'ENGINEERING', label: 'Engineering' },
@@ -31,13 +43,13 @@ const VISIBILITY_COLORS: Record<string, string> = {
   COMMITTEE_ONLY: 'bg-yellow-100 text-yellow-800',
 };
 
-const FILE_ICONS: Record<string, string> = {
-  pdf: 'fas fa-file-pdf text-red-500',
-  docx: 'fas fa-file-word text-blue-500',
-  doc: 'fas fa-file-word text-blue-500',
-  dwg: 'fas fa-file-alt text-gray-500',
-  xlsx: 'fas fa-file-excel text-green-500',
-  xls: 'fas fa-file-excel text-green-500',
+const FILE_ICONS: Record<string, React.ReactNode> = {
+  pdf: <FileText className="text-red-500" />,
+  docx: <FileText className="text-blue-500" />,
+  doc: <FileText className="text-blue-500" />,
+  dwg: <File className="text-gray-500" />,
+  xlsx: <FileSpreadsheet className="text-green-500" />,
+  xls: <FileSpreadsheet className="text-green-500" />,
 };
 
 interface ResourceVersion {
@@ -167,9 +179,9 @@ export function ResourceList() {
   };
 
   const getFileIcon = (fileType: string | null) => {
-    if (!fileType) return 'fas fa-file text-gray-400';
+    if (!fileType) return <File className="text-gray-400" />;
     const ext = fileType.toLowerCase().replace('.', '');
-    return FILE_ICONS[ext] || 'fas fa-file text-gray-400';
+    return FILE_ICONS[ext] || <File className="text-gray-400" />;
   };
 
   const formatDate = (dateStr: string) => {
@@ -220,7 +232,7 @@ export function ResourceList() {
 
       {resources.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
-          <i className="fas fa-folder-open text-4xl mb-3 text-gray-300"></i>
+          <FolderOpen className="text-4xl mb-3 text-gray-300" />
           <p>No resources found</p>
         </div>
       ) : (
@@ -261,9 +273,11 @@ export function ResourceList() {
                   >
                     <td className="px-4 py-3 text-sm font-medium text-gray-900">
                       <div className="flex items-center gap-2">
-                        <i
-                          className={`fas fa-chevron-${expandedId === resource.id ? 'down' : 'right'} text-xs text-gray-400`}
-                        ></i>
+                        {expandedId === resource.id ? (
+                          <ChevronDown className="text-xs text-gray-400" />
+                        ) : (
+                          <ChevronRight className="text-xs text-gray-400" />
+                        )}
                         {resource.title}
                       </div>
                     </td>
@@ -282,7 +296,7 @@ export function ResourceList() {
                     </td>
                     <td className="px-4 py-3 text-sm">
                       {resource.fileUrl ? (
-                        <i className={getFileIcon(resource.fileType)}></i>
+                        getFileIcon(resource.fileType)
                       ) : (
                         <span className="text-gray-400">—</span>
                       )}
@@ -299,13 +313,13 @@ export function ResourceList() {
                         href={`/admin/resources/${resource.id}`}
                         className="text-indigo-600 hover:text-indigo-800"
                       >
-                        <i className="fas fa-edit"></i>
+                        <PenSquare />
                       </Link>
                       <button
                         onClick={() => setDeleteId(resource.id)}
                         className="text-red-600 hover:text-red-800"
                       >
-                        <i className="fas fa-trash"></i>
+                        <Trash2 />
                       </button>
                     </td>
                   </tr>
@@ -379,7 +393,7 @@ function ExpandedResourceDetails({
               onClick={onDownload}
               className="text-sm text-indigo-600 hover:text-indigo-800 break-all flex items-center gap-1"
             >
-              <i className="fas fa-external-link-alt text-xs"></i>
+              <ExternalLink className="text-xs" />
               {data.fileUrl}
             </a>
             {data.fileSize != null && (
@@ -394,7 +408,7 @@ function ExpandedResourceDetails({
       <div>
         <h4 className="text-sm font-semibold text-gray-700 mb-2">Download Statistics</h4>
         <div className="flex items-center gap-2">
-          <i className="fas fa-download text-indigo-500"></i>
+          <Download className="text-indigo-500" />
           <span className="text-2xl font-bold text-gray-900">{data.downloadCount ?? 0}</span>
           <span className="text-sm text-gray-500">downloads</span>
         </div>

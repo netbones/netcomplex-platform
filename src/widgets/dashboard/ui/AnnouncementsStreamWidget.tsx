@@ -5,6 +5,7 @@ import { ErrorBoundary } from '@shared/ui';
 import { useActiveAnnouncements } from '@shared/lib/hooks';
 import { PRIORITY_TAXONOMY, type AnnouncementPriority } from '@features/announcements';
 
+import { AlertCircle, Megaphone, Paperclip } from 'lucide-react';
 interface StreamAnnouncement {
   id: string;
   title: string;
@@ -52,7 +53,7 @@ export function AnnouncementsStreamWidget() {
     return (
       <ErrorBoundary>
         <div className="text-center py-4">
-          <i className="fas fa-exclamation-circle text-2xl text-red-500 mb-2"></i>
+          <AlertCircle className="text-2xl text-red-500 mb-2" />
           <p className="text-sm text-gray-600 mb-3">Failed to load announcements</p>
           <button
             onClick={() => refetch()}
@@ -69,7 +70,7 @@ export function AnnouncementsStreamWidget() {
     return (
       <ErrorBoundary>
         <div className="text-center py-6">
-          <i className="fas fa-bullhorn text-3xl text-gray-400 mb-3"></i>
+          <Megaphone className="text-3xl text-gray-400 mb-3" />
           <p className="text-sm text-gray-600">No active announcements</p>
         </div>
       </ErrorBoundary>
@@ -133,7 +134,7 @@ export function AnnouncementsStreamWidget() {
                     href={`/resources/${announcement.resourceId}`}
                     className="text-indigo-600 hover:text-indigo-800 inline-flex items-center gap-1"
                   >
-                    <i className="fas fa-paperclip text-xs"></i>
+                    <Paperclip className="text-xs" />
                     View Document
                   </Link>
                 )}

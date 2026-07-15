@@ -12,6 +12,7 @@ import { DirectoryChatModal } from '@/features/directory/ui/DirectoryChatModal';
 import Image from 'next/image';
 import { StandingBadge } from '@entities/merit';
 
+import { Mail, MessageSquare, Phone } from 'lucide-react';
 const log = createComponentLogger('resident-profile');
 
 interface SidebarWidget {
@@ -357,7 +358,7 @@ function ProfileContent() {
                         href={`mailto:${user.email}`}
                         className="flex items-center gap-2 text-soralia-primary hover:underline"
                       >
-                        <i className="fas fa-envelope" aria-hidden="true"></i>
+                        <Mail />
                         <span>{user.email}</span>
                       </a>
                     )}
@@ -366,7 +367,7 @@ function ProfileContent() {
                         href={`tel:${user.phone}`}
                         className="flex items-center gap-2 text-soralia-primary hover:underline"
                       >
-                        <i className="fas fa-phone" aria-hidden="true"></i>
+                        <Phone />
                         <span>{user.phone}</span>
                       </a>
                     )}
@@ -375,7 +376,7 @@ function ProfileContent() {
                         onClick={() => setChatRecipientId(id ?? null)}
                         className="flex items-center gap-2 text-soralia-primary hover:underline"
                       >
-                        <i className="fas fa-comment" aria-hidden="true"></i>
+                        <MessageSquare />
                         <span>Message</span>
                       </button>
                     )}

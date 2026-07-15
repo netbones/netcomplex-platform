@@ -1,14 +1,11 @@
 import { useSafeTranslation } from '@shared/lib';
+import { Calendar, FileText, Users } from 'lucide-react';
 
-/*
- * QUICK STATS WIDGET
- * ----------------
- * Used by: SidebarWidgetBox (type: 'quick-stats')
- *
- * Displays quick stats (posts, events, connections).
- * Accepts optional custom stats array.
- * ----------------
- */
+const ICON_MAP: Record<string, React.ReactNode> = {
+  'fa-file-alt': <FileText className="text-indigo-600 text-xs" />,
+  'fa-calendar': <Calendar className="text-indigo-600 text-xs" />,
+  'fa-users': <Users className="text-indigo-600 text-xs" />,
+};
 
 interface QuickStat {
   label: string;
@@ -21,9 +18,9 @@ interface QuickStatsWidgetProps {
 }
 
 const DEFAULT_STATS: QuickStat[] = [
-  { label: 'Posts', value: '24', icon: 'fas fa-file-alt' },
-  { label: 'Events', value: '8', icon: 'fas fa-calendar' },
-  { label: 'Connections', value: '156', icon: 'fas fa-users' },
+  { label: 'Posts', value: '24', icon: 'fa-file-alt' },
+  { label: 'Events', value: '8', icon: 'fa-calendar' },
+  { label: 'Connections', value: '156', icon: 'fa-users' },
 ];
 
 export function QuickStatsWidget({ stats = DEFAULT_STATS }: QuickStatsWidgetProps) {
@@ -36,7 +33,7 @@ export function QuickStatsWidget({ stats = DEFAULT_STATS }: QuickStatsWidgetProp
         {stats.map(stat => (
           <div key={stat.label} className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <i className={`${stat.icon} text-indigo-600 text-xs`}></i>
+              {ICON_MAP[stat.icon]}
               <span className="text-xs text-gray-600">{stat.label}</span>
             </div>
             <span className="text-sm font-medium text-gray-900">{stat.value}</span>

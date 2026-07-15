@@ -9,6 +9,16 @@ import { EmojiPickerButton } from '@entities/chat';
 import { trpc, useSession } from '@api/client';
 import { apiGet, apiPost } from '@api/shared';
 
+import {
+  ArrowLeft,
+  Image as ImageIcon,
+  Mail,
+  MessageSquare,
+  Mic,
+  Phone,
+  Square,
+  X,
+} from 'lucide-react';
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || '',
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
@@ -232,7 +242,7 @@ export function InquireModal({ listing, isOpen, onClose }: InquireModalProps) {
                 className="p-2 text-gray-500 hover:text-gray-700 min-w-[44px] min-h-[44px] flex items-center justify-center"
                 aria-label="Back"
               >
-                <i className="fas fa-arrow-left text-lg" />
+                <ArrowLeft className="text-lg" />
               </button>
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-full bg-soralia-primary/10 flex items-center justify-center">
@@ -249,7 +259,7 @@ export function InquireModal({ listing, isOpen, onClose }: InquireModalProps) {
                 className="p-2 text-gray-400 hover:text-gray-600 min-w-[44px] min-h-[44px] flex items-center justify-center"
                 aria-label="Close"
               >
-                <i className="fas fa-times text-lg" />
+                <X className="text-lg" />
               </button>
             </div>
 
@@ -343,7 +353,7 @@ export function InquireModal({ listing, isOpen, onClose }: InquireModalProps) {
                       reader.readAsDataURL(file);
                     }}
                   />
-                  <i className="fas fa-image text-lg" />
+                  <ImageIcon className="text-lg" />
                 </label>
                 <button
                   onClick={recording ? stopRecording : startRecording}
@@ -355,7 +365,7 @@ export function InquireModal({ listing, isOpen, onClose }: InquireModalProps) {
                   aria-label={recording ? 'Stop recording' : 'Record voice note'}
                   type="button"
                 >
-                  <i className={`fas ${recording ? 'fa-stop' : 'fa-microphone'} text-lg`} />
+                  {recording ? <Square className="text-lg" /> : <Mic className="text-lg" />}
                 </button>
                 <input
                   ref={inputRef}
@@ -394,7 +404,7 @@ export function InquireModal({ listing, isOpen, onClose }: InquireModalProps) {
                 className="p-2 text-gray-400 hover:text-gray-600 min-w-[44px] min-h-[44px] flex items-center justify-center"
                 aria-label="Close"
               >
-                <i className="fas fa-times text-lg" />
+                <X className="text-lg" />
               </button>
             </div>
 
@@ -415,7 +425,7 @@ export function InquireModal({ listing, isOpen, onClose }: InquireModalProps) {
                         href={`mailto:${listing.provider.email}`}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-indigo-700 bg-indigo-50 rounded-full hover:bg-indigo-100 min-w-[44px] min-h-[44px]"
                       >
-                        <i className="fas fa-envelope text-xs" />
+                        <Mail className="text-xs" />
                         Email
                       </a>
                     )}
@@ -425,7 +435,7 @@ export function InquireModal({ listing, isOpen, onClose }: InquireModalProps) {
                         href={`tel:${listing.provider.phone}`}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-green-700 bg-green-50 rounded-full hover:bg-green-100 min-w-[44px] min-h-[44px]"
                       >
-                        <i className="fas fa-phone text-xs" />
+                        <Phone className="text-xs" />
                         Call
                       </a>
                     )}
@@ -436,7 +446,7 @@ export function InquireModal({ listing, isOpen, onClose }: InquireModalProps) {
                         disabled={findOrCreate.isPending}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-blue-700 bg-blue-50 rounded-full hover:bg-blue-100 disabled:opacity-50 min-w-[44px] min-h-[44px]"
                       >
-                        <i className="fas fa-comment text-xs" />
+                        <MessageSquare className="text-xs" />
                         Chat
                       </button>
                     )}

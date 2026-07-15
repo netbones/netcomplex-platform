@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 
+import { Search, X } from 'lucide-react';
 interface AddWidgetModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -31,12 +32,12 @@ export function AddWidgetModal({
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-semibold">Add Widget</h3>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-            <i className="fas fa-times"></i>
+            <X />
           </button>
         </div>
 
         <div className="relative mb-4">
-          <i className="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
           <input
             type="text"
             placeholder="Search widgets..."

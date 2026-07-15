@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createComponentLogger } from '@shared/lib';
 
+import { CheckCircle, Shield } from 'lucide-react';
 const log = createComponentLogger('ServiceQualityWidget');
 
 interface QualityAlert {
@@ -77,7 +78,7 @@ export function ServiceQualityWidget() {
   return (
     <div className="bg-white rounded-lg shadow-md p-4">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">
-        <i className="fas fa-shield-alt mr-2 text-red-600" />
+        <Shield className="mr-2 text-red-600" />
         {t('serviceQuality', 'Service Quality Monitor')}
       </h3>
 
@@ -89,7 +90,7 @@ export function ServiceQualityWidget() {
         </div>
       ) : alerts.length === 0 ? (
         <div className="text-center py-8">
-          <i className="fas fa-check-circle text-green-500 text-3xl mb-2" />
+          <CheckCircle className="text-green-500 text-3xl mb-2" />
           <p className="text-gray-500 text-sm">No quality issues detected</p>
         </div>
       ) : (

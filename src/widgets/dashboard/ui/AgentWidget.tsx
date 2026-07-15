@@ -6,6 +6,7 @@ import { authClient } from '@api/client';
 import { ErrorBoundary } from '@shared/ui';
 import { useApiToast, usePremiumListings } from '@shared/lib/hooks';
 
+import { Check, Home, Star, UserCircle } from 'lucide-react';
 interface AgentProfile {
   id: string;
   agencyName?: string;
@@ -123,7 +124,7 @@ export function AgentWidget() {
           <div className="space-y-4">
             {agents.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
-                <i className="fas fa-user-tie text-4xl mb-4"></i>
+                <UserCircle className="text-4xl mb-4" />
                 <p>No agents available in your area</p>
               </div>
             ) : (
@@ -134,14 +135,14 @@ export function AgentWidget() {
                 >
                   <div className="flex items-start gap-3 mb-3">
                     <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <i className="fas fa-user-tie text-indigo-600"></i>
+                      <UserCircle className="text-indigo-600" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <h4 className="font-medium text-gray-900">{agent.agent.name}</h4>
                         {agent.isVerified && (
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">
-                            <i className="fas fa-check mr-1"></i>
+                            <Check className="mr-1" />
                             Verified
                           </span>
                         )}
@@ -152,12 +153,14 @@ export function AgentWidget() {
                       <div className="flex items-center gap-2 mt-1">
                         <div className="flex items-center gap-1">
                           {[...Array(5)].map((_, i) => (
-                            <i
+                            <Star
                               key={i}
-                              className={`fas fa-star text-xs ${
-                                i < Math.floor(agent.rating) ? 'text-yellow-400' : 'text-gray-300'
+                              className={`text-xs ${
+                                i < Math.floor(agent.rating)
+                                  ? 'text-yellow-400 fill-yellow-400'
+                                  : 'text-gray-300'
                               }`}
-                            ></i>
+                            />
                           ))}
                           <span className="text-xs text-gray-600 ml-1">({agent.reviewCount})</span>
                         </div>
@@ -217,7 +220,7 @@ export function AgentWidget() {
           <div className="space-y-4">
             {listings.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
-                <i className="fas fa-home text-4xl mb-4"></i>
+                <Home className="text-4xl mb-4" />
                 <p>No property listings yet</p>
                 <button className="mt-2 px-4 py-2 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700">
                   Create Listing

@@ -9,6 +9,7 @@ import type { AnnouncementWithResource } from '@features/announcements';
 import type { AnnouncementFormData } from '@entities/content';
 import Image from 'next/image';
 import { toast } from 'sonner';
+import { Lock, Plus } from 'lucide-react';
 export default function AnnouncementsAdminPage() {
   const { data: session } = authClient.useSession();
   const userRole = (session?.user as { role?: string } | undefined)?.role || 'RESIDENT';
@@ -82,7 +83,7 @@ export default function AnnouncementsAdminPage() {
         <div className="max-w-6xl mx-auto px-4 py-8">
           <Breadcrumbs items={[{ label: 'Admin', href: '/admin' }, { label: 'Announcements' }]} />
           <div className="text-center py-12">
-            <i className="fas fa-lock text-4xl text-gray-400 mb-4"></i>
+            <Lock className="text-4xl text-gray-400 mb-4" />
             <h2 className="text-xl font-semibold text-gray-900 mb-2">Access Denied</h2>
             <p className="text-gray-600">You do not have permission to manage announcements.</p>
           </div>
@@ -109,7 +110,8 @@ export default function AnnouncementsAdminPage() {
               }}
               className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
             >
-              <i className="fas fa-plus mr-2"></i>New Announcement
+              <Plus className="mr-2" />
+              New Announcement
             </button>
           )}
         </div>

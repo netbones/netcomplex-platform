@@ -8,6 +8,7 @@ import { usePageLoading } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
 import { trpc } from '@api/client';
 
+import { CheckCircle, Handshake, Leaf, PawPrint, Sprout, User, UserPlus } from 'lucide-react';
 const log = createComponentLogger('conservation-page');
 
 type ContentItem = {
@@ -239,7 +240,7 @@ export default function ConservationPage() {
 
         <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-6">
-            <i className="fas fa-seedling text-green-600 mr-3"></i>
+            <Sprout className="text-green-600 mr-3" />
             {conservationMode === 'managed' && managedUrl
               ? 'Managed Content'
               : t('initiatives.title')}
@@ -256,7 +257,7 @@ export default function ConservationPage() {
                     <p className="text-gray-700 mb-4">{article.content}</p>
                     {article.author?.name && (
                       <div className="flex items-center text-green-600 font-medium">
-                        <i className="fas fa-user mr-2"></i>
+                        <User className="mr-2" />
                         <span>{article.author.name}</span>
                       </div>
                     )}
@@ -308,7 +309,7 @@ export default function ConservationPage() {
                   <h3 className="text-xl font-bold text-gray-900 mb-3">{article.title}</h3>
                   <p className="text-gray-700 mb-4">{article.content}</p>
                   <div className="flex items-center text-green-600 font-medium">
-                    <i className="fas fa-user mr-2"></i>
+                    <User className="mr-2" />
                     <span>{article.author?.name}</span>
                   </div>
                 </div>
@@ -319,7 +320,7 @@ export default function ConservationPage() {
 
         <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-6">
-            <i className="fas fa-hands-helping text-green-600 mr-3"></i>
+            <Handshake className="text-green-600 mr-3" />
             {t('volunteer.title')}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -339,13 +340,13 @@ export default function ConservationPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           <div className="bg-white rounded-lg shadow-lg p-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">
-              <i className="fas fa-leaf text-green-600 mr-3"></i>
+              <Leaf className="text-green-600 mr-3" />
               {t('flora.title')}
             </h2>
             <ul className="space-y-3">
               {flora.map(item => (
                 <li key={item} className="flex items-center">
-                  <i className="fas fa-check-circle text-green-500 mr-3"></i>
+                  <CheckCircle className="text-green-500 mr-3" />
                   <span className="text-gray-700">{item}</span>
                 </li>
               ))}
@@ -354,13 +355,13 @@ export default function ConservationPage() {
 
           <div className="bg-white rounded-lg shadow-lg p-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">
-              <i className="fas fa-paw text-green-600 mr-3"></i>
+              <PawPrint className="text-green-600 mr-3" />
               {t('wildlife.title')}
             </h2>
             <ul className="space-y-3">
               {wildlife.map(item => (
                 <li key={item} className="flex items-center">
-                  <i className="fas fa-check-circle text-green-500 mr-3"></i>
+                  <CheckCircle className="text-green-500 mr-3" />
                   <span className="text-gray-700">{item}</span>
                 </li>
               ))}
@@ -370,7 +371,7 @@ export default function ConservationPage() {
 
         <div className="bg-white rounded-lg shadow-lg p-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-6">
-            <i className="fas fa-user-plus text-green-600 mr-3"></i>
+            <UserPlus className="text-green-600 mr-3" />
             Get Involved
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

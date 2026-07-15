@@ -9,6 +9,7 @@ import { usePageLoading } from '@shared/ui';
 import Image from 'next/image';
 import { AnnouncementsStreamWidget } from '@widgets/dashboard';
 
+import { Newspaper } from 'lucide-react';
 const log = createComponentLogger('news-page');
 
 interface ContentItem {
@@ -136,7 +137,7 @@ export default function NewsPage() {
           </div>
         ) : content.length === 0 ? (
           <div className="text-center py-12">
-            <i className="fas fa-newspaper text-4xl text-gray-400 mb-4"></i>
+            <Newspaper className="text-4xl text-gray-400 mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No content found</h3>
             <p className="text-gray-600">
               {selectedCategory === 'ALL'

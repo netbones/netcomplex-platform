@@ -6,6 +6,7 @@ import { authClient } from '@api/client';
 import Image from 'next/image';
 import { createComponentLogger } from '@shared/lib';
 
+import { Plus, User, Users } from 'lucide-react';
 const log = createComponentLogger('group-detail-page');
 
 interface Content {
@@ -110,11 +111,12 @@ export default function GroupDetailPage() {
 
         <div className="flex items-center space-x-6 text-sm text-gray-500">
           <span>
-            <i className="fas fa-users mr-2"></i>
+            <Users className="mr-2" />
             {group.members.length} members
           </span>
           <span>
-            <i className="fas fa-user mr-2"></i>Led by {group.owner.name}
+            <User className="mr-2" />
+            Led by {group.owner.name}
           </span>
         </div>
       </div>
@@ -125,7 +127,8 @@ export default function GroupDetailPage() {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold">Group Posts</h2>
               <button className="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
-                <i className="fas fa-plus mr-1"></i>New Post
+                <Plus className="mr-1" />
+                New Post
               </button>
             </div>
 

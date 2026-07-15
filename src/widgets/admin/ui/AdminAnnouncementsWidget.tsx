@@ -5,6 +5,7 @@ import { ErrorBoundary } from '@shared/ui';
 import { logError } from '@shared/lib';
 import { PRIORITY_TAXONOMY, type AnnouncementPriority } from '@features/announcements';
 
+import { AlertCircle, Megaphone, Plus } from 'lucide-react';
 interface AdminAnnouncementItem {
   id: string;
   title: string;
@@ -104,7 +105,7 @@ export function AdminAnnouncementsWidget() {
     return (
       <ErrorBoundary>
         <div className="text-center py-4">
-          <i className="fas fa-exclamation-circle text-2xl text-red-500 mb-2"></i>
+          <AlertCircle className="text-2xl text-red-500 mb-2" />
           <p className="text-sm text-gray-600 mb-3">{error}</p>
           <button
             onClick={handleRetry}
@@ -121,13 +122,13 @@ export function AdminAnnouncementsWidget() {
     return (
       <ErrorBoundary>
         <div className="text-center py-6">
-          <i className="fas fa-bullhorn text-3xl text-gray-400 mb-3"></i>
+          <Megaphone className="text-3xl text-gray-400 mb-3" />
           <p className="text-sm text-gray-600 mb-3">No announcements yet</p>
           <a
             href="/admin/announcements"
             className="inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
           >
-            <i className="fas fa-plus"></i>
+            <Plus />
             Create Announcement
           </a>
         </div>
@@ -147,7 +148,7 @@ export function AdminAnnouncementsWidget() {
                 className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
               >
                 <div className="flex-shrink-0 mt-0.5">
-                  <i className="fas fa-bullhorn text-indigo-500"></i>
+                  <Megaphone className="text-indigo-500" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">

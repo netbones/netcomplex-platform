@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
+import { PenSquare, Trash2 } from 'lucide-react';
 interface Event {
   id: string;
   title: string;
@@ -95,7 +96,7 @@ export function EventList() {
                     href={`/admin/events/${event.id}`}
                     className="text-indigo-600 hover:text-indigo-900"
                   >
-                    <i className="fas fa-edit"></i>
+                    <PenSquare />
                   </Link>
                   {deleteId === event.id ? (
                     <div className="inline-flex items-center gap-1">
@@ -117,7 +118,7 @@ export function EventList() {
                       onClick={() => setDeleteId(event.id)}
                       className="text-red-600 hover:text-red-900"
                     >
-                      <i className="fas fa-trash"></i>
+                      <Trash2 />
                     </button>
                   )}
                 </td>

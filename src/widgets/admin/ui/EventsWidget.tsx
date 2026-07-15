@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { ErrorBoundary } from '@shared/ui';
 import { logError } from '@shared/lib';
 
+import { AlertCircle, Calendar, CalendarX, MapPin, Plus } from 'lucide-react';
 export interface EventItem {
   id: string;
   title: string;
@@ -97,7 +98,7 @@ export function EventsWidget() {
     return (
       <ErrorBoundary>
         <div className="text-center py-4">
-          <i className="fas fa-exclamation-circle text-2xl text-red-500 mb-2"></i>
+          <AlertCircle className="text-2xl text-red-500 mb-2" />
           <p className="text-sm text-gray-600 mb-3">{error}</p>
           <button
             onClick={handleRetry}
@@ -114,13 +115,13 @@ export function EventsWidget() {
     return (
       <ErrorBoundary>
         <div className="text-center py-6">
-          <i className="fas fa-calendar-xmark text-3xl text-gray-400 mb-3"></i>
+          <CalendarX className="text-3xl text-gray-400 mb-3" />
           <p className="text-sm text-gray-600 mb-3">No upcoming events</p>
           <Link
             href="/admin/events/new"
             className="inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
           >
-            <i className="fas fa-plus"></i>
+            <Plus />
             Create Event
           </Link>
         </div>
@@ -138,14 +139,14 @@ export function EventsWidget() {
               className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
             >
               <div className="flex-shrink-0 mt-0.5">
-                <i className="fas fa-calendar-day text-indigo-500"></i>
+                <Calendar className="text-indigo-500" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-gray-900 truncate">{event.title}</p>
                 <p className="text-xs text-gray-500">{formatDateFull(event.date)}</p>
                 {event.location && (
                   <p className="text-xs text-gray-400">
-                    <i className="fas fa-map-marker-alt mr-1"></i>
+                    <MapPin className="mr-1" />
                     {event.location}
                   </p>
                 )}

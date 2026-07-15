@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Breadcrumbs } from '@shared/ui';
 import { trpc } from '@api/client';
 
+import { AlertTriangle, Home, Loader2, Search } from 'lucide-react';
 interface Household {
   id: string;
   propertyId: string;
@@ -54,7 +55,7 @@ export default function HouseholdsPage() {
       {/* Search */}
       <div className="mb-6">
         <div className="relative">
-          <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           <input
             type="text"
             placeholder="Search by street, unit, or owner..."
@@ -94,14 +95,14 @@ export default function HouseholdsPage() {
             {isError ? (
               <tr>
                 <td colSpan={5} className="px-6 py-8 text-center text-red-500">
-                  <i className="fas fa-exclamation-triangle mr-2"></i>
+                  <AlertTriangle className="mr-2" />
                   Failed to load households. Please try again.
                 </td>
               </tr>
             ) : isLoading ? (
               <tr>
                 <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
-                  <i className="fas fa-spinner fa-spin mr-2"></i>
+                  <Loader2 className="mr-2" />
                   Loading households...
                 </td>
               </tr>
@@ -127,7 +128,7 @@ export default function HouseholdsPage() {
                         />
                       ) : (
                         <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center">
-                          <i className="fas fa-home text-indigo-400"></i>
+                          <Home className="text-indigo-400" />
                         </div>
                       )}
                       <div>

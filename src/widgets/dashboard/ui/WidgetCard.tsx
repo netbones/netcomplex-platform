@@ -5,6 +5,7 @@ import { useSafeTranslation } from '@shared/lib';
 import { useWidgetStore } from '@entities/widget';
 import { WidgetRenderer } from '@widgets/dashboard';
 
+import { ChevronDown, ChevronUp, Wrench, X } from 'lucide-react';
 interface WidgetCardProps {
   id: string;
   title: string;
@@ -17,7 +18,7 @@ interface WidgetCardProps {
 export function WidgetCard({
   id,
   title,
-  icon,
+  icon: _icon,
   spaceId,
   isEditMode = false,
   onRemove,
@@ -41,7 +42,7 @@ export function WidgetCard({
         onClick={isEditMode ? undefined : () => setIsLocalCollapsed(!isLocalCollapsed)}
       >
         <div className="flex items-center gap-3">
-          <i className={`fas ${icon} text-white text-lg`}></i>
+          <Wrench className="text-white text-lg" />
           <h3 className="text-lg font-semibold text-white">{title}</h3>
         </div>
         <div className="flex items-center gap-2">
@@ -54,7 +55,11 @@ export function WidgetCard({
             className="p-1 hover:bg-white/20 rounded transition-colors pointer-events-auto"
             title={isCollapsed ? tx('expandWidget', 'Expand') : tx('collapseWidget', 'Collapse')}
           >
-            <i className={`fas fa-chevron-${isCollapsed ? 'down' : 'up'} text-white text-sm`}></i>
+            {isCollapsed ? (
+              <ChevronDown className="text-white text-sm" />
+            ) : (
+              <ChevronUp className="text-white text-sm" />
+            )}
           </button>
           {isEditMode && onRemove && (
             <button
@@ -66,7 +71,7 @@ export function WidgetCard({
               className="p-1 rounded transition-colors pointer-events-auto"
               title={tx('removeWidget', 'Remove widget')}
             >
-              <i className="fas fa-times text-white/70 hover:text-red-400 text-sm transition-colors"></i>
+              <X className="text-white/70 hover:text-red-400 text-sm transition-colors" />
             </button>
           )}
         </div>

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import Image from 'next/image';
 import { Property } from '@entities/tenant';
 
+import { ChevronRight, Home } from 'lucide-react';
 interface PropertiesWidgetProps {
   properties: Property[];
   loading?: boolean;
@@ -24,7 +25,7 @@ export function PropertiesWidget({ properties = [], loading = false }: Propertie
     return (
       <div className="text-center py-6">
         <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center">
-          <i className="fas fa-home text-gray-400"></i>
+          <Home className="text-gray-400" />
         </div>
         <p className="text-gray-500 text-sm">{t('noProperties', 'No properties registered')}</p>
         <p className="text-gray-400 text-xs mt-1">Property owners can add their properties</p>
@@ -52,7 +53,7 @@ export function PropertiesWidget({ properties = [], loading = false }: Propertie
               />
             ) : (
               <div className="w-16 h-16 rounded-lg bg-indigo-100 flex items-center justify-center">
-                <i className="fas fa-home text-indigo-400 text-xl"></i>
+                <Home className="text-indigo-400 text-xl" />
               </div>
             )}
             <div className="flex-1 min-w-0">
@@ -94,7 +95,7 @@ export function PropertiesWidget({ properties = [], loading = false }: Propertie
                   </div>
                 )}
             </div>
-            <i className="fas fa-chevron-right text-gray-300 group-hover:text-indigo-400"></i>
+            <ChevronRight className="text-gray-300 group-hover:text-indigo-400" />
           </div>
         </Link>
       ))}

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { useSafeTranslation } from '@shared/lib';
 import { createComponentLogger } from '@shared/lib';
+import { Loader2, PlusCircle, X } from 'lucide-react';
 import type {
   ServicesPageConfig,
   CategoryConfig,
@@ -151,7 +152,7 @@ export default function AdminServicesPage() {
               disabled={saving}
               className="px-6 py-2.5 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition disabled:opacity-50 flex items-center gap-2"
             >
-              {saving && <i className="fas fa-spinner fa-spin" />}
+              {saving && <Loader2 />}
               {saved ? 'Saved!' : saving ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
@@ -392,7 +393,7 @@ export default function AdminServicesPage() {
               disabled={saving}
               className="px-8 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition disabled:opacity-50 flex items-center gap-2 shadow-lg"
             >
-              {saving && <i className="fas fa-spinner fa-spin" />}
+              {saving && <Loader2 />}
               {saved ? '✓ Saved!' : saving ? 'Saving...' : 'Save All Changes'}
             </button>
           </div>
@@ -432,7 +433,7 @@ function EditableList<T>({
             className="text-red-400 hover:text-red-600 transition mt-1.5 p-1"
             title="Remove"
           >
-            <i className="fas fa-times" />
+            <X />
           </button>
         </div>
       ))}
@@ -440,7 +441,7 @@ function EditableList<T>({
         onClick={onAdd}
         className="flex items-center gap-2 text-sm font-medium text-indigo-600 hover:text-indigo-800 transition"
       >
-        <i className="fas fa-plus-circle" /> Add Item
+        <PlusCircle className="w-4 h-4" /> Add Item
       </button>
     </div>
   );

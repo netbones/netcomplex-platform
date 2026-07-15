@@ -9,6 +9,7 @@ import { authClient } from '@api/client';
 import Image from 'next/image';
 import { usePageLoading } from '@shared/ui';
 
+import { MessageCircle } from 'lucide-react';
 type ViewMode = 'detail' | 'matching';
 
 interface Resident {
@@ -290,7 +291,8 @@ function InterestContent() {
               <button
                 className={`bg-gradient-to-r ${colorClass} text-white py-3 px-6 rounded-lg hover:opacity-90 transition-opacity font-semibold`}
               >
-                <i className="fas fa-comments mr-2"></i>Join Group Chat
+                <MessageCircle className="mr-2" />
+                Join Group Chat
               </button>
             </div>
           </>

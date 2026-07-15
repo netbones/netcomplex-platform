@@ -68,12 +68,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       };
   return (
     <html lang={locale}>
-      <head>
-        <link
-          rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-        />
-      </head>
+      <head></head>
       <body className="bg-soralia-light min-h-screen">
         <PostHogProvider
           apiKey={process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN!}

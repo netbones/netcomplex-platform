@@ -10,6 +10,7 @@ import { createComponentLogger } from '@shared/lib';
 import Image from 'next/image';
 import { usePageLoading } from '@shared/ui';
 
+import { AlertCircle, ArrowLeft, User } from 'lucide-react';
 const log = createComponentLogger('news-post-page');
 
 interface ContentItem {
@@ -124,14 +125,14 @@ export default function NewsPostPage() {
     return (
       <ErrorBoundary>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-          <i className="fas fa-exclamation-circle text-5xl text-gray-300 mb-4"></i>
+          <AlertCircle className="text-5xl text-gray-300 mb-4" />
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Post Not Found</h1>
           <p className="text-gray-600 mb-6">{error}</p>
           <Link
             href="/news"
             className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-800 font-medium"
           >
-            <i className="fas fa-arrow-left"></i>
+            <ArrowLeft />
             Back to News
           </Link>
         </div>
@@ -178,13 +179,13 @@ export default function NewsPostPage() {
 
             {post.author?.name && (
               <div className="flex items-center gap-2 text-sm text-gray-600">
-                <i className="fas fa-user"></i>
+                <User />
                 <span>By {post.author.name}</span>
               </div>
             )}
           </div>
 
-          {/* Featured Image */}
+          {/* Featured  */}
           {post.image && (
             <div className="mb-8 rounded-xl overflow-hidden relative">
               <Image
@@ -234,7 +235,7 @@ export default function NewsPostPage() {
               href="/news"
               className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-800 font-medium"
             >
-              <i className="fas fa-arrow-left"></i>
+              <ArrowLeft />
               Back to News & Updates
             </Link>
           </div>

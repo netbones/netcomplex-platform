@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { ErrorBoundary } from '@shared/ui';
 import { useApiToast } from '@shared/lib/hooks';
 
+import { Trash2 } from 'lucide-react';
 interface AlbumItem {
   id: string;
   title: string;
@@ -259,7 +260,7 @@ export function MyAlbumWidget() {
                       className="text-red-500 hover:text-red-700 text-sm"
                       title={t('deleteAlbum', 'Delete Album')}
                     >
-                      <i className="fas fa-trash"></i>
+                      <Trash2 />
                     </button>
                   </div>
                 </div>

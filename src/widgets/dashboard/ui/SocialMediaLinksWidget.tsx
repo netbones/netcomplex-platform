@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Check, PenSquare, Globe } from 'lucide-react';
 
 /*
  * SOCIAL MEDIA LINKS WIDGET
@@ -16,7 +17,6 @@ import { useTranslation } from 'react-i18next';
 interface SocialLink {
   platform: string;
   url: string;
-  icon: string;
 }
 
 interface SocialMediaLinksWidgetProps {
@@ -24,10 +24,10 @@ interface SocialMediaLinksWidgetProps {
 }
 
 const DEFAULT_SOCIAL_LINKS: SocialLink[] = [
-  { platform: 'Facebook', url: '', icon: 'fab fa-facebook' },
-  { platform: 'Twitter', url: '', icon: 'fab fa-twitter' },
-  { platform: 'Instagram', url: '', icon: 'fab fa-instagram' },
-  { platform: 'LinkedIn', url: '', icon: 'fab fa-linkedin' },
+  { platform: 'Facebook', url: '' },
+  { platform: 'Twitter', url: '' },
+  { platform: 'Instagram', url: '' },
+  { platform: 'LinkedIn', url: '' },
 ];
 
 export function SocialMediaLinksWidget({ widgetId }: SocialMediaLinksWidgetProps) {
@@ -58,7 +58,7 @@ export function SocialMediaLinksWidget({ widgetId }: SocialMediaLinksWidgetProps
           onClick={() => setIsEditing(!isEditing)}
           className="text-xs text-indigo-600 hover:text-indigo-800"
         >
-          <i className={`fas fa-${isEditing ? 'check' : 'edit'}`}></i>
+          {isEditing ? <Check className="w-4 h-4" /> : <PenSquare className="w-4 h-4" />}
         </button>
       </div>
 
@@ -66,7 +66,7 @@ export function SocialMediaLinksWidget({ widgetId }: SocialMediaLinksWidgetProps
         <div className="space-y-2">
           {socialLinks.map(link => (
             <div key={link.platform} className="flex items-center gap-2">
-              <i className={`${link.icon} text-gray-500 w-4`}></i>
+              <Globe className="text-gray-500 w-4" />
               <input
                 type="url"
                 placeholder={`${link.platform} URL`}
@@ -92,7 +92,7 @@ export function SocialMediaLinksWidget({ widgetId }: SocialMediaLinksWidgetProps
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-xs text-gray-600 hover:text-indigo-600 transition-colors"
               >
-                <i className={link.icon}></i>
+                <Globe className="w-3 h-3" />
                 <span>{link.platform}</span>
               </a>
             ))

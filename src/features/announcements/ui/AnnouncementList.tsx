@@ -3,6 +3,7 @@
 import { PRIORITY_TAXONOMY, type AnnouncementPriority } from '../model/priority-taxonomy';
 import type { AnnouncementWithResource } from '../model/types';
 
+import { AlertCircle, Megaphone, Paperclip } from 'lucide-react';
 interface AnnouncementListProps {
   announcements: AnnouncementWithResource[];
   loading: boolean;
@@ -64,7 +65,7 @@ export function AnnouncementList({
   if (error) {
     return (
       <div className="text-center py-6">
-        <i className="fas fa-exclamation-circle text-2xl text-red-500 mb-2"></i>
+        <AlertCircle className="text-2xl text-red-500 mb-2" />
         <p className="text-sm text-gray-600 mb-3">{error}</p>
         <button
           onClick={onRetry}
@@ -79,7 +80,7 @@ export function AnnouncementList({
   if (announcements.length === 0) {
     return (
       <div className="text-center py-6">
-        <i className="fas fa-bullhorn text-3xl text-gray-400 mb-3"></i>
+        <Megaphone className="text-3xl text-gray-400 mb-3" />
         <p className="text-sm text-gray-600">No announcements yet</p>
       </div>
     );
@@ -110,7 +111,7 @@ export function AnnouncementList({
                 <p className="text-sm font-semibold text-gray-900 truncate">{announcement.title}</p>
                 {announcement.resourceId && (
                   <span className="flex-shrink-0 text-gray-400" title="Has attached document">
-                    <i className="fas fa-paperclip text-xs"></i>
+                    <Paperclip className="text-xs" />
                   </span>
                 )}
                 {announcement.resource?.title && (

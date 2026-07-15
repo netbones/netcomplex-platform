@@ -2,6 +2,7 @@
 
 import { ServiceCard, ServiceListing } from '@entities/service';
 
+import { Wrench } from 'lucide-react';
 interface ServicesGridProps {
   services: ServiceListing[];
   viewMode?: 'grid' | 'list';
@@ -13,7 +14,7 @@ export function ServicesGrid({ services, viewMode = 'grid', onInquiry }: Service
     return (
       <div className="text-center py-12">
         <div className="mb-4">
-          <i className="fas fa-tools text-6xl text-gray-300"></i>
+          <Wrench className="text-6xl text-gray-300" />
         </div>
         <h3 className="text-lg font-medium text-gray-900 mb-2">No services found</h3>
         <p className="text-gray-600">

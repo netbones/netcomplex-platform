@@ -292,7 +292,7 @@ export default function ResourcesPage() {
         {/* Error State */}
         {error && !loading && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-            <i className="fas fa-exclamation-triangle text-red-500 text-3xl mb-3"></i>
+            <AlertTriangle className="text-red-500 text-3xl mb-3" />
             <p className="text-red-700 font-medium">{t('resources:error.loading')}</p>
             <p className="text-red-500 text-sm mt-1">{error}</p>
           </div>
@@ -301,7 +301,7 @@ export default function ResourcesPage() {
         {/* Empty State */}
         {!loading && !error && filteredResources.length === 0 && (
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-12 text-center">
-            <i className="fas fa-folder-open text-gray-400 text-5xl mb-4"></i>
+            <FolderOpen className="text-gray-400 text-5xl mb-4" />
             <h3 className="text-xl font-semibold text-gray-700 mb-2">
               {t('resources:empty.title', 'No Resources Available')}
             </h3>
@@ -404,6 +404,7 @@ export default function ResourcesPage() {
 
 import type { TFunction } from 'i18next';
 
+import { AlertTriangle, Download, Eye, FolderOpen } from 'lucide-react';
 function ResourceCard({
   resource,
   t,
@@ -462,7 +463,7 @@ function ResourceCard({
               rel="noopener noreferrer"
               className="flex-1 bg-blue-600 text-white py-2 px-3 rounded-lg text-sm hover:bg-blue-700 transition-colors text-center"
             >
-              <i className="fas fa-download mr-1"></i>
+              <Download className="mr-1" />
               {t('resources:download', 'Download')}
             </a>
           )}
@@ -473,7 +474,7 @@ function ResourceCard({
               rel={resource.externalUrl ? 'noopener noreferrer' : undefined}
               className="flex-1 bg-gray-200 text-gray-700 py-2 px-3 rounded-lg text-sm hover:bg-gray-300 transition-colors text-center"
             >
-              <i className="fas fa-eye mr-1"></i>
+              <Eye className="mr-1" />
               {t('resources:view', 'View')}
             </a>
           )}

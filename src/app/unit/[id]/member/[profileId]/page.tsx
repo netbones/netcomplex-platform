@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { trpc } from '@api/client';
 import { Breadcrumbs } from '@shared/ui';
 
+import { CheckCircle, Home } from 'lucide-react';
 function ProfileContent() {
   const params = useParams();
   const profileId = params?.profileId as string | undefined;
@@ -100,7 +101,7 @@ function ProfileContent() {
                 href={`/unit/${household.id}`}
                 className="flex items-center gap-3 text-gray-700 hover:text-soralia-primary"
               >
-                <i className="fas fa-home w-5"></i>
+                <Home className="w-5" />
                 <span>
                   View household ({property?.street} Unit {property?.unit})
                 </span>
@@ -116,7 +117,7 @@ function ProfileContent() {
             <div className="flex items-center justify-between">
               <p className="text-gray-600">This profile is visible in the public directory</p>
               <span className="text-green-600 text-sm">
-                <i className="fas fa-check-circle mr-1"></i>
+                <CheckCircle className="mr-1" />
                 Public
               </span>
             </div>

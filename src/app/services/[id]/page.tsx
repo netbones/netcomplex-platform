@@ -15,6 +15,7 @@ import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { usePageLoading } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
 
+import { Check, CheckCircle, Wrench } from 'lucide-react';
 const log = createComponentLogger('service-detail-page');
 
 interface ServiceInquiryForm {
@@ -141,7 +142,7 @@ export default function ServiceDetailPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-6">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Hero Image */}
+              {/* Hero  */}
               <div className="relative h-64 md:h-80 bg-gray-200 rounded-lg overflow-hidden">
                 {service.images?.[0] ? (
                   <Image
@@ -153,7 +154,7 @@ export default function ServiceDetailPage() {
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-indigo-100">
                     <div className="text-center">
-                      <i className="fas fa-tools text-4xl text-indigo-400 mb-2"></i>
+                      <Wrench className="text-4xl text-indigo-400 mb-2" />
                       <p className="text-indigo-600">No image available</p>
                     </div>
                   </div>
@@ -236,7 +237,7 @@ export default function ServiceDetailPage() {
                       </p>
                       {service.verified && (
                         <span className="text-xs text-green-600 flex items-center gap-1">
-                          <i className="fas fa-check-circle"></i> Verified Provider
+                          <CheckCircle /> Verified Provider
                         </span>
                       )}
                     </div>
@@ -252,7 +253,7 @@ export default function ServiceDetailPage() {
                 {submitted ? (
                   <div className="text-center py-4">
                     <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <i className="fas fa-check text-green-600"></i>
+                      <Check className="text-green-600" />
                     </div>
                     <p className="text-gray-600">Your inquiry has been sent!</p>
                     <p className="text-sm text-gray-500 mt-1">The provider will respond soon.</p>

@@ -6,6 +6,7 @@ import { authClient } from '@api/client';
 import { ErrorBoundary } from '@shared/ui';
 import { useApiToast } from '@shared/lib/hooks';
 
+import { Briefcase, Star } from 'lucide-react';
 interface ServiceListing {
   id: string;
   title: string;
@@ -53,7 +54,7 @@ export function MyServicesWidget() {
       <div className="space-y-2">
         {services.length === 0 ? (
           <div className="text-center py-4 text-gray-500">
-            <i className="fas fa-briefcase text-2xl mb-2 block"></i>
+            <Briefcase className="text-2xl mb-2 block" />
             <p className="text-sm">No services yet</p>
             <Link
               href="/services/new"
@@ -87,7 +88,7 @@ export function MyServicesWidget() {
                 </div>
                 {service.rating > 0 && (
                   <div className="flex items-center gap-1 mt-2 text-xs text-gray-500">
-                    <i className="fas fa-star text-yellow-500"></i>
+                    <Star className="text-yellow-500" />
                     <span>{service.rating.toFixed(1)}</span>
                     <span>({service.reviewCount} reviews)</span>
                   </div>

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { createComponentLogger } from '@shared/lib';
 
+import { X } from 'lucide-react';
 const log = createComponentLogger('TagInput');
 
 interface TagInputProps {
@@ -95,7 +96,7 @@ export function TagInput({
               onClick={() => removeTag(tag)}
               className="hover:bg-indigo-200 rounded-full p-0.5"
             >
-              <i className="fas fa-times text-xs"></i>
+              <X className="text-xs" />
             </button>
           </span>
         ))}

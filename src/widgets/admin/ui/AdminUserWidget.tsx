@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { ErrorBoundary } from '@shared/ui';
 import { useAdminUsers } from '@shared/lib/hooks';
 
+import { Clock, UserCheck, UserPlus, Users } from 'lucide-react';
 export interface UserItem {
   id: string;
   name: string;
@@ -54,7 +55,7 @@ export function AdminUserWidget() {
                 <p className="text-sm text-blue-600 font-medium">Total Users</p>
                 <p className="text-2xl font-bold text-blue-900">{userStats.total}</p>
               </div>
-              <i className="fas fa-users text-2xl text-blue-600"></i>
+              <Users className="text-2xl text-blue-600" />
             </div>
           </div>
 
@@ -64,7 +65,7 @@ export function AdminUserWidget() {
                 <p className="text-sm text-green-600 font-medium">Active Users</p>
                 <p className="text-2xl font-bold text-green-900">{userStats.active}</p>
               </div>
-              <i className="fas fa-user-check text-2xl text-green-600"></i>
+              <UserCheck className="text-2xl text-green-600" />
             </div>
           </div>
 
@@ -74,7 +75,7 @@ export function AdminUserWidget() {
                 <p className="text-sm text-yellow-600 font-medium">Pending</p>
                 <p className="text-2xl font-bold text-yellow-900">{userStats.pending}</p>
               </div>
-              <i className="fas fa-clock text-2xl text-yellow-600"></i>
+              <Clock className="text-2xl text-yellow-600" />
             </div>
           </div>
 
@@ -84,7 +85,7 @@ export function AdminUserWidget() {
                 <p className="text-sm text-purple-600 font-medium">Recent Signups</p>
                 <p className="text-2xl font-bold text-purple-900">{userStats.recentSignups}</p>
               </div>
-              <i className="fas fa-user-plus text-2xl text-purple-600"></i>
+              <UserPlus className="text-2xl text-purple-600" />
             </div>
           </div>
         </div>

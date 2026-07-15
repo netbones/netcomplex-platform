@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ErrorBoundary } from '@shared/ui';
 import { useAdminContent } from '@shared/lib/hooks';
 
+import { CheckCircle, Clock, FileText, PenSquare } from 'lucide-react';
 export interface ContentItem {
   id: string;
   title: string;
@@ -52,7 +53,7 @@ export function AdminContentWidget() {
                 <p className="text-sm text-green-600 font-medium">Published</p>
                 <p className="text-2xl font-bold text-green-900">{contentStats.published}</p>
               </div>
-              <i className="fas fa-check-circle text-2xl text-green-600"></i>
+              <CheckCircle className="text-2xl text-green-600" />
             </div>
           </div>
 
@@ -62,7 +63,7 @@ export function AdminContentWidget() {
                 <p className="text-sm text-gray-600 font-medium">Drafts</p>
                 <p className="text-2xl font-bold text-gray-900">{contentStats.draft}</p>
               </div>
-              <i className="fas fa-edit text-2xl text-gray-600"></i>
+              <PenSquare className="text-2xl text-gray-600" />
             </div>
           </div>
 
@@ -72,7 +73,7 @@ export function AdminContentWidget() {
                 <p className="text-sm text-blue-600 font-medium">Total Content</p>
                 <p className="text-2xl font-bold text-blue-900">{contentStats.total}</p>
               </div>
-              <i className="fas fa-file-alt text-2xl text-blue-600"></i>
+              <FileText className="text-2xl text-blue-600" />
             </div>
           </div>
 
@@ -82,7 +83,7 @@ export function AdminContentWidget() {
                 <p className="text-sm text-orange-600 font-medium">Recent Posts</p>
                 <p className="text-2xl font-bold text-orange-900">{contentStats.recent}</p>
               </div>
-              <i className="fas fa-clock text-2xl text-orange-600"></i>
+              <Clock className="text-2xl text-orange-600" />
             </div>
           </div>
         </div>

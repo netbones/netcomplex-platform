@@ -51,15 +51,10 @@ describe('SidebarWidgetBox', () => {
   describe('AVAILABLE_WIDGETS data structure', () => {
     it('contains all required widget types', () => {
       const availableWidgets = [
-        {
-          id: 'social-media',
-          type: 'social-media',
-          title: 'Social Media',
-          icon: 'fab fa-share-alt',
-        },
-        { id: 'tag-cloud', type: 'tag-cloud', title: 'Tag Cloud', icon: 'fas fa-tags' },
-        { id: 'quick-stats', type: 'quick-stats', title: 'Quick Stats', icon: 'fas fa-chart-bar' },
-        { id: 'weather', type: 'weather', title: 'Weather', icon: 'fas fa-sun' },
+        { id: 'social-media', type: 'social-media', title: 'Social Media', icon: 'share-alt' },
+        { id: 'tag-cloud', type: 'tag-cloud', title: 'Tag Cloud', icon: 'tags' },
+        { id: 'quick-stats', type: 'quick-stats', title: 'Quick Stats', icon: 'chart-bar' },
+        { id: 'weather', type: 'weather', title: 'Weather', icon: 'sun' },
       ];
 
       expect(availableWidgets).toHaveLength(4);
@@ -73,15 +68,10 @@ describe('SidebarWidgetBox', () => {
 
     it('each widget has required properties', () => {
       const widgets = [
-        {
-          id: 'social-media',
-          type: 'social-media',
-          title: 'Social Media',
-          icon: 'fab fa-share-alt',
-        },
-        { id: 'tag-cloud', type: 'tag-cloud', title: 'Tag Cloud', icon: 'fas fa-tags' },
-        { id: 'quick-stats', type: 'quick-stats', title: 'Quick Stats', icon: 'fas fa-chart-bar' },
-        { id: 'weather', type: 'weather', title: 'Weather', icon: 'fas fa-sun' },
+        { id: 'social-media', type: 'social-media', title: 'Social Media', icon: 'share-alt' },
+        { id: 'tag-cloud', type: 'tag-cloud', title: 'Tag Cloud', icon: 'tags' },
+        { id: 'quick-stats', type: 'quick-stats', title: 'Quick Stats', icon: 'chart-bar' },
+        { id: 'weather', type: 'weather', title: 'Weather', icon: 'sun' },
       ];
 
       widgets.forEach(widget => {
@@ -92,22 +82,16 @@ describe('SidebarWidgetBox', () => {
       });
     });
 
-    it('widget icons use Font Awesome classes', () => {
+    it('widget icons use ICON_MAP keys', () => {
       const widgets = [
-        {
-          id: 'social-media',
-          type: 'social-media',
-          title: 'Social Media',
-          icon: 'fab fa-share-alt',
-        },
-        { id: 'tag-cloud', type: 'tag-cloud', title: 'Tag Cloud', icon: 'fas fa-tags' },
-        { id: 'quick-stats', type: 'quick-stats', title: 'Quick Stats', icon: 'fas fa-chart-bar' },
-        { id: 'weather', type: 'weather', title: 'Weather', icon: 'fas fa-sun' },
+        { id: 'social-media', type: 'social-media', title: 'Social Media', icon: 'share-alt' },
+        { id: 'tag-cloud', type: 'tag-cloud', title: 'Tag Cloud', icon: 'tags' },
+        { id: 'quick-stats', type: 'quick-stats', title: 'Quick Stats', icon: 'chart-bar' },
+        { id: 'weather', type: 'weather', title: 'Weather', icon: 'sun' },
       ];
 
       widgets.forEach(widget => {
-        // fab = brands, fas = solid
-        expect(widget.icon).toMatch(/^(fab|fas) fa-/);
+        expect(widget.icon).toMatch(/^(share-alt|tags|chart-bar|sun)$/);
       });
     });
   });
@@ -115,11 +99,11 @@ describe('SidebarWidgetBox', () => {
 
 describe('SocialMediaLinksWidget', () => {
   it('DEFAULT_SOCIAL_LINKS contains expected platforms', () => {
-    const DEFAULT_SOCIAL_LINKS = [
-      { platform: 'Facebook', url: '', icon: 'fab fa-facebook' },
-      { platform: 'Twitter', url: '', icon: 'fab fa-twitter' },
-      { platform: 'Instagram', url: '', icon: 'fab fa-instagram' },
-      { platform: 'LinkedIn', url: '', icon: 'fab fa-linkedin' },
+    const DEFAULT_SOCIAL_LINKS: { platform: string; url: string }[] = [
+      { platform: 'Facebook', url: '' },
+      { platform: 'Twitter', url: '' },
+      { platform: 'Instagram', url: '' },
+      { platform: 'LinkedIn', url: '' },
     ];
 
     expect(DEFAULT_SOCIAL_LINKS).toHaveLength(4);
@@ -133,11 +117,11 @@ describe('SocialMediaLinksWidget', () => {
 
   it('saves social links to localStorage with widgetId key', () => {
     const widgetId = 'test-widget-id';
-    const testLinks = [
-      { platform: 'Facebook', url: 'https://facebook.com/test', icon: 'fab fa-facebook' },
-      { platform: 'Twitter', url: '', icon: 'fab fa-twitter' },
-      { platform: 'Instagram', url: '', icon: 'fab fa-instagram' },
-      { platform: 'LinkedIn', url: '', icon: 'fab fa-linkedin' },
+    const testLinks: { platform: string; url: string }[] = [
+      { platform: 'Facebook', url: 'https://facebook.com/test' },
+      { platform: 'Twitter', url: '' },
+      { platform: 'Instagram', url: '' },
+      { platform: 'LinkedIn', url: '' },
     ];
 
     localStorage.setItem(`social-links-${widgetId}`, JSON.stringify(testLinks));
@@ -155,20 +139,20 @@ describe('SocialMediaLinksWidget', () => {
 describe('QuickStatsWidget', () => {
   it('DEFAULT_STATS has expected structure', () => {
     const DEFAULT_STATS = [
-      { label: 'Posts', value: '24', icon: 'fas fa-file-alt' },
-      { label: 'Events', value: '8', icon: 'fas fa-calendar' },
-      { label: 'Connections', value: '156', icon: 'fas fa-users' },
+      { label: 'Posts', value: '24', icon: 'fa-file-alt' },
+      { label: 'Events', value: '8', icon: 'fa-calendar' },
+      { label: 'Connections', value: '156', icon: 'fa-users' },
     ];
 
     DEFAULT_STATS.forEach(stat => {
       expect(stat.label).toBeDefined();
       expect(stat.value).toBeDefined();
-      expect(stat.icon).toMatch(/^fas? fa-/);
+      expect(stat.icon).toMatch(/^fa-/);
     });
   });
 
   it('can accept custom stats array', () => {
-    const customStats = [{ label: 'Custom Stat', value: '42', icon: 'fas fa-star' }];
+    const customStats = [{ label: 'Custom Stat', value: '42', icon: 'fa-star' }];
 
     expect(customStats).toHaveLength(1);
     expect(customStats[0].label).toBe('Custom Stat');
@@ -177,47 +161,34 @@ describe('QuickStatsWidget', () => {
 });
 
 describe('WeatherWidget', () => {
-  it('DEFAULT_WEATHER has expected structure', () => {
-    const DEFAULT_WEATHER = {
-      temperature: 72,
-      condition: 'Sunny',
-      location: 'Soralia Village',
-      icon: 'fas fa-sun',
-    };
-
-    expect(DEFAULT_WEATHER.temperature).toBe(72);
-    expect(DEFAULT_WEATHER.condition).toBe('Sunny');
-    expect(DEFAULT_WEATHER.location).toBe('Soralia Village');
-  });
-
   it('CONDITION_MAP contains all WMO weather codes', () => {
     const CONDITION_MAP: Record<string, { condition: string; icon: string }> = {
-      0: { condition: 'Clear', icon: 'fas fa-sun' },
-      1: { condition: 'Mainly Clear', icon: 'fas fa-sun' },
-      2: { condition: 'Partly Cloudy', icon: 'fas fa-cloud-sun' },
-      3: { condition: 'Overcast', icon: 'fas fa-cloud' },
-      45: { condition: 'Fog', icon: 'fas fa-smog' },
-      48: { condition: 'Fog', icon: 'fas fa-smog' },
-      51: { condition: 'Drizzle', icon: 'fas fa-cloud-rain' },
-      53: { condition: 'Drizzle', icon: 'fas fa-cloud-rain' },
-      55: { condition: 'Drizzle', icon: 'fas fa-cloud-rain' },
-      61: { condition: 'Rain', icon: 'fas fa-cloud-showers-heavy' },
-      63: { condition: 'Rain', icon: 'fas fa-cloud-showers-heavy' },
-      65: { condition: 'Rain', icon: 'fas fa-cloud-showers-heavy' },
-      71: { condition: 'Snow', icon: 'fas fa-snowflake' },
-      73: { condition: 'Snow', icon: 'fas fa-snowflake' },
-      75: { condition: 'Snow', icon: 'fas fa-snowflake' },
-      80: { condition: 'Showers', icon: 'fas fa-cloud-showers-heavy' },
-      81: { condition: 'Showers', icon: 'fas fa-cloud-showers-heavy' },
-      82: { condition: 'Showers', icon: 'fas fa-cloud-showers-heavy' },
-      95: { condition: 'Thunderstorm', icon: 'fas fa-bolt' },
-      96: { condition: 'Thunderstorm', icon: 'fas fa-bolt' },
-      99: { condition: 'Thunderstorm', icon: 'fas fa-bolt' },
+      0: { condition: 'Clear', icon: 'Sun' },
+      1: { condition: 'Mainly Clear', icon: 'Sun' },
+      2: { condition: 'Partly Cloudy', icon: 'CloudSun' },
+      3: { condition: 'Overcast', icon: 'Cloud' },
+      45: { condition: 'Fog', icon: 'CloudFog' },
+      48: { condition: 'Fog', icon: 'CloudFog' },
+      51: { condition: 'Drizzle', icon: 'CloudRain' },
+      53: { condition: 'Drizzle', icon: 'CloudRain' },
+      55: { condition: 'Drizzle', icon: 'CloudRain' },
+      61: { condition: 'Rain', icon: 'CloudRain' },
+      63: { condition: 'Rain', icon: 'CloudRain' },
+      65: { condition: 'Rain', icon: 'CloudRain' },
+      71: { condition: 'Snow', icon: 'Snowflake' },
+      73: { condition: 'Snow', icon: 'Snowflake' },
+      75: { condition: 'Snow', icon: 'Snowflake' },
+      80: { condition: 'Showers', icon: 'CloudRain' },
+      81: { condition: 'Showers', icon: 'CloudRain' },
+      82: { condition: 'Showers', icon: 'CloudRain' },
+      95: { condition: 'Thunderstorm', icon: 'Zap' },
+      96: { condition: 'Thunderstorm', icon: 'Zap' },
+      99: { condition: 'Thunderstorm', icon: 'Zap' },
     };
 
     // Clear weather
     expect(CONDITION_MAP[0].condition).toBe('Clear');
-    expect(CONDITION_MAP[0].icon).toBe('fas fa-sun');
+    expect(CONDITION_MAP[0].icon).toBe('Sun');
 
     // Rain
     expect(CONDITION_MAP[61].condition).toBe('Rain');

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { usePageLoading, Breadcrumbs, ErrorBoundary, ModalOverlay } from '@shared/ui';
 import { CARD_ANIMATIONS, createComponentLogger } from '@shared/lib';
 import Image from 'next/image';
+import { CheckCircle, Store } from 'lucide-react';
 import {
   defaultServiceCategories as defaultCats,
   additionalServices as defaultAdditional,
@@ -311,7 +312,7 @@ export function ServicesPage() {
                         <ul className="space-y-3 mb-6">
                           {service.items.map((item, idx) => (
                             <li key={idx} className="flex items-start gap-3 text-sm text-gray-600">
-                              <i className={`fas fa-check-circle mt-0.5 ${theme.icon}`} />
+                              <CheckCircle className={`mt-0.5 ${theme.icon}`} />
                               <span>{item}</span>
                             </li>
                           ))}
@@ -395,7 +396,7 @@ export function ServicesPage() {
                   onClick={() => router.push('/directory')}
                   className="inline-flex items-center gap-2 bg-white text-indigo-700 px-8 py-3 rounded-xl font-semibold hover:bg-indigo-50 transition-colors shadow-lg"
                 >
-                  <i className="fas fa-store" />
+                  <Store />
                   {t('browseDirectory')}
                 </button>
               </div>

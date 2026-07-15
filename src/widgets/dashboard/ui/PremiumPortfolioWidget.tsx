@@ -9,6 +9,7 @@ import { AgentWidget } from './AgentWidget';
 import { CreateListingForm } from '@features/service';
 import { useApiToast, usePremiumListings } from '@shared/lib/hooks';
 
+import { Building2, Home, List, Plus, UserCircle } from 'lucide-react';
 interface PortfolioHousehold {
   id: string;
   street: string;
@@ -163,7 +164,7 @@ export function PremiumPortfolioWidget() {
           </div>
 
           <div className="text-center py-8 text-gray-500">
-            <i className="fas fa-building text-4xl mb-4"></i>
+            <Building2 className="text-4xl mb-4" />
             <h4 className="text-lg font-medium mb-2">Multi-Property Management</h4>
             <p className="text-sm mb-4">
               Manage all your properties from one unified dashboard. Combine multiple Standard Seats
@@ -210,7 +211,7 @@ export function PremiumPortfolioWidget() {
                 : 'border-transparent text-gray-500 hover:text-gray-700'
             }`}
           >
-            <i className="fas fa-building mr-2"></i>
+            <Building2 className="mr-2" />
             Portfolio
           </button>
           <button
@@ -221,7 +222,7 @@ export function PremiumPortfolioWidget() {
                 : 'border-transparent text-gray-500 hover:text-gray-700'
             }`}
           >
-            <i className="fas fa-user-tie mr-2"></i>
+            <UserCircle className="mr-2" />
             Agents
           </button>
           <button
@@ -232,7 +233,7 @@ export function PremiumPortfolioWidget() {
                 : 'border-transparent text-gray-500 hover:text-gray-700'
             }`}
           >
-            <i className="fas fa-list mr-2"></i>
+            <List className="mr-2" />
             Listings
           </button>
         </div>
@@ -258,7 +259,7 @@ export function PremiumPortfolioWidget() {
                       />
                     ) : (
                       <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <i className="fas fa-home text-gray-400"></i>
+                        <Home className="text-gray-400" />
                       </div>
                     )}
 
@@ -343,14 +344,14 @@ export function PremiumPortfolioWidget() {
                 onClick={() => setShowCreateForm(true)}
                 className="px-4 py-2 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700"
               >
-                <i className="fas fa-plus mr-2"></i>
+                <Plus className="mr-2" />
                 Create Listing
               </button>
             </div>
 
             {listings.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
-                <i className="fas fa-list text-4xl mb-4"></i>
+                <List className="text-4xl mb-4" />
                 <p className="mb-4">No listings yet</p>
                 <p className="text-sm mb-4">Create your first property listing to get started</p>
                 <button
@@ -403,7 +404,7 @@ export function PremiumPortfolioWidget() {
 
                     {listing.assignedAgent && (
                       <div className="text-sm text-gray-600 mb-3">
-                        <i className="fas fa-user-tie mr-1"></i>
+                        <UserCircle className="mr-1" />
                         Agent: {listing.assignedAgent.name}
                       </div>
                     )}

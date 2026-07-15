@@ -5,6 +5,7 @@ import { useSafeTranslation } from '@shared/lib';
 import { ErrorBoundary } from '@shared/ui';
 import { useDashboardStats } from '@features/dashboard';
 
+import { ChevronRight } from 'lucide-react';
 interface DashboardStats {
   requests: number;
   bookings: number;
@@ -49,7 +50,7 @@ function StatCard({
           <p className="text-lg font-bold text-gray-900">{loading ? '...' : value}</p>
         </div>
         {href && (
-          <i className="fas fa-chevron-right text-gray-300 group-hover:text-indigo-500 transition-colors"></i>
+          <ChevronRight className="text-gray-300 group-hover:text-indigo-500 transition-colors" />
         )}
       </div>
     </div>

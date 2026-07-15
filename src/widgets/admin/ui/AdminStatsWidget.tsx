@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { ErrorBoundary } from '@shared/ui';
 import { useAdminStats } from '@features/admin';
 
+import { ChevronRight } from 'lucide-react';
 interface StatCardProps {
   title: string;
   value: string | number;
@@ -34,7 +35,7 @@ function StatCard({ title, value, icon, href, color = 'bg-gray-500', loading }: 
           <p className="text-3xl font-bold text-gray-900">{loading ? '...' : value}</p>
         </div>
         {href && (
-          <i className="fas fa-chevron-right text-gray-300 group-hover:text-indigo-500 transition-colors"></i>
+          <ChevronRight className="text-gray-300 group-hover:text-indigo-500 transition-colors" />
         )}
       </div>
     </div>

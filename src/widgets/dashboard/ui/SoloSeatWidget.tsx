@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
+import { Crown, Star } from 'lucide-react';
 interface SoloSeat {
   id: string;
   platformAddress: string;
@@ -31,7 +32,7 @@ export function SoloSeatWidget({ SoloSeat, loading = false }: SoloSeatWidgetProp
       <div className="p-4 bg-slate-50 rounded-lg">
         <div className="flex items-center gap-3 mb-3">
           <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-            <i className="fas fa-crown text-gray-400"></i>
+            <Crown className="text-gray-400" />
           </div>
           <div>
             <h3 className="font-medium text-gray-700">{t('SoloSeat', 'Premium Seat')}</h3>
@@ -58,7 +59,7 @@ export function SoloSeatWidget({ SoloSeat, loading = false }: SoloSeatWidgetProp
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
-            <i className="fas fa-crown text-indigo-600"></i>
+            <Crown className="text-indigo-600" />
           </div>
           <div>
             <h3 className="font-semibold text-gray-900">{t('SoloSeat', 'Premium Seat')}</h3>
@@ -72,7 +73,7 @@ export function SoloSeatWidget({ SoloSeat, loading = false }: SoloSeatWidgetProp
 
       {isComplimentary && (
         <div className="flex items-center gap-2 mb-3 text-sm text-emerald-700 bg-emerald-50 p-2 rounded">
-          <i className="fas fa-star"></i>
+          <Star />
           <span>{t('complimentarySeat', 'Complimentary Board Seat')}</span>
         </div>
       )}

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { ErrorBoundary } from '@shared/ui';
 
+import { UserCheck } from 'lucide-react';
 interface MembershipRequest {
   id: string;
   userId: string;
@@ -69,7 +70,7 @@ export function GroupModerationWidget() {
     <div className="bg-white rounded-lg shadow-md p-4">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-gray-900">
-          <i className="fas fa-user-check mr-2 text-indigo-600" />
+          <UserCheck className="mr-2 text-indigo-600" />
           Group Membership Requests
         </h3>
         <select

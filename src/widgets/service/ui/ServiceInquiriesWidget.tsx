@@ -71,7 +71,7 @@ export function ServiceInquiriesWidget() {
       <div className="space-y-2">
         {inquiries.length === 0 ? (
           <div className="text-center py-4 text-gray-500">
-            <i className="fas fa-envelope-open-text text-2xl mb-2 block"></i>
+            <Mail className="text-2xl mb-2 block" />
             <p className="text-sm">No inquiries yet</p>
           </div>
         ) : (

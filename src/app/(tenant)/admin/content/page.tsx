@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Breadcrumbs } from '@shared/ui';
 import { useLanguage } from '@shared/lib/hooks/useSafeTranslation';
 
+import { PenSquare, Plus, Trash2 } from 'lucide-react';
 interface Content {
   id: string;
   title: string;
@@ -104,7 +105,8 @@ export default function ContentListPage() {
           href="/admin/content/new"
           className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
         >
-          <i className="fas fa-plus mr-2"></i>New Content
+          <Plus className="mr-2" />
+          New Content
         </Link>
       </div>
 
@@ -205,7 +207,7 @@ export default function ContentListPage() {
                       className="text-indigo-600 hover:text-indigo-900"
                       onClick={e => e.stopPropagation()}
                     >
-                      <i className="fas fa-edit"></i>
+                      <PenSquare />
                     </Link>
                     <button
                       onClick={e => {
@@ -214,7 +216,7 @@ export default function ContentListPage() {
                       }}
                       className="text-red-600 hover:text-red-900"
                     >
-                      <i className="fas fa-trash"></i>
+                      <Trash2 />
                     </button>
                   </td>
                 </tr>

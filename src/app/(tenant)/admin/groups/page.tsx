@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Breadcrumbs } from '@shared/ui';
 
+import { Loader2, Plus, Trash2, User, Users } from 'lucide-react';
 interface Group {
   id: string;
   name: string;
@@ -44,14 +45,15 @@ export default function GroupsPage() {
           href="/admin/groups/new"
           className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
         >
-          <i className="fas fa-plus mr-2"></i>New Group
+          <Plus className="mr-2" />
+          New Group
         </Link>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {loading ? (
           <div className="col-span-full text-center py-12 text-gray-500">
-            <i className="fas fa-spinner fa-spin text-4xl mb-4"></i>
+            <Loader2 className="text-4xl mb-4" />
             <p>Loading groups...</p>
           </div>
         ) : (
@@ -75,10 +77,10 @@ export default function GroupsPage() {
 
               <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
                 <span>
-                  <i className="fas fa-users mr-1"></i> {group._count.members} members
+                  <Users className="mr-1" /> {group._count.members} members
                 </span>
                 <span>
-                  <i className="fas fa-user mr-1"></i> {group.owner.name}
+                  <User className="mr-1" /> {group.owner.name}
                 </span>
               </div>
 
@@ -93,7 +95,7 @@ export default function GroupsPage() {
                   onClick={() => handleDelete(group.id)}
                   className="px-3 py-2 text-red-600 hover:bg-red-50 rounded"
                 >
-                  <i className="fas fa-trash"></i>
+                  <Trash2 />
                 </button>
               </div>
             </div>
@@ -103,7 +105,7 @@ export default function GroupsPage() {
 
       {groups.length === 0 && (
         <div className="text-center py-12 text-gray-500">
-          <i className="fas fa-users text-4xl mb-4"></i>
+          <Users className="text-4xl mb-4" />
           <p>No groups yet. Create your first interest group!</p>
         </div>
       )}

@@ -11,6 +11,7 @@ import { z } from 'zod';
 import { createComponentLogger } from '@shared/lib';
 import { ToastMsg } from '@shared/lib/hooks';
 
+import { CheckCircle, Loader2, Trash2 } from 'lucide-react';
 const log = createComponentLogger('ResourceForm');
 
 const resourceSchema = z.object({
@@ -304,7 +305,7 @@ export function ResourceForm({ initialData }: ResourceFormProps) {
         <p className="text-xs text-gray-500 mt-1">Allowed: PDF, DOCX, DWG, XLSX</p>
         {watch('fileUrl') && (
           <div className="mt-2 flex items-center gap-2 text-sm text-gray-600">
-            <i className="fas fa-check-circle text-green-500"></i>
+            <CheckCircle className="text-green-500" />
             <span>File uploaded</span>
             <button
               type="button"
@@ -386,7 +387,7 @@ export function ResourceForm({ initialData }: ResourceFormProps) {
         >
           {isSubmitting ? (
             <>
-              <i className="fas fa-spinner fa-spin mr-2"></i>
+              <Loader2 className="mr-2" />
               {isEditing ? 'Updating...' : 'Creating...'}
             </>
           ) : (
@@ -400,7 +401,8 @@ export function ResourceForm({ initialData }: ResourceFormProps) {
             onClick={() => setDeleteConfirmOpen(true)}
             className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
           >
-            <i className="fas fa-trash mr-2"></i>Delete
+            <Trash2 className="mr-2" />
+            Delete
           </button>
         )}
 

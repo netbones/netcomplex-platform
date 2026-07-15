@@ -10,6 +10,7 @@ import Image from 'next/image';
 import { usePageLoading } from '@shared/ui';
 import { trpc } from '@api/client';
 
+import { Home, Mail, Phone } from 'lucide-react';
 interface HouseholdData {
   household: {
     id: string;
@@ -221,7 +222,7 @@ function HouseholdContent() {
                     href={`mailto:${primaryOwner.email}`}
                     className="flex items-center gap-2 text-soralia-primary hover:underline"
                   >
-                    <i className="fas fa-envelope"></i>
+                    <Mail />
                     <span>{primaryOwner.email}</span>
                   </a>
                   {primaryOwner.showPhone && primaryOwner.phone && (
@@ -229,7 +230,7 @@ function HouseholdContent() {
                       href={`tel:${primaryOwner.phone}`}
                       className="flex items-center gap-2 text-soralia-primary hover:underline"
                     >
-                      <i className="fas fa-phone"></i>
+                      <Phone />
                       <span>{primaryOwner.phone}</span>
                     </a>
                   )}
@@ -290,7 +291,7 @@ function HouseholdContent() {
 
               {paginatedContent.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
-                  <i className="fas fa-home text-4xl mb-4"></i>
+                  <Home className="text-4xl mb-4" />
                   <p>No published content yet</p>
                 </div>
               ) : (

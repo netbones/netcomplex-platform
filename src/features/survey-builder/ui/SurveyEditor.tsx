@@ -21,7 +21,7 @@ import {
 } from '@dnd-kit/sortable';
 import { LoadingSpinner } from '@shared/ui';
 import { logError } from '@shared/lib';
-import { Plus } from 'lucide-react';
+import { AlertCircle, BarChart3, Plus } from 'lucide-react';
 import type {
   Survey,
   SurveyDetailResponse,
@@ -486,7 +486,7 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
   if (error || !survey) {
     return (
       <div className="text-center py-12">
-        <i className="fas fa-exclamation-circle text-3xl text-red-500 mb-4"></i>
+        <AlertCircle className="text-3xl text-red-500 mb-4" />
         <p className="text-gray-600 mb-4">{error || 'Survey not found'}</p>
         <button
           onClick={() => void loadSurvey()}
@@ -616,7 +616,7 @@ function SortableSectionBlock(
 function EmptySurvey({ onAdd }: { onAdd: (type: QuestionType) => void }) {
   return (
     <div className="text-center py-12 bg-white rounded-lg border-2 border-dashed border-gray-300">
-      <i className="fas fa-poll-h text-4xl text-gray-300 mb-3"></i>
+      <BarChart3 className="text-4xl text-gray-300 mb-3" />
       <p className="text-gray-500 mb-1 font-medium">This survey has no questions yet</p>
       <p className="text-sm text-gray-400 mb-4">
         Click the + button below to add your first question

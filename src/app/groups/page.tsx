@@ -7,6 +7,7 @@ import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { INTEREST_CATEGORIES } from '@shared/lib';
 import { usePageLoading } from '@shared/ui';
 
+import { Users } from 'lucide-react';
 interface Group {
   id: string;
   name: string;
@@ -178,7 +179,7 @@ export default function GroupsHubPage() {
                     {accessTypeLabel(group.accessType)}
                   </span>
                   <span className="text-xs text-gray-500 flex items-center">
-                    <i className="fas fa-users mr-1"></i>
+                    <Users className="mr-1" />
                     {group._count.members}
                   </span>
                 </div>
@@ -204,7 +205,7 @@ export default function GroupsHubPage() {
 
         {filteredGroups.length === 0 && (
           <div className="text-center py-12 text-gray-500">
-            <i className="fas fa-users text-4xl mb-4"></i>
+            <Users className="text-4xl mb-4" />
             <p>No groups found in this category</p>
           </div>
         )}

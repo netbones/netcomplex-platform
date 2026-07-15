@@ -7,6 +7,7 @@ import { trpc } from '@api/client';
 import Image from 'next/image';
 import { Breadcrumbs } from '@shared/ui';
 
+import { Star, Users } from 'lucide-react';
 function MemberContent() {
   const params = useParams();
   const id = params?.id as string | undefined;
@@ -117,13 +118,13 @@ function MemberContent() {
               <div className="flex flex-col sm:flex-row sm:gap-4 mt-3">
                 {isBoardMember && (
                   <span className="bg-soralia-primary text-white text-sm px-3 py-1 rounded-full">
-                    <i className="fas fa-users mr-2"></i>
+                    <Users className="mr-2" />
                     HOA Member
                   </span>
                 )}
                 {SoloSeat.isComplimentary && (
                   <span className="bg-emerald-600 text-white text-sm px-3 py-1 rounded-full">
-                    <i className="fas fa-star mr-2"></i>
+                    <Star className="mr-2" />
                     Complimentary
                   </span>
                 )}

@@ -22,6 +22,31 @@ import { useEffect, useCallback, useState, useRef } from 'react';
 import { toast } from 'sonner';
 import { Tooltip, TooltipTrigger, TooltipContent } from './tooltip';
 
+import {
+  AlignCenter,
+  AlignLeft,
+  AlignRight,
+  Bold,
+  Code,
+  Image as ImageIcon,
+  Images,
+  Italic,
+  Link,
+  List,
+  ListOrdered,
+  Loader2,
+  Palette,
+  Pen,
+  Quote,
+  Redo,
+  Strikethrough,
+  Table,
+  TextSelect,
+  Type,
+  Underline,
+  Undo,
+  X,
+} from 'lucide-react';
 const lowlight = createLowlight(common);
 
 interface RichTextEditorProps {
@@ -377,7 +402,7 @@ export function RichTextEditor({
           onClick={() => editor.chain().focus().toggleBold().run()}
           className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('bold') ? 'bg-gray-200' : ''}`}
         >
-          <i className="fas fa-bold"></i>
+          <Bold />
         </ToolbarButton>
         <ToolbarButton
           title="Italic (Ctrl+I)"
@@ -385,7 +410,7 @@ export function RichTextEditor({
           onClick={() => editor.chain().focus().toggleItalic().run()}
           className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('italic') ? 'bg-gray-200' : ''}`}
         >
-          <i className="fas fa-italic"></i>
+          <Italic />
         </ToolbarButton>
         <ToolbarButton
           title="Underline (Ctrl+U)"
@@ -393,7 +418,7 @@ export function RichTextEditor({
           onClick={() => editor.chain().focus().toggleUnderline().run()}
           className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('underline') ? 'bg-gray-200' : ''}`}
         >
-          <i className="fas fa-underline"></i>
+          <Underline />
         </ToolbarButton>
         <ToolbarButton
           title="Strikethrough"
@@ -401,7 +426,7 @@ export function RichTextEditor({
           onClick={() => editor.chain().focus().toggleStrike().run()}
           className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('strike') ? 'bg-gray-200' : ''}`}
         >
-          <i className="fas fa-strikethrough"></i>
+          <Strikethrough />
         </ToolbarButton>
         <ToolbarButton
           title="Highlight"
@@ -409,7 +434,7 @@ export function RichTextEditor({
           onClick={() => editor.chain().focus().toggleHighlight().run()}
           className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('highlight') ? 'bg-yellow-200' : ''}`}
         >
-          <i className="fas fa-highlighter"></i>
+          <Pen />
         </ToolbarButton>
 
         {/* Font Family */}
@@ -424,7 +449,7 @@ export function RichTextEditor({
             }}
             className="p-2 rounded hover:bg-gray-200 text-sm font-medium"
           >
-            <i className="fas fa-font"></i>
+            <Type />
           </ToolbarButton>
           {showFontFamily && (
             <div className="absolute top-full left-0 mt-1 bg-white border rounded-lg shadow-lg z-20 p-2 min-w-[150px]">
@@ -460,7 +485,7 @@ export function RichTextEditor({
             }}
             className="p-2 rounded hover:bg-gray-200 text-sm font-medium"
           >
-            <i className="fas fa-text-height"></i>
+            <TextSelect />
           </ToolbarButton>
           {showFontSize && (
             <div className="absolute top-full left-0 mt-1 bg-white border rounded-lg shadow-lg z-20 p-2 grid grid-cols-2 gap-1 min-w-[120px]">
@@ -493,7 +518,7 @@ export function RichTextEditor({
             }}
             className="p-2 rounded hover:bg-gray-200"
           >
-            <i className="fas fa-palette"></i>
+            <Palette />
           </ToolbarButton>
           {showColor && (
             <div className="absolute top-full left-0 mt-1 bg-white border rounded-lg shadow-lg z-20 p-3 min-w-[200px]">
@@ -525,7 +550,7 @@ export function RichTextEditor({
           onClick={() => editor.chain().focus().setTextAlign('left').run()}
           className={`p-2 rounded hover:bg-gray-200 ${editor.isActive({ textAlign: 'left' }) ? 'bg-gray-200' : ''}`}
         >
-          <i className="fas fa-align-left"></i>
+          <AlignLeft />
         </ToolbarButton>
         <ToolbarButton
           title="Align Center"
@@ -533,7 +558,7 @@ export function RichTextEditor({
           onClick={() => editor.chain().focus().setTextAlign('center').run()}
           className={`p-2 rounded hover:bg-gray-200 ${editor.isActive({ textAlign: 'center' }) ? 'bg-gray-200' : ''}`}
         >
-          <i className="fas fa-align-center"></i>
+          <AlignCenter />
         </ToolbarButton>
         <ToolbarButton
           title="Align Right"
@@ -541,7 +566,7 @@ export function RichTextEditor({
           onClick={() => editor.chain().focus().setTextAlign('right').run()}
           className={`p-2 rounded hover:bg-gray-200 ${editor.isActive({ textAlign: 'right' }) ? 'bg-gray-200' : ''}`}
         >
-          <i className="fas fa-align-right"></i>
+          <AlignRight />
         </ToolbarButton>
 
         <span className="w-px h-6 bg-gray-300 mx-1"></span>
@@ -590,7 +615,7 @@ export function RichTextEditor({
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('bulletList') ? 'bg-gray-200' : ''}`}
         >
-          <i className="fas fa-list-ul"></i>
+          <List />
         </ToolbarButton>
         <ToolbarButton
           title="Numbered List"
@@ -598,7 +623,7 @@ export function RichTextEditor({
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
           className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('orderedList') ? 'bg-gray-200' : ''}`}
         >
-          <i className="fas fa-list-ol"></i>
+          <ListOrdered />
         </ToolbarButton>
 
         <span className="w-px h-6 bg-gray-300 mx-1"></span>
@@ -610,7 +635,7 @@ export function RichTextEditor({
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
           className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('blockquote') ? 'bg-gray-200' : ''}`}
         >
-          <i className="fas fa-quote-right"></i>
+          <Quote />
         </ToolbarButton>
         <ToolbarButton
           title="Code Block"
@@ -618,7 +643,7 @@ export function RichTextEditor({
           onClick={() => editor.chain().focus().toggleCodeBlock().run()}
           className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('codeBlock') ? 'bg-gray-200' : ''}`}
         >
-          <i className="fas fa-code"></i>
+          <Code />
         </ToolbarButton>
 
         <span className="w-px h-6 bg-gray-300 mx-1"></span>
@@ -631,7 +656,7 @@ export function RichTextEditor({
             onClick={openLinkInput}
             className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('link') ? 'bg-gray-200' : ''}`}
           >
-            <i className="fas fa-link"></i>
+            <Link />
           </ToolbarButton>
           {showLink && (
             <div className="absolute top-full left-0 mt-1 bg-white border rounded-lg shadow-lg z-20 p-2 min-w-[280px]">
@@ -689,7 +714,7 @@ export function RichTextEditor({
             }}
             className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('table') ? 'bg-gray-200' : ''}`}
           >
-            <i className="fas fa-table"></i>
+            <Table />
           </ToolbarButton>
           {showTable && (
             <div className="absolute top-full left-0 mt-1 bg-white border rounded-lg shadow-lg z-20 p-1 min-w-[160px]">
@@ -737,11 +762,7 @@ export function RichTextEditor({
           disabled={uploading}
           className={`p-2 rounded hover:bg-gray-200 ${uploading ? 'opacity-50' : ''}`}
         >
-          {uploading ? (
-            <i className="fas fa-spinner fa-spin"></i>
-          ) : (
-            <i className="fas fa-image"></i>
-          )}
+          {uploading ? <Loader2 /> : <ImageIcon />}
         </ToolbarButton>
         <ToolbarButton
           title="Media Library"
@@ -749,7 +770,7 @@ export function RichTextEditor({
           onClick={openMediaLibrary}
           className="p-2 rounded hover:bg-gray-200"
         >
-          <i className="fas fa-images"></i>
+          <Images />
         </ToolbarButton>
 
         <span className="w-px h-6 bg-gray-300 mx-1"></span>
@@ -762,7 +783,7 @@ export function RichTextEditor({
           disabled={!editor.can().undo()}
           className="p-2 rounded hover:bg-gray-200 disabled:opacity-50"
         >
-          <i className="fas fa-undo"></i>
+          <Undo />
         </ToolbarButton>
         <ToolbarButton
           title="Redo (Ctrl+Shift+Z)"
@@ -771,7 +792,7 @@ export function RichTextEditor({
           disabled={!editor.can().redo()}
           className="p-2 rounded hover:bg-gray-200 disabled:opacity-50"
         >
-          <i className="fas fa-redo"></i>
+          <Redo />
         </ToolbarButton>
 
         {onDraftSave && (
@@ -809,7 +830,7 @@ export function RichTextEditor({
                 onClick={() => setShowMediaLib(false)}
                 className="text-gray-500 hover:text-gray-700"
               >
-                <i className="fas fa-times"></i>
+                <X />
               </button>
             </div>
             <div className="p-4 overflow-y-auto max-h-[60vh]">

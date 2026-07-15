@@ -2,6 +2,7 @@
 
 import { useSafeTranslation } from '@shared/lib';
 
+import { Tags } from 'lucide-react';
 interface TagCloudProps {
   tags: string[];
   maxDisplay?: number;
@@ -28,7 +29,7 @@ export function TagCloud({ tags, maxDisplay = 5, className = '', size = 'small' 
   return (
     <div className={`flex flex-wrap items-center gap-1 ${className}`}>
       <span className="text-gray-500 mr-1">
-        <i className="fas fa-tags text-xs"></i>
+        <Tags className="text-xs" />
       </span>
       {displayTags.map(tag => (
         <span

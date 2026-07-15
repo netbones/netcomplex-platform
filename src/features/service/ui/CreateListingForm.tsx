@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { ErrorBoundary } from '@shared/ui';
 import { useApiToast } from '@shared/lib/hooks';
 
+import { X } from 'lucide-react';
 interface CreateListingFormProps {
   householdId?: string;
   onClose: () => void;
@@ -103,7 +104,7 @@ export function CreateListingForm({ householdId, onClose, onSuccess }: CreateLis
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-gray-900">Create Property Listing</h3>
               <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-                <i className="fas fa-times"></i>
+                <X />
               </button>
             </div>
 

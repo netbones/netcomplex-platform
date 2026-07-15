@@ -7,6 +7,7 @@ import { Breadcrumbs } from '@shared/ui';
 import { EventForm } from '@widgets/admin';
 import { createComponentLogger } from '@shared/lib';
 
+import { ArrowLeft } from 'lucide-react';
 const log = createComponentLogger('edit-event-page');
 
 interface Event {
@@ -90,7 +91,8 @@ export default function EditEventPage() {
           href="/admin/events"
           className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
         >
-          <i className="fas fa-arrow-left mr-2"></i>Back to Events
+          <ArrowLeft className="mr-2" />
+          Back to Events
         </Link>
       </div>
 

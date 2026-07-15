@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { logError } from '@shared/lib';
 
+import { AlertCircle, BarChart3, Inbox, Star, StarHalf } from 'lucide-react';
 interface QuestionResult {
   id: string;
   text: string;
@@ -85,12 +86,12 @@ function RatingResult({
         <div className="flex gap-0.5 ml-2">
           {Array.from({ length: totalStars }).map((_, i) => {
             if (i < fullStars) {
-              return <i key={i} className="fas fa-star text-yellow-400 text-lg" />;
+              return <Star key={i} className="text-yellow-400 text-lg" />;
             }
             if (i === fullStars && hasHalf) {
-              return <i key={i} className="fas fa-star-half-alt text-yellow-400 text-lg" />;
+              return <StarHalf key={i} className="text-yellow-400 text-lg" />;
             }
-            return <i key={i} className="far fa-star text-gray-300 text-lg" />;
+            return <Star key={i} className="text-gray-300 text-lg" />;
           })}
         </div>
       </div>
@@ -305,7 +306,7 @@ export function SurveyResultsPage({ params }: { params: Promise<{ id: string }> 
       ) : error ? (
         <ErrorBoundary>
           <div className="text-center py-12">
-            <i className="fas fa-exclamation-circle text-3xl text-red-500 mb-4"></i>
+            <AlertCircle className="text-3xl text-red-500 mb-4" />
             <p className="text-gray-600 mb-4">{error}</p>
             <button
               onClick={handleRetry}
@@ -318,14 +319,14 @@ export function SurveyResultsPage({ params }: { params: Promise<{ id: string }> 
       ) : !data || data.questions.length === 0 ? (
         <ErrorBoundary>
           <div className="text-center py-12 bg-white rounded-lg shadow">
-            <i className="fas fa-poll text-4xl text-gray-300 mb-4"></i>
+            <BarChart3 className="text-4xl text-gray-300 mb-4" />
             <p className="text-gray-500">No questions in this survey yet</p>
           </div>
         </ErrorBoundary>
       ) : data.totalResponses === 0 ? (
         <ErrorBoundary>
           <div className="text-center py-12 bg-white rounded-lg shadow">
-            <i className="fas fa-inbox text-4xl text-gray-300 mb-4"></i>
+            <Inbox className="text-4xl text-gray-300 mb-4" />
             <p className="text-lg text-gray-600 mb-2">No responses yet</p>
             <p className="text-sm text-gray-500">
               Responses will appear here once people start answering the survey.

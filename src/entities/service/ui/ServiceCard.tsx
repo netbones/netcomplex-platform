@@ -8,6 +8,7 @@ import { CategoryBadge } from './CategoryBadge';
 import { ReviewStars } from './ReviewStars';
 import { PricingDisplay } from './PricingDisplay';
 
+import { CheckCircle, Wrench } from 'lucide-react';
 export interface ServiceListing {
   id: string;
   title: string;
@@ -60,7 +61,7 @@ export function ServiceCard({ service, onInquiry }: ServiceCardProps) {
 
   return (
     <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden">
-      {/* Service Image */}
+      {/* Service  */}
       <div className="relative h-48 bg-gray-200">
         {service.images?.[0] && !imageError ? (
           <Image
@@ -73,8 +74,8 @@ export function ServiceCard({ service, onInquiry }: ServiceCardProps) {
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-indigo-100">
             <div className="text-center">
-              <i className="fas fa-tools text-3xl text-indigo-400 mb-2"></i>
-              <p className="text-sm text-indigo-600">Service Image</p>
+              <Wrench className="text-3xl text-indigo-400 mb-2" />
+              <p className="text-sm text-indigo-600">Service </p>
             </div>
           </div>
         )}
@@ -88,7 +89,7 @@ export function ServiceCard({ service, onInquiry }: ServiceCardProps) {
         {service.verified && (
           <div className="absolute top-3 right-3">
             <div className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">
-              <i className="fas fa-check-circle"></i>
+              <CheckCircle />
               <span>Verified</span>
             </div>
           </div>

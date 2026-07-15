@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { ADMIN_ITEMS } from '@entities/tenant';
 import { ErrorBoundary } from '@shared/ui';
 
+import { ArrowRight, Plus, Users } from 'lucide-react';
 export function AdminQuickLinksWidget() {
   const { t } = useTranslation('admin');
 
@@ -21,7 +22,7 @@ export function AdminQuickLinksWidget() {
             <span className="font-medium text-gray-700">
               {link.adminLabelKey ? t(link.adminLabelKey) : t(link.labelKey)}
             </span>
-            <i className="fas fa-arrow-right text-indigo-500"></i>
+            <ArrowRight className="text-indigo-500" />
           </Link>
         ))}
 
@@ -34,14 +35,14 @@ export function AdminQuickLinksWidget() {
               className="flex items-center justify-between p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-all hover:translate-x-1 text-green-700"
             >
               <span className="font-medium">Create Content</span>
-              <i className="fas fa-plus text-green-600"></i>
+              <Plus className="text-green-600" />
             </Link>
             <Link
               href="/admin/groups/new"
               className="flex items-center justify-between p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-all hover:translate-x-1 text-blue-700"
             >
               <span className="font-medium">Create Group</span>
-              <i className="fas fa-users text-blue-600"></i>
+              <Users className="text-blue-600" />
             </Link>
           </div>
         </div>

@@ -6,6 +6,7 @@ import { createComponentLogger } from '@shared/lib';
 import { type PlatformPageFlags, HEADER_LINK_IDS } from '@shared/lib';
 import { DEFAULT_PAGE_FLAGS } from '@shared/lib/settings/defaults';
 
+import { CheckCircle, Leaf } from 'lucide-react';
 const log = createComponentLogger('PageSettingsWidget');
 
 interface PageFlagsWidgetProps {
@@ -208,7 +209,7 @@ export function PageSettingsWidget({ initialFlags }: PageFlagsWidgetProps) {
             <h3 className="text-lg font-semibold text-gray-900">Navigation Visibility</h3>
             {saved && (
               <span className="text-sm text-green-600 flex items-center gap-1">
-                <i className="fas fa-check-circle"></i> Saved
+                <CheckCircle /> Saved
               </span>
             )}
           </div>
@@ -295,7 +296,7 @@ export function PageSettingsWidget({ initialFlags }: PageFlagsWidgetProps) {
         {/* ── Conservation Mode ────────────────────────── */}
         <div className="border-t pt-6">
           <h4 className="text-sm font-medium text-gray-700 mb-4 flex items-center gap-2">
-            <i className="fas fa-leaf text-green-600"></i>
+            <Leaf className="text-green-600" />
             Conservation Page Mode
           </h4>
           <div className="space-y-2">
@@ -323,7 +324,7 @@ export function PageSettingsWidget({ initialFlags }: PageFlagsWidgetProps) {
                   </div>
                 </div>
                 {flags.conservation === mode.value && (
-                  <i className="fas fa-check-circle text-green-600 text-lg"></i>
+                  <CheckCircle className="text-green-600 text-lg" />
                 )}
               </label>
             ))}

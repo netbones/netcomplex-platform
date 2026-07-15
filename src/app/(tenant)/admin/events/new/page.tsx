@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Breadcrumbs } from '@shared/ui';
 import { EventForm } from '@widgets/admin';
 
+import { ArrowLeft } from 'lucide-react';
 export default function NewEventPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
@@ -20,7 +21,8 @@ export default function NewEventPage() {
           href="/admin/events"
           className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
         >
-          <i className="fas fa-arrow-left mr-2"></i>Back to Events
+          <ArrowLeft className="mr-2" />
+          Back to Events
         </Link>
       </div>
 
