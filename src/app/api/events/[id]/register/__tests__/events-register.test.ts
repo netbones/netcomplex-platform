@@ -27,6 +27,7 @@ vi.mock('@api/server', () => ({
     userId: 'userId',
     tenantId: 'tenantId',
     createdAt: 'createdAt',
+    deletedAt: 'deletedAt',
   },
   users: {
     id: 'id',

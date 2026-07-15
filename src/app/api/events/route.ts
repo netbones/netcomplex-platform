@@ -8,7 +8,6 @@ import {
   apiForbidden,
   apiSuccess,
   apiUnauthorized,
-  emitEvent,
   withErrorHandler,
 } from '@api/server';
 
@@ -182,12 +181,6 @@ export const POST = withErrorHandler(async (request: Request) => {
 
   // Revalidate content caches
   revalidateContent();
-
-  emitEvent('event.rsvp', {
-    tenantId,
-    userId: authData.userId,
-    eventId: event.id,
-  });
 
   return apiCreated(event);
 });

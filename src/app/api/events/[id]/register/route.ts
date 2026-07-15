@@ -7,11 +7,10 @@ import {
   apiUnauthorized,
   apiNotFound,
   apiConflict,
-  now,
   withErrorHandler,
 } from '@api/server';
 
-import { eq, and } from 'drizzle-orm';
+import { eq, and, isNull } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { createId } from '@shared/lib/id';
 
@@ -67,7 +66,14 @@ export const POST = withErrorHandler(
     const [existing] = await db
       .select({ id: eventAttendees.id })
       .from(eventAttendees)
-      .where(and(eq(eventAttendees.eventId, id), eq(eventAttendees.userId, userId)))
+      .where(
+        and(
+          eq(eventAttendees.eventId, id),
+          eq(eventAttendees.userId, userId),
+          eq(eventAttendees.tenantId, tenantId),
+          isNull(eventAttendees.deletedAt)
+        )
+      )
       .limit(1);
 
     if (existing) {
@@ -98,12 +104,18 @@ export const DELETE = withErrorHandler(
     const session = await auth.api.getSession({ headers: request.headers });
     if (!session?.user?.id) return apiUnauthorized();
 
+    const { tenantId } = await withTenant();
     const userId = session.user.id;
 
     const [deleted] = await db
-      .update(eventAttendees)
-      .set({ deletedAt: now() })
-      .where(and(eq(eventAttendees.eventId, id), eq(eventAttendees.userId, userId)))
+      .delete(eventAttendees)
+      .where(
+        and(
+          eq(eventAttendees.eventId, id),
+          eq(eventAttendees.userId, userId),
+          eq(eventAttendees.tenantId, tenantId)
+        )
+      )
       .returning();
 
     if (!deleted) return apiNotFound('Not registered for this event');

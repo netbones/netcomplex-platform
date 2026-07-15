@@ -1,40 +1,6 @@
 import { z } from 'zod';
 
 /**
- * Zod schema for event form validation.
- * @property title - Event title
- * @property description - Event description
- * @property startDate - Event start date/time
- * @property endDate - Event end date/time
- * @property location - Event location
- * @property maxAttendees - Maximum attendees (optional)
- */
-export const eventSchema = z
-  .object({
-    title: z.string().min(1, 'Title is required').max(200, 'Title too long').trim(),
-    description: z.string().max(2000, 'Description too long').trim().optional().default(''),
-    startDate: z
-      .string()
-      .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, 'Start date required (YYYY-MM-DDTHH:MM)'),
-    endDate: z
-      .string()
-      .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, 'End date required (YYYY-MM-DDTHH:MM)'),
-    location: z.string().max(200, 'Location too long').trim().optional().default(''),
-    maxAttendees: z.number().int().positive().max(10000).optional(),
-    requiresRegistration: z.boolean().default(false),
-  })
-  .refine(data => data.endDate > data.startDate, {
-    message: 'End date must be after start date',
-    path: ['endDate'],
-  })
-  .refine(data => new Date(data.startDate) >= new Date(), {
-    message: 'Cannot create events in the past',
-    path: ['startDate'],
-  });
-
-export type EventFormData = z.infer<typeof eventSchema>;
-
-/**
  * Zod schema for admin event form validation.
  * Matches the Event model: title, description, date, location, organizer, image, isPublic.
  */

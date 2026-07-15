@@ -4,7 +4,7 @@ vi.mock('@shared/api/email/resend', () => ({
   sendEmail: vi.fn(),
 }));
 
-import { eventSchema, adminEventSchema } from '@/entities/event/schema';
+import { adminEventSchema } from '@/entities/event/schema';
 import { canManageEvents } from '@/entities/event/permissions';
 import { validateEventFields } from '@/entities/event/services';
 
@@ -13,136 +13,6 @@ function futureDate(hours = 24): string {
   const pad = (n: number) => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
-
-function pastDate(): string {
-  const d = new Date(Date.now() - 86400_000);
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-
-const validEventData = {
-  title: 'Community BBQ',
-  startDate: futureDate(24),
-  endDate: futureDate(48),
-};
-
-describe('eventSchema', () => {
-  it('accepts valid event data', () => {
-    const result = eventSchema.safeParse(validEventData);
-    expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.data.title).toBe('Community BBQ');
-      expect(result.data.description).toBe('');
-      expect(result.data.location).toBe('');
-      expect(result.data.requiresRegistration).toBe(false);
-    }
-  });
-
-  it('accepts valid data with optional fields', () => {
-    const data = {
-      title: 'Pool Party',
-      description: 'Come swim!',
-      startDate: futureDate(24),
-      endDate: futureDate(48),
-      location: 'Main Pool',
-      maxAttendees: 50,
-      requiresRegistration: true,
-    };
-    const result = eventSchema.safeParse(data);
-    expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.data.maxAttendees).toBe(50);
-      expect(result.data.requiresRegistration).toBe(true);
-    }
-  });
-
-  it('rejects missing title', () => {
-    const data = { ...validEventData };
-    delete (data as Record<string, unknown>).title;
-    const result = eventSchema.safeParse(data);
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues.some(i => i.path.includes('title'))).toBe(true);
-    }
-  });
-
-  it('rejects missing startDate', () => {
-    const data = { ...validEventData };
-    delete (data as Record<string, unknown>).startDate;
-    const result = eventSchema.safeParse(data);
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues.some(i => i.path.includes('startDate'))).toBe(true);
-    }
-  });
-
-  it('rejects missing endDate', () => {
-    const data = { ...validEventData };
-    delete (data as Record<string, unknown>).endDate;
-    const result = eventSchema.safeParse(data);
-    expect(result.success).toBe(false);
-  });
-
-  it('rejects invalid startDate format', () => {
-    const data = { ...validEventData, startDate: '2026/06/15 10:00' };
-    const result = eventSchema.safeParse(data);
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues.some(i => i.path.includes('startDate'))).toBe(true);
-    }
-  });
-
-  it('rejects invalid endDate format', () => {
-    const data = { ...validEventData, endDate: '06-15-2026' };
-    const result = eventSchema.safeParse(data);
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues.some(i => i.path.includes('endDate'))).toBe(true);
-    }
-  });
-
-  it('rejects endDate before startDate', () => {
-    const data = {
-      ...validEventData,
-      startDate: futureDate(48),
-      endDate: futureDate(24),
-    };
-    const result = eventSchema.safeParse(data);
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(
-        result.error.issues.some(
-          i => i.path.includes('endDate') && i.message.includes('after start')
-        )
-      ).toBe(true);
-    }
-  });
-
-  it('rejects startDate in the past', () => {
-    const data = {
-      title: 'Past Event',
-      startDate: pastDate(),
-      endDate: futureDate(24),
-    };
-    const result = eventSchema.safeParse(data);
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(
-        result.error.issues.some(i => i.path.includes('startDate') && i.message.includes('past'))
-      ).toBe(true);
-    }
-  });
-
-  it('applies defaults for optional fields', () => {
-    const result = eventSchema.safeParse(validEventData);
-    expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.data.description).toBe('');
-      expect(result.data.location).toBe('');
-      expect(result.data.requiresRegistration).toBe(false);
-    }
-  });
-});
 
 describe('adminEventSchema', () => {
   it('accepts valid admin event data', () => {

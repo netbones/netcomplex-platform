@@ -22,7 +22,7 @@ import { eventDto } from '@api/server';
 import { TRPCError } from '@trpc/server';
 import { requireContentPermission } from '../core/content';
 
-import { eq, and, count, inArray } from 'drizzle-orm';
+import { eq, and, count, inArray, isNull } from 'drizzle-orm';
 
 import { listEvents, createEvent } from '@entities/event/server';
 import { createId } from '@shared/lib/id';
@@ -185,12 +185,6 @@ export const eventsRouter = router({
 
       revalidateContent();
 
-      emitEvent('event.rsvp', {
-        tenantId,
-        userId: ctx.userId,
-        eventId: event.id,
-      });
-
       return toEnvelope(eventDto.parse(event));
     }),
 
@@ -308,7 +302,14 @@ export const eventsRouter = router({
       const [existing] = await db
         .select({ id: eventAttendees.id })
         .from(eventAttendees)
-        .where(and(eq(eventAttendees.eventId, input.id), eq(eventAttendees.userId, ctx.userId)))
+        .where(
+          and(
+            eq(eventAttendees.eventId, input.id),
+            eq(eventAttendees.userId, ctx.userId),
+            eq(eventAttendees.tenantId, tenantId),
+            isNull(eventAttendees.deletedAt)
+          )
+        )
         .limit(1);
 
       if (existing) {
@@ -348,8 +349,7 @@ export const eventsRouter = router({
       const tenantId = ctx.tenantId;
 
       const [deleted] = await db
-        .update(eventAttendees)
-        .set({ deletedAt: now() })
+        .delete(eventAttendees)
         .where(
           and(
             eq(eventAttendees.eventId, input.id),
