@@ -18,6 +18,8 @@ interface EventFormProps {
     organizer?: string;
     image?: string | null;
     isPublic?: boolean;
+    category?: string | null;
+    maxAttendees?: number | null;
   };
 }
 
@@ -44,6 +46,8 @@ function getInitialDefaultValues(initialData?: EventFormProps['initialData']): A
     organizer: initialData?.organizer || '',
     image: initialData?.image || '',
     isPublic: initialData?.isPublic !== undefined ? initialData.isPublic : true,
+    category: initialData?.category ?? null,
+    maxAttendees: initialData?.maxAttendees ?? null,
   };
 }
 

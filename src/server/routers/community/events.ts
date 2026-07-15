@@ -50,6 +50,8 @@ const CreateEventInput = z.object({
   organizer: z.string().min(1).max(200).trim(),
   image: z.string().optional().nullable(),
   isPublic: z.boolean().default(true),
+  category: z.string().optional().nullable(),
+  maxAttendees: z.coerce.number().int().positive().optional().nullable(),
 });
 
 const UpdateEventInput = z.object({
@@ -61,6 +63,8 @@ const UpdateEventInput = z.object({
   organizer: z.string().min(1).max(200).trim().optional(),
   image: z.string().optional().nullable(),
   isPublic: z.boolean().optional(),
+  category: z.string().optional().nullable(),
+  maxAttendees: z.coerce.number().int().positive().optional().nullable(),
 });
 
 // ──────────────────────────────────────────
@@ -135,6 +139,7 @@ export const eventsRouter = router({
         tenantId,
         limit: input?.limit,
         upcoming: input?.upcoming,
+        category: input?.category,
       });
 
       const enriched = await enrichEvents(eventItems, ctx.userId, tenantId);
@@ -181,6 +186,8 @@ export const eventsRouter = router({
         organizer: input.organizer,
         image: input.image || null,
         isPublic: input.isPublic,
+        category: input.category ?? null,
+        maxAttendees: input.maxAttendees ?? null,
       });
 
       revalidateContent();
@@ -212,6 +219,8 @@ export const eventsRouter = router({
       if (input.organizer !== undefined) updateData.organizer = input.organizer;
       if (input.image !== undefined) updateData.image = input.image || null;
       if (input.isPublic !== undefined) updateData.isPublic = input.isPublic;
+      if (input.category !== undefined) updateData.category = input.category ?? null;
+      if (input.maxAttendees !== undefined) updateData.maxAttendees = input.maxAttendees ?? null;
 
       const [updated] = await db
         .update(events)

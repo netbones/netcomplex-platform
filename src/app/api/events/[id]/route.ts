@@ -95,6 +95,9 @@ export const PATCH = withErrorHandler(
     if (body.organizer !== undefined) updateData.organizer = body.organizer;
     if (body.image !== undefined) updateData.image = body.image || null;
     if (body.isPublic !== undefined) updateData.isPublic = body.isPublic;
+    if (body.category !== undefined) updateData.category = body.category ?? null;
+    if (body.maxAttendees !== undefined)
+      updateData.maxAttendees = body.maxAttendees ? parseInt(body.maxAttendees, 10) : null;
 
     const [existing] = await db
       .select({ deletedAt: events.deletedAt })

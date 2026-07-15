@@ -1,16 +1,18 @@
 import {
   auth,
   db,
+  events,
   eventAttendees,
   users,
   apiSuccess,
   apiUnauthorized,
   apiNotFound,
   apiConflict,
+  apiForbidden,
   withErrorHandler,
 } from '@api/server';
 
-import { eq, and, isNull } from 'drizzle-orm';
+import { eq, and, isNull, count, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { createId } from '@shared/lib/id';
 
@@ -63,7 +65,7 @@ export const POST = withErrorHandler(
     const { tenantId } = await withTenant();
     const userId = session.user.id;
 
-    const [existing] = await db
+    const existing = await db
       .select({ id: eventAttendees.id })
       .from(eventAttendees)
       .where(
@@ -74,13 +76,42 @@ export const POST = withErrorHandler(
           isNull(eventAttendees.deletedAt)
         )
       )
-      .limit(1);
+      .limit(1)
+      .then(rows => rows[0] ?? null);
 
     if (existing) {
       return apiConflict('Already registered for this event');
     }
 
-    const [attendee] = await db
+    const event = await db
+      .select({ maxAttendees: events.maxAttendees })
+      .from(events)
+      .where(and(eq(events.id, id), eq(events.tenantId, tenantId)))
+      .limit(1)
+      .then(rows => rows[0] ?? null);
+
+    if (!event) {
+      return apiNotFound('Event not found');
+    }
+
+    if (event.maxAttendees !== null) {
+      const [{ count: currentCount }] = await db
+        .select({ count: sql<number>`cast(count(*) as int)` })
+        .from(eventAttendees)
+        .where(
+          and(
+            eq(eventAttendees.eventId, id),
+            eq(eventAttendees.tenantId, tenantId),
+            isNull(eventAttendees.deletedAt)
+          )
+        );
+
+      if (currentCount >= event.maxAttendees) {
+        return apiForbidden('Event has reached maximum capacity');
+      }
+    }
+
+    const attendee = await db
       .insert(eventAttendees)
       .values({
         id: createId(),
@@ -88,7 +119,8 @@ export const POST = withErrorHandler(
         eventId: id,
         userId,
       })
-      .returning();
+      .returning()
+      .then(rows => rows[0] ?? null);
 
     return apiSuccess(attendee);
   }
@@ -107,7 +139,7 @@ export const DELETE = withErrorHandler(
     const { tenantId } = await withTenant();
     const userId = session.user.id;
 
-    const [deleted] = await db
+    const deleted = await db
       .delete(eventAttendees)
       .where(
         and(
@@ -116,7 +148,8 @@ export const DELETE = withErrorHandler(
           eq(eventAttendees.tenantId, tenantId)
         )
       )
-      .returning();
+      .returning()
+      .then(rows => rows[0] ?? null);
 
     if (!deleted) return apiNotFound('Not registered for this event');
 

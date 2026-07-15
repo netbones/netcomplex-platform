@@ -11,7 +11,6 @@ export { usePremiumListings } from './usePremiumListings';
 export { useSafeTranslation } from './useSafeTranslation';
 export { useConversations } from './useConversations';
 export { useUserProfile } from './useUserProfile';
-export { useUpcomingEvents } from './useUpcomingEvents';
 export { useActiveAnnouncements } from './useActiveAnnouncements';
 export { useUnreadMessages } from './useUnreadMessages';
 export { useAdminUsers } from './useAdminUsers';

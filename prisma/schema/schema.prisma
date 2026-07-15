@@ -956,22 +956,25 @@ model Announcement {
 }
 
 model Event {
-  id          String          @id
-  tenantId    String
-  title       String
-  description String
-  date        DateTime
-  location    String
-  organizer   String
-  image       String?
-  isPublic    Boolean         @default(true)
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @default(now()) @updatedAt
-  deletedAt   DateTime?
-  Tenant      Tenant          @relation(fields: [tenantId], references: [id], onDelete: Restrict)
-  attendees   EventAttendee[]
+  id           String          @id
+  tenantId     String
+  title        String
+  description  String
+  date         DateTime
+  location     String
+  organizer    String
+  image        String?
+  isPublic     Boolean         @default(true)
+  category     String?
+  maxAttendees Int?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @default(now()) @updatedAt
+  deletedAt    DateTime?
+  Tenant       Tenant          @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  attendees    EventAttendee[]
 
-  @@index([tenantId])
+  @@index([tenantId, date])
+  @@index([tenantId, category])
   @@index([date])
 }
 
@@ -987,7 +990,8 @@ model EventAttendee {
   user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([eventId, userId])
-  @@index([eventId])
+  @@index([eventId, userId])
+  @@index([eventId, tenantId])
   @@index([userId])
   @@index([tenantId])
 }

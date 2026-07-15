@@ -24,8 +24,8 @@ export function EventList() {
   useEffect(() => {
     fetch('/api/events')
       .then(res => res.json())
-      .then(data => {
-        setEvents(data);
+      .then(body => {
+        setEvents(body?.data ?? body ?? []);
         setLoading(false);
       })
       .catch(() => {

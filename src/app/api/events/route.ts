@@ -177,6 +177,8 @@ export const POST = withErrorHandler(async (request: Request) => {
     organizer: body.organizer,
     image: body.image || null,
     isPublic: body.isPublic !== undefined ? body.isPublic : true,
+    category: body.category ?? null,
+    maxAttendees: body.maxAttendees ? parseInt(body.maxAttendees, 10) : null,
   });
 
   // Revalidate content caches

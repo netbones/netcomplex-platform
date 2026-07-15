@@ -4,7 +4,7 @@ import { useCallback } from 'react';
 import Link from 'next/link';
 import { Calendar, MapPin, Plus, ArrowRight, Loader2, BadgeCheck } from 'lucide-react';
 import Image from 'next/image';
-import { useUpcomingEvents } from '@shared/lib/hooks';
+import { useUpcomingEvents } from '@features/events';
 
 interface AttendeePreview {
   name: string;
@@ -39,8 +39,8 @@ function formatTime(dateString: string): string {
 }
 
 export function EventsWidget() {
-  const { data: rawData, isLoading, isError, refetch } = useUpcomingEvents();
-  const events: EventItem[] = (rawData as Record<string, unknown>)?.data ?? rawData ?? [];
+  const { data: eventsData, isLoading, isError, refetch } = useUpcomingEvents();
+  const events: EventItem[] = (eventsData ?? []) as EventItem[];
   const retry = useCallback(() => refetch(), [refetch]);
 
   if (isLoading) {

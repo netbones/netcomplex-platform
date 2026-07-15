@@ -19,6 +19,8 @@ export const adminEventSchema = z.object({
   organizer: z.string().min(1, 'Organizer is required').max(200, 'Organizer too long').trim(),
   image: z.string().url('Must be a valid URL').optional().or(z.literal('')),
   isPublic: z.boolean(),
+  category: z.string().optional().nullable(),
+  maxAttendees: z.coerce.number().int().positive().optional().nullable(),
 });
 
 export type AdminEventFormData = z.infer<typeof adminEventSchema>;

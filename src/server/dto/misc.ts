@@ -21,6 +21,8 @@ export const eventDto = createSelectSchema(events, {
   organizer: true,
   image: true,
   isPublic: true,
+  category: true,
+  maxAttendees: true,
   createdAt: true,
   updatedAt: true,
 });

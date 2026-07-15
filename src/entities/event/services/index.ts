@@ -5,22 +5,24 @@ import { eq, and, desc, asc, gte } from 'drizzle-orm';
 /**
  * Lists events for a tenant with optional filtering.
  */
-export async function listEvents(params: { tenantId: string; limit?: number; upcoming?: boolean }) {
-  if (params.upcoming) {
-    const now = new Date();
-    const query = db
-      .select()
-      .from(events)
-      .where(and(eq(events.tenantId, params.tenantId), gte(events.date, now), notDeleted(events)))
-      .orderBy(asc(events.date));
-    return params.limit ? query.limit(params.limit) : query;
-  }
+export async function listEvents(params: {
+  tenantId: string;
+  limit?: number;
+  upcoming?: boolean;
+  category?: string;
+}) {
+  const conditions = [
+    eq(events.tenantId, params.tenantId),
+    notDeleted(events),
+    params.upcoming ? gte(events.date, new Date()) : undefined,
+    params.category ? eq(events.category, params.category) : undefined,
+  ].filter(Boolean);
 
   const query = db
     .select()
     .from(events)
-    .where(and(eq(events.tenantId, params.tenantId), notDeleted(events)))
-    .orderBy(desc(events.date));
+    .where(and(...conditions))
+    .orderBy(params.upcoming ? asc(events.date) : desc(events.date));
 
   return params.limit ? query.limit(params.limit) : query;
 }
@@ -55,6 +57,8 @@ export async function createEvent(data: {
   organizer: string;
   image?: string | null;
   isPublic: boolean;
+  category?: string | null;
+  maxAttendees?: number | null;
 }) {
   const now = new Date();
 
@@ -70,6 +74,8 @@ export async function createEvent(data: {
       organizer: data.organizer,
       image: data.image || null,
       isPublic: data.isPublic,
+      category: data.category ?? null,
+      maxAttendees: data.maxAttendees ?? null,
       createdAt: now,
       updatedAt: now,
     })
