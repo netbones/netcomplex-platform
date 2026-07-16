@@ -28,7 +28,13 @@ ALTER TABLE "SoloSeat" ADD CONSTRAINT "SoloSeat_tenantId_fkey" FOREIGN KEY ("ten
 ALTER TABLE "StandardSeat" ADD CONSTRAINT "StandardSeat_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT;
 ALTER TABLE "PropertyListing" ADD CONSTRAINT "PropertyListing_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT;
 ALTER TABLE "PropertyPremiumSeat" ADD CONSTRAINT "PropertyPremiumSeat_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT;
-ALTER TABLE "ServiceBooking" ADD CONSTRAINT "ServiceBooking_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT;
+-- ServiceBooking table was added to Prisma schema but never created via migration;
+-- wrap FK in conditional so shadow DB replay doesn't fail.
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'ServiceBooking') THEN
+    ALTER TABLE "ServiceBooking" ADD CONSTRAINT "ServiceBooking_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT;
+  END IF;
+END $$;
 
 CREATE INDEX "Profile_tenantId_idx" ON "Profile"("tenantId");
 CREATE INDEX "Member_tenantId_idx" ON "Member"("tenantId");

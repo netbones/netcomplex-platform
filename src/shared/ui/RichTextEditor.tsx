@@ -31,7 +31,7 @@ import {
   Image as ImageIcon,
   Images,
   Italic,
-  Link,
+  Link as LinkIcon,
   List,
   ListOrdered,
   Loader2,
@@ -40,10 +40,10 @@ import {
   Quote,
   Redo,
   Strikethrough,
-  Table,
+  Table as TableIcon,
   TextSelect,
   Type,
-  Underline,
+  Underline as UnderlineIcon,
   Undo,
   X,
 } from 'lucide-react';
@@ -418,7 +418,7 @@ export function RichTextEditor({
           onClick={() => editor.chain().focus().toggleUnderline().run()}
           className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('underline') ? 'bg-gray-200' : ''}`}
         >
-          <Underline />
+          <UnderlineIcon />
         </ToolbarButton>
         <ToolbarButton
           title="Strikethrough"
@@ -656,7 +656,7 @@ export function RichTextEditor({
             onClick={openLinkInput}
             className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('link') ? 'bg-gray-200' : ''}`}
           >
-            <Link />
+            <LinkIcon />
           </ToolbarButton>
           {showLink && (
             <div className="absolute top-full left-0 mt-1 bg-white border rounded-lg shadow-lg z-20 p-2 min-w-[280px]">
@@ -714,7 +714,7 @@ export function RichTextEditor({
             }}
             className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('table') ? 'bg-gray-200' : ''}`}
           >
-            <Table />
+            <TableIcon />
           </ToolbarButton>
           {showTable && (
             <div className="absolute top-full left-0 mt-1 bg-white border rounded-lg shadow-lg z-20 p-1 min-w-[160px]">

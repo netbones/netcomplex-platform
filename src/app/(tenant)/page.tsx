@@ -17,7 +17,7 @@ const CommunityMap = dynamic(() => import('@entities/directory').then(mod => mod
 
 import { UnifiedResidentCard } from '@entities/directory';
 
-import { LayoutGrid, Search } from 'lucide-react';
+import { LayoutGrid, List, Search } from 'lucide-react';
 const DEFAULT_CAROUSEL_ITEMS: CarouselItem[] = [
   {
     id: '1',

@@ -4,8 +4,10 @@
 -- 1. Add USER to Role enum (before RESIDENT, as lowest-privilege staging value)
 ALTER TYPE "Role" ADD VALUE IF NOT EXISTS 'USER' BEFORE 'RESIDENT';
 
--- 2. Change default on user.role from RESIDENT to USER
-ALTER TABLE "user" ALTER COLUMN "role" SET DEFAULT 'USER';
+-- 2. (Moved to 20260624000001_set_user_role_default)
+--    PostgreSQL forbids referencing a newly-added enum value in the same
+--    transaction as ALTER TYPE ADD VALUE, so SET DEFAULT was split into a
+--    separate migration to keep the shadow-database replay clean (P3006).
 
 -- 3. Add @unique on Property.platformAddress (G3 confirmed zero duplicates)
 ALTER TABLE "Property" ADD CONSTRAINT "Property_platformAddress_key" UNIQUE ("platformAddress");

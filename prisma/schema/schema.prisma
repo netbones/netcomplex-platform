@@ -9,8 +9,9 @@ generator drizzle {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model account {
@@ -487,16 +488,16 @@ model Setting {
 }
 
 model TenantSetup {
-  id                String    @id @default(cuid())
-  tenantId          String    @unique
-  completionPercent Int       @default(0)
-  completedSections String[]  @default([])
+  id                String         @id @default(cuid())
+  tenantId          String         @unique
+  completionPercent Int            @default(0)
+  completedSections String[]       @default([])
   launchedAt        DateTime?
   lastViewedAt      DateTime?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @default(now()) @updatedAt
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @default(now()) @updatedAt
   deletedAt         DateTime?
-  tenant            Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant            Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   missions          SetupMission[]
   settings          SetupSetting[]
 
@@ -504,19 +505,19 @@ model TenantSetup {
 }
 
 model SetupMission {
-  id            String    @id @default(cuid())
+  id            String      @id @default(cuid())
   tenantSetupId String
   section       String
   missionKey    String
   title         String
   description   String?
-  isRequired    Boolean   @default(false)
-  isCompleted   Boolean   @default(false)
+  isRequired    Boolean     @default(false)
+  isCompleted   Boolean     @default(false)
   completedAt   DateTime?
-  sortOrder     Int       @default(0)
+  sortOrder     Int         @default(0)
   metadata      Json?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @default(now()) @updatedAt
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @default(now()) @updatedAt
   deletedAt     DateTime?
   tenantSetup   TenantSetup @relation(fields: [tenantSetupId], references: [id], onDelete: Cascade)
 
@@ -785,7 +786,7 @@ model ContentLike {
 model Support {
   id              String        @id @default(uuid())
   tenantId        String
-  Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  Tenant          Tenant        @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   senderUserId    String
   recipientUserId String
   targetType      SupportTarget
@@ -979,15 +980,15 @@ model Event {
 }
 
 model EventAttendee {
-  id        String   @id
+  id        String    @id
   tenantId  String
   eventId   String
   userId    String
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
   deletedAt DateTime?
-  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  Tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
-  user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event     Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  Tenant    Tenant    @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  user      user      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([eventId, userId])
   @@index([eventId, userId])
@@ -1022,7 +1023,7 @@ model Booking {
 model MaintenanceRequest {
   id                 String                    @id
   tenantId           String
-  Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  Tenant             Tenant                    @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   propertyId         String?
   userId             String
   category           String
@@ -1066,17 +1067,17 @@ model MaintenanceRequest {
 }
 
 model MaintenanceTeam {
-  id          String                   @id @default(uuid())
+  id          String                  @id @default(uuid())
   tenantId    String
-  Tenant      Tenant                   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  Tenant      Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   name        String
   trade       String
   contactName String?
-  isActive    Boolean                  @default(true)
-  createdAt   DateTime                 @default(now())
-  updatedAt   DateTime                 @updatedAt
+  isActive    Boolean                 @default(true)
+  createdAt   DateTime                @default(now())
+  updatedAt   DateTime                @updatedAt
   deletedAt   DateTime?
-  assignments MaintenanceRequest[]     @relation("TeamAssignments")
+  assignments MaintenanceRequest[]    @relation("TeamAssignments")
   members     MaintenanceTeamMember[]
 
   @@index([tenantId])
@@ -1101,7 +1102,7 @@ model MaintenanceTeamMember {
 model MaintenanceCategory {
   id          String    @id @default(uuid())
   tenantId    String
-  Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  Tenant      Tenant    @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   value       String
   label       String
   description String?
@@ -1115,7 +1116,7 @@ model MaintenanceCategory {
 model BursaryField {
   id          String    @id @default(uuid())
   tenantId    String
-  Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  Tenant      Tenant    @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   value       String
   label       String
   description String?
@@ -1177,14 +1178,14 @@ model RequestHistory {
 model ServiceProvider {
   id              String                   @id @default(uuid())
   tenantId        String
-  Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  Tenant          Tenant                   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   companyName     String
   contactName     String?
   phone           String?
   email           String?
   trade           String
   isActive        Boolean                  @default(true)
-  employmentType  ProviderEmploymentType  @default(EXTERNAL)
+  employmentType  ProviderEmploymentType   @default(EXTERNAL)
   createdAt       DateTime                 @default(now())
   updatedAt       DateTime                 @updatedAt
   deletedAt       DateTime?
@@ -1212,7 +1213,7 @@ model ServiceProvider {
 model CommunityServiceInquiry {
   id                      String                  @id
   tenantId                String
-  Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  Tenant                  Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   listingId               String
   inquirerId              String
   serviceType             String?
@@ -1239,7 +1240,7 @@ model CommunityServiceInquiry {
 model CommunityServiceListing {
   id                      String                    @id
   tenantId                String
-  Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  Tenant                  Tenant                    @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   providerId              String
   providerType            ProviderType              @default(COMMUNITY)
   title                   Json
@@ -1292,7 +1293,7 @@ model CommunityServiceListing {
 model CommunityServiceReview {
   id                      String                  @id
   tenantId                String
-  Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  Tenant                  Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   listingId               String
   reviewerId              String
   rating                  Int
@@ -1318,7 +1319,7 @@ model ProviderVerification {
   id                    String                     @id @default(uuid())
   providerId            String                     @unique
   tenantId              String
-  Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  Tenant                Tenant                     @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   status                ProviderVerificationStatus @default(PENDING)
   notes                 String?
   startDate             DateTime                   @default(now())
@@ -1339,7 +1340,7 @@ model ProviderLegalAgreement {
   id            String          @id @default(uuid())
   providerId    String
   tenantId      String
-  Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  Tenant        Tenant          @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   agreementType String
   version       String
   acceptedAt    DateTime        @default(now())
@@ -1357,7 +1358,7 @@ model ProviderReputation {
   id                String          @id @default(uuid())
   providerId        String          @unique
   tenantId          String
-  Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  Tenant            Tenant          @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   totalScore        Int             @default(0)
   responseTimeScore Int?
   qualityScore      Int?
@@ -1377,7 +1378,7 @@ model ProviderMerit {
   id          String            @id @default(uuid())
   providerId  String
   tenantId    String
-  Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  Tenant      Tenant            @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   meritType   ProviderMeritType
   points      Int
   description String?
@@ -1395,7 +1396,7 @@ model ProviderSubscription {
   id              String               @id @default(uuid())
   providerId      String
   tenantId        String
-  Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  Tenant          Tenant               @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   tierId          String
   status          SubscriptionStatus   @default(ACTIVE)
   startDate       DateTime
@@ -1421,7 +1422,7 @@ model PaymentTransaction {
   id             String               @id @default(uuid())
   providerId     String
   tenantId       String
-  Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  Tenant         Tenant               @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   subscriptionId String
   amount         Decimal              @db.Decimal(10, 2)
   currency       String               @default("ZAR")
@@ -1448,7 +1449,7 @@ model PaymentTransaction {
 model RevenueRecord {
   id            String             @id @default(uuid())
   tenantId      String
-  Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  Tenant        Tenant             @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   providerId    String
   transactionId String
   grossAmount   Decimal            @db.Decimal(10, 2)
@@ -1470,7 +1471,7 @@ model ProviderCharge {
   id             String               @id @default(uuid())
   providerId     String
   tenantId       String
-  Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  Tenant         Tenant               @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   subscriptionId String
   transactionId  String?
   description    String
@@ -1496,7 +1497,7 @@ model ProviderInvoice {
   id             String               @id @default(uuid())
   providerId     String
   tenantId       String
-  Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  Tenant         Tenant               @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   subscriptionId String
   transactionId  String
   invoiceNumber  String
@@ -1523,7 +1524,7 @@ model ProviderInvoice {
 model BillingPlan {
   id                  String               @id @default(uuid())
   tenantId            String
-  Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  Tenant              Tenant               @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   name                String
   description         String?
   monthlyPrice        Decimal              @default(0) @db.Decimal(10, 2)
@@ -1550,7 +1551,7 @@ model BillingPlan {
 model TenantSubscription {
   id                 String                   @id @default(uuid())
   tenantId           String
-  Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  Tenant             Tenant                   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   planId             String
   status             TenantSubscriptionStatus @default(PENDING)
   startDate          DateTime?
@@ -1576,7 +1577,7 @@ model TenantSubscription {
 model TenantInvoice {
   id             String             @id @default(uuid())
   tenantId       String
-  Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  Tenant         Tenant             @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   subscriptionId String
   transactionId  String?
   invoiceNumber  String
@@ -1600,7 +1601,7 @@ model TenantInvoice {
 model TenantPayment {
   id             String             @id @default(uuid())
   tenantId       String
-  Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  Tenant         Tenant             @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   subscriptionId String
   amount         Decimal            @db.Decimal(10, 2)
   currency       String             @default("ZAR")
@@ -1624,7 +1625,7 @@ model TenantPayment {
 model BillingAdjustment {
   id             String                @id @default(uuid())
   tenantId       String
-  Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  Tenant         Tenant                @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   subscriptionId String?
   invoiceId      String?
   type           BillingAdjustmentType
@@ -1640,7 +1641,7 @@ model BillingAdjustment {
 model BillingEvent {
   id             String              @id @default(uuid())
   tenantId       String
-  Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  Tenant         Tenant              @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   subscriptionId String?
   planId         String?
   eventType      BillingEventType
@@ -1655,7 +1656,7 @@ model BillingEvent {
 model Coupon {
   id                 String             @id @default(uuid())
   tenantId           String
-  Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  Tenant             Tenant             @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   code               String
   discountType       CouponDiscountType
   discountValue      Decimal            @db.Decimal(10, 2)
@@ -1679,7 +1680,7 @@ model CouponRedemption {
   id             String   @id @default(uuid())
   couponId       String
   tenantId       String
-  Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  Tenant         Tenant   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   subscriptionId String?
   paymentId      String?
   redeemedAt     DateTime @default(now())
@@ -2536,17 +2537,17 @@ model Bursary {
 /// Events are written in the same DB transaction as the business write, then
 /// drained by the Outbox Dispatcher and fanned out to registry-driven handlers.
 model Outbox {
-  id            String   @id @default(uuid())
+  id            String    @id @default(uuid())
   type          String
-  version       Int      @default(1)
+  version       Int       @default(1)
   tenantId      String
   correlationId String
   causationId   String?
   actorId       String?
   payload       Json
-  createdAt     DateTime @default(now())
+  createdAt     DateTime  @default(now())
   processedAt   DateTime?
-  attempts      Int      @default(0)
+  attempts      Int       @default(0)
   error         String?
 
   @@index([processedAt])
@@ -2556,7 +2557,7 @@ model Outbox {
 /// Dead Letter Queue for events that exhausted Outbox retry attempts
 /// (ADVISORY-033 §7). Preserves event, payload, error, handler, and retry count.
 model OutboxDeadLetter {
-  id             String    @id @default(uuid())
+  id             String   @id @default(uuid())
   outboxId       String?
   type           String
   version        Int
@@ -2566,7 +2567,7 @@ model OutboxDeadLetter {
   error          String?
   handler        String?
   attempts       Int?
-  deadLetteredAt DateTime  @default(now())
+  deadLetteredAt DateTime @default(now())
 
   @@index([type])
   @@index([tenantId])

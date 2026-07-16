@@ -1,32 +1,32 @@
 -- Batch B: Tenant FK relations + indexes for Maintenance & Providers + Billing & Commerce (26 models)
 -- ADVISORY-024: onDelete: Restrict, bidirectional relations
 
-ALTER TABLE "MaintenanceRequest" ADD CONSTRAINT "MaintenanceRequest_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT;
-ALTER TABLE "MaintenanceTeam" ADD CONSTRAINT "MaintenanceTeam_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT;
-ALTER TABLE "MaintenanceCategory" ADD CONSTRAINT "MaintenanceCategory_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT;
-ALTER TABLE "BursaryField" ADD CONSTRAINT "BursaryField_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT;
-ALTER TABLE "ServiceProvider" ADD CONSTRAINT "ServiceProvider_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT;
-ALTER TABLE "CommunityServiceInquiry" ADD CONSTRAINT "CommunityServiceInquiry_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT;
-ALTER TABLE "CommunityServiceListing" ADD CONSTRAINT "CommunityServiceListing_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT;
-ALTER TABLE "CommunityServiceReview" ADD CONSTRAINT "CommunityServiceReview_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT;
-ALTER TABLE "ProviderVerification" ADD CONSTRAINT "ProviderVerification_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT;
-ALTER TABLE "ProviderLegalAgreement" ADD CONSTRAINT "ProviderLegalAgreement_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT;
-ALTER TABLE "ProviderReputation" ADD CONSTRAINT "ProviderReputation_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT;
-ALTER TABLE "ProviderMerit" ADD CONSTRAINT "ProviderMerit_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT;
-ALTER TABLE "ProviderSubscription" ADD CONSTRAINT "ProviderSubscription_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT;
-ALTER TABLE "Support" ADD CONSTRAINT "Support_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT;
-ALTER TABLE "PaymentTransaction" ADD CONSTRAINT "PaymentTransaction_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT;
-ALTER TABLE "RevenueRecord" ADD CONSTRAINT "RevenueRecord_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT;
-ALTER TABLE "ProviderCharge" ADD CONSTRAINT "ProviderCharge_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT;
-ALTER TABLE "ProviderInvoice" ADD CONSTRAINT "ProviderInvoice_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT;
-ALTER TABLE "BillingPlan" ADD CONSTRAINT "BillingPlan_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT;
-ALTER TABLE "TenantSubscription" ADD CONSTRAINT "TenantSubscription_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT;
-ALTER TABLE "TenantInvoice" ADD CONSTRAINT "TenantInvoice_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT;
-ALTER TABLE "TenantPayment" ADD CONSTRAINT "TenantPayment_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT;
-ALTER TABLE "BillingAdjustment" ADD CONSTRAINT "BillingAdjustment_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT;
-ALTER TABLE "BillingEvent" ADD CONSTRAINT "BillingEvent_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT;
-ALTER TABLE "Coupon" ADD CONSTRAINT "Coupon_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT;
-ALTER TABLE "CouponRedemption" ADD CONSTRAINT "CouponRedemption_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT;
+DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'MaintenanceRequest') THEN ALTER TABLE "MaintenanceRequest" ADD CONSTRAINT "MaintenanceRequest_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT; END IF; END $$;
+DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'MaintenanceTeam') THEN ALTER TABLE "MaintenanceTeam" ADD CONSTRAINT "MaintenanceTeam_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT; END IF; END $$;
+DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'MaintenanceCategory') THEN ALTER TABLE "MaintenanceCategory" ADD CONSTRAINT "MaintenanceCategory_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT; END IF; END $$;
+DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'BursaryField') THEN ALTER TABLE "BursaryField" ADD CONSTRAINT "BursaryField_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT; END IF; END $$;
+DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'ServiceProvider') THEN ALTER TABLE "ServiceProvider" ADD CONSTRAINT "ServiceProvider_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT; END IF; END $$;
+DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'CommunityServiceInquiry') THEN ALTER TABLE "CommunityServiceInquiry" ADD CONSTRAINT "CommunityServiceInquiry_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT; END IF; END $$;
+DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'CommunityServiceListing') THEN ALTER TABLE "CommunityServiceListing" ADD CONSTRAINT "CommunityServiceListing_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT; END IF; END $$;
+DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'CommunityServiceReview') THEN ALTER TABLE "CommunityServiceReview" ADD CONSTRAINT "CommunityServiceReview_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT; END IF; END $$;
+DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'ProviderVerification') THEN ALTER TABLE "ProviderVerification" ADD CONSTRAINT "ProviderVerification_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT; END IF; END $$;
+DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'ProviderLegalAgreement') THEN ALTER TABLE "ProviderLegalAgreement" ADD CONSTRAINT "ProviderLegalAgreement_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT; END IF; END $$;
+DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'ProviderReputation') THEN ALTER TABLE "ProviderReputation" ADD CONSTRAINT "ProviderReputation_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT; END IF; END $$;
+DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'ProviderMerit') THEN ALTER TABLE "ProviderMerit" ADD CONSTRAINT "ProviderMerit_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT; END IF; END $$;
+DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'ProviderSubscription') THEN ALTER TABLE "ProviderSubscription" ADD CONSTRAINT "ProviderSubscription_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT; END IF; END $$;
+DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'Support') THEN ALTER TABLE "Support" ADD CONSTRAINT "Support_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT; END IF; END $$;
+DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'PaymentTransaction') THEN ALTER TABLE "PaymentTransaction" ADD CONSTRAINT "PaymentTransaction_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT; END IF; END $$;
+DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'RevenueRecord') THEN ALTER TABLE "RevenueRecord" ADD CONSTRAINT "RevenueRecord_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT; END IF; END $$;
+DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'ProviderCharge') THEN ALTER TABLE "ProviderCharge" ADD CONSTRAINT "ProviderCharge_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT; END IF; END $$;
+DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'ProviderInvoice') THEN ALTER TABLE "ProviderInvoice" ADD CONSTRAINT "ProviderInvoice_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT; END IF; END $$;
+DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'BillingPlan') THEN ALTER TABLE "BillingPlan" ADD CONSTRAINT "BillingPlan_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT; END IF; END $$;
+DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'TenantSubscription') THEN ALTER TABLE "TenantSubscription" ADD CONSTRAINT "TenantSubscription_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT; END IF; END $$;
+DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'TenantInvoice') THEN ALTER TABLE "TenantInvoice" ADD CONSTRAINT "TenantInvoice_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT; END IF; END $$;
+DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'TenantPayment') THEN ALTER TABLE "TenantPayment" ADD CONSTRAINT "TenantPayment_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT; END IF; END $$;
+DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'BillingAdjustment') THEN ALTER TABLE "BillingAdjustment" ADD CONSTRAINT "BillingAdjustment_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT; END IF; END $$;
+DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'BillingEvent') THEN ALTER TABLE "BillingEvent" ADD CONSTRAINT "BillingEvent_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT; END IF; END $$;
+DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'Coupon') THEN ALTER TABLE "Coupon" ADD CONSTRAINT "Coupon_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT; END IF; END $$;
+DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'CouponRedemption') THEN ALTER TABLE "CouponRedemption" ADD CONSTRAINT "CouponRedemption_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT; END IF; END $$;
 
 -- New indexes (3 models did not have @@index([tenantId]))
 CREATE INDEX "CommunityServiceInquiry_tenantId_idx" ON "CommunityServiceInquiry"("tenantId");
