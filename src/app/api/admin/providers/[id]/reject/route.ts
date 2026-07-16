@@ -20,7 +20,7 @@ import {
   getSessionAndRole,
   upsertProviderVerification,
 } from '@shared/api';
-import { providerReviewRejectionSchema } from '@shared/lib/providers/registration';
+import { providerReviewRejectionSchema } from '@shared/lib/providers';
 
 export const maxDuration = 8;
 

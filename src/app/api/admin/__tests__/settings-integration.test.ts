@@ -86,7 +86,7 @@ vi.mock('next/cache', () => ({
   revalidatePath: (...args: unknown[]) => mocks.revalidatePath(...args),
 }));
 
-vi.mock('@shared/lib/providers/registration', () => ({
+vi.mock('@shared/lib/providers', () => ({
   providerRegistrationModeSchema: {
     safeParse: vi.fn((val: unknown) => {
       if (val === 'OPEN' || val === 'INVITATION_ONLY') {

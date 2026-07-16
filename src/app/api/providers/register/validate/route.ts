@@ -11,7 +11,7 @@ import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { getProviderRegistrationModeImpl } from '@entities/tenant/server';
 import { findProviderDuplicateByCompanyName } from '@shared/api';
 import { hasPermission } from '@shared/lib';
-import { providerRegistrationValidationSchema } from '@shared/lib/providers/registration';
+import { providerRegistrationValidationSchema } from '@shared/lib/providers';
 
 export const maxDuration = 8;
 

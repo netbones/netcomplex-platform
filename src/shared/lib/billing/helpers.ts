@@ -2,7 +2,7 @@ import { createId } from '@shared/lib/id';
 /**
  * Tenant billing utility helpers.
  *
- * Mirrors the patterns in @shared/lib/providers/billing.ts but adapted
+ * Mirrors the patterns in @shared/lib/providers.ts but adapted
  * for tenant billing (tenant slug-based invoice numbers, tenant-specific
  * fee structures, etc.).
  */

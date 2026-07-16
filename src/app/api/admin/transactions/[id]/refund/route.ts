@@ -17,8 +17,8 @@ import {
 import { refundProviderTransaction } from '@shared/api';
 import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
-import { decimalToNumber } from '@shared/lib/providers/billing';
-import { getRefundableAmount } from '@shared/lib/providers/admin';
+import { decimalToNumber } from '@shared/lib/providers';
+import { getRefundableAmount } from '@shared/lib/providers';
 
 export const maxDuration = 8;
 

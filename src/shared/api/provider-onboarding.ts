@@ -15,7 +15,7 @@ import {
   getAcceptedLegalDocuments,
   type DueDiligenceWorkflowStatus,
   type ProviderLegalAcceptanceInput,
-} from '@shared/lib/providers/registration';
+} from '@shared/lib/providers';
 import type { ProviderVerificationStatus } from './provider-platform';
 import { createId } from '@shared/lib/id';
 

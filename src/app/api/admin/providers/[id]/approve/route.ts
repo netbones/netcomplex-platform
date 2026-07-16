@@ -16,7 +16,7 @@ import {
 } from '@api/server';
 import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { getProviderDueDiligenceSnapshot, getSessionAndRole, activateProvider } from '@shared/api';
-import { providerReviewApprovalSchema } from '@shared/lib/providers/registration';
+import { providerReviewApprovalSchema } from '@shared/lib/providers';
 
 export const maxDuration = 8;
 

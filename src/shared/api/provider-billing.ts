@@ -21,7 +21,7 @@ import {
   DEFAULT_PROVIDER_SUBSCRIPTION_TIERS,
   type ProviderPaymentGateway,
   type ProviderSubscriptionStatus,
-} from '@shared/lib/providers/billing';
+} from '@shared/lib/providers';
 import { PayPalService, PaystackService } from '@server/payments';
 import { createId } from '@shared/lib/id';
 

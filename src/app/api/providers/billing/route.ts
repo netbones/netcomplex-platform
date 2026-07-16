@@ -11,7 +11,7 @@ import {
   requireProviderAccess,
   updateProviderSubscriptionStatus,
 } from '@shared/api';
-import { providerBillingPatchSchema } from '@shared/lib/providers/billing';
+import { providerBillingPatchSchema } from '@shared/lib/providers';
 import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
 

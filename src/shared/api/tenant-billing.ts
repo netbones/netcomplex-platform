@@ -17,7 +17,7 @@ import {
   addBillingCycleMonths,
   calculateBillingBreakdown,
   deriveInvoiceNumber,
-} from '@shared/lib/providers/billing';
+} from '@shared/lib/providers';
 import { getOrCreateDefaultBillingPlans } from '@shared/lib/billing/seed-plans';
 import { PayPalService, PaystackService } from '@server/payments';
 import { createComponentLogger } from '@/shared/lib';

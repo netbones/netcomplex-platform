@@ -14,12 +14,12 @@ import {
 } from '@api/server';
 import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
-import { decimalToNumber } from '@shared/lib/providers/billing';
+import { decimalToNumber } from '@shared/lib/providers';
 import {
   buildRevenueBucketKey,
   getDateRangeFromSearchParams,
   normalizeRevenueGrouping,
-} from '@shared/lib/providers/admin';
+} from '@shared/lib/providers';
 
 export const maxDuration = 8;
 

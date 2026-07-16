@@ -8,7 +8,7 @@ import {
   normalizeProviderRegistrationMode,
   providerRegistrationModeSchema,
   type ProviderRegistrationMode,
-} from '@shared/lib/providers/registration';
+} from '@shared/lib/providers';
 
 import { SETTINGS_KEYS } from './settings';
 

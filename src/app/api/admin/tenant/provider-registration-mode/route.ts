@@ -17,7 +17,7 @@ import {
   getProviderRegistrationModeImpl,
   setProviderRegistrationMode,
 } from '@entities/tenant/server';
-import { providerRegistrationModeSchema } from '@shared/lib/providers/registration';
+import { providerRegistrationModeSchema } from '@shared/lib/providers';
 
 export const maxDuration = 8;
 

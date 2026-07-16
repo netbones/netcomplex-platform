@@ -1,7 +1,7 @@
 'use client';
 
 import { ModalOverlay } from '@shared/ui';
-import type { ProviderLegalDocument } from '@shared/lib/providers/registration';
+import type { ProviderLegalDocument } from '@shared/lib/providers';
 
 interface LegalAgreementModalProps {
   documents: ProviderLegalDocument[];
@@ -31,7 +31,10 @@ export function LegalAgreementModal({ documents, onClose }: LegalAgreementModalP
 
         <div className="max-h-[60vh] space-y-4 overflow-y-auto pr-1">
           {documents.map(document => (
-            <section key={document.agreementType} className="rounded-lg border border-slate-200 p-4">
+            <section
+              key={document.agreementType}
+              className="rounded-lg border border-slate-200 p-4"
+            >
               <div className="flex items-center justify-between gap-3">
                 <h3 className="font-medium text-slate-900">{document.label}</h3>
                 <span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">

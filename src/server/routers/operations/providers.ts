@@ -34,7 +34,7 @@ import {
   PROVIDER_LEGAL_DOCUMENTS,
   createDueDiligenceRegistrationNote,
   getAcceptedLegalDocuments,
-} from '@shared/lib/providers/registration';
+} from '@shared/lib/providers';
 import type { ProviderVerificationStatus } from '@shared/api';
 
 async function recordLegalForProvider(params: {

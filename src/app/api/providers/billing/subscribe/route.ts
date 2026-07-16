@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { apiError, apiInternalError, apiNotFound, apiSuccess, sendEmail } from '@api/server';
 import { createProviderSubscriptionCheckout, requireProviderAccess } from '@shared/api';
-import { providerBillingSubscribeSchema } from '@shared/lib/providers/billing';
+import { providerBillingSubscribeSchema } from '@shared/lib/providers';
 import { logError } from '@shared/lib';
 
 export const maxDuration = 8;

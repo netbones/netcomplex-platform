@@ -10,7 +10,7 @@ import {
   PROVIDER_LEGAL_DOCUMENTS,
   providerRegistrationSchema,
   type ProviderRegistrationInput,
-} from '@shared/lib/providers/registration';
+} from '@shared/lib/providers';
 import { cn } from '@shared/lib';
 
 import { LegalAgreementModal } from './LegalAgreementModal';

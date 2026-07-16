@@ -22,7 +22,7 @@ import {
   getProviderVerificationSnapshot,
 } from '@shared/api';
 import { logError } from '@shared/lib';
-import { decimalToNumber } from '@shared/lib/providers/billing';
+import { decimalToNumber } from '@shared/lib/providers';
 
 export const maxDuration = 8;
 

@@ -18,7 +18,7 @@ import {
 import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { getProviderDueDiligenceSnapshot, activateProvider } from '@shared/api';
 import { logError } from '@shared/lib';
-import { providerReviewApprovalSchema } from '@shared/lib/providers/registration';
+import { providerReviewApprovalSchema } from '@shared/lib/providers';
 
 export const maxDuration = 8;
 

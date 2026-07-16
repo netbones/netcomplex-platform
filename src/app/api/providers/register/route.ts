@@ -21,7 +21,7 @@ import {
 import {
   createDueDiligenceRegistrationNote,
   providerRegistrationSchema,
-} from '@shared/lib/providers/registration';
+} from '@shared/lib/providers';
 import {
   findProviderDuplicateByCompanyName,
   getProviderDueDiligenceSnapshot,

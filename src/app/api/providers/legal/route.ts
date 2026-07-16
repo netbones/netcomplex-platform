@@ -13,10 +13,7 @@ import {
   getProviderRecordForUser,
   recordProviderLegalAgreements,
 } from '@shared/api';
-import {
-  PROVIDER_LEGAL_DOCUMENTS,
-  providerLegalAcceptanceSchema,
-} from '@shared/lib/providers/registration';
+import { PROVIDER_LEGAL_DOCUMENTS, providerLegalAcceptanceSchema } from '@shared/lib/providers';
 
 export const maxDuration = 8;
 
