@@ -36,12 +36,12 @@ of truth; re-run `pnpm fsd:check` to refresh.
 
 ### Dominant clusters (2026-07-16)
 
-| Cluster                          | Count | Severity | Plan                                                                                                                                     |
-| -------------------------------- | ----: | -------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `no-public-api-sidestep`         |   464 | warn     | CI budget gate; reduced by ADR-024 `server.ts` consolidation                                                                             |
-| `forbidden-imports`              |    44 | warn     | 11 intentional sidesteps allow-listed; 6 genuine violations tracked in `soralia-village-jftz`; promote to `error` once those 6 are fixed |
-| `excessive-slicing` (`features`) |     1 | warn     | group 25 `features` slices into domain groups (BD `soralia-village-jftz`)                                                                |
-| `insignificant-slice`            |    15 | warn     | cleanup dead slices (BD `3a3v`)                                                                                                          |
+| Cluster                          | Count | Severity  | Plan                                                                                                                               |
+| -------------------------------- | ----: | --------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `no-public-api-sidestep`         |   464 | warn      | CI budget gate; reduced by ADR-024 `server.ts` consolidation                                                                       |
+| `forbidden-imports`              |     0 | **error** | promoted 2026-07-16; 6 genuine violations fixed (types→shared, StandingBadge→widget), 3 cross-entity config couplings allow-listed |
+| `excessive-slicing` (`features`) |     1 | warn      | group 25 `features` slices into domain groups (BD `soralia-village-jftz`)                                                          |
+| `insignificant-slice`            |    15 | warn      | cleanup dead slices (BD `3a3v`)                                                                                                    |
 
 ### Inside `src/app/`
 
