@@ -34,14 +34,14 @@ COMMUNIQUE-08 presented five options (A–E). Evaluation against this codebase's
 | Option                                                 | Verdict                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | A — Status quo                                         | Rejected. Does not address sync burden or drift; explicitly what was flagged as the problem.                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| B — Unify toward Zod, schemas stay in `src/server/dto` | **Rejected as written.** `src/server/dto` sits outside the FSD slice hierarchy (`app → pages → widgets → features → entities → shared`, ADR-004/ADR-020). Having `src/entities/content` and `src/entities/chat` import from `src/server/dto` inverts the dependency direction ADR-020 was written specifically to prevent (server-only code must not leak into a slice's default barrel; entities must not reach into server/tRPC internals). This is the same category of fault ADR-020 already fixed once. |
+| B — Unify toward Zod, schemas stay in `src/server/dto` | **Rejected as written.** `src/server/dto` sits outside the FSD slice hierarchy (`app → pages → widgets → features → entities → shared`, ADR-004/ADR-024). Having `src/entities/content` and `src/entities/chat` import from `src/server/dto` inverts the dependency direction ADR-024 was written specifically to prevent (server-only code must not leak into a slice's default barrel; entities must not reach into server/tRPC internals). This is the same category of fault ADR-024 already fixed once. |
 | C — Unify toward interfaces                            | Rejected. Drops Zod's runtime output validation at the tRPC boundary, which is the main thing `server/dto` does well and which ADR-019's OpenAPI generation depends on (Zod-derived schemas). Manual mappers remain drift-prone — doesn't actually solve the stated problem, just moves it.                                                                                                                                                                                                                  |
 | D — Hybrid with a third `types/` layer                 | Rejected as primary path. Architecturally cleanest in isolation, but adds a third layer for a REST surface that ADR-021 has already deprioritized. Not worth ~4h and permanent extra indirection for a consumer set (REST) that isn't supposed to be growing.                                                                                                                                                                                                                                                |
 | E — Consolidate location only, keep both technologies  | Rejected. Doesn't touch the actual duplication — same problem in one folder.                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 
 ### Recommended: Option B′ — Unify toward Zod, relocated to `src/shared/api/dto/`
 
-This is COMMUNIQUE-08's own mitigation for Option B's "layer bleed" concern, made mandatory rather than optional, because the codebase already has a hard rule against exactly this kind of cross-layer import (ADR-020). Concretely:
+This is COMMUNIQUE-08's own mitigation for Option B's "layer bleed" concern, made mandatory rather than optional, because the codebase already has a hard rule against exactly this kind of cross-layer import (ADR-024). Concretely:
 
 - `src/shared/api/dto/` (already exists, already an established FSD `shared` location — same tier as `@api/server` / `@api/client` / `@api/shared`) becomes the **single canonical location** for Zod schemas derived via `createSelectSchema()`.
 - `src/server/dto/` becomes a thin re-export shim during migration (Phase 3 below), then is deleted once router imports are swapped (deferred Phase 4).
@@ -108,7 +108,7 @@ done
 grep -rn "from '@shared/api/dto\|from '@/shared/api/dto" src/entities/content src/entities/chat
 
 # 5. Confirm whether that import path is client-reachable or server-only
-#    (checks for an existing server.ts sub-barrel per ADR-020 precedent)
+#    (checks for an existing server.ts sub-barrel per ADR-024 precedent)
 ls src/entities/content/server.ts src/entities/content/index.ts 2>/dev/null
 ls src/entities/chat/server.ts src/entities/chat/index.ts 2>/dev/null
 grep -n "dto" src/entities/content/index.ts src/entities/content/index.server.ts 2>/dev/null
@@ -144,7 +144,7 @@ cat src/shared/api/dto/__tests__/dto-booking.test.ts \
 **Phase 2 — Repoint entity consumers**
 
 - Update `src/entities/content`, `src/entities/chat` imports to the new canonical location.
-- If discovery step 5 shows DTO usage is not already behind a `server.ts` sub-barrel and the DTO is server-only in practice (maps raw DB rows), gate the export behind `server.ts` per ADR-020 rather than the default `index.ts`, to avoid shipping Zod to the client bundle.
+- If discovery step 5 shows DTO usage is not already behind a `server.ts` sub-barrel and the DTO is server-only in practice (maps raw DB rows), gate the export behind `server.ts` per ADR-024 rather than the default `index.ts`, to avoid shipping Zod to the client bundle.
 
 **Phase 3 — Shim `server/dto`**
 
@@ -152,7 +152,7 @@ cat src/shared/api/dto/__tests__/dto-booking.test.ts \
 
 **Phase 4 — Deferred cleanup (tracked, not executed now)**
 
-- Mechanical find-replace of router imports from `@/server/dto` → `@/shared/api/dto` (same pattern already used for ADR-020's ~105-file migration).
+- Mechanical find-replace of router imports from `@/server/dto` → `@/shared/api/dto` (same pattern already used for ADR-024's ~105-file migration).
 - Delete the `src/server/dto` shim once all routers are repointed.
 - Track as a follow-up BD issue; do not block Phase 1–3 on it.
 
@@ -167,7 +167,7 @@ cat src/shared/api/dto/__tests__/dto-booking.test.ts \
 | ---------------------------------------------------------------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | Interface DTO has a computed/joined field `createSelectSchema()` can't produce alone     | Medium     | Discovery step 6 catches this before Phase 1; resolve via `.extend()` on the Zod schema, not by dropping the field silently.  |
 | `.parse()` is stricter than the old manual mapper and throws on legacy null data in prod | Medium     | Discovery step 9 spot-checks affected columns; use `.nullable()` matching actual Prisma nullability, not assumed nullability. |
-| DTO Zod code ships to client bundle via entity default barrel                            | Low–Medium | Discovery step 5 + ADR-020 `server.ts` gating in Phase 2.                                                                     |
+| DTO Zod code ships to client bundle via entity default barrel                            | Low–Medium | Discovery step 5 + ADR-024 `server.ts` gating in Phase 2.                                                                     |
 | Steiger flags the `server/dto` re-export shim as a sidestep                              | Low        | Discovery step 7; add to allow-list alongside existing `@api/server` precedent if needed.                                     |
 | Router-file churn in Phase 4 causes merge conflicts with concurrent feature work         | Low        | Phase 4 explicitly deferred and tracked separately; not part of this advisory's execution scope.                              |
 
@@ -189,6 +189,6 @@ cat src/shared/api/dto/__tests__/dto-booking.test.ts \
 
 **G3 — Shim vs. immediate router migration.** Confirm Phase 3 (shim, zero router churn) is acceptable for this pass, with Phase 4 (direct router repoint + shim deletion) deferred to a separate tracked issue rather than executed now. _Awaiting DavDev confirmation._
 
-**G4 — Client-bundle gating.** If discovery step 5 shows content/chat DTO usage is reachable from a client-bundled barrel, confirm whether to gate behind `server.ts` (ADR-020 pattern) now, or accept the Zod runtime addition to the client bundle as a known, accepted cost. _Resolved by ADVISORY-025 (commit 64eab618)._
+**G4 — Client-bundle gating.** If discovery step 5 shows content/chat DTO usage is reachable from a client-bundled barrel, confirm whether to gate behind `server.ts` (ADR-024 pattern) now, or accept the Zod runtime addition to the client bundle as a known, accepted cost. _Resolved by ADVISORY-025 (commit 64eab618)._
 
 No phase beyond discovery executes until G1–G4 are resolved.

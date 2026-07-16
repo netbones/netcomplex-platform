@@ -131,9 +131,9 @@ Widget slices are UI-layer consumers. They render data; they do not provide serv
 
 ---
 
-## Architectural Principle (Formalise in ADR-020)
+## Architectural Principle (Formalise in ADR-024)
 
-The following rule should be captured as ADR-020 and enforced as a CI lint gate:
+The following rule should be captured as ADR-024 and enforced as a CI lint gate:
 
 > **Any module that directly imports from `@api/db`, `next/headers`, `next/cache`, or `server-only` must not be re-exported from a slice's default barrel (`index.ts`). It must be re-exported exclusively from a `server.ts` sub-barrel.**
 
@@ -230,7 +230,7 @@ pnpm build
 
 All three must pass clean before marking complete.
 
-### Phase 4 — Write ADR-020
+### Phase 4 — Write ADR-024
 
 Document the architectural principle in `docs/STEERING/ADR.md`:
 
@@ -262,7 +262,7 @@ Document the architectural principle in `docs/STEERING/ADR.md`:
 - [ ] `pnpm typecheck` passes clean
 - [ ] `pnpm lint` passes clean (zero Steiger violations, zero ESLint violations)
 - [ ] `pnpm build` passes clean
-- [ ] ADR-020 is written and committed
+- [ ] ADR-024 is written and committed
 - [ ] `ADVISORY-008.md` is copied to `docs/advisories/ADVISORY-008.md`
 
 ---

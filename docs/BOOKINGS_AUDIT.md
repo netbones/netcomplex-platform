@@ -74,7 +74,7 @@
    dto/index.ts Re-exports DTO from @api/server
    permissions/index.ts canViewAllBookings(role) permission helper
    index.ts Public client barrel (types, constants, schema, UI components)
-   index.server.ts Server-only barrel (services — per ADR-020)
+   index.server.ts Server-only barrel (services — per ADR-024)
    UI Components:
    Component File Purpose
    FacilityBadge ui/FacilityBadge.tsx Inline pill showing facility label

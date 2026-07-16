@@ -193,7 +193,7 @@ Scaffold `src/entities/education/` (self-contained, following the `entities/book
 - `dto/index.ts` — DTO shaping.
 - `permissions/index.ts` — who can create/edit/publish.
 - `services/index.ts` — server-only query/mutation logic.
-- `index.server.ts` — server-only sub-barrel (mandatory per ADR-020, since `services/` will import `@api/db`).
+- `index.server.ts` — server-only sub-barrel (mandatory per ADR-024, since `services/` will import `@api/db`).
 - `index.ts` — client-safe public API (types, constants).
 
 ## Risk Register
@@ -222,5 +222,5 @@ Scaffold `src/entities/education/` (self-contained, following the `entities/book
 
 - `docs/STEERING/UBIQUITOUS_LANGUAGE.md` — C1, C2, C6 (shape-conflation precedents this advisory avoids repeating)
 - ADR-003 — Dual ORM strategy (Prisma schema source of truth, Drizzle query layer)
-- ADR-020 — Server-only modules use `server.ts` sub-barrels in FSD slices
+- ADR-024 — Server-only modules use `server.ts` sub-barrels in FSD slices
 - `MaintenanceCategory`/`MaintenanceTeam` — precedent for admin-manageable lookup tables

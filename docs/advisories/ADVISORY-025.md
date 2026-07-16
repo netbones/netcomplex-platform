@@ -2,15 +2,15 @@
 
 **Status:** ✅ Executed (Commit 64eab618) — Decision gates G1–G2 confirmed 2026-07-03
 **Trigger:** COMMUNIQUE-09 (2026-07-03), following ADVISORY-024 execution
-**Relates to:** ADVISORY-024 (DTO consolidation), ADR-020 (server-only barrel rule), ADR-024 (Prisma/Drizzle DTO lineage)
+**Relates to:** ADVISORY-024 (DTO consolidation), ADR-024 (server-only barrel rule), ADR-024 (Prisma/Drizzle DTO lineage)
 
 ---
 
 ## 1. Reframing the Problem
 
-COMMUNIQUE-09 presents this as a new architectural fork (Options A–D). It isn't one. This is a **regression of ADR-020**, which already solved this exact failure mode for `entities/content` (content is literally named in ADR-020's own "Key Files" list, alongside tenant, maintenance, event, and booking). The DTO consolidation in ADVISORY-024 Phase 1/4 re-introduced a server-only import (`../db`, via `createSelectSchema()`) into a barrel that ADR-020 had already made client-safe.
+COMMUNIQUE-09 presents this as a new architectural fork (Options A–D). It isn't one. This is a **regression of ADR-024**, which already solved this exact failure mode for `entities/content` (content is literally named in ADR-024's own "Key Files" list, alongside tenant, maintenance, event, and booking). The DTO consolidation in ADVISORY-024 Phase 1/4 re-introduced a server-only import (`../db`, via `createSelectSchema()`) into a barrel that ADR-024 had already made client-safe.
 
-So the question isn't "which of four new patterns should we adopt" — it's "apply the existing ADR-020 rule to the 45 new DTO files, and find out why it didn't get applied automatically during the migration." Treating this as net-new architecture risks inventing a second convention for a problem the codebase already has one answer to.
+So the question isn't "which of four new patterns should we adopt" — it's "apply the existing ADR-024 rule to the 45 new DTO files, and find out why it didn't get applied automatically during the migration." Treating this as net-new architecture risks inventing a second convention for a problem the codebase already has one answer to.
 
 ## 2. Why Options B and D (as written) Are Overstated as "Blocked"
 
@@ -33,7 +33,7 @@ Also flag: the second trace in COMMUNIQUE-09 Option C (`DirectoryChatModal.tsx �
 
 **Adopt Option A, corrected and scoped:**
 
-1. For every domain file among the 45 where a `toXxxDTO()` mapper or the raw Zod schema is currently reachable from a slice's default `index.ts`, move that export to the slice's existing `index.server.ts` (ADR-020 pattern — already exists for content, tenant, maintenance, event, booking; may need to be created for any newly-DTO-bearing slice that didn't have one before).
+1. For every domain file among the 45 where a `toXxxDTO()` mapper or the raw Zod schema is currently reachable from a slice's default `index.ts`, move that export to the slice's existing `index.server.ts` (ADR-024 pattern — already exists for content, tenant, maintenance, event, booking; may need to be created for any newly-DTO-bearing slice that didn't have one before).
 2. Re-export the **type only** (`export type { ContentDto } from '@api/server'` or from the relevant `index.server.ts`) at the slice's default `index.ts`, so client components that only need the shape for typing continue to work with no call-site changes.
 3. Audit every genuine client-side call site of `toXxxDTO()` (not just type usage) found in discovery. If any exist, that is an independent bug — a client component parsing a raw DB row — and must be fixed by moving the parse to the server boundary (Server Component / tRPC procedure / route handler) that already has the row, not by exempting the mapper from server-only gating.
 
@@ -64,7 +64,7 @@ grep -l "from '\.\./db'\|from '../../db'" src/shared/api/dto/*.ts
 grep -n "dto" src/shared/api/server/index.ts src/shared/api/client/index.ts src/shared/api/shared/index.ts 2>/dev/null
 
 # 5. Confirm which entity slices among the 45-file DTO set already have an
-#    index.server.ts (per ADR-020 precedent) vs need one created
+#    index.server.ts (per ADR-024 precedent) vs need one created
 for d in $(ls src/entities); do
   if grep -qr "dto" src/entities/$d/index.ts 2>/dev/null; then
     echo "$d: has dto in default barrel; index.server.ts exists? $(test -f src/entities/$d/index.server.ts && echo yes || echo NO)"
@@ -91,7 +91,7 @@ done
 **Phase 3 — Sweep remaining 43 files**
 
 - Apply the same pattern to every other domain flagged by discovery step 1/2 as having a value-level DTO export in a default barrel.
-- Mechanical once the pattern is proven in Phase 1–2 (same "mechanical migration" characterization used for ADR-020's original ~105-file sweep).
+- Mechanical once the pattern is proven in Phase 1–2 (same "mechanical migration" characterization used for ADR-024's original ~105-file sweep).
 
 **Phase 4 — Genuine client call-site remediation (only if discovery step 3 finds any)**
 
@@ -103,7 +103,7 @@ done
 | Risk                                                                                                                           | Severity | Mitigation                                                                                                                                                                                                                                                                                                 |
 | ------------------------------------------------------------------------------------------------------------------------------ | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Genuine client-side `toXxxDTO()` call sites exist (not just type usage)                                                        | Medium   | Discovery step 3 before any Phase 4 work; treat each as its own small fix, not a blanket exemption.                                                                                                                                                                                                        |
-| Some of the 45 domains never had an `index.server.ts` created (new slices since ADR-020)                                       | Low      | Discovery step 5 flags which need one created; creation is the same mechanical pattern ADR-020 already documents.                                                                                                                                                                                          |
+| Some of the 45 domains never had an `index.server.ts` created (new slices since ADR-024)                                       | Low      | Discovery step 5 flags which need one created; creation is the same mechanical pattern ADR-024 already documents.                                                                                                                                                                                          |
 | Type-only re-export still triggers bundler evaluation due to `export *` elsewhere in the chain (as seen with `achievement.ts`) | Medium   | Discovery step 4 must cover **all** 45 files, not just content, before declaring this resolved.                                                                                                                                                                                                            |
 | Regression recurs on the next DTO-touching change                                                                              | Low      | Once Phase 3 is complete, consider a Steiger/ESLint rule (same category as `no-public-api-sidestep`) that flags any `shared/api/dto` file importing `../db` from being re-exported by a slice's default `index.ts` — flagged here as a possible follow-up, not required for this advisory's done criteria. |
 

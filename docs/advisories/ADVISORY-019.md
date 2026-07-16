@@ -614,7 +614,7 @@ Navigation: Expo Router on mobile (Solito not used).
 - ADR-003: Dual ORM Strategy (Drizzle output path affected by M1-B)
 - ADR-011: tRPC (shared `@soralia/api` package)
 - ADR-019: OpenAPI spec generation (stays in `apps/web/src/server/openapi/`)
-- ADR-020: Server-only `server.ts` sub-barrels (pattern extends to `@soralia/server` package)
+- ADR-024: Server-only `server.ts` sub-barrels (pattern extends to `@soralia/server` package)
 - BD `fpc`: tRPC expansion to Wave 1-2 domains (M0 prerequisite)
 ```
 

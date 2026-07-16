@@ -67,7 +67,7 @@ Phase this as follows:
 1. Add `server.ts` to the five affected slices (`tenant`, `content`, `maintenance`, `event`, `booking`). Move the server-only re-exports from the patched ESLint exception list into these barrels.
 2. Update Steiger allow list: `@entities/*/server` (wildcard, same pattern as `@api/server`).
 3. Do the mechanical file replacement across the ~105 files.
-4. Write ADR-020: "Entity slices with server-only exports use `server.ts` sub-barrels."
+4. Write ADR-024: "Entity slices with server-only exports use `server.ts` sub-barrels."
 
 **Phase 2 — Enforcement (close the category):** 5. Add a lint rule (custom ESLint or Steiger) that prohibits `index.ts` barrel files from directly or transitively importing `server-only`, `next/headers`, `next/cache`, or `@api/db`. This turns a discipline convention into a CI gate. 6. Remove the ESLint `no-restricted-imports` band-aid exceptions added during the Phase 44 emergency fix.
 

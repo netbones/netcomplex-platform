@@ -408,7 +408,7 @@ src/app/api/
         └── test/route.ts
 ```
 
-**FSD layer rule:** `src/shared/api/ai/` is a `shared` layer module — all entity and feature layers may import from it. The reverse is forbidden. The `encryption.ts` module in shared is server-only and must be re-exported via `shared/api/server/index.ts` (per the `server.ts` sub-barrel convention established in ADR-020).
+**FSD layer rule:** `src/shared/api/ai/` is a `shared` layer module — all entity and feature layers may import from it. The reverse is forbidden. The `encryption.ts` module in shared is server-only and must be re-exported via `shared/api/server/index.ts` (per the `server.ts` sub-barrel convention established in ADR-024).
 
 ---
 

@@ -84,15 +84,15 @@ The `toXxxDTO()` wrapper functions live in the same file as the Zod schema (e.g.
 
 1. **`toContentDTO` IS used by client components** — via the entity barrel chain
 2. **`toContentDTO` CANNOT be client-safe** — because its file imports `../db` with `server-only`
-3. **The entity default barrel** (`entities/content/index.ts`) re-exports `toContentDTO` from `./dto`, making it available to client components — violating ADR-020's `server.ts` gating rule
+3. **The entity default barrel** (`entities/content/index.ts`) re-exports `toContentDTO` from `./dto`, making it available to client components — violating ADR-024's `server.ts` gating rule
 
 ### Options
 
-#### Option A — Gate entity DTO exports behind `server.ts` (ADR-020 pattern)
+#### Option A — Gate entity DTO exports behind `server.ts` (ADR-024 pattern)
 
 Remove `toContentDTO` from `entities/content/index.ts` (default client-reachable barrel). Create `entities/content/server.ts` that re-exports server-only functions including `toContentDTO`. Client components that currently call `toContentDTO` would need to call a different function (or the entity service layer would handle it server-side).
 
-**Pros:** Clean FSD boundary. Follows ADR-020 precedent. No runtime cost.  
+**Pros:** Clean FSD boundary. Follows ADR-024 precedent. No runtime cost.  
 **Cons:** Requires refactoring client components that use `toContentDTO`. Entity service layer may need adjustment.
 
 **Effort:** ~1–2h — identify all client callers, create `server.ts` sub-barrel, refactor callers.
@@ -134,11 +134,11 @@ export function toContentDTO(row: unknown): ContentDto {
 
 Which approach should we take?
 
-G4 of ADR-024 explicitly anticipated this: _"If discovery step 5 shows content/chat DTO usage is reachable from a client-bundled barrel, confirm whether to gate behind `server.ts` (ADR-020 pattern) now."_
+G4 of ADR-024 explicitly anticipated this: _"If discovery step 5 shows content/chat DTO usage is reachable from a client-bundled barrel, confirm whether to gate behind `server.ts` (ADR-024 pattern) now."_
 
 The discovery confirmed that `toContentDTO` IS reachable from client bundles via `entities/content/index.ts`. The architect's decision is needed on whether to:
 
-1. **Gate now** (Option A) — refactor entity barrels per ADR-020, accept ~1–2h of call-site refactoring
+1. **Gate now** (Option A) — refactor entity barrels per ADR-024, accept ~1–2h of call-site refactoring
 2. **Accept the cost** (Option C) — keep DTOs in `@api/shared` but fix the directory import chain, accept ongoing fragility risk
 3. **Alternative pattern** — a different approach not captured above
 

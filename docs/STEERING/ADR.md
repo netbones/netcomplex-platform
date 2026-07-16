@@ -1099,7 +1099,7 @@ Adopt a **dual-API model** with clear ownership boundaries:
 - `src/app/api/*` — 150+ REST routes (legacy, no new additions for internal features)
 - `src/shared/api/api-response.ts` — `apiSuccess()`/`apiError()` envelope standard
 
-## ADR-020: Server-Only Modules Use `server.ts` Sub-Barrels in FSD Slices
+## ADR-024: Server-Only Modules Use `server.ts` Sub-Barrels in FSD Slices
 
 ### Status
 
@@ -1178,7 +1178,7 @@ This means the `@entities/*/server` barrel is a one-way door: server components 
 
 #### Failure Case (2026-06-23)
 
-`f4eb9894` (ADR-020 migration) changed the client gate module's imports from `@entities/tenant` → `@entities/tenant/server` because `FEATURE_TO_FLAG` and `FEATURE_TO_REGISTRY` were defined in `gate.ts` alongside server-only functions. This pulled `ioredis` → `dns` into the client bundle. The error was dormant until `406d099b` migrated `Footer.tsx` to `useGateContext()`, which activated the chain.
+`f4eb9894` (ADR-024 migration) changed the client gate module's imports from `@entities/tenant` → `@entities/tenant/server` because `FEATURE_TO_FLAG` and `FEATURE_TO_REGISTRY` were defined in `gate.ts` alongside server-only functions. This pulled `ioredis` → `dns` into the client bundle. The error was dormant until `406d099b` migrated `Footer.tsx` to `useGateContext()`, which activated the chain.
 
 #### Resolution Pattern (2026-06-23)
 
@@ -1209,16 +1209,22 @@ This constraint is not yet statically enforceable (ESLint `no-restricted-imports
 - Phase 44 (M5A hardening): FSD enforcement baseline
 - BD issue `de8x`: i18n sidestep precedent
 - BD issue `soralia-village-1eh`: C2 gating migration — triggered the client-side constraint discovery
-- Commit `f4eb9894`: introduced the violation (ADR-020 migration switched client gate to server barrel)
+- Commit `f4eb9894`: introduced the violation (ADR-024 migration switched client gate to server barrel)
 - Commit `ba82bdc8`: resolution — extracted `gate/mappings.ts` clean module
 
 ### Key Files
 
-- `src/entities/tenant/server.ts`
-- `src/entities/content/server.ts`
-- `src/entities/maintenance/server.ts`
-- `src/entities/event/server.ts`
-- `src/entities/booking/server.ts`
+> **Naming note (2026-07-16):** the canonical artifact is a `server.ts` sub-barrel, but the
+> codebase currently realizes this as either `src/entities/<slice>/index.server.ts` or
+> `src/entities/<slice>/api/server.ts` (e.g. `tenant/index.server.ts`, `tenant/api/server.ts`).
+> Both satisfy the same public-API-gating intent described below; consolidate to a single
+> `server.ts` form as part of the ADR-024-follow-up tracked in BD `de8x`.
+
+- `src/entities/tenant/index.server.ts` + `src/entities/tenant/api/server.ts`
+- `src/entities/content/index.server.ts`
+- `src/entities/maintenance/index.server.ts`
+- `src/entities/event/index.server.ts`
+- `src/entities/booking/index.server.ts`
 
 ---
 
