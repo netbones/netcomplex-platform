@@ -1,6 +1,6 @@
 # tRPC Migration Status
 
-**Last updated:** 2026-07-07 (P1+P2 completed)
+**Last updated:** 2026-07-16 (verified live/dead routes)
 **Status:** Active tracking document — 6/8 migrations complete
 **Applies To:** All REST routes in `src/app/api/` and tRPC routers in `src/server/routers/`
 **Related:** `API.md`, `tRPC.md`, `API_ROUTES.md`
@@ -14,39 +14,44 @@
 | Fully covered by tRPC   | 26 domains (~132 routes) |
 | Candidate for migration | 2 domains (~25 routes)   |
 | Permanent REST          | ~70 routes               |
-| Total REST route files  | 210                      |
+| Total REST route files  | 208                      |
 | tRPC routers deployed   | 20 (34 files)            |
 
 ---
 
-## ✅ Fully Covered by tRPC
+## ✅ Fully Covered by tRPC (Frontend Not Yet Migrated)
 
-These domains have comprehensive tRPC routers. No further migration work needed.
+These domains have comprehensive tRPC routers, but **the frontend still calls REST endpoints** via `fetch()`. No tRPC adoption has happened except `trpc.marketplace.listListings` and a handful of `trpc.identity.*` procedures. Each domain needs frontend migration before its REST routes can be removed.
 
-| Domain                | Router(s)                                               | REST routes still present? |
-| --------------------- | ------------------------------------------------------- | -------------------------- |
-| Competitions          | `competitions.ts`                                       | Likely dead — verify       |
-| Content               | `content.ts`                                            | Likely dead — verify       |
-| Events                | `events.ts`                                             | Likely dead — verify       |
-| Bookings              | `bookings.ts`                                           | Likely dead — verify       |
-| Groups                | `groups.ts`                                             | Likely dead — verify       |
-| Disputes              | `disputes.ts`                                           | Likely dead — verify       |
-| Chat/Messages         | `chat.ts`, `chat/conversations.ts`, `chat/messaging.ts` | Likely dead — verify       |
-| Resources             | `resources.ts`                                          | Likely dead — verify       |
-| Notifications         | `notifications.ts`                                      | Likely dead — verify       |
-| Maintenance           | `maintenance.ts`, `maintenance/*` (4 sub-routers)       | Likely dead — verify       |
-| Surveys               | `surveys.ts`, `surveys/*` (4 sub-routers)               | Likely dead — verify       |
-| DWallet               | `dwallet.ts`                                            | Likely dead — verify       |
-| Merits                | `merits.ts`                                             | Likely dead — verify       |
-| Identity/Users        | `identity.ts`                                           | Likely dead — verify       |
-| Marketplace/Comm Svcs | `marketplace.ts`, `marketplace/*` (8 sub-routers)       | Likely dead — verify       |
-| Achievements          | `achievements.ts`                                       | Likely dead — verify       |
-| Agents                | `agents.ts`                                             | Likely dead — verify       |
-| Invitations           | `invitations.ts`                                        | Likely dead — verify       |
-| Settings              | `settings.ts`                                           | Likely dead — verify       |
-| Dashboard Stats       | `identity.ts` (stats procedures)                        | Likely dead — verify       |
+| Domain                | Router(s)                                               | REST status                           |
+| --------------------- | ------------------------------------------------------- | ------------------------------------- |
+| Competitions          | `competitions.ts`                                       | LIVE — frontend uses REST via fetch() |
+| Content               | `content.ts`                                            | LIVE — frontend uses REST via fetch() |
+| Events                | `events.ts`                                             | LIVE — frontend uses REST via fetch() |
+| Bookings              | `bookings.ts`                                           | LIVE — frontend uses REST via fetch() |
+| Groups                | `groups.ts`                                             | LIVE — frontend uses REST via fetch() |
+| Disputes              | `disputes.ts`                                           | LIVE — frontend uses REST via fetch() |
+| Chat/Messages         | `chat.ts`, `chat/conversations.ts`, `chat/messaging.ts` | LIVE — frontend uses REST via fetch() |
+| Resources             | `resources.ts`                                          | LIVE — frontend uses REST via fetch() |
+| Notifications         | `notifications.ts`                                      | LIVE — frontend uses REST via fetch() |
+| Maintenance           | `maintenance.ts`, `maintenance/*` (4 sub-routers)       | LIVE — frontend uses REST via fetch() |
+| Surveys               | `surveys.ts`, `surveys/*` (4 sub-routers)               | LIVE — frontend uses REST via fetch() |
+| DWallet               | `dwallet.ts`                                            | LIVE — frontend uses REST via fetch() |
+| Merits                | `merits.ts`                                             | LIVE — frontend uses REST via fetch() |
+| Identity/Users        | `identity.ts`                                           | LIVE — frontend uses REST via fetch() |
+| Marketplace/Comm Svcs | `marketplace.ts`, `marketplace/*` (8 sub-routers)       | LIVE — frontend uses REST via fetch() |
+| Achievements          | `achievements.ts`                                       | LIVE — frontend uses REST via fetch() |
+| Agents                | `agents.ts`                                             | LIVE — frontend uses REST via fetch() |
+| Invitations           | `invitations.ts`                                        | LIVE — frontend uses REST via fetch() |
+| Settings              | `settings.ts`                                           | LIVE — frontend uses REST via fetch() |
+| Dashboard Stats       | `identity.ts` (stats procedures)                        | LIVE — frontend uses REST via fetch() |
 
-> **Action:** For each domain above, verify that the flat REST routes under `src/app/api/<domain>/` are dead code and can be removed.
+**Deleted REST routes (confirmed dead):**
+
+- `src/app/api/marketplace/checkout/route.ts` — tRPC equivalent in `marketplace/checkout.ts`
+- `src/app/api/marketplace/webhook/route.ts` — tRPC equivalent in `marketplace/checkout.ts`
+
+> **Action:** For each domain above, migrate frontend `fetch()` calls to `trpc.<domain>.*` hooks, then delete the REST route files.
 
 ---
 
@@ -156,7 +161,7 @@ They delegate to internal tRPC or flat REST handlers.
 | DWallet               | ✅ Complete    |                                                |            |
 | Merits                | ✅ Complete    |                                                |            |
 | Identity/Users        | ✅ Complete    |                                                |            |
-| Marketplace/Comm Svcs | ✅ Complete    |                                                |            |
+| Marketplace/Comm Svcs | ✅ Complete    | Deleted dead REST checkout/webhook routes      | 2026-07-16 |
 | Achievements          | ✅ Complete    |                                                |            |
 | Agents                | ✅ Complete    |                                                |            |
 | Invitations           | ✅ Complete    |                                                |            |
@@ -175,11 +180,15 @@ They delegate to internal tRPC or flat REST handlers.
 
 ## Dead Code Cleanup
 
-For each ✅ domain, verify that the flat REST route files under `src/app/api/<domain>/` are no longer called from the frontend. If confirmed dead:
+As of 2026-07-16, a cross-domain trace confirmed that **nearly all REST routes are still live** — frontend code continues to call them via `fetch()`. Only `marketplace/checkout` and `marketplace/webhook` were dead (tRPC equivalents existed and no frontend callers).
 
-1. Remove route files
-2. Remove from `API_ROUTES.md`
-3. Add commit reference above
+For each future domain migration:
+
+1. Migrate frontend `fetch()` calls to `trpc.<domain>.*` hooks
+2. Verify no remaining callers (search `'/api/<domain>'` in `src/`)
+3. Delete REST route files
+4. Remove from `API_ROUTES.md`
+5. Add commit reference above
 
 ---
 
