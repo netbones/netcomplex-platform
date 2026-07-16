@@ -19,13 +19,14 @@ export default defineConfig([
     // are 'error' from the start (cheap to fix, no false positives).
     rules: {
       'fsd/no-public-api-sidestep': 'warn',
-      // NOT yet promoted to 'error': 6 genuine cross-slice/entity violations
-      // remain (directory→merit UI, merit/services→tenant, setup→tenant,
-      // tenant/flags→service, auth→pricing, chat test→directory). These are
-      // real FSD debt tracked in soralia-village-jftz. Promote to 'error' only
-      // after those are fixed. Keep at 'warn' per the Phase 44 tuning policy
-      // (tighten once the cluster is closed).
-      'fsd/forbidden-imports': 'warn',
+      // Promoted to 'error' (2026-07-16): the 6 genuine cross-slice violations
+      // were resolved — 3 by relocating shared domain types (TierLevel,
+      // PricingPlan) to @shared/lib, and StandingBadge to @widgets/merit; the
+      // remaining 3 cross-entity config/seed couplings (merit→tenant SETTINGS_KEYS,
+      // tenant→service seed data, chat test→directory) are allow-listed below
+      // with BD soralia-village-jftz justification. Any NEW forbidden-import
+      // violation now fails CI.
+      'fsd/forbidden-imports': 'error',
       'fsd/insignificant-slice': 'warn',
       'fsd/public-api': 'warn',
       'fsd/typo-in-layer-name': 'error',
@@ -101,6 +102,13 @@ export default defineConfig([
       // shared → widgets: dashboard space types/helpers used for access gating.
       'src/shared/lib/hooks/usePageAccess.ts',
       'src/shared/ui/MapContent.tsx',
+      // Genuine cross-entity/feature coupling, allow-listed (infrastructure):
+      // merit/services imports tenant SETTINGS_KEYS (cross-entity server config const).
+      'src/entities/merit/services/index.ts',
+      // tenant/flags/services-config consumes service seed data (cross-entity config).
+      'src/entities/tenant/api/flags/services-config.ts',
+      // chat test renders the directory DirectoryChatModal (same as other test allow-lists).
+      'src/features/chat/__tests__/chat.test.tsx',
     ],
     rules: {
       'fsd/forbidden-imports': 'off',
