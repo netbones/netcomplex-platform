@@ -25,6 +25,7 @@
     "api:generate": "tsx src/server/openapi/generator.ts public/openapi.json",
     "api:lint": "redocly lint --config .redocly.yaml --format=stylish",
     "api:ci": "pnpm api:generate && pnpm api:lint",
+    "events:check": "tsx scripts/check-domain-events.ts",
     "fsd:check": "steiger ./src",
     "fsd:graph": "depcruise --output-type archi --collapse 3 src | dot -T svg | depcruise-wrap-stream-in-html > fsd-high-level-dependencies.html",
     "fsd:graph:detailed": "depcruise --output-type dot --collapse 4 src | dot -T svg | depcruise-wrap-stream-in-html > fsd-detailed-dependencies.html"
