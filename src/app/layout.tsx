@@ -17,10 +17,15 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
 };
 
-export const metadata: Metadata = {
-  title: 'Netcomplex Community Platform',
-  description: 'Multi-tenant community management platform',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const tenant = await getCurrentTenant();
+  const name = tenant?.name || 'Netcomplex';
+  const tagline = tenant?.tagline || 'Community Platform';
+  return {
+    title: `${name} — ${tagline}`,
+    description: tenant?.description || 'Multi-tenant community management platform',
+  };
+}
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const headersList = await headers();
