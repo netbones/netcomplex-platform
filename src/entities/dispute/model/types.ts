@@ -31,7 +31,7 @@ export type DisputeSeverity = 'MINOR' | 'MODERATE' | 'SERIOUS' | 'URGENT';
 
 export type DisputeRespondent = 'RESIDENT' | 'HOA' | 'BOARD_MEMBER' | 'TENANT_PROVIDER';
 
-export type DisputeEventType =
+export type DisputeStatusTransition =
   | 'CREATED'
   | 'SUBMITTED'
   | 'ASSIGNED'
@@ -43,10 +43,11 @@ export type DisputeEventType =
   | 'RESOLVED'
   | 'WITHDRAWN'
   | 'ESCALATED_CSOS'
-  | 'CSOS_CLOSED'
-  | 'NOTE_ADDED'
-  | 'EVIDENCE_ADDED'
-  | 'STATUS_CHANGED';
+  | 'CSOS_CLOSED';
+
+export type DisputeAuditType = 'NOTE_ADDED' | 'EVIDENCE_ADDED' | 'STATUS_CHANGED';
+
+export type DisputeEventType = DisputeStatusTransition | DisputeAuditType;
 
 export interface DisputeCaseDTO {
   id: string;

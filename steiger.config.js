@@ -29,6 +29,12 @@ export default defineConfig([
       'fsd/no-reserved-folder-names': 'warn',
       'fsd/inconsistent-naming': 'warn',
       'fsd/no-processes': 'error',
+      // `features` layer has 25 ungrouped slices (>20 recommended threshold).
+      // Kept at 'warn' per the Phase 44 tuning policy: the real fix is grouping
+      // the slices into domain groups (e.g. admin/, commerce/, community/,
+      // infra/), which is a tracked follow-up. Tighten to 'error' only after the
+      // grouping lands — until then this is surfaced, not blocking.
+      'fsd/excessive-slicing': 'warn',
     },
   },
   {

@@ -6,6 +6,8 @@ import type {
   DisputeCategory,
   DisputeSeverity,
   DisputeRespondent,
+  DisputeStatusTransition,
+  DisputeAuditType,
   DisputeEventType,
 } from './types';
 
@@ -51,7 +53,7 @@ export const RESPONDENT_LABELS: Record<DisputeRespondent, string> = {
   TENANT_PROVIDER: 'Tenant Provider',
 };
 
-export const EVENT_TYPE_LABELS: Record<DisputeEventType, string> = {
+export const STATUS_TRANSITION_LABELS: Record<DisputeStatusTransition, string> = {
   CREATED: 'Created',
   SUBMITTED: 'Submitted',
   ASSIGNED: 'Assigned',
@@ -64,10 +66,39 @@ export const EVENT_TYPE_LABELS: Record<DisputeEventType, string> = {
   WITHDRAWN: 'Withdrawn',
   ESCALATED_CSOS: 'Escalated to CSOS',
   CSOS_CLOSED: 'CSOS Closed',
+};
+
+export const AUDIT_TYPE_LABELS: Record<DisputeAuditType, string> = {
   NOTE_ADDED: 'Note Added',
   EVIDENCE_ADDED: 'Evidence Added',
   STATUS_CHANGED: 'Status Changed',
 };
+
+export const EVENT_TYPE_LABELS: Record<DisputeEventType, string> = {
+  ...STATUS_TRANSITION_LABELS,
+  ...AUDIT_TYPE_LABELS,
+};
+
+export const STATUS_EVENT_VALUES: DisputeStatusTransition[] = [
+  'CREATED',
+  'SUBMITTED',
+  'ASSIGNED',
+  'MEDIATION_OFFERED',
+  'MEDIATION_ACCEPTED',
+  'MEDIATION_DECLINED',
+  'MEDIATION_CONCLUDED',
+  'RULING_ISSUED',
+  'RESOLVED',
+  'WITHDRAWN',
+  'ESCALATED_CSOS',
+  'CSOS_CLOSED',
+];
+
+export const AUDIT_EVENT_VALUES: DisputeAuditType[] = [
+  'NOTE_ADDED',
+  'EVIDENCE_ADDED',
+  'STATUS_CHANGED',
+];
 
 export const CSOS_ELIGIBLE_STATUSES: DisputeStatus[] = [
   'FORMAL_RULING',
