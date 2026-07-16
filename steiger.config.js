@@ -19,13 +19,13 @@ export default defineConfig([
     // are 'error' from the start (cheap to fix, no false positives).
     rules: {
       'fsd/no-public-api-sidestep': 'warn',
-      // Promoted to 'error' (2026-07-16): the remaining violations are either
-      // intentional test imports (tests render app pages / call app/api routes)
-      // or by-design shared→entities server/type imports (ADR-024 server-only
-      // barrel pattern). Those are allow-listed below with BD justification.
-      // Any NEW forbidden-import violation now fails CI. Tracked in
-      // soralia-village-jftz.
-      'fsd/forbidden-imports': 'error',
+      // NOT yet promoted to 'error': 6 genuine cross-slice/entity violations
+      // remain (directory→merit UI, merit/services→tenant, setup→tenant,
+      // tenant/flags→service, auth→pricing, chat test→directory). These are
+      // real FSD debt tracked in soralia-village-jftz. Promote to 'error' only
+      // after those are fixed. Keep at 'warn' per the Phase 44 tuning policy
+      // (tighten once the cluster is closed).
+      'fsd/forbidden-imports': 'warn',
       'fsd/insignificant-slice': 'warn',
       'fsd/public-api': 'warn',
       'fsd/typo-in-layer-name': 'error',
