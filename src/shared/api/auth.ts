@@ -3,6 +3,7 @@ import { drizzleAdapter } from '@better-auth/drizzle-adapter';
 import { twoFactor, organization, bearer, emailOTP, admin } from 'better-auth/plugins';
 import { passkey } from '@better-auth/passkey';
 import { nextCookies } from 'better-auth/next-js';
+import { waitUntil } from '@vercel/functions';
 import {
   db,
   authDb,
@@ -225,6 +226,10 @@ export const auth = betterAuth({
       process.env.NODE_ENV === 'production'
         ? { enabled: true, domain: 'netbones.co.za' }
         : { enabled: false },
+    // Defer non-critical background tasks (e.g. rate-limiting counters,
+    // usage tracking) to run after the response is sent, improving
+    // response times on Vercel's serverless platform.
+    backgroundTasks: { handler: waitUntil },
   },
   baseURL: {
     allowedHosts: tenantConfig.auth.allowedHosts,
