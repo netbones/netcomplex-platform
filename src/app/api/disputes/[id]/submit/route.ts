@@ -16,6 +16,7 @@ import {
   users,
   withErrorHandler,
   getSessionAndRole,
+  guardSuspension,
 } from '@api/server';
 
 import { apiLogger } from '@shared/lib';
@@ -49,6 +50,8 @@ export const POST = withErrorHandler(
     if (!authData) {
       return apiUnauthorized();
     }
+    const guard = guardSuspension(authData);
+    if (guard) return guard;
 
     // Fetch dispute with tenant scoping and soft-delete exclusion
     const [dispute] = await db

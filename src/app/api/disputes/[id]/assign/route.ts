@@ -14,6 +14,7 @@ import {
   users,
   withErrorHandler,
   getSessionAndRole,
+  guardSuspension,
 } from '@api/server';
 
 import { disputeAssignSchema } from '@entities/dispute';
@@ -42,6 +43,8 @@ export const POST = withErrorHandler(
     if (!authData) {
       return apiUnauthorized();
     }
+    const guard = guardSuspension(authData);
+    if (guard) return guard;
 
     // Role guard: only BOARD and ADMIN can assign moderators
     if (authData.role !== 'BOARD' && !hasPermission(authData.role, 'admin')) {

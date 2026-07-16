@@ -1,4 +1,10 @@
-import { apiSuccess, apiUnauthorized, withErrorHandler, getSessionAndRole } from '@api/server';
+import {
+  apiSuccess,
+  apiUnauthorized,
+  withErrorHandler,
+  getSessionAndRole,
+  guardSuspension,
+} from '@api/server';
 
 import { withTenant } from '@entities/tenant/server';
 
@@ -13,6 +19,8 @@ export const maxDuration = 8;
 export const GET = withErrorHandler(async (request: Request) => {
   const sessionData = await getSessionAndRole(request);
   if (!sessionData) return apiUnauthorized();
+  const guard = guardSuspension(sessionData);
+  if (guard) return guard;
 
   await withTenant();
 

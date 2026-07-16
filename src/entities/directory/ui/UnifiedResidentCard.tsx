@@ -2,7 +2,7 @@ import { CARD_HEADER_COLORS, CARD_ANIMATIONS, INTEREST_COLORS } from '@shared/li
 import { useSafeTranslation } from '@shared/lib';
 import Image from 'next/image';
 import Link from 'next/link';
-import { StandingBadge } from '@entities/merit';
+import { StandingBadge } from '@widgets/merit';
 import type { Resident } from '../model/types';
 
 import { Home, Mail, MessageSquare, Phone } from 'lucide-react';

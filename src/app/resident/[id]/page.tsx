@@ -10,7 +10,7 @@ import { ContentEngagementBar } from '@features/content';
 import { createComponentLogger } from '@shared/lib';
 import { DirectoryChatModal } from '@/features/directory/ui/DirectoryChatModal';
 import Image from 'next/image';
-import { StandingBadge } from '@entities/merit';
+import { StandingBadge } from '@widgets/merit';
 
 import { Mail, MessageSquare, Phone } from 'lucide-react';
 const log = createComponentLogger('resident-profile');

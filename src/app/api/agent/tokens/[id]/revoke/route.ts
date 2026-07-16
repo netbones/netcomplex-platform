@@ -10,6 +10,7 @@ import {
   apiNotFound,
   apiConflict,
   getSessionAndRole,
+  guardSuspension,
 } from '@api/server';
 import { withTenant } from '@entities/tenant/server';
 import { agentTokens } from '@schema/agent-tokens';
@@ -21,6 +22,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
   const session = await getSessionAndRole(request);
   if (!session) return apiUnauthorized();
+  const guard = guardSuspension(session);
+  if (guard) return guard;
 
   const { id } = await params;
 

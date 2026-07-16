@@ -7,4 +7,3 @@ export {
 export type { StandingTier } from './model/types';
 export { getStandingTier, getStandingTierConfig } from './model/standings';
 export { canManageMerits, canResolveDisputes } from './permissions';
-export { StandingBadge, getPublicStandingLabel } from './ui/StandingBadge';

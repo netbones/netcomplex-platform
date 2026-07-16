@@ -16,6 +16,7 @@ import {
   users,
   withErrorHandler,
   getSessionAndRole,
+  guardSuspension,
 } from '@api/server';
 
 import { createClient } from '@supabase/supabase-js';
@@ -51,6 +52,8 @@ export const GET = withErrorHandler(
     if (!authData) {
       return apiUnauthorized();
     }
+    const guard = guardSuspension(authData);
+    if (guard) return guard;
 
     // Fetch dispute to verify access
     const [dispute] = await db

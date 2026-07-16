@@ -10,6 +10,7 @@ import {
   serviceProviders,
   sendEmail,
   withErrorHandler,
+  guardSuspension,
 } from '@api/server';
 import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import {
@@ -38,6 +39,8 @@ export const POST = withErrorHandler(async (request: Request) => {
   if (!auth) {
     return apiUnauthorized();
   }
+  const guard = guardSuspension(auth);
+  if (guard) return guard;
 
   const moduleCheck = await assertModuleEnabled('providers');
   if (moduleCheck) return moduleCheck;

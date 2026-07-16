@@ -1,5 +1,12 @@
 import { z } from 'zod';
-import { apiError, apiInternalError, apiSuccess, db, getSessionAndRole } from '@api/server';
+import {
+  apiError,
+  apiInternalError,
+  apiSuccess,
+  db,
+  getSessionAndRole,
+  guardSuspension,
+} from '@api/server';
 import { getAiProvider, isAiCapabilityEnabled, checkQuota, recordUsage } from '@api/server';
 import type { AiCapabilityKey } from '@entities/tenant/server';
 import { withTenant } from '@entities/tenant/server';
@@ -24,9 +31,9 @@ export const maxDuration = 15;
 export async function POST(request: Request) {
   try {
     const auth = await getSessionAndRole(request);
-    if (!auth) {
-      return apiError('UNAUTHORIZED', 'Authentication required', 401);
-    }
+    if (!auth) return apiError('UNAUTHORIZED', 'Authentication required', 401);
+    const guard = guardSuspension(auth);
+    if (guard) return guard;
 
     // Rate limit by authenticated user to prevent per-user DoS
     const rateLimitResult = await rateLimitByUser(auth.userId, {

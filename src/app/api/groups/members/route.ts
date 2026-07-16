@@ -8,6 +8,7 @@ import {
   getSessionAndRole,
   now,
   withErrorHandler,
+  guardSuspension,
 } from '@api/server';
 
 import { eq, and } from 'drizzle-orm';
@@ -19,6 +20,8 @@ export const maxDuration = 8;
 export const POST = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
   if (!authData) return apiUnauthorized();
+  const guard = guardSuspension(authData);
+  if (guard) return guard;
 
   const body = await request.json();
   const { userId, groupId, role = 'MEMBER' } = body;

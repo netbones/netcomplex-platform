@@ -12,6 +12,7 @@ import {
   revalidateAdminChanges,
   getSessionAndRole,
   now,
+  guardSuspension,
 } from '@api/server';
 
 import { eq, and } from 'drizzle-orm';
@@ -65,6 +66,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ ke
   if (!authData) {
     return apiUnauthorized();
   }
+  const guard = guardSuspension(authData);
+  if (guard) return guard;
 
   const moduleCheck = await assertModuleEnabled('settings');
   if (moduleCheck) return moduleCheck;

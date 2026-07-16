@@ -3,7 +3,7 @@ import 'server-only';
 import { db, tenantSetups, setupMissions } from '@api/server';
 import { createId } from '@shared/lib';
 import { DEFAULT_MISSIONS } from '../constants';
-import type { TierLevel } from '@entities/tenant';
+import type { TierLevel } from '@shared/lib';
 
 /**
  * Initialize TenantSetup + default missions after tenant creation.
@@ -38,7 +38,7 @@ export async function initTenantSetup(tenantId: string, _tier: TierLevel) {
         isCompleted: false,
         sortOrder: idx,
         metadata: def.metadata ?? null,
-      })),
+      }))
     );
   }
 

@@ -15,6 +15,7 @@ import {
   users,
   withErrorHandler,
   getSessionAndRole,
+  guardSuspension,
 } from '@api/server';
 
 import { disputeRulingSchema } from '@entities/dispute';
@@ -45,6 +46,8 @@ export const POST = withErrorHandler(
     if (!authData) {
       return apiUnauthorized();
     }
+    const guard = guardSuspension(authData);
+    if (guard) return guard;
 
     // Role guard: only BOARD and ADMIN can issue rulings
     if (authData.role !== 'BOARD' && !hasPermission(authData.role, 'admin')) {

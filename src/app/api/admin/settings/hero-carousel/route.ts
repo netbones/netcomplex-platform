@@ -8,9 +8,11 @@ import {
 } from '@entities/tenant/server';
 import {
   getSessionAndRole,
+  guardSuspension,
   runWithRLS,
   requireTenantRLS,
   apiForbidden,
+  apiUnauthorized,
   apiSuccess,
   apiInternalError,
   apiValidationError,
@@ -45,7 +47,10 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const sessionRole = await getSessionAndRole();
-    if (!sessionRole || !hasPermission(sessionRole.role, 'admin')) return apiForbidden();
+    if (!sessionRole) return apiUnauthorized();
+    const guard = guardSuspension(sessionRole);
+    if (guard) return guard;
+    if (!hasPermission(sessionRole.role, 'admin')) return apiForbidden();
 
     const rateLimit = await rateLimitByUser(sessionRole.userId, {
       windowMs: 60_000,

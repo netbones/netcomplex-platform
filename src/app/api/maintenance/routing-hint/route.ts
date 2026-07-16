@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { getSessionAndRole, apiSuccess, apiError } from '@api/server';
+import { getSessionAndRole, apiSuccess, apiError, guardSuspension } from '@api/server';
 import { withTenant } from '@entities/tenant/server';
 import { resolveRoutingType } from '@entities/maintenance/server';
 
@@ -14,6 +14,8 @@ export async function GET(request: NextRequest) {
   const { tenantId } = await withTenant();
   const authData = await getSessionAndRole(request);
   if (!authData) return apiError('UNAUTHORIZED', 'Authentication required', 401);
+  const guard = guardSuspension(authData);
+  if (guard) return guard;
 
   const { searchParams } = new URL(request.url);
   const propertyId = searchParams.get('propertyId');

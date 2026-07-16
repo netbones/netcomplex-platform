@@ -121,6 +121,7 @@ export {
 export { auth } from '../auth';
 export {
   getSessionAndRole,
+  guardSuspension,
   requireNotSuspended,
   requireAnyPermission,
   throwIfSuspended,

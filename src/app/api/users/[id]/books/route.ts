@@ -6,6 +6,7 @@ import {
   apiUnauthorized,
   getSessionAndRole,
   withErrorHandler,
+  guardSuspension,
 } from '@api/server';
 
 import { eq, and } from 'drizzle-orm';
@@ -17,6 +18,8 @@ export const GET = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
     const authData = await getSessionAndRole(request);
     if (!authData) return apiUnauthorized();
+    const guard = guardSuspension(authData);
+    if (guard) return guard;
 
     const { id } = await params;
 

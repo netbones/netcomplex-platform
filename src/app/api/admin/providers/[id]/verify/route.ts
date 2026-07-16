@@ -2,11 +2,13 @@ import { and, eq } from 'drizzle-orm';
 
 import {
   apiError,
+  apiUnauthorized,
   apiInternalError,
   apiNotFound,
   apiSuccess,
   db,
   getSessionAndRole,
+  guardSuspension,
   notDeleted,
   providerVerifications,
   requireAnyPermission,
@@ -31,6 +33,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
 
     const auth = await getSessionAndRole(request);
+    if (!auth) return apiUnauthorized();
+    const guard = guardSuspension(auth);
+    if (guard) return guard;
     const parsed = providerReviewApprovalSchema.safeParse(await request.json());
     if (!parsed.success) {
       return apiError('VALIDATION_ERROR', 'Validation failed', 400, parsed.error.flatten());

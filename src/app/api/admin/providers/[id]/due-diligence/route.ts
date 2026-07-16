@@ -3,11 +3,13 @@ import { z } from 'zod';
 
 import {
   apiError,
+  apiUnauthorized,
   apiInternalError,
   apiNotFound,
   apiSuccess,
   db,
   getSessionAndRole,
+  guardSuspension,
   notDeleted,
   requireAnyPermission,
   serviceProviders,
@@ -41,6 +43,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     }
 
     const auth = await getSessionAndRole(request);
+    if (!auth) return apiUnauthorized();
+    const guard = guardSuspension(auth);
+    if (guard) return guard;
     const parsed = dueDiligenceSaveSchema.safeParse(await request.json());
     if (!parsed.success) {
       return apiError('VALIDATION_ERROR', 'Validation failed', 400, parsed.error.flatten());

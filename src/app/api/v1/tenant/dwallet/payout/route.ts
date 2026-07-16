@@ -8,6 +8,7 @@ import {
   withErrorHandler,
   getSessionAndRole,
   now,
+  guardSuspension,
 } from '@api/server';
 
 import { eq, and, desc } from 'drizzle-orm';
@@ -22,6 +23,8 @@ export const maxDuration = 8;
 export const GET = withErrorHandler(async (request: Request) => {
   const sessionData = await getSessionAndRole(request);
   if (!sessionData) return apiUnauthorized();
+  const guard = guardSuspension(sessionData);
+  if (guard) return guard;
 
   const { tenantId } = await withTenant();
 

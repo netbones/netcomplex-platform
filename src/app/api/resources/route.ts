@@ -13,6 +13,7 @@ import {
   users,
   withErrorHandler,
   getSessionAndRole,
+  guardSuspension,
 } from '@api/server';
 
 import { eq, and, desc, inArray } from 'drizzle-orm';
@@ -123,6 +124,8 @@ export const POST = withErrorHandler(async (request: Request) => {
   if (!authData) {
     return apiUnauthorized();
   }
+  const guard = guardSuspension(authData);
+  if (guard) return guard;
 
   if (!hasPermission(authData.role, 'content')) {
     return apiForbidden();

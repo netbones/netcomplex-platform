@@ -17,6 +17,7 @@ import {
   users,
   withErrorHandler,
   getSessionAndRole,
+  guardSuspension,
 } from '@api/server';
 
 import { eq, and, desc, inArray, sql } from 'drizzle-orm';
@@ -60,6 +61,8 @@ export const GET = withErrorHandler(async (request: Request) => {
     if (!authData) {
       return apiUnauthorized();
     }
+    const guard = guardSuspension(authData);
+    if (guard) return guard;
   }
 
   // Enforce tenant isolation

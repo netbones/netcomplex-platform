@@ -14,6 +14,7 @@ import {
   now,
   withErrorHandler,
   getSessionAndRole,
+  guardSuspension,
 } from '@api/server';
 
 import { eq, desc, and } from 'drizzle-orm';
@@ -126,6 +127,8 @@ export const PATCH = withErrorHandler(
     if (!authData) {
       return apiUnauthorized();
     }
+    const guard = guardSuspension(authData);
+    if (guard) return guard;
 
     if (!hasPermission(authData.role, 'content')) {
       return apiForbidden();

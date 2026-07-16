@@ -8,6 +8,7 @@ import {
   withErrorHandler,
   writeAuditLog,
   revalidateAdminChanges,
+  guardSuspension,
 } from '@api/server';
 
 import { eq, sql, and } from 'drizzle-orm';
@@ -43,6 +44,8 @@ export const GET = withErrorHandler(async (_request: Request) => {
 export const POST = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
   if (!authData) return apiUnauthorized();
+  const guard = guardSuspension(authData);
+  if (guard) return guard;
 
   if (!hasPermission(authData.role, 'admin')) return apiForbidden();
 

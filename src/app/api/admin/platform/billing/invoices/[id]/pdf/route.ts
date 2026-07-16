@@ -10,6 +10,7 @@ import {
   tenantAiUsages,
   tenants,
   getSessionAndRole,
+  guardSuspension,
 } from '@api/server';
 import { requirePlatformAdmin, withTenant } from '@entities/tenant/server';
 import { tenantInvoices } from '@schema/tenant-invoices';
@@ -40,6 +41,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     // Not platform admin — try tenant-scoped access
     const authData = await getSessionAndRole(request);
     if (!authData) return apiUnauthorized();
+    const guard = guardSuspension(authData);
+    if (guard) return guard;
 
     const { tenantId } = await withTenant();
     allowedTenantId = tenantId;

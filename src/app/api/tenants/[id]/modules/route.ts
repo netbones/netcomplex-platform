@@ -14,6 +14,7 @@ import {
   apiNotFound,
   apiUnauthorized,
   getSessionAndRole,
+  guardSuspension,
 } from '@api/server';
 
 import { eq, desc } from 'drizzle-orm';
@@ -31,6 +32,8 @@ const TIER_ORDER: Record<TenantTier, number> = {
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const authData = await getSessionAndRole(request);
   if (!authData) return apiUnauthorized();
+  const guard = guardSuspension(authData);
+  if (guard) return guard;
 
   const { id: tenantId } = await params;
 

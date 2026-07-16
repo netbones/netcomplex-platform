@@ -9,6 +9,7 @@ import {
   emitEvent,
   now,
   getSessionAndRole,
+  guardSuspension,
 } from '@api/server';
 
 import { assertModuleEnabled } from '@entities/tenant/server';
@@ -49,6 +50,8 @@ export async function GET(request: Request) {
   if (!authData) {
     return apiUnauthorized();
   }
+  const guard = guardSuspension(authData);
+  if (guard) return guard;
 
   // Feature gate: check bookings module is enabled for tenant
   const featureCheck = await assertModuleEnabled('bookings');

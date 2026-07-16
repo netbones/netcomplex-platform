@@ -12,6 +12,7 @@ import {
   apiValidationError,
   withErrorHandler,
   getSessionAndRole,
+  guardSuspension,
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
@@ -43,6 +44,8 @@ export const GET = withErrorHandler(
     if (!authData) {
       return apiUnauthorized();
     }
+    const guard = guardSuspension(authData);
+    if (guard) return guard;
 
     if (!hasPermission(authData.role, 'content')) {
       return apiForbidden();

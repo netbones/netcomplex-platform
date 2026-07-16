@@ -10,6 +10,7 @@ import {
   dataConsents,
   payoutRequests,
   walletTransactions,
+  guardSuspension,
 } from '@api/server';
 import { hasPermission } from '@shared/lib';
 import { createComponentLogger } from '@shared/lib';
@@ -34,6 +35,8 @@ const logger = createComponentLogger('admin-dwallet-stats');
 export const GET = withErrorHandler(async (request: Request) => {
   const sessionData = await getSessionAndRole(request);
   if (!sessionData) return apiUnauthorized();
+  const guard = guardSuspension(sessionData);
+  if (guard) return guard;
 
   if (!hasPermission(sessionData.role, 'admin')) return apiForbidden();
 

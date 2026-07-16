@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { communitySetupSchema, type CommunitySetupFormData } from '@entities/tenant';
-import type { PricingPlan } from '@features/pricing';
+import type { PricingPlan } from '@shared/lib';
 import { SectionLayout } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
 

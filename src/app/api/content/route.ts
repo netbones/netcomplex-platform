@@ -10,6 +10,7 @@ import {
   emitEvent,
   withErrorHandler,
   getSessionAndRole,
+  guardSuspension,
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
@@ -91,6 +92,8 @@ export const POST = withErrorHandler(async (request: Request) => {
   if (!authData) {
     return apiUnauthorized();
   }
+  const guard = guardSuspension(authData);
+  if (guard) return guard;
 
   // AssistSession scope guard: metadata-scoped staff can only read, not modify content/users/settings
   const scopeError = await requireAssistScope(request, 'full');

@@ -132,6 +132,25 @@ export async function requireNotSuspended(request: Request): Promise<{
 }
 
 /**
+ * Guard against a suspended user using pre-fetched session data.
+ * Unlike `throwIfSuspended`, this does not re-query the session.
+ *
+ * @param authData - Pre-fetched session data from getSessionAndRole
+ * @returns NextResponse with 403 error if suspended, null otherwise
+ */
+export function guardSuspension(authData: SessionAndRole): NextResponse | null {
+  if (!authData.suspension) return null;
+  return apiSuspendedUser({
+    id: authData.suspension.id,
+    reason: authData.suspension.reason,
+    suspensionType: authData.suspension.suspensionType,
+    startDate: authData.suspension.startDate,
+    endDate: authData.suspension.endDate,
+    isPermanent: authData.suspension.isPermanent,
+  });
+}
+
+/**
  * Convenience guard that returns a 403 NextResponse if the user is suspended.
  * Returns null if not suspended (allowing clean early-return usage at top of routes).
  *

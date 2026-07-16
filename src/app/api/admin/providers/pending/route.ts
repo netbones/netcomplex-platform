@@ -8,6 +8,7 @@ import {
   notDeleted,
   providerVerifications,
   serviceProviders,
+  guardSuspension,
 } from '@api/server';
 import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import {
@@ -28,6 +29,8 @@ export async function GET(request: Request) {
   if (!auth) {
     return apiUnauthorized();
   }
+  const guard = guardSuspension(auth);
+  if (guard) return guard;
 
   const moduleCheck = await assertModuleEnabled('providers');
   if (moduleCheck) return moduleCheck;

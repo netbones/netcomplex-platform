@@ -10,6 +10,7 @@ import {
   getSessionAndRole,
   writeAuditLog,
   rateLimitByUser,
+  guardSuspension,
 } from '@api/server';
 import { withTenant } from '@entities/tenant/server';
 import {
@@ -29,6 +30,8 @@ export async function GET(request: Request) {
   if (!auth) {
     return apiUnauthorized();
   }
+  const guard = guardSuspension(auth);
+  if (guard) return guard;
 
   if (!canManageMode(auth.role)) {
     return apiForbidden('Board or admin access required');

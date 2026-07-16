@@ -1,8 +1,16 @@
 import { NextRequest } from 'next/server';
-import { db, settings, apiSuccess, apiInternalError, apiForbidden } from '@api/server';
+import {
+  db,
+  settings,
+  apiSuccess,
+  apiInternalError,
+  apiForbidden,
+  apiUnauthorized,
+  getSessionAndRole,
+  guardSuspension,
+} from '@api/server';
 import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
-import { getSessionAndRole } from '@api/server';
 import { isAdmin } from '@shared/lib';
 import { getTenantFacilities } from '@entities/booking/server';
 import { createComponentLogger } from '@shared/lib';
@@ -15,7 +23,10 @@ const log = createComponentLogger('admin-bookings-api');
 export async function GET() {
   try {
     const sessionRole = await getSessionAndRole();
-    if (!sessionRole || !isAdmin(sessionRole.role)) return apiForbidden();
+    if (!sessionRole) return apiUnauthorized();
+    const guard = guardSuspension(sessionRole);
+    if (guard) return guard;
+    if (!isAdmin(sessionRole.role)) return apiForbidden();
 
     const { tenantId } = await withTenant();
     const facilities = await getTenantFacilities(tenantId);
@@ -29,7 +40,10 @@ export async function GET() {
 export async function PUT(request: NextRequest) {
   try {
     const sessionRole = await getSessionAndRole();
-    if (!sessionRole || !isAdmin(sessionRole.role)) return apiForbidden();
+    if (!sessionRole) return apiUnauthorized();
+    const guard = guardSuspension(sessionRole);
+    if (guard) return guard;
+    if (!isAdmin(sessionRole.role)) return apiForbidden();
 
     const { tenantId } = await withTenant();
     const body = (await request.json()) as TenantFacility[];

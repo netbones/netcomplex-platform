@@ -3,12 +3,14 @@ import {
   settings,
   apiError,
   apiForbidden,
+  apiUnauthorized,
   apiSuccess,
   writeAuditLog,
   rateLimitByUser,
   withErrorHandler,
   revalidateAdminChanges,
   getSessionAndRole,
+  guardSuspension,
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
@@ -21,10 +23,10 @@ export const maxDuration = 8;
 
 export const GET = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
-
-  if (!authData || !hasPermission(authData.role, 'admin')) {
-    return apiForbidden();
-  }
+  if (!authData) return apiUnauthorized();
+  const guard = guardSuspension(authData);
+  if (guard) return guard;
+  if (!hasPermission(authData.role, 'admin')) return apiForbidden();
 
   const moduleCheck = await assertModuleEnabled('settings');
   if (moduleCheck) return moduleCheck;
@@ -50,10 +52,10 @@ export const GET = withErrorHandler(async (request: Request) => {
 
 export const POST = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
-
-  if (!authData || !hasPermission(authData.role, 'admin')) {
-    return apiForbidden();
-  }
+  if (!authData) return apiUnauthorized();
+  const guard = guardSuspension(authData);
+  if (guard) return guard;
+  if (!hasPermission(authData.role, 'admin')) return apiForbidden();
 
   const moduleCheck = await assertModuleEnabled('settings');
   if (moduleCheck) return moduleCheck;

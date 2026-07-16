@@ -13,6 +13,7 @@ import {
   users,
   withErrorHandler,
   getSessionAndRole,
+  guardSuspension,
 } from '@api/server';
 
 import { eq, and, desc, lte, gte } from 'drizzle-orm';
@@ -69,6 +70,8 @@ export const GET = withErrorHandler(async (request: Request) => {
   if (!authData) {
     return apiUnauthorized();
   }
+  const guard = guardSuspension(authData);
+  if (guard) return guard;
 
   // Enforce tenant isolation
   const { tenantId } = await withTenant();

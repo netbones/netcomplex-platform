@@ -11,6 +11,7 @@ import {
   apiNotFound,
   apiValidationError,
   getSessionAndRole,
+  guardSuspension,
 } from '@api/server';
 import { withTenant } from '@entities/tenant/server';
 import { agentTokens } from '@schema/agent-tokens';
@@ -47,6 +48,8 @@ export async function POST(request: NextRequest) {
 
   const session = await getSessionAndRole(request);
   if (!session) return apiUnauthorized();
+  const guard = guardSuspension(session);
+  if (guard) return guard;
 
   const body = await request.json();
   const parsed = createTokenSchema.safeParse(body);

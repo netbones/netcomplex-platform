@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 import {
   apiError,
+  apiUnauthorized,
   apiInternalError,
   apiNotFound,
   apiSuccess,
@@ -11,6 +12,7 @@ import {
   requireAnyPermission,
   writeAuditLog,
   getSessionAndRole,
+  guardSuspension,
 } from '@api/server';
 import { refundProviderTransaction } from '@shared/api';
 import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
@@ -36,6 +38,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
 
     const auth = await getSessionAndRole(request);
+    if (!auth) return apiUnauthorized();
+    const guard = guardSuspension(auth);
+    if (guard) return guard;
     const parsed = refundRequestSchema.safeParse(await request.json());
     if (!parsed.success) {
       return apiError('VALIDATION_ERROR', 'Validation failed', 400, parsed.error.flatten());

@@ -8,6 +8,7 @@ import {
   withErrorHandler,
   getSessionAndRole,
   now,
+  guardSuspension,
 } from '@api/server';
 
 import { eq, and } from 'drizzle-orm';
@@ -25,6 +26,8 @@ export const POST = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ streamKey: string }> }) => {
     const sessionData = await getSessionAndRole(request);
     if (!sessionData) return apiUnauthorized();
+    const guard = guardSuspension(sessionData);
+    if (guard) return guard;
 
     const { tenantId } = await withTenant();
     const { streamKey } = await params;

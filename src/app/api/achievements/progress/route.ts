@@ -7,6 +7,7 @@ import {
   apiSuccess,
   apiInternalError,
   apiUnauthorized,
+  guardSuspension,
 } from '@api/server';
 import { achievementDefinitions } from '@schema/achievement-definitions';
 import { tenantAchievements } from '@schema/tenant-achievements';
@@ -21,6 +22,8 @@ export async function GET(request: NextRequest) {
   try {
     const sessionRole = await getSessionAndRole();
     if (!sessionRole) return apiUnauthorized();
+    const guard = guardSuspension(sessionRole);
+    if (guard) return guard;
 
     const rls = await requireTenantRLS(request);
     if (!rls.ok) return rls.response;

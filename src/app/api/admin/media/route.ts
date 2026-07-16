@@ -10,6 +10,7 @@ import {
   apiForbidden,
   apiInternalError,
   rateLimitByUser,
+  guardSuspension,
 } from '@api/server';
 import { hasPermission } from '@shared/lib';
 import { withTenant } from '@entities/tenant/server';
@@ -21,6 +22,8 @@ export async function GET() {
   try {
     const authData = await getSessionAndRole();
     if (!authData) return apiUnauthorized();
+    const guard = guardSuspension(authData);
+    if (guard) return guard;
     if (!hasPermission(authData.role, 'admin')) return apiForbidden();
 
     const { tenantId } = await withTenant();

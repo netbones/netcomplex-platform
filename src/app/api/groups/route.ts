@@ -13,6 +13,7 @@ import {
   emitEvent,
   withErrorHandler,
   getSessionAndRole,
+  guardSuspension,
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
@@ -38,6 +39,8 @@ export const GET = withErrorHandler(async (request: Request) => {
   if (!authData) {
     return apiUnauthorized();
   }
+  const guard = guardSuspension(authData);
+  if (guard) return guard;
 
   const canView =
     hasPermission(authData.role, 'groups') ||

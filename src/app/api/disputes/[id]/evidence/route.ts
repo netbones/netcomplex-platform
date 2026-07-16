@@ -18,6 +18,7 @@ import {
   users,
   withErrorHandler,
   getSessionAndRole,
+  guardSuspension,
 } from '@api/server';
 
 import { apiLogger, hasPermission } from '@shared/lib';
@@ -45,6 +46,8 @@ export const POST = withErrorHandler(
     if (!authData) {
       return apiUnauthorized();
     }
+    const guard = guardSuspension(authData);
+    if (guard) return guard;
 
     // Rate limit: 10 uploads per minute per user
     const rateLimit = await rateLimitByUser(authData.userId, {

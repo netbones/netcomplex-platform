@@ -11,6 +11,7 @@ import {
   notDeleted,
   users,
   getSessionAndRole,
+  guardSuspension,
 } from '@api/server';
 
 import { hasPermission, apiLogger } from '@shared/lib';
@@ -40,6 +41,8 @@ export async function GET(request: Request) {
   if (!authData) {
     return apiUnauthorized();
   }
+  const guard = guardSuspension(authData);
+  if (guard) return guard;
 
   const canViewAll = hasPermission(authData.role, 'admin');
 

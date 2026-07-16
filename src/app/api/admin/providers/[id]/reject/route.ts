@@ -12,6 +12,7 @@ import {
   sendEmail,
   serviceProviders,
   writeAuditLog,
+  guardSuspension,
 } from '@api/server';
 import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import {
@@ -32,6 +33,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (!auth) {
     return apiUnauthorized();
   }
+  const guard = guardSuspension(auth);
+  if (guard) return guard;
 
   const moduleCheck = await assertModuleEnabled('providers');
   if (moduleCheck) return moduleCheck;

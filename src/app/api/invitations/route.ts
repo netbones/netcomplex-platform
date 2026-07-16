@@ -12,6 +12,7 @@ import {
   templates,
   tenants,
   users,
+  guardSuspension,
 } from '@api/server';
 
 import { eq, and, desc } from 'drizzle-orm';
@@ -26,6 +27,8 @@ const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL || 'http://localhost:3000';
 export async function GET(request: Request) {
   const authData = await getSessionAndRole(request);
   if (!authData) return apiUnauthorized();
+  const guard = guardSuspension(authData);
+  if (guard) return guard;
 
   const { tenantId } = await withTenant();
   const invitationList = await db

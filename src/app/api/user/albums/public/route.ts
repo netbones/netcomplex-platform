@@ -8,6 +8,7 @@ import {
   getSessionAndRole,
   notDeleted,
   users,
+  guardSuspension,
 } from '@api/server';
 import { eq, desc, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
@@ -19,6 +20,8 @@ export async function GET(request: NextRequest) {
   try {
     const authData = await getSessionAndRole(request);
     if (!authData) return apiUnauthorized();
+    const guard = guardSuspension(authData);
+    if (guard) return guard;
 
     const { tenantId } = await withTenant();
 

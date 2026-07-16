@@ -16,6 +16,7 @@ import {
   users,
   withErrorHandler,
   getSessionAndRole,
+  guardSuspension,
 } from '@api/server';
 import { hasPermission } from '@shared/lib';
 import { eq, and, asc, gte, inArray, sql } from 'drizzle-orm';
@@ -43,6 +44,8 @@ export const GET = withErrorHandler(
     if (!authData) {
       return apiUnauthorized();
     }
+    const guard = guardSuspension(authData);
+    if (guard) return guard;
 
     // Fetch dispute with tenant scoping and soft-delete exclusion
     const [dispute] = await db

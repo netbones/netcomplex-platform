@@ -18,6 +18,7 @@ import {
   notifications,
   emitEvent,
   getSessionAndRole,
+  guardSuspension,
 } from '@api/server';
 
 import { withTenant } from '@entities/tenant/server';
@@ -49,6 +50,8 @@ export const POST = withErrorHandler(
     if (!authData) {
       return apiUnauthorized();
     }
+    const guard = guardSuspension(authData);
+    if (guard) return guard;
 
     const canViewAll = hasPermission(authData.role, 'requests');
     if (!canViewAll) {

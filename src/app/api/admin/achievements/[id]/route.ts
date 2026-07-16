@@ -3,11 +3,13 @@ import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
 import {
   getSessionAndRole,
+  guardSuspension,
   runWithRLS,
   requireTenantRLS,
   apiSuccess,
   apiError,
   apiForbidden,
+  apiUnauthorized,
   apiInternalError,
   writeAuditLog,
   rateLimitByUser,
@@ -30,9 +32,10 @@ const patchBodySchema = z.object({
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const sessionRole = await getSessionAndRole();
-    if (!sessionRole || !hasPermission(sessionRole.role, 'admin')) {
-      return apiForbidden();
-    }
+    if (!sessionRole) return apiUnauthorized();
+    const guard = guardSuspension(sessionRole);
+    if (guard) return guard;
+    if (!hasPermission(sessionRole.role, 'admin')) return apiForbidden();
 
     const rateLimit = await rateLimitByUser(sessionRole.userId, {
       windowMs: 60_000,

@@ -6,6 +6,7 @@ import {
   getSessionAndRole,
   now,
   withErrorHandler,
+  guardSuspension,
 } from '@api/server';
 
 import { eq, and } from 'drizzle-orm';
@@ -18,6 +19,8 @@ export const DELETE = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
     const authData = await getSessionAndRole(request);
     if (!authData) return apiUnauthorized();
+    const guard = guardSuspension(authData);
+    if (guard) return guard;
 
     const { tenantId } = await withTenant();
     const { id } = await params;

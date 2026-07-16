@@ -11,9 +11,11 @@ import {
   apiPaginated,
   apiCreated,
   apiForbidden,
+  apiUnauthorized,
   now,
   withErrorHandler,
   getSessionAndRole,
+  guardSuspension,
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
@@ -190,10 +192,10 @@ export const GET = withErrorHandler(async (request: Request) => {
  */
 export const POST = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
-
-  if (!authData || !hasPermission(authData.role, 'users')) {
-    return apiForbidden();
-  }
+  if (!authData) return apiUnauthorized();
+  const guard = guardSuspension(authData);
+  if (guard) return guard;
+  if (!hasPermission(authData.role, 'users')) return apiForbidden();
 
   const body = await request.json();
   const ts = now();
