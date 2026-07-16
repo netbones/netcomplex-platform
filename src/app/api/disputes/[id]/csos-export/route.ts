@@ -15,6 +15,7 @@ import {
   settings,
   users,
   withErrorHandler,
+  getSessionAndRole,
 } from '@api/server';
 import { hasPermission } from '@shared/lib';
 import { eq, and, asc, gte, inArray, sql } from 'drizzle-orm';
@@ -26,21 +27,6 @@ import { createId } from '@shared/lib/id';
 export const maxDuration = 8;
 
 /** Get session and role from request (inline per plan pattern). */
-async function getSessionAndRole(request: Request) {
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
-  if (!session?.user?.id) {
-    return null;
-  }
-  const userResult = await db.select().from(users).where(eq(users.id, session.user.id)).limit(1);
-  return {
-    session,
-    userId: session.user.id,
-    role: userResult[0]?.role || 'RESIDENT',
-  };
-}
-
 /**
  * GET /api/disputes/[id]/csos-export
  * Returns certified PDF for CSOS Form 2 submission.

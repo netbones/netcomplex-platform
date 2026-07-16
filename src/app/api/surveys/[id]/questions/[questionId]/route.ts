@@ -12,6 +12,7 @@ import {
   apiValidationError,
   now,
   withErrorHandler,
+  getSessionAndRole,
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
@@ -31,29 +32,6 @@ const VALID_QUESTION_TYPES = [
 ] as const;
 
 type QuestionType = (typeof VALID_QUESTION_TYPES)[number];
-
-async function getSessionAndRole(request: Request) {
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
-
-  if (!session?.user?.id) {
-    return null;
-  }
-
-  const user = await db
-    .select({ role: users.role })
-    .from(users)
-    .where(eq(users.id, session.user.id))
-    .limit(1);
-
-  return {
-    session,
-    userId: session.user.id,
-    role: user[0]?.role || 'RESIDENT',
-  };
-}
-
 /**
  * PATCH /api/surveys/[id]/questions/[questionId] - Update question fields.
  * Accepts partial body: text, type, options, required, order, sectionId, config.

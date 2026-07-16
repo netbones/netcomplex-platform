@@ -16,6 +16,7 @@ import {
   revalidateDashboard,
   users,
   withErrorHandler,
+  getSessionAndRole,
 } from '@api/server';
 
 import { eq, and, desc, inArray, sql } from 'drizzle-orm';
@@ -37,25 +38,6 @@ const FANOUT_BATCH = 500;
  * @param request - Incoming HTTP request
  * @returns Session data with user ID and role, or null if not authenticated
  */
-async function getSessionAndRole(request: Request) {
-  let session;
-  try {
-    session = await auth.api.getSession({ headers: request.headers });
-  } catch {
-    return null;
-  }
-
-  if (!session?.user?.id) {
-    return null;
-  }
-
-  return {
-    session,
-    userId: session.user.id,
-    role: (session.user as { role?: string }).role || 'RESIDENT',
-  };
-}
-
 /**
  * GET /api/announcements - List all announcements for the tenant
  * Returns announcements ordered by priority (urgent first) then createdAt descending.

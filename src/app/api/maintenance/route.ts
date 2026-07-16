@@ -11,6 +11,7 @@ import {
   emitEvent,
   notifications,
   residentDelegations,
+  getSessionAndRole,
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
@@ -36,22 +37,6 @@ export const maxDuration = 8;
  * @param request - Incoming HTTP request
  * @returns Session data with user ID and role, or null if not authenticated
  */
-async function getSessionAndRole(request: Request) {
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
-
-  if (!session?.user?.id) {
-    return null;
-  }
-
-  return {
-    session,
-    userId: session.user.id,
-    role: (session.user as { role?: string }).role || 'RESIDENT',
-  };
-}
-
 /**
  * GET /api/maintenance - List maintenance requests
  * Admins see all requests, residents see only their own

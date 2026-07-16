@@ -12,6 +12,7 @@ import {
   apiUnauthorized,
   now,
   withErrorHandler,
+  getSessionAndRole,
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
@@ -21,29 +22,6 @@ import { withTenant } from '@entities/tenant/server';
 import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
-
-async function getSessionAndRole(request: Request) {
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
-
-  if (!session?.user?.id) {
-    return null;
-  }
-
-  const user = await db
-    .select({ role: users.role })
-    .from(users)
-    .where(eq(users.id, session.user.id))
-    .limit(1);
-
-  return {
-    session,
-    userId: session.user.id,
-    role: user[0]?.role || 'RESIDENT',
-  };
-}
-
 /**
  * GET /api/surveys/[id]/sections - List all sections for a survey, ordered by order.
  * Each section includes its nested questions ordered by order.

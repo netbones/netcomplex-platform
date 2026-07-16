@@ -12,6 +12,7 @@ import {
   apiUnauthorized,
   now,
   withErrorHandler,
+  getSessionAndRole,
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
@@ -20,29 +21,6 @@ import { eq, and, asc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 
 export const maxDuration = 8;
-
-async function getSessionAndRole(request: Request) {
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
-
-  if (!session?.user?.id) {
-    return null;
-  }
-
-  const user = await db
-    .select({ role: users.role })
-    .from(users)
-    .where(eq(users.id, session.user.id))
-    .limit(1);
-
-  return {
-    session,
-    userId: session.user.id,
-    role: user[0]?.role || 'RESIDENT',
-  };
-}
-
 /**
  * GET /api/surveys/[id] - Fetch a single survey with nested questions and sections.
  */

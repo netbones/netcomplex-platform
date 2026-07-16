@@ -13,6 +13,7 @@ import {
   now,
   users,
   withErrorHandler,
+  getSessionAndRole,
 } from '@api/server';
 
 import { disputeAssignSchema } from '@entities/dispute';
@@ -26,24 +27,6 @@ export const maxDuration = 8;
 /**
  * Retrieves session and role from the request for API routes.
  */
-async function getSessionAndRole(request: Request) {
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
-
-  if (!session?.user?.id) {
-    return null;
-  }
-
-  const userResult = await db.select().from(users).where(eq(users.id, session.user.id)).limit(1);
-
-  return {
-    session,
-    userId: session.user.id,
-    role: userResult[0]?.role || 'RESIDENT',
-  };
-}
-
 /**
  * POST /api/disputes/[id]/assign — assign moderator.
  * BOARD/ADMIN only. Updates assignedModeratorId and logs ASSIGNED event

@@ -9,6 +9,7 @@ import {
   users,
   tenantAiUsages,
   tenants,
+  getSessionAndRole,
 } from '@api/server';
 import { requirePlatformAdmin, withTenant } from '@entities/tenant/server';
 import { tenantInvoices } from '@schema/tenant-invoices';
@@ -20,21 +21,6 @@ import { getTierQuota } from '@shared/api/ai/pool';
 export const maxDuration = 8;
 
 /** Get session and role from request headers (inline pattern per dispute export route). */
-async function getSessionAndRole(request: NextRequest) {
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
-  if (!session?.user?.id) {
-    return null;
-  }
-  const userResult = await db.select().from(users).where(eq(users.id, session.user.id)).limit(1);
-  return {
-    session,
-    userId: session.user.id,
-    role: userResult[0]?.role || 'RESIDENT',
-  };
-}
-
 /**
  * GET /api/admin/platform/billing/invoices/[id]/pdf
  *

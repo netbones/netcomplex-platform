@@ -9,6 +9,7 @@ import {
   apiNotFound,
   sendEmail,
   withErrorHandler,
+  getSessionAndRole,
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
@@ -20,25 +21,6 @@ import { createLogger } from '@shared/lib';
 export const maxDuration = 8;
 
 const notifyLogger = createLogger('maintenance-notify');
-
-async function getSessionAndRole(request: Request) {
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
-
-  if (!session?.user?.id) {
-    return null;
-  }
-
-  const [userResult] = await db.select().from(users).where(eq(users.id, session.user.id)).limit(1);
-
-  return {
-    session,
-    userId: session.user.id,
-    role: userResult?.role || 'RESIDENT',
-  };
-}
-
 export const POST = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;

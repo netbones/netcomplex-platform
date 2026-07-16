@@ -9,6 +9,7 @@ import {
   apiSuccess,
   apiUnauthorized,
   withErrorHandler,
+  getSessionAndRole,
 } from '@api/server';
 
 import { eq, inArray, and, sql } from 'drizzle-orm';
@@ -25,28 +26,6 @@ export const maxDuration = 8;
  * @param request - Incoming HTTP request
  * @returns Session data with user ID and role, or null if not authenticated
  */
-async function getSessionAndRole(request: Request) {
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
-
-  if (!session?.user?.id) {
-    return null;
-  }
-
-  const [user] = await db
-    .select({ role: users.role })
-    .from(users)
-    .where(eq(users.id, session.user.id))
-    .limit(1);
-
-  return {
-    session,
-    userId: session.user.id,
-    role: user?.role || 'RESIDENT',
-  };
-}
-
 /**
  * Enriches an event list with attendee info and registration status.
  */

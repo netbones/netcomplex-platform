@@ -17,6 +17,7 @@ import {
   maintenanceTeamMembers,
   notifications,
   emitEvent,
+  getSessionAndRole,
 } from '@api/server';
 
 import { withTenant } from '@entities/tenant/server';
@@ -26,30 +27,6 @@ import { eq, and } from 'drizzle-orm';
 import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
-
-async function getSessionAndRole(request: Request) {
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
-
-  if (!session?.user?.id) {
-    return null;
-  }
-
-  const { db: dbInstance, users } = await import('@api/server');
-  const [userResult] = await dbInstance
-    .select()
-    .from(users)
-    .where(eq(users.id, session.user.id))
-    .limit(1);
-
-  return {
-    session,
-    userId: session.user.id,
-    role: userResult?.role || 'RESIDENT',
-  };
-}
-
 /**
  * POST /api/maintenance/[id]/assign - Assign/reassign a maintenance ticket
  * @body teamId - ID of the maintenance team to assign (optional)

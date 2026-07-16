@@ -15,6 +15,7 @@ import {
   rateLimitByUser,
   users,
   withErrorHandler,
+  getSessionAndRole,
 } from '@api/server';
 
 import { createClient } from '@supabase/supabase-js';
@@ -36,24 +37,6 @@ const supabase = createClient(
 /**
  * Retrieves session and role from the request for API routes.
  */
-async function getSessionAndRole(request: Request) {
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
-
-  if (!session?.user?.id) {
-    return null;
-  }
-
-  const userResult = await db.select().from(users).where(eq(users.id, session.user.id)).limit(1);
-
-  return {
-    session,
-    userId: session.user.id,
-    role: userResult[0]?.role || 'RESIDENT',
-  };
-}
-
 /**
  * GET /api/disputes/[id]/messages — list mediation messages with visibility filtering.
  * Parties see only non-internal messages; moderators see all messages.

@@ -13,6 +13,7 @@ import {
   apiGone,
   now,
   withErrorHandler,
+  getSessionAndRole,
 } from '@api/server';
 
 import { eq, desc, and } from 'drizzle-orm';
@@ -26,28 +27,6 @@ export const maxDuration = 8;
 /**
  * Retrieves session and role from the request for API routes.
  */
-async function getSessionAndRole(request: Request) {
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
-
-  if (!session?.user?.id) {
-    return null;
-  }
-
-  const [user] = await db
-    .select({ role: users.role })
-    .from(users)
-    .where(eq(users.id, session.user.id))
-    .limit(1);
-
-  return {
-    session,
-    userId: session.user.id,
-    role: user?.role || 'RESIDENT',
-  };
-}
-
 /**
  * Checks if a user owns any property in the tenant.
  */

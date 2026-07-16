@@ -16,6 +16,7 @@ import {
   rateLimitByUser,
   revalidateConversations,
   users,
+  getSessionAndRole,
 } from '@api/server';
 
 import { createClient } from '@supabase/supabase-js';
@@ -45,29 +46,6 @@ const supabase = createClient(
  * @param request - Incoming HTTP request
  * @returns Session data with user ID and role, or null if not authenticated
  */
-async function getSessionAndRole(request: Request) {
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
-
-  if (!session?.user?.id) {
-    return null;
-  }
-
-  // Using Drizzle for user role lookup
-  const [user] = await db
-    .select({ role: users.role })
-    .from(users)
-    .where(eq(users.id, session.user.id))
-    .limit(1);
-
-  return {
-    session,
-    userId: session.user.id,
-    role: user?.role || 'RESIDENT',
-  };
-}
-
 /**
  * GET /api/messages - Get messages for a conversation
  * @query conversationId - Required conversation ID

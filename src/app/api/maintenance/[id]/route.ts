@@ -16,6 +16,7 @@ import {
   apiNotFound,
   now,
   withErrorHandler,
+  getSessionAndRole,
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
@@ -36,25 +37,6 @@ const VALID_STATUSES = [
   'COMPLETED',
   'CANCELLED',
 ] as const;
-
-async function getSessionAndRole(request: Request) {
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
-
-  if (!session?.user?.id) {
-    return null;
-  }
-
-  const [userResult] = await db.select().from(users).where(eq(users.id, session.user.id)).limit(1);
-
-  return {
-    session,
-    userId: session.user.id,
-    role: userResult?.role || 'RESIDENT',
-  };
-}
-
 /**
  * GET /api/maintenance/[id] - Get a single maintenance request by ID
  * Includes team and provider assignment details.

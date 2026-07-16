@@ -13,6 +13,7 @@ import {
   apiForbidden,
   now,
   withErrorHandler,
+  getSessionAndRole,
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
@@ -30,28 +31,6 @@ export const maxDuration = 8;
  * @param request - Incoming HTTP request
  * @returns Session data with user ID and role, or null if not authenticated
  */
-async function getSessionAndRole(request: Request) {
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
-
-  if (!session?.user?.id) {
-    return null;
-  }
-
-  const userResult = await db
-    .select({ role: users.role })
-    .from(users)
-    .where(eq(users.id, session.user.id))
-    .limit(1);
-
-  return {
-    session,
-    userId: session.user.id,
-    role: userResult[0]?.role || 'RESIDENT',
-  };
-}
-
 /**
  * GET /api/users - List users with optional filters
  */
