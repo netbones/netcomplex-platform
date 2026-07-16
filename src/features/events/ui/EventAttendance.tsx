@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Image from 'next/image';
 import { UserCheck, UserPlus, Loader2, Users } from 'lucide-react';
 
@@ -12,52 +12,48 @@ interface Attendee {
   createdAt: string;
 }
 
+interface AttendanceData {
+  attendees: Attendee[];
+  registered: boolean;
+}
+
 interface EventAttendanceProps {
   eventId: string;
 }
 
+async function fetchAttendance(eventId: string): Promise<AttendanceData> {
+  const res = await fetch(`/api/events/${eventId}/register`);
+  if (!res.ok) return { attendees: [], registered: false };
+  const body = await res.json();
+  const data = body?.data ?? body;
+  return { attendees: data?.attendees ?? [], registered: data?.registered ?? false };
+}
+
 export function EventAttendance({ eventId }: EventAttendanceProps) {
-  const [attendees, setAttendees] = useState<Attendee[]>([]);
-  const [registered, setRegistered] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [toggling, setToggling] = useState(false);
+  const queryClient = useQueryClient();
+  const queryKey = ['events', eventId, 'attendance'];
 
-  async function loadAttendance() {
-    try {
-      const res = await fetch(`/api/events/${eventId}/register`);
-      if (!res.ok) return;
-      const body = await res.json();
-      const data = body?.data ?? body;
-      setAttendees(data?.attendees ?? []);
-      setRegistered(data?.registered ?? false);
-    } catch {
-      /* silent */
-    } finally {
-      setLoading(false);
-    }
-  }
+  const { data, isLoading } = useQuery({
+    queryKey,
+    queryFn: () => fetchAttendance(eventId),
+  });
 
-  useEffect(() => {
-    loadAttendance();
-  }, [eventId]);
+  const toggleMutation = useMutation({
+    mutationFn: async (currentlyRegistered: boolean) => {
+      const method = currentlyRegistered ? 'DELETE' : 'POST';
+      const res = await fetch(`/api/events/${eventId}/register`, { method });
+      if (!res.ok) throw new Error('Failed to toggle registration');
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey });
+    },
+  });
 
-  async function toggleRegistration() {
-    setToggling(true);
-    try {
-      if (registered) {
-        await fetch(`/api/events/${eventId}/register`, { method: 'DELETE' });
-      } else {
-        await fetch(`/api/events/${eventId}/register`, { method: 'POST' });
-      }
-      await loadAttendance();
-    } catch {
-      /* silent */
-    } finally {
-      setToggling(false);
-    }
-  }
+  const attendees = data?.attendees ?? [];
+  const registered = data?.registered ?? false;
+  const toggling = toggleMutation.isPending;
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center py-6">
         <Loader2 className="w-5 h-5 text-indigo-400 animate-spin" />
@@ -76,7 +72,7 @@ export function EventAttendance({ eventId }: EventAttendanceProps) {
         </div>
 
         <button
-          onClick={toggleRegistration}
+          onClick={() => toggleMutation.mutate(registered)}
           disabled={toggling}
           className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg transition ${
             registered

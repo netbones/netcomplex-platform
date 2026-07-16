@@ -25,6 +25,7 @@ interface EventFormProps {
 
 /**
  * Convert Date objects or ISO strings to YYYY-MM-DD format for date inputs.
+ * Uses local timezone methods to avoid UTC date shifts near midnight.
  */
 function formatForDatePicker(value: unknown): string {
   if (!value) return '';
@@ -34,7 +35,11 @@ function formatForDatePicker(value: unknown): string {
       : value instanceof Date
         ? value
         : new Date(String(value));
-  return d.toISOString().slice(0, 10);
+  if (isNaN(d.getTime())) return '';
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
 }
 
 function getInitialDefaultValues(initialData?: EventFormProps['initialData']): AdminEventFormData {
