@@ -114,4 +114,19 @@ export default defineConfig([
       'fsd/forbidden-imports': 'off',
     },
   },
+  {
+    // Intentional no-public-api-sidestep allow-list for TEST files that import
+    // app pages / deep shared paths to render or exercise them. Per the
+    // AGENTS.md sidestep policy (BD soralia-village-jftz). These are not debt
+    // to fix — a test must reach the component/page under test.
+    files: [
+      'src/features/auth/__tests__/auth-forms.test.tsx',
+      'src/features/chat/__tests__/chat.test.tsx',
+      'src/entities/chat/__tests__/chat.test.ts',
+      'src/features/gate/__tests__/feature-gate-client.test.tsx',
+    ],
+    rules: {
+      'fsd/no-public-api-sidestep': 'off',
+    },
+  },
 ]);
