@@ -8,6 +8,8 @@ export * from './api/tenant';
 export * from './model/types';
 export * from './schema';
 export { useTenant, useTenantLoading, useTenantActions, useTenantStore } from './api/context';
+export { useGateContext } from './model/useGateContext';
+export { useGateContextStore } from './model/gate-context-store';
 
 export type {
   CategoryConfig,

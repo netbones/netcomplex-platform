@@ -1,7 +1,6 @@
 'use client';
 
-import { useGateContext } from '@entities/tenant/model/useGateContext';
-import { useGateContextStore } from '@entities/tenant/model/gate-context-store';
+import { useGateContext, useGateContextStore } from '@entities/tenant';
 
 interface ModuleGateWallProps {
   moduleKey: string;

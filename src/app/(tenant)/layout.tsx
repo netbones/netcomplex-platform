@@ -7,8 +7,8 @@ import i18n from '@shared/lib/i18n';
 import { Suspense, useEffect } from 'react';
 import { SpaceChrome } from '@widgets/dashboard';
 import { authClient } from '@api/client';
-// eslint-disable-next-line no-restricted-imports -- client-only store not in barrel
-import { useGateContextStore } from '@entities/tenant/model/gate-context-store';
+
+import { useGateContextStore } from '@entities/tenant';
 
 export default function TenantLayout({ children }: { children: React.ReactNode }) {
   const { data: session } = authClient.useSession();
