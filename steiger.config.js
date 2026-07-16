@@ -19,7 +19,13 @@ export default defineConfig([
     // are 'error' from the start (cheap to fix, no false positives).
     rules: {
       'fsd/no-public-api-sidestep': 'warn',
-      'fsd/forbidden-imports': 'warn',
+      // Promoted to 'error' (2026-07-16): the remaining violations are either
+      // intentional test imports (tests render app pages / call app/api routes)
+      // or by-design shared→entities server/type imports (ADR-024 server-only
+      // barrel pattern). Those are allow-listed below with BD justification.
+      // Any NEW forbidden-import violation now fails CI. Tracked in
+      // soralia-village-jftz.
+      'fsd/forbidden-imports': 'error',
       'fsd/insignificant-slice': 'warn',
       'fsd/public-api': 'warn',
       'fsd/typo-in-layer-name': 'error',
@@ -68,6 +74,34 @@ export default defineConfig([
     // (@features/gate, layer violation). The gate slice is de facto
     // infrastructure, not a normal feature. See soralia-village-1eh.
     files: ['src/shared/ui/Header.tsx', 'src/shared/ui/Footer.tsx'],
+    rules: {
+      'fsd/forbidden-imports': 'off',
+    },
+  },
+  {
+    // Intentional FSD sidesteps for forbidden-imports, allow-listed per the
+    // AGENTS.md sidestep policy (every sidestep MUST carry a BD link).
+    // Umbrella issue: soralia-village-jftz. These are NOT debt to fix — they are
+    // by-design test/infra imports that Steiger cannot distinguish from real
+    // layer inversions.
+    files: [
+      // Tests render app pages / call app/api routes — app import is required.
+      'src/features/auth/__tests__/auth-forms.test.tsx',
+      'src/entities/setup/__tests__/api.test.ts',
+      // Entity tests import sibling feature components to exercise them.
+      'src/entities/marketplace/__tests__/swipe-card.test.tsx',
+      'src/entities/content/__tests__/announcements.test.ts',
+      // shared → entities server/type imports: ADR-024 server-only barrel
+      // pattern (shared/api is infrastructure that consumes entity servers).
+      'src/shared/api/trpc/server.ts',
+      'src/shared/api/ai/provider.ts',
+      'src/shared/api/ai/pool.ts',
+      'src/shared/api/provider-platform.ts',
+      'src/shared/lib/dispute/intake-screen-output.ts',
+      // shared → widgets: dashboard space types/helpers used for access gating.
+      'src/shared/lib/hooks/usePageAccess.ts',
+      'src/shared/ui/MapContent.tsx',
+    ],
     rules: {
       'fsd/forbidden-imports': 'off',
     },
