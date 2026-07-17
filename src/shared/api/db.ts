@@ -260,7 +260,6 @@ const dbSchema = {
 export type DbSchema = typeof dbSchema;
 
 let dbInstance: ReturnType<typeof drizzle> | undefined;
-let authDbInstance: ReturnType<typeof drizzle> | undefined;
 
 function createConnectionString() {
   const pooledUrl = ENV.DATABASE_URL;
@@ -293,17 +292,6 @@ function getDb() {
   return dbInstance;
 }
 
-function getAuthDb() {
-  if (authDbInstance) {
-    return authDbInstance;
-  }
-
-  const pool = new Pool({ connectionString: createConnectionString(), ...POOL_CONFIG });
-  authDbInstance = drizzle(pool, { schema: dbSchema });
-
-  return authDbInstance;
-}
-
 /**
  * Singleton Drizzle client instance.
  * All application queries should use this exported 'db' instance.
@@ -315,13 +303,15 @@ export const db = new Proxy({} as ReturnType<typeof drizzle>, {
 });
 
 /**
- * Separate Drizzle instance for Better Auth.
- * Uses its own pg Pool to avoid concurrent-query deprecation
- * warnings from pg when Auth and app queries share a pool.
+ * Drizzle instance for Better Auth — shares the same underlying pool as `db`.
+ *
+ * Using a single pool keeps total connections under Supavisor's 15-connection
+ * session-mode limit. pg 8.x+ handles concurrent queries on a shared pool
+ * without deprecation warnings (the original reason for a separate pool).
  */
 export const authDb = new Proxy({} as ReturnType<typeof drizzle>, {
   get(_target, prop) {
-    return getAuthDb()[prop as keyof ReturnType<typeof drizzle>];
+    return getDb()[prop as keyof ReturnType<typeof drizzle>];
   },
 });
 

@@ -15,8 +15,8 @@
 
 'use client';
 
-import type { FeatureKey, GateResult } from '@entities/tenant/server';
-import { FEATURE_TO_FLAG, FEATURE_TO_REGISTRY } from '@entities/tenant/server';
+import type { FeatureKey, GateResult } from '@entities/tenant/api/gate/mappings';
+import { FEATURE_TO_FLAG, FEATURE_TO_REGISTRY } from '@entities/tenant/api/gate/mappings';
 import { type PlatformPageFlags } from '@shared/lib';
 import { canAccessPage, hasFeature, type TierLevel } from '@entities/tenant';
 import { ROLE_PERMISSIONS, type Role } from '@shared/lib';
