@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { authClient } from '@api/client';
+import { authClient, trpc } from '@api/client';
 import Image from 'next/image';
 import { ErrorBoundary } from '@shared/ui';
 import { AgentWidget } from './AgentWidget';
@@ -41,11 +41,9 @@ interface PremiumPortfolio {
 
 export function PremiumPortfolioWidget() {
   const { data: session } = authClient.useSession();
-  const { fetch: apiFetch, mutate: apiMutate } = useApiToast({
+  const { mutate: apiMutate } = useApiToast({
     component: 'PremiumPortfolioWidget',
   });
-  const [portfolio, setPortfolio] = useState<PremiumPortfolio | null>(null);
-  const [loading, setLoading] = useState(true);
   const [upgrading, setUpgrading] = useState(false);
   const [activeTab, setActiveTab] = useState<'portfolio' | 'agents' | 'listings'>('portfolio');
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -53,66 +51,43 @@ export function PremiumPortfolioWidget() {
   const { data: premiumData, refetch: refetchListings } = usePremiumListings();
   const listings = premiumData?.listings ?? [];
 
-  useEffect(() => {
-    if (session?.user?.id) {
-      fetchPortfolio();
-    }
-  }, [session?.user?.id]);
+  const utils = trpc.useUtils();
+  const getMyPropertiesQuery = trpc.identity.getMyProperties.useQuery(undefined, { enabled: !!session?.user?.id });
+  const getPortfolioQuery = trpc.marketplace.getPortfolio.useQuery(undefined, {
+    enabled: !!session?.user?.id,
+  });
+  const activateSeatMutation = trpc.marketplace.activatePremiumSeat.useMutation();
 
-  const fetchPortfolio = () => {
-    apiFetch(
-      globalThis
-        .fetch('/api/premium/portfolio')
-        .then(
-          res => res.json() as Promise<{ hasPortfolio: boolean; portfolio?: PremiumPortfolio }>
-        ),
-      {
-        error: 'Failed to fetch portfolio',
-        onSuccess: (data: { hasPortfolio: boolean; portfolio?: PremiumPortfolio }) => {
-          if (data.hasPortfolio) {
-            setPortfolio(data.portfolio || null);
-          }
-        },
-        onError: () => setLoading(false),
-      }
-    );
-  };
+  const loading = getPortfolioQuery.isLoading;
+  const portfolio = getPortfolioQuery.data?.data?.hasPortfolio
+    ? (getPortfolioQuery.data.data.portfolio as unknown as PremiumPortfolio)
+    : null;
 
   const handleUpgradeToPortfolio = () => {
-    // Get all households owned by user
     setUpgrading(true);
 
-    // First get user's households, then create portfolio
-    const getUser = globalThis
-      .fetch(`/api/users/${session?.user?.id}`)
-      .then(res => res.json() as Promise<{ standardSeats?: Array<{ household: { id: string } }> }>);
+    const promise = (async () => {
+      const properties = getMyPropertiesQuery.data?.data ?? [];
+      const householdIds = properties
+        .map(p => p.activeHousehold?.id)
+        .filter((id): id is string => !!id);
+
+      if (householdIds.length < 2) {
+        throw new Error('You need at least 2 properties to create a portfolio');
+      }
+
+      return activateSeatMutation.mutateAsync({ householdIds });
+    })();
 
     apiMutate(
-      getUser.then(userData => {
-        const householdIds =
-          userData.standardSeats?.map((seat: { household: { id: string } }) => seat.household.id) ||
-          [];
-
-        if (householdIds.length < 2) {
-          throw new Error('You need at least 2 properties to create a portfolio');
-        }
-
-        return globalThis
-          .fetch('/api/premium/portfolio', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ householdIds }),
-          })
-          .then(res => res.json() as Promise<{ success: boolean; portfolio?: PremiumPortfolio }>);
-      }),
+      promise,
       {
         loading: 'Creating portfolio...',
         success: 'Successfully upgraded to Premium Seat!',
         error: 'Upgrade failed',
-        onSuccess: (data: { success: boolean; portfolio?: PremiumPortfolio }) => {
-          if (data.success) {
-            setPortfolio(data.portfolio || null);
-          }
+        onSuccess: () => {
+          utils.marketplace.getPortfolio.invalidate();
+          setUpgrading(false);
         },
         onError: () => setUpgrading(false),
       }

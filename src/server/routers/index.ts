@@ -28,6 +28,7 @@ import { dwalletRouter } from './marketplace/dwallet';
 import { agentsRouter } from './marketplace/agents';
 
 import { educationRouter } from './education/education';
+import { adminRouter } from './admin';
 
 export const appRouter = router({
   identity: identityRouter,
@@ -54,6 +55,7 @@ export const appRouter = router({
   dwallet: dwalletRouter,
   agents: agentsRouter,
   education: educationRouter,
+  admin: adminRouter,
 });
 
 export type AppRouter = typeof appRouter;

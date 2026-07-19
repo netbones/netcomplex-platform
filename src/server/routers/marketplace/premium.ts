@@ -9,6 +9,7 @@ import {
   households,
   standardSeats,
   users,
+  profiles,
   now,
   AddressService,
   AddressConflictError,
@@ -18,6 +19,102 @@ import { toEnvelope } from '@api/server';
 import { TRPCError } from '@trpc/server';
 import { and, eq, inArray, desc, sql } from 'drizzle-orm';
 import { createId } from '@shared/lib/id';
+
+async function fetchFullPortfolio(premiumSeatId: string, tenantId: string) {
+  const [seat] = await db
+    .select()
+    .from(premiumSeats)
+    .where(and(eq(premiumSeats.id, premiumSeatId), eq(premiumSeats.tenantId, tenantId)))
+    .limit(1);
+
+  if (!seat) return null;
+
+  const linkedProps = await db
+    .select({
+      id: properties.id,
+      street: properties.street,
+      unit: properties.unit,
+      homeImage: properties.homeImage,
+      platformAddress: properties.platformAddress,
+    })
+    .from(properties)
+    .innerJoin(propertyPremiumSeats, eq(properties.id, propertyPremiumSeats.propertyId))
+    .where(and(
+      eq(propertyPremiumSeats.premiumSeatId, seat.id),
+      eq(propertyPremiumSeats.tenantId, tenantId)
+    ));
+
+  const linkedHouseholds = await Promise.all(
+    linkedProps.map(async (prop) => {
+      const sSeats = await db
+        .select({
+          id: standardSeats.id,
+          user: {
+            id: users.id,
+            name: users.name,
+            email: users.email,
+          }
+        })
+        .from(standardSeats)
+        .innerJoin(users, eq(standardSeats.userId, users.id))
+        .where(and(
+          eq(standardSeats.propertyId, prop.id),
+          eq(standardSeats.tenantId, tenantId)
+        ));
+
+      const propsHouseholds = await db
+        .select({ id: households.id })
+        .from(households)
+        .where(and(
+          eq(households.propertyId, prop.id),
+          eq(households.tenantId, tenantId)
+        ));
+
+      const hIds = propsHouseholds.map(h => h.id);
+      const houseProfiles = hIds.length > 0 ? await db
+        .select({
+          id: profiles.id,
+          displayName: profiles.displayName,
+          householdRole: profiles.householdRole,
+          user: {
+            name: users.name,
+          }
+        })
+        .from(profiles)
+        .leftJoin(users, eq(profiles.userId, users.id))
+        .where(and(
+          inArray(profiles.householdId, hIds),
+          eq(profiles.tenantId, tenantId)
+        )) : [];
+
+      return {
+        id: prop.id,
+        street: prop.street,
+        unit: prop.unit,
+        homeImage: prop.homeImage,
+        platformAddress: prop.platformAddress,
+        status: 'ACTIVE',
+        standardSeats: sSeats.map(s => ({
+          id: s.id,
+          user: {
+            name: s.user.name || '',
+            email: s.user.email || '',
+          }
+        })),
+        profiles: houseProfiles.map(p => ({
+          displayName: p.displayName,
+          householdRole: p.householdRole,
+          user: p.user ? { name: p.user.name || '' } : null,
+        })),
+      };
+    })
+  );
+
+  return {
+    ...seat,
+    linkedHouseholds,
+  };
+}
 
 const CreatePremiumListingInput = z.object({
   propertyId: z.string().min(1),
@@ -169,7 +266,9 @@ export const premiumProcedures = {
         return toEnvelope({ hasPortfolio: false, message: 'No Premium Seat portfolio found' });
       }
 
-      return toEnvelope({ hasPortfolio: true, portfolio: seat });
+      const fullPortfolio = await fetchFullPortfolio(seat.id, tenantId);
+
+      return toEnvelope({ hasPortfolio: true, portfolio: fullPortfolio });
     }),
 
   activatePremiumSeat: tenantProcedure
@@ -292,32 +391,12 @@ export const premiumProcedures = {
           .onConflictDoNothing();
       }
 
-      const [seat] = await db
-        .select()
-        .from(premiumSeats)
-        .where(and(eq(premiumSeats.userId, userId), eq(premiumSeats.tenantId, tenantId)));
-
-      const linkedProperties = await db
-        .select({
-          id: properties.id,
-          street: properties.street,
-          unit: properties.unit,
-          homeImage: properties.homeImage,
-        })
-        .from(properties)
-        .innerJoin(
-          propertyPremiumSeats,
-          and(
-            eq(propertyPremiumSeats.propertyId, properties.id),
-            eq(propertyPremiumSeats.premiumSeatId, premiumSeatId)
-          )
-        )
-        .where(eq(properties.tenantId, tenantId));
+      const fullPortfolio = await fetchFullPortfolio(premiumSeatId, tenantId);
 
       return toEnvelope({
         success: true,
         message: 'Successfully upgraded to Premium Seat with property portfolio',
-        portfolio: seat ? { ...seat, linkedProperties } : null,
+        portfolio: fullPortfolio,
       });
     }),
 };
