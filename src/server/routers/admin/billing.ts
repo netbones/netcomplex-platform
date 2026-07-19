@@ -156,9 +156,9 @@ export const adminBillingRouter = router({
 
     const searchClause = searchFilter
       ? or(
-          like(tenants.name, `%${searchFilter}%`),
-          like(billingPlans.name, `%${searchFilter}%`)
-        )
+        like(tenants.name, `%${searchFilter}%`),
+        like(billingPlans.name, `%${searchFilter}%`)
+      )
       : undefined;
 
     const whereClause =

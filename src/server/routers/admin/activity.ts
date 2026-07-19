@@ -212,9 +212,9 @@ export const adminActivityRouter = router({
     const actors =
       actorIds.length > 0
         ? await db
-            .select({ id: users.id, name: users.name })
-            .from(users)
-            .where(inArray(users.id, actorIds))
+          .select({ id: users.id, name: users.name })
+          .from(users)
+          .where(inArray(users.id, actorIds))
         : [];
     const actorMap = Object.fromEntries(actors.map(a => [a.id, a.name]));
 
