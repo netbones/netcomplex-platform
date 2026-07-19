@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { trpc } from '@api/client';
 
 export interface ProviderVerification {
   providerId: string | null;
@@ -100,56 +100,54 @@ export interface ProviderReputationScoreResponse {
 }
 
 export interface QueryError extends Error {
-  status?: number;
-}
-
-async function fetchApi<T>(url: string): Promise<T> {
-  const response = await fetch(url, {
-    credentials: 'same-origin',
-    cache: 'no-store',
-  });
-
-  const body = await response.json().catch(() => null);
-  if (!response.ok) {
-    const error = new Error(
-      body?.error?.message ?? body?.message ?? `Request failed with status ${response.status}`
-    ) as QueryError;
-    error.status = response.status;
-    throw error;
-  }
-
-  return (body?.data ?? body) as T;
+  data?: { code?: string; httpStatus?: number };
 }
 
 export function useProviderDashboard() {
-  return useQuery<ProviderDashboardData, QueryError>({
-    queryKey: ['providers', 'dashboard'],
-    queryFn: () => fetchApi<ProviderDashboardData>('/api/providers/dashboard'),
+  const query = trpc.providers.getDashboard.useQuery(undefined, {
     staleTime: 60_000,
+    retry: false,
   });
+
+  return {
+    data: query.data?.data as ProviderDashboardData | undefined,
+    isLoading: query.isLoading,
+    error: query.error as QueryError | null,
+  };
 }
 
 export function useProviderAnalytics(period: ProviderAnalyticsData['period'] = '30d') {
-  return useQuery<ProviderAnalyticsData, QueryError>({
-    queryKey: ['providers', 'analytics', period],
-    queryFn: () => fetchApi<ProviderAnalyticsData>(`/api/providers/analytics?period=${period}`),
+  const query = trpc.providers.getAnalytics.useQuery({ period }, {
     staleTime: 60_000,
   });
+
+  return {
+    data: query.data?.data as ProviderAnalyticsData | undefined,
+    isLoading: query.isLoading,
+    error: query.error as QueryError | null,
+  };
 }
 
 export function useProviderVerification() {
-  return useQuery<ProviderVerificationResponse, QueryError>({
-    queryKey: ['providers', 'verification'],
-    queryFn: () => fetchApi<ProviderVerificationResponse>('/api/providers/verification'),
+  const query = trpc.providers.getVerificationStatus.useQuery(undefined, {
     staleTime: 60_000,
   });
+
+  return {
+    data: query.data?.data as ProviderVerificationResponse | undefined,
+    isLoading: query.isLoading,
+    error: query.error as QueryError | null,
+  };
 }
 
 export function useProviderReputationScore() {
-  return useQuery<ProviderReputationScoreResponse, QueryError>({
-    queryKey: ['providers', 'reputation-score'],
-    queryFn: () =>
-      fetchApi<ProviderReputationScoreResponse>('/api/providers/analytics/reputation-score'),
+  const query = trpc.providers.getReputationScore.useQuery(undefined, {
     staleTime: 60_000,
   });
+
+  return {
+    data: query.data?.data as ProviderReputationScoreResponse | undefined,
+    isLoading: query.isLoading,
+    error: query.error as QueryError | null,
+  };
 }

@@ -32,7 +32,7 @@ function ProvidersLayerInner() {
     );
   }
 
-  if (dashboardQuery.error?.status === 404) {
+  if (dashboardQuery.error?.data?.code === 'NOT_FOUND') {
     return (
       <div className="p-6 max-w-5xl mx-auto">
         <EmptyProviderState
@@ -45,7 +45,7 @@ function ProvidersLayerInner() {
     );
   }
 
-  if (dashboardQuery.error?.status === 403) {
+  if (dashboardQuery.error?.data?.code === 'FORBIDDEN') {
     return (
       <div className="p-6 max-w-5xl mx-auto">
         <EmptyProviderState
