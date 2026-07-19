@@ -1,18 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { FileText, ArrowRight, Loader2 } from 'lucide-react';
 import { logError } from '@shared/lib';
-
-interface SurveyItem {
-  id: string;
-  title: string;
-  description: string | null;
-  status: string;
-  questionCount: number;
-  responseCount: number;
-}
+import { trpc } from '@api/client';
 
 const statusBadge: Record<string, string> = {
   ACTIVE: 'bg-green-100 text-green-800',
@@ -21,40 +12,13 @@ const statusBadge: Record<string, string> = {
 };
 
 export function SurveysWidget() {
-  const [surveys, setSurveys] = useState<SurveyItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, isLoading, error, refetch } = trpc.surveys.listSurveys.useQuery(
+    { status: 'ACTIVE' },
+    { staleTime: 60_000 },
+  );
+  const surveys = data?.data ?? [];
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function fetchSurveys() {
-      try {
-        const res = await fetch('/api/surveys?status=ACTIVE');
-        if (!res.ok) throw new Error(`Failed: ${res.status}`);
-        const body = await res.json();
-        if (!cancelled) {
-          setSurveys(body?.data ?? body ?? []);
-        }
-      } catch (err) {
-        logError(
-          { component: 'SurveysWidget', operation: 'fetchActive' },
-          'Failed to fetch surveys',
-          err
-        );
-        if (!cancelled) setError('Failed to load surveys');
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-
-    fetchSurveys();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
         <Loader2 className="w-5 h-5 text-indigo-500 animate-spin" />
@@ -63,30 +27,17 @@ export function SurveysWidget() {
   }
 
   if (error) {
+    logError(
+      { component: 'SurveysWidget', operation: 'fetchActive' },
+      'Failed to fetch surveys',
+      error
+    );
     return (
       <div className="text-center py-6">
         <FileText className="w-8 h-8 text-red-400 mx-auto mb-2" />
-        <p className="text-sm text-gray-500 mb-3">{error}</p>
+        <p className="text-sm text-gray-500 mb-3">Failed to load surveys</p>
         <button
-          onClick={() => {
-            setLoading(true);
-            setError(null);
-            fetch('/api/surveys?status=ACTIVE')
-              .then(res => {
-                if (!res.ok) throw new Error(`Failed: ${res.status}`);
-                return res.json();
-              })
-              .then(body => setSurveys(body?.data ?? body ?? []))
-              .catch(err => {
-                logError(
-                  { component: 'SurveysWidget', operation: 'retryFetch' },
-                  'Failed to retry fetch surveys',
-                  err
-                );
-                setError('Failed to load surveys');
-              })
-              .finally(() => setLoading(false));
-          }}
+          onClick={() => refetch()}
           className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
         >
           Try again

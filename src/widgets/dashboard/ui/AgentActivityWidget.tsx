@@ -1,41 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { AlertCircle, Clock } from 'lucide-react';
-interface AgentActivity {
-  id: string;
-  type: string;
-  description: string;
-  propertyId: string;
-  propertyUnit: string;
-  performedAt: string;
-  agentName: string;
-}
+import { trpc } from '@api/client';
 
 export function AgentActivityWidget() {
   const { t } = useTranslation('dashboard');
-  const [activities, setActivities] = useState<AgentActivity[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchAgentActivity() {
-      try {
-        const res = await fetch('/api/agents/activity');
-        if (!res.ok) throw new Error('Failed to fetch');
-        const body = await res.json();
-        const data = body.success ? body.data : body;
-        setActivities(data.activities || []);
-      } catch {
-        setError('Failed to load activity');
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchAgentActivity();
-  }, []);
+  const { data, isLoading, error } = trpc.agents.getActivity.useQuery(undefined, {
+    staleTime: 60_000,
+  });
+  const activities = data?.data?.activities ?? [];
 
   const getActivityIcon = (type: string) => {
     switch (type) {
@@ -67,7 +42,7 @@ export function AgentActivityWidget() {
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="space-y-3">
         <div className="animate-pulse h-16 bg-gray-100 rounded-lg"></div>
@@ -83,7 +58,7 @@ export function AgentActivityWidget() {
         <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-red-50 flex items-center justify-center">
           <AlertCircle className="text-red-400" />
         </div>
-        <p className="text-red-500 text-sm">{error}</p>
+        <p className="text-red-500 text-sm">{error?.message ?? 'Failed to load activity'}</p>
       </div>
     );
   }

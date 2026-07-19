@@ -1,50 +1,20 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslation } from 'react-i18next';
 
 import { AlertCircle, AlertTriangle, Building2, Key } from 'lucide-react';
-interface ManagedProperty {
-  id: string;
-  street: string;
-  unit: string;
-  platformAddress: string;
-  homeImage: string | null;
-  accessExpiresAt: string;
-  accessLevel: string;
-  grantedBy: {
-    id: string;
-    name: string;
-  };
-  grantedAt: string;
-}
+import { trpc } from '@api/client';
 
 export function AgentDashboardWidget() {
   const { t } = useTranslation('dashboard');
-  const [households, setHouseholds] = useState<ManagedProperty[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, isLoading, error } = trpc.agents.listManagedProperties.useQuery(undefined, {
+    staleTime: 60_000,
+  });
+  const households = data?.data?.properties ?? [];
 
-  useEffect(() => {
-    async function fetchManagedProperties() {
-      try {
-        const res = await fetch('/api/agents/managed-properties');
-        if (!res.ok) throw new Error('Failed to fetch');
-        const body = await res.json();
-        const data = body.success ? body.data : body;
-        setHouseholds(data.properties || []);
-      } catch {
-        setError('Failed to load properties');
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchManagedProperties();
-  }, []);
-
-  const isExpiringSoon = (expiresAt: string) => {
+  const isExpiringSoon = (expiresAt: string | null) => {
     const now = new Date();
     const daysUntilExpiry = Math.ceil(
       (new Date(expiresAt).getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
@@ -52,7 +22,7 @@ export function AgentDashboardWidget() {
     return daysUntilExpiry <= 7;
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="space-y-3">
         <div className="animate-pulse h-20 bg-gray-100 rounded-lg"></div>
@@ -67,7 +37,7 @@ export function AgentDashboardWidget() {
         <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-red-50 flex items-center justify-center">
           <AlertCircle className="text-red-400" />
         </div>
-        <p className="text-red-500 text-sm">{error}</p>
+        <p className="text-red-500 text-sm">{error?.message ?? 'Failed to load properties'}</p>
       </div>
     );
   }

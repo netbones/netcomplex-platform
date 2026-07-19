@@ -1,22 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Trophy, ArrowRight, Loader2, Users } from 'lucide-react';
+import { Trophy, ArrowRight, Users, Loader2 } from 'lucide-react';
 import { logError } from '@shared/lib';
-
-interface CompetitionItem {
-  id: string;
-  title: string;
-  description: string | null;
-  prizeInfo: string | null;
-  type: string;
-  status: string;
-  startDate: string;
-  endDate: string;
-  entryCount: number;
-  image: string | null;
-}
+import { trpc } from '@api/client';
 
 const typeBadge: Record<string, string> = {
   RAFFLE: 'bg-purple-100 text-purple-800',
@@ -41,40 +28,13 @@ function timeLeft(endDate: string): string {
 }
 
 export function CompetitionsWidget() {
-  const [competitions, setCompetitions] = useState<CompetitionItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, isLoading, error, refetch } = trpc.competitions.listPublicCompetitions.useQuery(
+    undefined,
+    { staleTime: 60_000 },
+  );
+  const competitions = data?.data ?? [];
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function fetchCompetitions() {
-      try {
-        const res = await fetch('/api/competitions?status=ACTIVE');
-        if (!res.ok) throw new Error(`Failed: ${res.status}`);
-        const body = await res.json();
-        if (!cancelled) {
-          setCompetitions(body?.data ?? body ?? []);
-        }
-      } catch (err) {
-        logError(
-          { component: 'CompetitionsWidget', operation: 'fetchActive' },
-          'Failed to fetch competitions',
-          err
-        );
-        if (!cancelled) setError('Failed to load competitions');
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-
-    fetchCompetitions();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
         <Loader2 className="w-5 h-5 text-indigo-500 animate-spin" />
@@ -83,30 +43,17 @@ export function CompetitionsWidget() {
   }
 
   if (error) {
+    logError(
+      { component: 'CompetitionsWidget', operation: 'fetchActive' },
+      'Failed to fetch competitions',
+      error
+    );
     return (
       <div className="text-center py-6">
         <Trophy className="w-8 h-8 text-red-400 mx-auto mb-2" />
-        <p className="text-sm text-gray-500 mb-3">{error}</p>
+        <p className="text-sm text-gray-500 mb-3">Failed to load competitions</p>
         <button
-          onClick={() => {
-            setLoading(true);
-            setError(null);
-            fetch('/api/competitions?status=ACTIVE')
-              .then(res => {
-                if (!res.ok) throw new Error(`Failed: ${res.status}`);
-                return res.json();
-              })
-              .then(body => setCompetitions(body?.data ?? body ?? []))
-              .catch(err => {
-                logError(
-                  { component: 'CompetitionsWidget', operation: 'retryFetch' },
-                  'Failed to retry fetch competitions',
-                  err
-                );
-                setError('Failed to load competitions');
-              })
-              .finally(() => setLoading(false));
-          }}
+          onClick={() => refetch()}
           className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
         >
           Try again
