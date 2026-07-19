@@ -16,7 +16,8 @@ export function SurveysWidget() {
     { status: 'ACTIVE' },
     { staleTime: 60_000 },
   );
-  const surveys = data?.data ?? [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const surveys: any[] = data?.data ?? [];
 
   if (isLoading) {
     return (

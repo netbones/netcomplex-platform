@@ -15,9 +15,10 @@ export function AgentDashboardWidget() {
   const households = data?.data?.properties ?? [];
 
   const isExpiringSoon = (expiresAt: string | null) => {
-    const now = new Date();
+    if (!expiresAt) return false;
+    const now = Date.now();
     const daysUntilExpiry = Math.ceil(
-      (new Date(expiresAt).getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+      (new Date(expiresAt as string).getTime() - now) / (1000 * 60 * 60 * 24)
     );
     return daysUntilExpiry <= 7;
   };

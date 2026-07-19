@@ -10,7 +10,8 @@ export function AgentActivityWidget() {
   const { data, isLoading, error } = trpc.agents.getActivity.useQuery(undefined, {
     staleTime: 60_000,
   });
-  const activities = data?.data?.activities ?? [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const activities: any[] = (data?.data as any)?.activities ?? [];
 
   const getActivityIcon = (type: string) => {
     switch (type) {
