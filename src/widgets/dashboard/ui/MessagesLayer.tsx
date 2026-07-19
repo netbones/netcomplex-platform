@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSafeTranslation } from '@shared/lib';
+import { trpc } from '@api/client';
 import { MessagesCommandBar, type MessagesCommandBarUrgency } from './MessagesCommandBar';
 import { MESSAGES_DOMAIN_DEFINITIONS, type MessagesDomainDef } from './MessagesSubLauncher';
 
@@ -102,33 +102,13 @@ function MessagesLayerError({ onRetry }: { onRetry: () => void }) {
 // ═══════════════════════════════════════════════════════════════
 
 export function MessagesLayer() {
-  const [urgency, setUrgency] = useState<UrgencyResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
-  const fetchUrgency = useCallback(async () => {
-    setLoading(true);
-    setError(false);
-    try {
-      const res = await fetch('/api/messages/urgency');
-      if (!res.ok) throw new Error('Failed');
-      const body = await res.json();
-      // Unwrap canonical apiSuccess envelope
-      const data = body.success ? body.data : body;
-      setUrgency(data as UrgencyResponse);
-      setLoading(false);
-    } catch {
-      setError(true);
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchUrgency();
-  }, [fetchUrgency]);
+  const { data: urgency, isLoading: loading, error, refetch } = trpc.chat.getMessageUrgency.useQuery(
+    undefined,
+    { staleTime: 60_000 },
+  );
 
   if (error) {
-    return <MessagesLayerError onRetry={fetchUrgency} />;
+    return <MessagesLayerError onRetry={() => refetch()} />;
   }
 
   if (loading || !urgency) {

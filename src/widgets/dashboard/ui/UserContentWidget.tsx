@@ -1,12 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
-import { authClient } from '@api/client';
+import { authClient, trpc } from '@api/client';
 import { sanitizeHtml } from '@/shared/lib/sanitize';
 import { ErrorBoundary, TagCloud } from '@shared/ui';
-import { useApiToast } from '@shared/lib/hooks';
 
 interface ContentItem {
   id: string;
@@ -32,27 +30,13 @@ interface ContentItem {
 export function UserContentWidget() {
   const { t, i18n } = useTranslation('dashboard');
   const { data: session } = authClient.useSession();
-  const { fetch: apiFetch } = useApiToast({ component: 'UserContentWidget' });
-  const [content, setContent] = useState<ContentItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading } = trpc.content.listContent.useQuery(
+    { authorId: session?.user?.id, locale: i18n.language },
+    { staleTime: 60_000, enabled: !!session?.user?.id },
+  );
+  const content = (data?.data ?? []) as ContentItem[];
 
-  useEffect(() => {
-    if (!session?.user?.id) return;
-
-    apiFetch(
-      globalThis
-        .fetch(`/api/content?authorId=${session.user.id}&locale=${i18n.language}`)
-        .then(res => res.json())
-        .then(body => (body?.data ?? []) as ContentItem[]),
-      {
-        error: 'Failed to fetch user content',
-        onSuccess: (data: ContentItem[] | unknown) => setContent(Array.isArray(data) ? data : []),
-        onError: () => setLoading(false),
-      }
-    );
-  }, [session?.user?.id, i18n.language]);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <ErrorBoundary>
         <div className="text-center py-4">
