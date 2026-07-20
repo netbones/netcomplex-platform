@@ -1,10 +1,11 @@
 import { z } from 'zod';
 import { adminProcedure, db, router, toEnvelope } from '@api/server';
+import { tenantInvoices } from '@schema/tenant-invoices';
 import { tenantPayments } from '@schema/tenant-payments';
 import { tenantSubscriptions } from '@schema/tenant-subscriptions';
 import { billingPlans } from '@schema/billing-plans';
 import { tenants } from '@schema/tenants';
-import { eq, and, isNull, desc, like, or } from 'drizzle-orm';
+import { eq, and, isNull, desc, like, lt, or } from 'drizzle-orm';
 
 // ── Input schemas ────────────────────────────────────────────────
 
@@ -12,6 +13,16 @@ const ListSubscriptionsInput = z
   .object({
     status: z.string().optional(),
     search: z.string().optional(),
+  })
+  .optional();
+
+const ListInvoicesInput = z
+  .object({
+    tenantId: z.string().optional(),
+    subscriptionId: z.string().optional(),
+    status: z.enum(['PENDING', 'PAID', 'VOID']).optional(),
+    cursor: z.string().optional(),
+    limit: z.number().min(1).max(100).default(20),
   })
   .optional();
 
@@ -139,7 +150,8 @@ export const adminBillingRouter = router({
    * Replaces AdminSubscriptionsWidget → /api/admin/platform/billing/subscriptions
    */
   listSubscriptions: adminProcedure.input(ListSubscriptionsInput).query(async ({ input }) => {
-    const statusFilter = input?.status && input.status !== 'All' ? input.status.toUpperCase() : undefined;
+    const statusFilter =
+      input?.status && input.status !== 'All' ? input.status.toUpperCase() : undefined;
     const searchFilter = input?.search || undefined;
 
     const validStatuses = ['ACTIVE', 'PENDING', 'CANCELLED', 'EXPIRED', 'TRIALING', 'PAST_DUE'];
@@ -155,10 +167,7 @@ export const adminBillingRouter = router({
     }
 
     const searchClause = searchFilter
-      ? or(
-        like(tenants.name, `%${searchFilter}%`),
-        like(billingPlans.name, `%${searchFilter}%`)
-      )
+      ? or(like(tenants.name, `%${searchFilter}%`), like(billingPlans.name, `%${searchFilter}%`))
       : undefined;
 
     const whereClause =
@@ -188,6 +197,61 @@ export const adminBillingRouter = router({
     const rows = whereClause
       ? await qb.where(whereClause).orderBy(desc(tenantSubscriptions.createdAt))
       : await qb.orderBy(desc(tenantSubscriptions.createdAt));
+
+    return toEnvelope(rows);
+  }),
+
+  /**
+   * List invoices with optional filters: tenantId, subscriptionId, status, cursor-based pagination.
+   * Replaces → /api/admin/platform/billing/invoices
+   */
+  listInvoices: adminProcedure.input(ListInvoicesInput).query(async ({ input }) => {
+    const filters: ReturnType<typeof eq>[] = [];
+
+    if (input?.tenantId) {
+      filters.push(eq(tenantInvoices.tenantId, input.tenantId));
+    }
+    if (input?.subscriptionId) {
+      filters.push(eq(tenantInvoices.subscriptionId, input.subscriptionId));
+    }
+    if (input?.status) {
+      filters.push(eq(tenantInvoices.status, input.status));
+    }
+    if (input?.cursor) {
+      filters.push(lt(tenantInvoices.id, input.cursor));
+    }
+
+    const whereClause = filters.length > 0 ? and(...filters) : undefined;
+    const limit = input?.limit ?? 20;
+
+    const rows = await db
+      .select({
+        id: tenantInvoices.id,
+        tenantId: tenantInvoices.tenantId,
+        subscriptionId: tenantInvoices.subscriptionId,
+        transactionId: tenantInvoices.transactionId,
+        invoiceNumber: tenantInvoices.invoiceNumber,
+        items: tenantInvoices.items,
+        subtotal: tenantInvoices.subtotal,
+        taxAmount: tenantInvoices.taxAmount,
+        total: tenantInvoices.total,
+        currency: tenantInvoices.currency,
+        status: tenantInvoices.status,
+        paidAt: tenantInvoices.paidAt,
+        pdfUrl: tenantInvoices.pdfUrl,
+        downloadReady: tenantInvoices.downloadReady,
+        createdAt: tenantInvoices.createdAt,
+        updatedAt: tenantInvoices.updatedAt,
+        tenantName: tenants.name,
+        subscriptionPlanName: billingPlans.name,
+      })
+      .from(tenantInvoices)
+      .leftJoin(tenants, eq(tenantInvoices.tenantId, tenants.id))
+      .leftJoin(tenantSubscriptions, eq(tenantInvoices.subscriptionId, tenantSubscriptions.id))
+      .leftJoin(billingPlans, eq(tenantSubscriptions.planId, billingPlans.id))
+      .where(whereClause)
+      .orderBy(desc(tenantInvoices.createdAt))
+      .limit(limit);
 
     return toEnvelope(rows);
   }),

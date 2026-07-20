@@ -10,6 +10,9 @@ import { eq, desc, and, lt } from 'drizzle-orm';
 
 export const maxDuration = 8;
 
+/**
+ * @deprecated Use trpc.admin.billing.listInvoices instead.
+ */
 export async function GET(request: NextRequest) {
   const guard = await requirePlatformAdmin(request);
   if (guard) return guard;
