@@ -106,13 +106,26 @@ Replace active count effect with `trpc.disputes.listDisputes.useQuery({ status: 
 
 ---
 
-### D — `HomeLayer` (deferred / Phase 3 candidate) ⏸
+### D — `HomeLayer` ✅ DONE
 
-`HomeLayer` uses `Promise.all` with 10+ fetches. Deferred to Phase 3.
+Already migrated (commit `1f112708`). Uses `utils.client.*.query()` via tRPC imperative calls in `Promise.all`.
 
 ---
 
-### E — API Deprecation Tags (Phase 4 prep) ❌ PENDING
+### E — API Deprecation Tags ✅ DONE
+
+Added `@deprecated Use trpc.CATEGORY.PROCEDURE instead.` JSDoc tags to ~160 REST handlers across ~80 route files covering every domain with a clear tRPC equivalent:
+
+| Domain                                                                                     | Files | Handlers tagged |
+| ------------------------------------------------------------------------------------------ | :---: | :-------------: |
+| Community (events, competitions, groups)                                                   |   5   |       11        |
+| Chat (conversations, messages, urgency)                                                    |   6   |        8        |
+| Operations (bookings, maintenance, surveys)                                                |  21   |       34        |
+| Marketplace (listings, inquiries, reviews, premium)                                        |  11   |       23        |
+| Content, identity, settings                                                                |  22   |       37        |
+| Admin, bookings, competitions, disputes, events, achievements, providers, payments, tenant |  29   |       ~45       |
+
+REST-only handlers (auth proxy, file upload, AI pool, billing invoices, etc.) left untouched.
 
 ---
 
@@ -129,8 +142,8 @@ Replace active count effect with `trpc.disputes.listDisputes.useQuery({ status: 
 9. ✅ ~~Admin widgets (Activity, Revenue, BillingOverview, Subscriptions)~~ — migrated
 10. ✅ ~~MyHomeSpace~~ — added identity procedures, migrated
 11. ✅ ~~MyDisputesWidget + disputes multi-status schema~~ — migrated
-12. ⏸ HomeLayer (Phase 3)
-13. ❌ API deprecation sweep (Phase 4)
+12. ✅ ~~HomeLayer~~ — already migrated (commit 1f112708)
+13. ✅ ~~API deprecation sweep (Phase 4)~~ — ~160 handlers tagged across ~80 files, 6 subtasks in BD epic `soralia-village-hiu2`
 
 ---
 
