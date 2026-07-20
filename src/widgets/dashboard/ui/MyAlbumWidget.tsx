@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { authClient } from '@api/client';
+import { authClient, trpc } from '@api/client';
 import Image from 'next/image';
 import { ErrorBoundary } from '@shared/ui';
 import { useApiToast } from '@shared/lib/hooks';
@@ -30,6 +30,7 @@ export function MyAlbumWidget() {
   const { t } = useTranslation('dashboard');
   const { data: session } = authClient.useSession();
   const { fetch: apiFetch, mutate: apiMutate } = useApiToast({ component: 'MyAlbumWidget' });
+  const utils = trpc.useUtils();
   const [albums, setAlbums] = useState<AlbumItem[]>([]);
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,26 +47,24 @@ export function MyAlbumWidget() {
   }, [session?.user?.id]);
 
   const fetchAlbums = () => {
-    apiFetch(
-      globalThis
-        .fetch('/api/user/albums')
-        .then(res => res.json() as Promise<{ albums?: AlbumItem[] }>),
-      {
-        error: 'Failed to fetch albums',
-        onSuccess: (data: { albums?: AlbumItem[] }) => setAlbums(data.albums || []),
-      }
-    );
+    apiFetch(utils.client.identity.listAlbums.query(), {
+      error: 'Failed to fetch albums',
+      onSuccess: (data: { albums?: AlbumItem[] }) => {
+        setAlbums(data.albums || []);
+        setLoading(false);
+      },
+    });
   };
 
   const fetchMediaItems = () => {
-    apiFetch(
-      globalThis.fetch('/api/media').then(res => res.json() as Promise<{ images?: MediaItem[] }>),
-      {
-        error: 'Failed to fetch media items',
-        onSuccess: (data: { images?: MediaItem[] }) => setMediaItems(data.images || []),
-        onError: () => setLoading(false),
-      }
-    );
+    apiFetch(utils.client.media.listMedia.query(), {
+      error: 'Failed to fetch media items',
+      onSuccess: (data: { images?: MediaItem[] }) => {
+        setMediaItems(data.images || []);
+        setLoading(false);
+      },
+      onError: () => setLoading(false),
+    });
   };
 
   const handleCreateAlbum = () => {
@@ -73,21 +72,12 @@ export function MyAlbumWidget() {
 
     setSaving(true);
     apiMutate(
-      globalThis
-        .fetch('/api/user/albums', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'create',
-            album: {
-              title: newAlbum.title.trim(),
-              description: newAlbum.description.trim(),
-              isPublic: newAlbum.isPublic,
-              mediaIds: [],
-            },
-          }),
-        })
-        .then(res => res.json() as Promise<{ albums?: AlbumItem[] }>),
+      utils.client.identity.createAlbum.mutate({
+        title: newAlbum.title.trim(),
+        description: newAlbum.description.trim(),
+        isPublic: newAlbum.isPublic,
+        mediaIds: [],
+      }),
       {
         loading: 'Creating album...',
         success: 'Album created!',
@@ -105,39 +95,30 @@ export function MyAlbumWidget() {
     if (!confirm('Delete this album?')) return;
 
     setSaving(true);
-    apiMutate(
-      globalThis
-        .fetch('/api/user/albums', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'delete', albumId }),
-        })
-        .then(res => res.json() as Promise<{ albums?: AlbumItem[] }>),
-      {
-        loading: 'Deleting album...',
-        success: 'Album deleted!',
-        error: 'Failed to delete album',
-        onSuccess: (data: { albums?: AlbumItem[] }) => {
-          setAlbums(data.albums || []);
-          if (selectedAlbum?.id === albumId) {
-            setSelectedAlbum(null);
-          }
-        },
-        onError: () => setSaving(false),
-      }
-    );
+    apiMutate(utils.client.identity.deleteAlbum.mutate({ id: albumId }), {
+      loading: 'Deleting album...',
+      success: 'Album deleted!',
+      error: 'Failed to delete album',
+      onSuccess: (data: { albums?: AlbumItem[] }) => {
+        setAlbums(data.albums || []);
+        if (selectedAlbum?.id === albumId) {
+          setSelectedAlbum(null);
+        }
+      },
+      onError: () => setSaving(false),
+    });
   };
 
   const handleUpdateAlbum = (album: AlbumItem) => {
     setSaving(true);
     apiMutate(
-      globalThis
-        .fetch('/api/user/albums', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'update', album }),
-        })
-        .then(res => res.json() as Promise<{ albums?: AlbumItem[] }>),
+      utils.client.identity.updateAlbum.mutate({
+        id: album.id,
+        title: album.title,
+        description: album.description,
+        isPublic: !album.isPublic,
+        mediaIds: album.mediaIds,
+      }),
       {
         loading: 'Updating album...',
         success: 'Album updated!',

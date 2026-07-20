@@ -8,6 +8,7 @@ import { settingsRouter } from './core/settings';
 import { platformRouter } from './core/platform';
 import { contentRouter } from './core/content';
 import { resourcesRouter } from './core/resources';
+import { mediaRouter } from './core/media';
 
 import { eventsRouter } from './community/events';
 import { groupsRouter } from './community/groups';
@@ -39,6 +40,7 @@ export const appRouter = router({
   platform: platformRouter,
   content: contentRouter,
   resources: resourcesRouter,
+  media: mediaRouter,
   events: eventsRouter,
   groups: groupsRouter,
   competitions: competitionsRouter,
