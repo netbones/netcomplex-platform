@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { authClient } from '@api/client';
 import { ErrorBoundary } from '@shared/ui';
+import { Mail } from 'lucide-react';
 import { useApiToast } from '@shared/lib/hooks';
 
 interface ServiceInquiry {

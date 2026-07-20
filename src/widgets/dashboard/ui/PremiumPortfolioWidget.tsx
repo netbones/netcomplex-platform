@@ -52,16 +52,19 @@ export function PremiumPortfolioWidget() {
   const listings = premiumData?.listings ?? [];
 
   const utils = trpc.useUtils();
-  const getMyPropertiesQuery = trpc.identity.getMyProperties.useQuery(undefined, { enabled: !!session?.user?.id });
+  const getMyPropertiesQuery = trpc.identity.getMyProperties.useQuery(undefined, {
+    enabled: !!session?.user?.id,
+  });
   const getPortfolioQuery = trpc.marketplace.getPortfolio.useQuery(undefined, {
     enabled: !!session?.user?.id,
   });
   const activateSeatMutation = trpc.marketplace.activatePremiumSeat.useMutation();
 
   const loading = getPortfolioQuery.isLoading;
-  const portfolio = getPortfolioQuery.data?.data?.hasPortfolio
-    ? (getPortfolioQuery.data.data.portfolio as unknown as PremiumPortfolio)
-    : null;
+  const portfolio =
+    getPortfolioQuery.data?.data && 'portfolio' in getPortfolioQuery.data.data
+      ? (getPortfolioQuery.data.data as unknown as { portfolio: PremiumPortfolio }).portfolio
+      : null;
 
   const handleUpgradeToPortfolio = () => {
     setUpgrading(true);
@@ -79,19 +82,16 @@ export function PremiumPortfolioWidget() {
       return activateSeatMutation.mutateAsync({ householdIds });
     })();
 
-    apiMutate(
-      promise,
-      {
-        loading: 'Creating portfolio...',
-        success: 'Successfully upgraded to Premium Seat!',
-        error: 'Upgrade failed',
-        onSuccess: () => {
-          utils.marketplace.getPortfolio.invalidate();
-          setUpgrading(false);
-        },
-        onError: () => setUpgrading(false),
-      }
-    );
+    apiMutate(promise, {
+      loading: 'Creating portfolio...',
+      success: 'Successfully upgraded to Premium Seat!',
+      error: 'Upgrade failed',
+      onSuccess: () => {
+        utils.marketplace.getPortfolio.invalidate();
+        setUpgrading(false);
+      },
+      onError: () => setUpgrading(false),
+    });
   };
 
   const handleListingCreated = () => {
@@ -373,14 +373,19 @@ export function PremiumPortfolioWidget() {
                         </span>
                       )}
                       <span>
-                        {listing.household.street} {listing.household.unit}
+                        {listing.street} {listing.unit}
                       </span>
                     </div>
 
-                    {listing.assignedAgent && (
+                    {(listing as unknown as { assignedAgent: { name: string } | null })
+                      .assignedAgent && (
                       <div className="text-sm text-gray-600 mb-3">
                         <UserCircle className="mr-1" />
-                        Agent: {listing.assignedAgent.name}
+                        Agent:{' '}
+                        {
+                          (listing as unknown as { assignedAgent: { name: string } | null })
+                            .assignedAgent!.name
+                        }
                       </div>
                     )}
 

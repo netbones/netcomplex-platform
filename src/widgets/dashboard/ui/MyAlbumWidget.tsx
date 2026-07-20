@@ -47,17 +47,20 @@ export function MyAlbumWidget() {
   }, [session?.user?.id]);
 
   const fetchAlbums = () => {
-    apiFetch(utils.client.identity.listAlbums.query(), {
-      error: 'Failed to fetch albums',
-      onSuccess: (data: { albums?: AlbumItem[] }) => {
-        setAlbums(data.albums || []);
-        setLoading(false);
-      },
-    });
+    apiFetch(
+      utils.client.identity.listAlbums.query() as unknown as Promise<{ albums?: AlbumItem[] }>,
+      {
+        error: 'Failed to fetch albums',
+        onSuccess: (data: { albums?: AlbumItem[] }) => {
+          setAlbums(data.albums || []);
+          setLoading(false);
+        },
+      }
+    );
   };
 
   const fetchMediaItems = () => {
-    apiFetch(utils.client.media.listMedia.query(), {
+    apiFetch(utils.client.media.listMedia.query() as unknown as Promise<{ images?: MediaItem[] }>, {
       error: 'Failed to fetch media items',
       onSuccess: (data: { images?: MediaItem[] }) => {
         setMediaItems(data.images || []);
@@ -77,7 +80,7 @@ export function MyAlbumWidget() {
         description: newAlbum.description.trim(),
         isPublic: newAlbum.isPublic,
         mediaIds: [],
-      }),
+      }) as unknown as Promise<{ albums?: AlbumItem[] }>,
       {
         loading: 'Creating album...',
         success: 'Album created!',
@@ -95,18 +98,23 @@ export function MyAlbumWidget() {
     if (!confirm('Delete this album?')) return;
 
     setSaving(true);
-    apiMutate(utils.client.identity.deleteAlbum.mutate({ id: albumId }), {
-      loading: 'Deleting album...',
-      success: 'Album deleted!',
-      error: 'Failed to delete album',
-      onSuccess: (data: { albums?: AlbumItem[] }) => {
-        setAlbums(data.albums || []);
-        if (selectedAlbum?.id === albumId) {
-          setSelectedAlbum(null);
-        }
-      },
-      onError: () => setSaving(false),
-    });
+    apiMutate(
+      utils.client.identity.deleteAlbum.mutate({ id: albumId }) as unknown as Promise<{
+        albums?: AlbumItem[];
+      }>,
+      {
+        loading: 'Deleting album...',
+        success: 'Album deleted!',
+        error: 'Failed to delete album',
+        onSuccess: (data: { albums?: AlbumItem[] }) => {
+          setAlbums(data.albums || []);
+          if (selectedAlbum?.id === albumId) {
+            setSelectedAlbum(null);
+          }
+        },
+        onError: () => setSaving(false),
+      }
+    );
   };
 
   const handleUpdateAlbum = (album: AlbumItem) => {
@@ -118,7 +126,7 @@ export function MyAlbumWidget() {
         description: album.description,
         isPublic: !album.isPublic,
         mediaIds: album.mediaIds,
-      }),
+      }) as unknown as Promise<{ albums?: AlbumItem[] }>,
       {
         loading: 'Updating album...',
         success: 'Album updated!',

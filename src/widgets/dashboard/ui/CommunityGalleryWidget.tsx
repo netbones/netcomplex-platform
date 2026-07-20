@@ -26,7 +26,7 @@ export function CommunityGalleryWidget() {
   useEffect(() => {
     utils.client.identity.listPublicAlbums
       .query()
-      .then(d => setAlbums((d as { albums: PublicAlbum[] })?.albums || []))
+      .then(d => setAlbums((d as unknown as { albums: PublicAlbum[] })?.albums || []))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
@@ -148,9 +148,9 @@ function AlbumMediaThumbnail({ mediaId }: { mediaId: string }) {
     utils.client.media.listMedia
       .query()
       .then(d => {
-        const item = ((d as { images: Array<{ key: string; url: string }> })?.images || []).find(
-          (img: { key: string }) => img.key === mediaId
-        );
+        const item = (
+          (d as unknown as { images: Array<{ key: string; url: string }> })?.images || []
+        ).find((img: { key: string }) => img.key === mediaId);
         if (item) setUrl(item.url);
       })
       .catch(() => {});

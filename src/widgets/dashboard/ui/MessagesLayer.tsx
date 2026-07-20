@@ -5,7 +5,11 @@ import Image from 'next/image';
 import { useSafeTranslation } from '@shared/lib';
 import { trpc } from '@api/client';
 import { MessagesCommandBar, type MessagesCommandBarUrgency } from './MessagesCommandBar';
-import { MESSAGES_DOMAIN_DEFINITIONS, type MessagesDomainDef } from './MessagesSubLauncher';
+import {
+  MESSAGES_DOMAIN_DEFINITIONS,
+  type MessagesDomainDef,
+  type MessagesDomainId,
+} from './MessagesSubLauncher';
 
 const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.conversations': 'Conversations',
@@ -102,10 +106,12 @@ function MessagesLayerError({ onRetry }: { onRetry: () => void }) {
 // ═══════════════════════════════════════════════════════════════
 
 export function MessagesLayer() {
-  const { data: urgency, isLoading: loading, error, refetch } = trpc.chat.getMessageUrgency.useQuery(
-    undefined,
-    { staleTime: 60_000 },
-  );
+  const {
+    data: urgency,
+    isLoading: loading,
+    error,
+    refetch,
+  } = trpc.chat.getMessageUrgency.useQuery(undefined, { staleTime: 60_000 });
 
   if (error) {
     return <MessagesLayerError onRetry={() => refetch()} />;

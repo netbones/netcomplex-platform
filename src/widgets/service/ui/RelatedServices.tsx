@@ -6,7 +6,7 @@ import { ReviewStars, PricingDisplay, ServiceListing } from '@entities/service';
 import Image from 'next/image';
 import { createComponentLogger } from '@shared/lib';
 
-import { User } from 'lucide-react';
+import { ImageIcon, User } from 'lucide-react';
 const log = createComponentLogger('RelatedServices');
 
 interface RelatedServicesProps {
@@ -75,7 +75,7 @@ export function RelatedServices({ serviceId }: RelatedServicesProps) {
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-gray-400">
-                  <Image className="text-2xl" />
+                  <ImageIcon className="text-2xl" />
                 </div>
               )}
             </div>

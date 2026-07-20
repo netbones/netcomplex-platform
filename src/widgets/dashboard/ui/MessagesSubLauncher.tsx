@@ -4,12 +4,14 @@
 // TYPES
 // ═══════════════════════════════════════════════════════════════
 
+export type MessagesDomainId = 'conversations' | 'announcements' | 'notifications';
+
 /**
  * Messages domain definition.
  * Each domain maps to a message sub-space rendered on /dashboard/communication/[domain].
  */
 export interface MessagesDomainDef {
-  id: string;
+  id: MessagesDomainId;
   labelKey: string;
   descriptionKey: string;
   icon: string;
