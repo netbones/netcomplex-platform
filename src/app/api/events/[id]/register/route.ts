@@ -22,6 +22,7 @@ export const maxDuration = 8;
  * GET /api/events/[id]/register - List attendees for an event
  * Returns { attendees, registered } where `registered` indicates if the
  * current user is among the attendees.
+ * @deprecated Use `trpc.events.listRegistrations` instead
  */
 export const GET = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
@@ -54,6 +55,7 @@ export const GET = withErrorHandler(
 
 /**
  * POST /api/events/[id]/register - Register current user for an event
+ * @deprecated Use `trpc.events.registerForEvent` instead
  */
 export const POST = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
@@ -128,6 +130,7 @@ export const POST = withErrorHandler(
 
 /**
  * DELETE /api/events/[id]/register - Unregister current user from an event
+ * @deprecated Use `trpc.events.cancelRegistration` instead
  */
 export const DELETE = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {

@@ -8,10 +8,10 @@
 > `soralia-village-zbvq` (401 hotfix, committed), `soralia-village-0jh1` (Setup Center).
 > Docs: `docs/advisories/ADVISORY-031.md` (supersedes ADVISORY-030), `ONBOARDING_REFACTOR.md`.
 
-> **Last updated:** 2026-07-14 (Session 17 — CMS post-M5 phase candidates)
+> **Last updated:** 2026-07-20 (Session 17 — REST → tRPC deprecation markers epic)
 > **Total remaining:** 44 issues
 > **Closed this session:** 7 (`0orq`, `7a02`, `gb5p`, `tbtr`, `2pxb`, `owuh`, `bnxu`)
-> **Created this session:** 21 (`5z3g`, `0orq`, `7a02`, `gb5p`, `tbtr`, `7tqj`, `sioz`, `g8c3`, `2pxb`, `8rve`, `owuh`, `h9o4`, `e8hs`, `tkt5`, `ee5p`, `3m0h`, `qzll`, `axh6`, `vukt`, `c3zg`, `bnxu`)
+> **Created this session:** 28 (`5z3g`, `0orq`, `7a02`, `gb5p`, `tbtr`, `7tqj`, `sioz`, `g8c3`, `2pxb`, `8rve`, `owuh`, `h9o4`, `e8hs`, `tkt5`, `ee5p`, `3m0h`, `qzll`, `axh6`, `vukt`, `c3zg`, `bnxu`, `hiu2` epic + 6 subtasks)
 > **Note:** BD is for quick fixes and small tasks. **Any BD issue touching 5+ files across multiple FSD slices, or requiring new directories/types, is GSD territory — escalate it.**
 
 ## Summary by Priority

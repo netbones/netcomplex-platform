@@ -36,6 +36,7 @@ export const maxDuration = 8;
  *   - status: filter by competition status
  *   - upcoming: if "true", filter to active competitions (startDate <= now AND endDate >= now)
  *               Unauthenticated access allowed — only returns ACTIVE status competitions
+ * @deprecated Use `trpc.competitions.listPublicCompetitions` instead
  */
 export const GET = withErrorHandler(async (request: Request) => {
   const url = new URL(request.url);

@@ -24,6 +24,7 @@ export const maxDuration = 8;
 
 /**
  * GET /api/events/[id] - Get single event by ID
+ * @deprecated Use `trpc.events.getEvent` instead
  */
 export const GET = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
@@ -55,6 +56,7 @@ export const GET = withErrorHandler(
 /**
  * PATCH /api/events/[id] - Update event by ID
  * Accepts partial updates. Returns updated event.
+ * @deprecated Use `trpc.events.updateEvent` instead
  */
 export const PATCH = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
@@ -132,6 +134,7 @@ export const PATCH = withErrorHandler(
 
 /**
  * DELETE /api/events/[id] - Delete event by ID
+ * @deprecated Use `trpc.events.deleteEvent` instead
  */
 export const DELETE = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {

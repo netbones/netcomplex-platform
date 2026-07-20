@@ -17,6 +17,7 @@ import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
+/** @deprecated Use `trpc.groups.joinGroup` instead */
 export const POST = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
   if (!authData) return apiUnauthorized();
@@ -55,6 +56,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   return apiCreated(membership);
 });
 
+/** @deprecated Use `trpc.groups.leaveGroup` instead */
 export const DELETE = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
   if (!authData) return apiUnauthorized();

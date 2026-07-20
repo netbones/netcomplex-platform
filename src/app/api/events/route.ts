@@ -85,6 +85,7 @@ async function enrichWithAttendees(events: Array<Record<string, unknown>>, userI
  * Query params:
  *   - limit: number of events to return
  *   - upcoming: if "true", filter to events with date >= now, sorted ascending
+ * @deprecated Use `trpc.events.listEvents` instead
  */
 export const GET = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
@@ -119,6 +120,7 @@ export const GET = withErrorHandler(async (request: Request) => {
 /**
  * POST /api/events - Create a new event
  * Validates required fields and creates event with tenant isolation.
+ * @deprecated Use `trpc.events.createEvent` instead
  */
 export const POST = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
