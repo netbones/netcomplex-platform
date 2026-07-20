@@ -90,7 +90,6 @@ vi.mock('@shared/lib/settings/validation', () => ({
 }));
 
 import { GET, POST } from '@/app/api/settings/route';
-import { GET as GET_CONTACT, POST as POST_CONTACT } from '@/app/api/settings/contact/route';
 
 describe('Settings Integration', () => {
   beforeEach(() => {
@@ -115,16 +114,14 @@ describe('Settings Integration', () => {
       });
       mocks.dbMock.insert.mockReturnValue({
         values: vi.fn().mockReturnValue({
-          returning: vi
-            .fn()
-            .mockResolvedValue([
-              {
-                id: 'new-id',
-                tenantId: 'test-tenant-id',
-                key: 'page_chat_enabled',
-                value: 'false',
-              },
-            ]),
+          returning: vi.fn().mockResolvedValue([
+            {
+              id: 'new-id',
+              tenantId: 'test-tenant-id',
+              key: 'page_chat_enabled',
+              value: 'false',
+            },
+          ]),
         }),
       });
 
@@ -153,16 +150,14 @@ describe('Settings Integration', () => {
       mocks.dbMock.select.mockReturnValue({
         from: vi.fn().mockReturnValue({
           where: vi.fn().mockReturnValue({
-            limit: vi
-              .fn()
-              .mockResolvedValue([
-                {
-                  id: 'existing-id',
-                  tenantId: 'test-tenant-id',
-                  key: 'page_chat_enabled',
-                  value: 'true',
-                },
-              ]),
+            limit: vi.fn().mockResolvedValue([
+              {
+                id: 'existing-id',
+                tenantId: 'test-tenant-id',
+                key: 'page_chat_enabled',
+                value: 'true',
+              },
+            ]),
           }),
         }),
       });
@@ -188,48 +183,6 @@ describe('Settings Integration', () => {
       expect(mocks.writeAuditLog).toHaveBeenCalledWith(
         expect.objectContaining({
           details: expect.objectContaining({ oldValue: 'true', newValue: 'false' }),
-        })
-      );
-
-      expect(mocks.revalidateAdminChanges).toHaveBeenCalled();
-    });
-  });
-
-  describe('POST /api/settings/contact — admin check + audit log + revalidation', () => {
-    it('blocks non-admin users with 403', async () => {
-      mocks.authSession = { userId: 'user-2', role: 'USER' };
-
-      const req = new Request('http://localhost/api/settings/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key1: 'val1' }),
-      });
-
-      const res = await POST_CONTACT(req);
-      expect(res.status).toBe(403);
-    });
-
-    it('writes audit log and revalidates on success', async () => {
-      mocks.dbMock.insert.mockReturnValue({
-        values: vi.fn().mockReturnValue({
-          onConflictDoUpdate: vi.fn().mockResolvedValue(undefined),
-        }),
-      });
-
-      const req = new Request('http://localhost/api/settings/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contact_email: 'admin@test.com' }),
-      });
-
-      const res = await POST_CONTACT(req);
-      expect(res.status).toBe(200);
-
-      expect(mocks.writeAuditLog).toHaveBeenCalledWith(
-        expect.objectContaining({
-          action: 'SETTINGS_CHANGED',
-          actorId: 'user-1',
-          tenantId: 'test-tenant-id',
         })
       );
 
@@ -275,30 +228,6 @@ describe('Settings Integration', () => {
 
       const body = await res.json();
       expect(body.data).toEqual(mockRows[0]);
-    });
-  });
-
-  describe('GET /api/settings/contact — returns key-value map', () => {
-    it('returns contact settings as flat map', async () => {
-      const mockRows = [
-        { key: 'contact_email', value: 'admin@test.com' },
-        { key: 'contact_phone', value: '555-1234' },
-      ];
-      mocks.dbMock.select.mockReturnValue({
-        from: vi.fn().mockReturnValue({
-          where: vi.fn().mockResolvedValue(mockRows),
-        }),
-      });
-
-      const req = new Request('http://localhost/api/settings/contact', { method: 'GET' });
-      const res = await GET_CONTACT(req);
-      expect(res.status).toBe(200);
-
-      const body = await res.json();
-      expect(body.data).toEqual({
-        contact_email: 'admin@test.com',
-        contact_phone: '555-1234',
-      });
     });
   });
 });

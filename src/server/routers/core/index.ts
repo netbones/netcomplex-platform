@@ -6,3 +6,4 @@ export { settingsRouter } from './settings';
 export { platformRouter } from './platform';
 export { contentRouter } from './content';
 export { resourcesRouter } from './resources';
+export { servicesRouter } from './services';

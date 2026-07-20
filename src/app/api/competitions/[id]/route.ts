@@ -24,6 +24,7 @@ export const maxDuration = 8;
 
 /**
  * GET /api/competitions/[id] - Get single competition by ID
+ * @deprecated Use `trpc.competitions.getCompetitionDetail` instead
  */
 export const GET = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {

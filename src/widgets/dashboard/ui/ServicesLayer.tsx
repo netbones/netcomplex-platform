@@ -1,11 +1,10 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSafeTranslation } from '@shared/lib';
 import { useLocalStorage } from 'usehooks-ts';
-import { authClient } from '@api/client';
+import { authClient, trpc } from '@api/client';
 import { ServicesCommandBar, type ServicesCommandBarUrgency } from './ServicesCommandBar';
 import { SERVICES_DOMAIN_DEFINITIONS, type ServicesDomainDef } from './ServicesSubLauncher';
 
@@ -167,38 +166,25 @@ function ServicesLayerError({ onRetry }: { onRetry: () => void }) {
 export function ServicesLayer() {
   const { tx } = useSafeTranslation('services');
   const [activeShortcuts, setActiveShortcuts] = useLocalStorage<string[]>('services-shortcuts', []);
-  const [urgency, setUrgency] = useState<UrgencyResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
   const { data: session } = authClient.useSession();
   const role = session?.user?.role;
+  const {
+    data: urgency,
+    isLoading,
+    isError,
+    refetch,
+  } = trpc.services.getUrgency.useQuery(undefined, {
+    select: envelope => {
+      const apiEnvelope = envelope as { success: boolean; data: UrgencyResponse };
+      return apiEnvelope.data ?? null;
+    },
+  });
 
-  const fetchUrgency = useCallback(async () => {
-    setLoading(true);
-    setError(false);
-    try {
-      const res = await fetch('/api/services/urgency');
-      if (!res.ok) throw new Error('Failed');
-      const body = await res.json();
-      // Unwrap canonical apiSuccess envelope
-      const data = body.success ? body.data : body;
-      setUrgency(data as UrgencyResponse);
-      setLoading(false);
-    } catch {
-      setError(true);
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchUrgency();
-  }, [fetchUrgency]);
-
-  if (error) {
-    return <ServicesLayerError onRetry={fetchUrgency} />;
+  if (isError) {
+    return <ServicesLayerError onRetry={() => refetch()} />;
   }
 
-  if (loading || !urgency) {
+  if (isLoading || !urgency) {
     return <ServicesLayerSkeleton />;
   }
 

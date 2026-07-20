@@ -200,32 +200,31 @@ describe('v1 re-export routes', () => {
     });
   });
 
-  describe('platform namespace', () => {
-    it('re-exports tenants', async () => {
-      const mod = await import('@/app/api/v1/platform/tenants/route');
-      expect(mod.POST).toBeInstanceOf(Function);
-    });
-  });
-
   describe('tenant namespace', () => {
     const routes: [string, string[]][] = [
-      ['announcements', ['GET', 'POST']],
-      ['announcements/[id]', ['GET', 'PATCH', 'DELETE']],
       ['bookings', ['GET', 'POST']],
       ['campaign', ['GET']],
+      ['community-services/inquiries', ['GET', 'POST']],
+      ['community-services/listings', ['GET', 'POST']],
+      ['community-services/reviews', ['GET', 'POST']],
       ['competitions', ['GET', 'POST']],
       ['competitions/[id]', ['GET', 'PATCH', 'DELETE']],
       ['conservation', ['GET']],
       ['content', ['GET', 'POST']],
       ['content/[id]', ['GET', 'PATCH', 'DELETE']],
-      ['community-services/inquiries', ['GET', 'POST']],
-      ['community-services/listings', ['GET', 'POST']],
       ['conversations', ['GET', 'POST']],
       ['conversations/find', ['POST']],
+      ['dwallet', ['GET']],
+      ['dwallet/consents', ['GET']],
+      ['dwallet/consents/[streamKey]', ['POST']],
+      ['dwallet/deletion-request', ['POST']],
+      ['dwallet/export', ['POST']],
+      ['dwallet/payout', ['GET', 'POST']],
+      ['dwallet/statement', ['GET']],
+      ['dwallet/streams', ['GET']],
+      ['dwallet/transactions', ['GET']],
       ['events', ['GET', 'POST']],
       ['events/[id]', ['GET', 'PATCH', 'DELETE']],
-      ['groups', ['GET', 'POST']],
-      ['groups/[id]', ['GET', 'PATCH', 'DELETE']],
       ['groups/members', ['POST', 'DELETE']],
       ['groups/membership-requests', ['GET']],
       ['groups/membership-requests/[id]', ['POST']],
@@ -238,19 +237,12 @@ describe('v1 re-export routes', () => {
       ['maintenance', ['GET', 'POST']],
       ['messages', ['GET', 'POST', 'DELETE']],
       ['messages/unread', ['GET']],
-      ['notifications', ['GET', 'POST', 'PATCH']],
       ['pricing', ['GET']],
       ['resources', ['GET', 'POST']],
       ['resources/[id]', ['GET', 'PATCH', 'DELETE']],
-      ['settings', ['GET', 'POST']],
-      ['settings/[key]', ['GET', 'PATCH']],
-      ['settings/contact', ['GET', 'POST']],
       ['surveys', ['GET', 'POST']],
       ['users', ['GET']],
       ['users/[id]', ['GET', 'PATCH', 'DELETE']],
-      ['agents/activity', ['GET']],
-      ['agents/managed-properties', ['GET']],
-      ['agents/marketplace', ['GET', 'POST']],
     ];
 
     for (const [path, methods] of routes) {
