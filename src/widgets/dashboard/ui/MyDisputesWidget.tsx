@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Plus, ArrowLeft } from 'lucide-react';
+import { trpc } from '@api/client';
 import { cn } from '@shared/lib';
 import { ErrorBoundary } from '@shared/ui';
 import { DisputeListTable } from '@entities/dispute';
@@ -11,51 +12,19 @@ import { DisputeIntakeWizard } from '@features/dispute';
 
 export function MyDisputesWidget() {
   const [view, setView] = useState<'list' | 'wizard'>('list');
-  const [activeCount, setActiveCount] = useState(0);
 
   const aiEnabled = true; // Resolved server-side; default true for client widget
 
   // Fetch active dispute count for breadcrumb
-  useEffect(() => {
-    let cancelled = false;
+  const { data: activeData } = trpc.disputes.listDisputes.useQuery(
+    {
+      status: ['SUBMITTED', 'UNDER_REVIEW', 'MEDIATION_ACTIVE', 'MEDIATION_OFFERED'],
+      limit: 1,
+    },
+    { enabled: view === 'wizard' }
+  );
 
-    async function fetchActiveCount() {
-      try {
-        const params = new URLSearchParams();
-        params.set('status', 'SUBMITTED');
-        // Append additional statuses via duplicate keys
-        const statuses = ['UNDER_REVIEW', 'MEDIATION_ACTIVE', 'MEDIATION_OFFERED'];
-        statuses.forEach(s => params.append('status', s));
-        params.set('limit', '1');
-
-        const res = await fetch(`/api/disputes?${params}`);
-
-        if (!cancelled && res.ok) {
-          // Read the count from response headers or parse the response
-          // The API may return count via header or we use the response array length
-          // For simplicity we just check if there are active disputes
-          const data = await res.json();
-          // Attempt to read total count from the response envelope
-          if (Array.isArray(data)) {
-            setActiveCount(data.length > 0 ? 1 : 0);
-          } else if (data?.data && Array.isArray(data.data)) {
-            // Envelope shape: { data: [...], meta: { total: N } }
-            setActiveCount(data.meta?.total ?? data.data.length);
-          }
-        }
-      } catch {
-        // Graceful — count stays 0 on error
-      }
-    }
-
-    if (view === 'wizard') {
-      fetchActiveCount();
-    }
-
-    return () => {
-      cancelled = true;
-    };
-  }, [view]);
+  const activeCount = activeData?.data?.total ?? 0;
 
   const handleWizardComplete = (_disputeId: string) => {
     // After wizard + form complete, return to list view

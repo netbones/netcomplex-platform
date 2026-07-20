@@ -21,7 +21,7 @@ import { TRPCError } from '@trpc/server';
 import { hasPermission } from '@shared/lib';
 import { sanitizeHtml } from '@shared/lib/sanitize/server';
 
-import { eq, and, or, desc, asc, count, type SQL } from 'drizzle-orm';
+import { eq, and, or, desc, asc, count, inArray, type SQL } from 'drizzle-orm';
 
 import {
   disputeCreateSchema,
@@ -36,7 +36,7 @@ const IdInput = z.object({ id: z.string() });
 
 const ListDisputesInput = z
   .object({
-    status: z.string().optional(),
+    status: z.union([z.string(), z.array(z.string())]).optional(),
     category: z.string().optional(),
     page: z.coerce.number().int().positive().default(1),
     limit: z.coerce.number().int().positive().max(50).default(20),
@@ -121,13 +121,14 @@ export const disputesRouter = router({
       );
     }
 
-    if (
-      input?.status &&
-      ALL_DISPUTE_STATUSES.includes(input.status as (typeof ALL_DISPUTE_STATUSES)[number])
-    ) {
-      conditions.push(
-        eq(disputeCases.status, input.status as (typeof disputeCases.status.enumValues)[number])
-      );
+    if (input?.status) {
+      const statuses = Array.isArray(input.status) ? input.status : [input.status];
+      const validStatuses = statuses.filter(s =>
+        (ALL_DISPUTE_STATUSES as readonly string[]).includes(s)
+      ) as typeof disputeCases.status.enumValues;
+      if (validStatuses.length > 0) {
+        conditions.push(inArray(disputeCases.status, validStatuses));
+      }
     }
 
     if (

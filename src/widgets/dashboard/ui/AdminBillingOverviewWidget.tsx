@@ -1,63 +1,8 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
 import { DollarSign, Users, TrendingUp, Percent } from 'lucide-react';
+import { trpc } from '@api/client';
 import { ErrorBoundary } from '@shared/ui';
-
-interface SubscriptionRow {
-  status: string;
-  planTier: string;
-  convertedAt: string | null;
-}
-
-interface PlanRow {
-  monthlyPrice: string;
-}
-
-interface BillingOverview {
-  mrr: number;
-  activeCount: number;
-  tierDistribution: Record<string, number>;
-  trialConversions: number;
-  churnRate: number;
-}
-
-async function fetchBillingOverview(): Promise<BillingOverview> {
-  const res = await fetch('/api/admin/platform/billing/subscriptions');
-  if (!res.ok) throw new Error('Failed to fetch billing data');
-  const json = await res.json();
-  const subscriptions: SubscriptionRow[] = json.data || [];
-
-  const active = subscriptions.filter(s => s.status === 'ACTIVE');
-  const cancelled = subscriptions.filter(s => s.status === 'CANCELLED');
-  const tierDist: Record<string, number> = {};
-  for (const s of subscriptions) {
-    const tier = s.planTier || 'STANDARD';
-    tierDist[tier] = (tierDist[tier] || 0) + 1;
-  }
-
-  const trials = subscriptions.filter(s => s.convertedAt);
-  const churn =
-    active.length + cancelled.length > 0
-      ? Math.round((cancelled.length / (active.length + cancelled.length)) * 100)
-      : 0;
-
-  return {
-    mrr: 0,
-    activeCount: active.length,
-    tierDistribution: tierDist,
-    trialConversions: trials.length,
-    churnRate: churn,
-  };
-}
-
-async function fetchPlansMRR(): Promise<number> {
-  const res = await fetch('/api/admin/platform/billing/plans');
-  if (!res.ok) return 0;
-  const json = await res.json();
-  const plans: PlanRow[] = json.data || [];
-  return plans.reduce((sum, p) => sum + parseFloat(p.monthlyPrice || '0'), 0);
-}
 
 function StatCard({
   icon: Icon,
@@ -85,17 +30,11 @@ function StatCard({
 }
 
 export function AdminBillingOverviewWidget() {
-  const { data: overview, isLoading } = useQuery({
-    queryKey: ['admin-billing-overview'],
-    queryFn: fetchBillingOverview,
+  const { data, isLoading } = trpc.admin.billing.getBillingOverview.useQuery(undefined, {
     staleTime: 60_000,
   });
 
-  const { data: mrr } = useQuery({
-    queryKey: ['admin-billing-mrr'],
-    queryFn: fetchPlansMRR,
-    staleTime: 60_000,
-  });
+  const overview = data?.data;
 
   if (isLoading) {
     return (
@@ -119,7 +58,7 @@ export function AdminBillingOverviewWidget() {
         <StatCard
           icon={DollarSign}
           label="MRR"
-          value={`R ${(mrr || 0).toLocaleString()}`}
+          value={`R ${(overview?.mrr || 0).toLocaleString()}`}
           sub="Estimated monthly"
         />
         <StatCard icon={Users} label="Active Subs" value={overview?.activeCount ?? 0} />

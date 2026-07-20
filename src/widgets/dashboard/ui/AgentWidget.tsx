@@ -1,77 +1,40 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { authClient } from '@api/client';
+import { authClient, trpc } from '@api/client';
 import { ErrorBoundary } from '@shared/ui';
-import { useApiToast, usePremiumListings } from '@shared/lib/hooks';
+import { usePremiumListings } from '@shared/lib/hooks';
 
 import { Check, Home, Star, UserCircle } from 'lucide-react';
-interface AgentProfile {
-  id: string;
-  agencyName?: string;
-  specializations: string[];
-  serviceAreas: string[];
-  rating: number;
-  reviewCount: number;
-  commissionRate: number;
-  isVerified: boolean;
-  agent: {
-    name: string;
-    email: string;
-  };
-}
 
 export function AgentWidget() {
   const { data: session } = authClient.useSession();
-  const { fetch: apiFetch, mutate: apiMutate } = useApiToast({ component: 'AgentWidget' });
-  const [agents, setAgents] = useState<AgentProfile[]>([]);
-  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'agents' | 'listings'>('agents');
+
+  const { data: marketplaceData, isLoading: agentsLoading } =
+    trpc.agents.getMarketplaceActions.useQuery(undefined, {
+      enabled: !!session?.user?.id,
+      retry: false,
+    });
+
+  const connectMutation = trpc.agents.connectWithAgent.useMutation({
+    onSuccess: () => {
+      // Connection request sent
+    },
+  });
 
   const { data: premiumData, isLoading: listingsLoading } = usePremiumListings();
   const listings = premiumData?.listings ?? [];
 
-  useEffect(() => {
-    if (session?.user?.id) {
-      fetchAgentData();
-    }
-  }, [session?.user?.id]);
-
-  const fetchAgentData = () => {
-    apiFetch(
-      globalThis
-        .fetch('/api/agents/marketplace')
-        .then(res => res.json() as Promise<{ agents?: AgentProfile[] }>),
-      {
-        error: 'Failed to fetch agent data',
-        onSuccess: (data: { agents?: AgentProfile[] }) => {
-          setAgents(data.agents || []);
-          setLoading(false);
-        },
-        onError: () => setLoading(false),
-      }
-    );
-  };
+  const agents = marketplaceData?.data?.agents ?? [];
+  const loading = agentsLoading || listingsLoading;
 
   const connectWithAgent = (agentId: string) => {
-    apiMutate(
-      globalThis
-        .fetch('/api/agents/connect', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ agentId }),
-        })
-        .then(res => res.json() as Promise<unknown>),
-      {
-        loading: 'Sending request...',
-        success: 'Connection request sent!',
-        error: 'Failed to connect with agent',
-      }
-    );
+    connectMutation.mutate({ agentId });
   };
 
-  if (loading || listingsLoading) {
+  if (loading) {
     return (
       <ErrorBoundary>
         <div className="bg-white rounded-lg shadow-md p-6">
@@ -139,7 +102,9 @@ export function AgentWidget() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <h4 className="font-medium text-gray-900">{agent.agent.name}</h4>
+                        <h4 className="font-medium text-gray-900">
+                          {agent.agent?.name ?? 'Unknown'}
+                        </h4>
                         {agent.isVerified && (
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">
                             <Check className="mr-1" />
@@ -164,9 +129,7 @@ export function AgentWidget() {
                           ))}
                           <span className="text-xs text-gray-600 ml-1">({agent.reviewCount})</span>
                         </div>
-                        <span className="text-xs text-gray-500">
-                          {agent.commissionRate}% commission
-                        </span>
+                        <span className="text-xs text-gray-500">{agent.reviewCount} reviews</span>
                       </div>
                     </div>
                   </div>
@@ -251,10 +214,6 @@ export function AgentWidget() {
                       <span className="font-medium">R{listing.price.toLocaleString()}</span>
                     )}
                   </div>
-
-                  {listing.assignedAgent && (
-                    <div className="text-sm text-gray-600">Agent: {listing.assignedAgent.name}</div>
-                  )}
 
                   <div className="flex gap-2 mt-3">
                     <Link

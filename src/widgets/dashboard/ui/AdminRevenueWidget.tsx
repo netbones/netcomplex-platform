@@ -1,93 +1,14 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
 import { TrendingUp } from 'lucide-react';
+import { trpc } from '@api/client';
 import { ErrorBoundary } from '@shared/ui';
-
-interface PaymentRow {
-  amount: string;
-  platformFee: string;
-  netAmount: string;
-  createdAt: string;
-}
-
-interface ApiResponse {
-  data: PaymentRow[];
-}
 
 interface MonthlyRevenue {
   month: string;
   gross: number;
   net: number;
   platformFees: number;
-}
-
-async function fetchRevenue(): Promise<{
-  monthlyRevenues: MonthlyRevenue[];
-  totalRevenue: number;
-  averageMonthly: number;
-  totalPlatformFees: number;
-}> {
-  const res = await fetch('/api/admin/platform/billing/payments?status=COMPLETED&limit=100');
-  if (!res.ok) throw new Error('Failed to fetch payment data');
-  const json: ApiResponse = await res.json();
-  const payments = json.data || [];
-
-  const monthlyMap = new Map<string, { gross: number; net: number; fees: number }>();
-  const now = new Date();
-  const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
-
-  const monthLabels: string[] = [];
-  for (let i = 5; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-    monthLabels.push(key);
-    monthlyMap.set(key, { gross: 0, net: 0, fees: 0 });
-  }
-
-  for (const p of payments) {
-    const d = new Date(p.createdAt);
-    if (d < sixMonthsAgo) continue;
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-    const entry = monthlyMap.get(key);
-    if (entry) {
-      const gross = parseFloat(p.amount || '0');
-      const net = parseFloat(p.netAmount || '0');
-      const fees = parseFloat(p.platformFee || '0');
-      entry.gross += gross;
-      entry.net += net;
-      entry.fees += fees;
-    }
-  }
-
-  const monthlyRevenues: MonthlyRevenue[] = monthLabels.map(key => {
-    const entry = monthlyMap.get(key)!;
-    const [year, month] = key.split('-');
-    const d = new Date(parseInt(year), parseInt(month) - 1, 1);
-    const monthName = d.toLocaleDateString('en-ZA', { month: 'short' });
-    return {
-      month: monthName,
-      gross: entry.gross,
-      net: entry.net,
-      platformFees: entry.fees,
-    };
-  });
-
-  let totalRevenue = 0;
-  let totalPlatformFees = 0;
-  for (const m of monthlyRevenues) {
-    totalRevenue += m.gross;
-    totalPlatformFees += m.platformFees;
-  }
-
-  const activeMonths = monthlyRevenues.filter(m => m.gross > 0).length || 1;
-
-  return {
-    monthlyRevenues,
-    totalRevenue,
-    averageMonthly: Math.round(totalRevenue / activeMonths),
-    totalPlatformFees,
-  };
 }
 
 function BarChart({ data }: { data: MonthlyRevenue[] }) {
@@ -117,11 +38,11 @@ function BarChart({ data }: { data: MonthlyRevenue[] }) {
 }
 
 export function AdminRevenueWidget() {
-  const { data, isLoading } = useQuery({
-    queryKey: ['admin-revenue'],
-    queryFn: fetchRevenue,
+  const { data, isLoading } = trpc.admin.billing.getRevenue.useQuery(undefined, {
     staleTime: 60_000,
   });
+
+  const revenue = data?.data;
 
   if (isLoading) {
     return (
@@ -144,7 +65,7 @@ export function AdminRevenueWidget() {
           <span>Monthly Revenue (Last 6 Months)</span>
         </div>
 
-        <BarChart data={data?.monthlyRevenues || []} />
+        <BarChart data={revenue?.monthlyRevenues || []} />
 
         <div className="flex gap-1 items-center text-xs text-gray-400 mb-3">
           <div className="w-3 h-3 bg-indigo-200 rounded" />
@@ -157,19 +78,19 @@ export function AdminRevenueWidget() {
           <div className="bg-gray-50 rounded-lg p-3">
             <p className="text-xs text-gray-500">Total Revenue</p>
             <p className="text-lg font-bold text-gray-900">
-              R {data?.totalRevenue.toLocaleString() || 0}
+              R {revenue?.totalRevenue.toLocaleString() || 0}
             </p>
           </div>
           <div className="bg-gray-50 rounded-lg p-3">
             <p className="text-xs text-gray-500">Avg Monthly</p>
             <p className="text-lg font-bold text-gray-900">
-              R {data?.averageMonthly.toLocaleString() || 0}
+              R {revenue?.averageMonthly.toLocaleString() || 0}
             </p>
           </div>
           <div className="bg-gray-50 rounded-lg p-3">
             <p className="text-xs text-gray-500">Platform Fees</p>
             <p className="text-lg font-bold text-gray-900">
-              R {data?.totalPlatformFees.toLocaleString() || 0}
+              R {revenue?.totalPlatformFees.toLocaleString() || 0}
             </p>
           </div>
         </div>

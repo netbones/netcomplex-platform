@@ -10,6 +10,7 @@ import {
   Circle,
   ChevronRight,
 } from 'lucide-react';
+import { trpc } from '@api/client';
 import type { LucideIcon } from 'lucide-react';
 
 // ═══════════════════════════════════════════════════════════════
@@ -252,21 +253,35 @@ export function AdminActivityStream({ isPlatformAdmin = false }: AdminActivitySt
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(false);
 
-  const fetchActivity = useCallback(async (selectedDomain: string, cursor?: string) => {
-    const params = new URLSearchParams({ domain: selectedDomain, limit: '20' });
-    if (cursor) params.set('cursor', cursor);
+  const utils = trpc.useUtils();
 
-    const res = await fetch(`/api/admin/activity?${params}`);
-    if (!res.ok) throw new Error('Failed to fetch activity');
-
-    const body = await res.json();
-    // Handle canonical apiSuccess envelope: { success: true, data: { items, nextCursor } }
-    const payload = body.success ? body.data : body;
-    return {
-      items: (payload.items ?? []) as ActivityItem[],
-      nextCursor: (payload.nextCursor ?? null) as string | null,
-    };
-  }, []);
+  const fetchActivity = useCallback(
+    async (selectedDomain: string, cursor?: string) => {
+      const result = await utils.client.admin.activity.listActivity.query({
+        domain: selectedDomain as
+          | 'all'
+          | 'users'
+          | 'maintenance'
+          | 'content'
+          | 'events'
+          | 'surveys',
+        limit: 20,
+        cursor: cursor,
+      });
+      const payload = result.data ?? { items: [], nextCursor: null };
+      return {
+        items: (payload.items ?? []).map((item: Record<string, unknown>) => ({
+          ...item,
+          createdAt:
+            typeof item.createdAt === 'object'
+              ? (item.createdAt as Date).toISOString()
+              : String(item.createdAt ?? ''),
+        })) as ActivityItem[],
+        nextCursor: (payload.nextCursor ?? null) as string | null,
+      };
+    },
+    [utils]
+  );
 
   // Initial load + domain switch
   useEffect(() => {

@@ -1,25 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { Search } from 'lucide-react';
+import { trpc } from '@api/client';
 import { ErrorBoundary } from '@shared/ui';
-
-interface SubscriptionView {
-  id: string;
-  tenantId: string;
-  planId: string;
-  status: string;
-  startDate: string | null;
-  nextBillingDate: string | null;
-  tenantName: string | null;
-  planName: string | null;
-  planTier: string | null;
-}
-
-interface ApiResponse {
-  data: SubscriptionView[];
-}
 
 const STATUS_COLORS: Record<string, string> = {
   ACTIVE: 'bg-green-100 text-green-700',
@@ -29,16 +13,6 @@ const STATUS_COLORS: Record<string, string> = {
   TRIALING: 'bg-blue-100 text-blue-700',
   PAST_DUE: 'bg-orange-100 text-orange-700',
 };
-
-async function fetchSubscriptions(status: string, search: string): Promise<SubscriptionView[]> {
-  const params = new URLSearchParams();
-  if (status && status !== 'All') params.set('status', status.toUpperCase());
-  if (search) params.set('search', search);
-  const res = await fetch(`/api/admin/platform/billing/subscriptions?${params.toString()}`);
-  if (!res.ok) throw new Error('Failed to fetch subscriptions');
-  const json: ApiResponse = await res.json();
-  return json.data || [];
-}
 
 function formatDateView(dateStr: string | null): string {
   if (!dateStr) return '—';
@@ -67,11 +41,15 @@ export function AdminSubscriptionsWidget() {
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
 
-  const { data: subscriptions, isLoading } = useQuery({
-    queryKey: ['admin-subscriptions', statusFilter, debouncedSearch],
-    queryFn: () => fetchSubscriptions(statusFilter, debouncedSearch),
-    staleTime: 30_000,
-  });
+  const { data, isLoading } = trpc.admin.billing.listSubscriptions.useQuery(
+    {
+      status: statusFilter !== 'All' ? statusFilter.toUpperCase() : undefined,
+      search: debouncedSearch || undefined,
+    },
+    { staleTime: 30_000 }
+  );
+
+  const subscriptions = data?.data ?? [];
 
   const handleSearch = (value: string) => {
     setSearch(value);
@@ -147,8 +125,12 @@ export function AdminSubscriptionsWidget() {
                         {sub.status}
                       </span>
                     </td>
-                    <td className="py-2 text-gray-500">{formatDateView(sub.startDate)}</td>
-                    <td className="py-2 text-gray-500">{formatDateView(sub.nextBillingDate)}</td>
+                    <td className="py-2 text-gray-500">
+                      {formatDateView(sub.startDate?.toString() ?? null)}
+                    </td>
+                    <td className="py-2 text-gray-500">
+                      {formatDateView(sub.nextBillingDate?.toString() ?? null)}
+                    </td>
                     <td className="py-2 text-right text-gray-700">{formatAmount(sub.planTier)}</td>
                   </tr>
                 ))}

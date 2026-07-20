@@ -1,34 +1,48 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import { Trophy } from 'lucide-react';
+import { trpc } from '@api/client';
 import { AchievementBadgeGrid } from '@entities/directory';
 
-interface Achievement {
-  key: string;
-  label: string;
-  icon?: string | null;
-  category: string;
-  unlocked: boolean;
-  unlockedAt?: Date | null;
-}
-
 export function AchievementsWidget() {
-  const [achievements, setAchievements] = useState<Achievement[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const {
+    data: allDefs,
+    isLoading: defsLoading,
+    error: defsError,
+  } = trpc.achievements.listAchievements.useQuery(undefined, {
+    retry: false,
+  });
+  const {
+    data: unlockedData,
+    isLoading: unlockedLoading,
+    error: unlockedError,
+  } = trpc.achievements.getUnlocked.useQuery(undefined, {
+    retry: false,
+  });
 
-  useEffect(() => {
-    fetch('/api/achievements', { credentials: 'same-origin' })
-      .then(res => (res.ok ? res.json() : Promise.reject()))
-      .then(body => setAchievements(body?.data ?? []))
-      .catch(() => setError(true))
-      .finally(() => setLoading(false));
-  }, []);
+  const isLoading = defsLoading || unlockedLoading;
+  const hasError = defsError || unlockedError;
+
+  const achievements = useMemo(() => {
+    const defs = allDefs?.data ?? [];
+    const unlocked = unlockedData?.data ?? [];
+    const unlockedDefIds = new Set(unlocked.map((u: { definitionId: string }) => u.definitionId));
+    return defs.map(
+      (d: { id: string; key: string; label: string; icon?: string | null; category: string }) => ({
+        key: d.key,
+        label: d.label,
+        icon: d.icon,
+        category: d.category,
+        unlocked: unlockedDefIds.has(d.id),
+        unlockedAt: null,
+      })
+    );
+  }, [allDefs, unlockedData]);
 
   const unlockedCount = achievements.filter(a => a.unlocked).length;
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 p-2">
         {Array.from({ length: 6 }).map((_, i) => (
@@ -38,7 +52,7 @@ export function AchievementsWidget() {
     );
   }
 
-  if (error) {
+  if (hasError) {
     return (
       <div className="text-center py-4 text-gray-400 text-sm">Could not load achievements</div>
     );
