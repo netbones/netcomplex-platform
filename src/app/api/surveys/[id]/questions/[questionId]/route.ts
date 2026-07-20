@@ -36,6 +36,7 @@ type QuestionType = (typeof VALID_QUESTION_TYPES)[number];
 /**
  * PATCH /api/surveys/[id]/questions/[questionId] - Update question fields.
  * Accepts partial body: text, type, options, required, order, sectionId, config.
+ * @deprecated Use `trpc.surveys.updateQuestion` instead
  */
 export const PATCH = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string; questionId: string }> }) => {
@@ -126,6 +127,7 @@ export const PATCH = withErrorHandler(
  * DELETE /api/surveys/[id]/questions/[questionId] - Delete a question.
  * On section delete, the question's sectionId is set to null via SetNull cascade —
  * for explicit deletion, just call DELETE.
+ * @deprecated Use `trpc.surveys.removeQuestion` instead
  */
 export const DELETE = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string; questionId: string }> }) => {

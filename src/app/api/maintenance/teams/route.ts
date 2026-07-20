@@ -22,6 +22,7 @@ export const dynamic = 'force-dynamic';
 /**
  * GET /api/maintenance/teams - List maintenance teams for the tenant
  * @query isActive - Filter by active status (true/false, default: all)
+ * @deprecated Use `trpc.maintenance.listTeams` instead
  */
 export const GET = withErrorHandler(async (request: Request) => {
   const authError = await requireAnyPermission(['requests']);
@@ -53,6 +54,7 @@ export const GET = withErrorHandler(async (request: Request) => {
  * @body name - Team name (required)
  * @body trade - Trade category (required): PLUMBING, ELECTRICAL, HVAC, LANDSCAPING, GENERAL
  * @body contactName - Contact person name (optional)
+ * @deprecated Use `trpc.maintenance.createTeam` instead
  */
 export const POST = withErrorHandler(async (request: Request) => {
   const authError = await requireAnyPermission(['requests']);

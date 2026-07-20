@@ -24,6 +24,7 @@ export const maxDuration = 8;
 /**
  * POST /api/surveys/[id]/sections/reorder - Batch update order for sections.
  * Body: { items: [{ id: string, order: number }] }
+ * @deprecated Use `trpc.surveys.reorderSections` instead
  */
 export const POST = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {

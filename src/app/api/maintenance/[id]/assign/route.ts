@@ -37,6 +37,7 @@ export const maxDuration = 8;
  * At least one of teamId or providerId is required.
  * Creates RequestHistory entries for assignment changes.
  * Supports reassignment from team → provider with reason.
+ * @deprecated Use `trpc.maintenance.assignRequest` instead
  */
 export const POST = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {

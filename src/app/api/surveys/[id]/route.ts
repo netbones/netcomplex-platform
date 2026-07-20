@@ -24,6 +24,7 @@ import { withTenant } from '@entities/tenant/server';
 export const maxDuration = 8;
 /**
  * GET /api/surveys/[id] - Fetch a single survey with nested questions and sections.
+ * @deprecated Use `trpc.surveys.getSurvey` instead
  */
 export const GET = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
@@ -69,6 +70,7 @@ export const GET = withErrorHandler(
 /**
  * PUT /api/surveys/[id] - Update survey fields (title, description, status, config).
  * Accepts partial body — only updates fields that are present.
+ * @deprecated Use `trpc.surveys.updateSurvey` instead
  */
 export const PUT = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {

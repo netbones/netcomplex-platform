@@ -21,6 +21,7 @@ export const maxDuration = 8;
  * @body label - Updated display label
  * @body description - Updated description
  * Note: value changes not allowed (would break FK references)
+ * @deprecated Use `trpc.maintenance.updateCategory` instead
  */
 export const PATCH = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
@@ -76,6 +77,7 @@ export const PATCH = withErrorHandler(
 
 /**
  * DELETE /api/maintenance/categories/[id] - Soft-delete a maintenance category
+ * @deprecated Use `trpc.maintenance.deleteCategory` instead
  */
 export const DELETE = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {

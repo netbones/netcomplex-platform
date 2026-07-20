@@ -23,6 +23,7 @@ export const maxDuration = 8;
  * @body phone - Updated phone number
  * @body email - Updated email address
  * @body isActive - Toggle active status
+ * @deprecated Use `trpc.maintenance.updateProvider` instead
  */
 export const PATCH = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
@@ -71,6 +72,7 @@ export const PATCH = withErrorHandler(
 
 /**
  * DELETE /api/maintenance/providers/[id] - Soft-delete a service provider
+ * @deprecated Use `trpc.maintenance.deleteProvider` instead
  */
 export const DELETE = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {

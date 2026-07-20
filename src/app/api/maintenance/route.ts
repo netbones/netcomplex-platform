@@ -43,6 +43,7 @@ export const maxDuration = 8;
  * Admins see all requests, residents see only their own
  * @query status - Filter by any of the 7 statuses
  * @query priority - Comma-separated priorities (e.g., "EMERGENCY,HIGH")
+ * @deprecated Use `trpc.maintenance.listRequests` instead
  */
 export async function GET(request: Request) {
   const authData = await getSessionAndRole(request);
@@ -110,6 +111,7 @@ export async function GET(request: Request) {
  * @body images - Optional array of image URLs
  * @body preferredDate - Optional preferred service date (YYYY-MM-DD)
  * @body preferredTime - Optional preferred service time (HH:MM)
+ * @deprecated Use `trpc.maintenance.createRequest` instead
  */
 export async function POST(request: Request) {
   const authData = await getSessionAndRole(request);

@@ -43,6 +43,7 @@ export const maxDuration = 8;
  * Residents see only their own, admins see all
  * @query facility - Filter by facility name (tenant-configurable)
  * @query date - Filter bookings from this date onwards
+ * @deprecated Use `trpc.bookings.listBookings` instead
  */
 export async function GET(request: Request) {
   const authData = await getSessionAndRole(request);
@@ -105,6 +106,7 @@ export async function GET(request: Request) {
  * @body startTime - Start time
  * @body endTime - End time
  * @body purpose - Purpose of booking
+ * @deprecated Use `trpc.bookings.createBooking` instead
  */
 export async function POST(request: Request) {
   const authData = await getSessionAndRole(request);

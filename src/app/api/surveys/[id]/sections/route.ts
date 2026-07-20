@@ -85,6 +85,7 @@ export const GET = withErrorHandler(
 /**
  * POST /api/surveys/[id]/sections - Create a new section.
  * Auto-assigns order = max(existing order) + 1 when not provided.
+ * @deprecated Use `trpc.surveys.addSection` instead
  */
 export const POST = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {

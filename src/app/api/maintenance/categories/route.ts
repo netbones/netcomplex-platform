@@ -24,6 +24,7 @@ export const dynamic = 'force-dynamic';
  * GET /api/maintenance/categories - List maintenance categories for the tenant
  * Used by useTenantCategories fallback path
  * @query isActive - Filter by active status (true/false, default: all)
+ * @deprecated Use `trpc.maintenance.listCategories` instead
  */
 export const GET = withErrorHandler(async (request: Request) => {
   const authError = await requireAnyPermission(['requests']);
@@ -58,6 +59,7 @@ export const GET = withErrorHandler(async (request: Request) => {
  * @body value - Category slug (required, unique per tenant)
  * @body label - Display label (required)
  * @body description - Description (optional)
+ * @deprecated Use `trpc.maintenance.createCategory` instead
  */
 export const POST = withErrorHandler(async (request: Request) => {
   const authError = await requireAnyPermission(['requests']);

@@ -24,6 +24,7 @@ import { withTenant } from '@entities/tenant/server';
 import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
+/** @deprecated Use `trpc.surveys.getSurveyResults` instead */
 export const GET = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
     const authData = await getSessionAndRole(request);
@@ -170,6 +171,7 @@ export const GET = withErrorHandler(
   }
 );
 
+/** @deprecated Use `trpc.surveys.submitResponse` instead */
 export const POST = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
     const authData = await getSessionAndRole(request);

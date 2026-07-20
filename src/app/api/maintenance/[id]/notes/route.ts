@@ -26,6 +26,7 @@ import { createId } from '@shared/lib/id';
 export const maxDuration = 8;
 export const dynamic = 'force-dynamic';
 
+/** @deprecated Use `trpc.maintenance.listNotes` instead */
 export const GET = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;
@@ -79,6 +80,7 @@ export const GET = withErrorHandler(
   }
 );
 
+/** @deprecated Use `trpc.maintenance.createNote` instead */
 export const POST = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;

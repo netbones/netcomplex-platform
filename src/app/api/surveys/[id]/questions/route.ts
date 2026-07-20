@@ -78,6 +78,7 @@ export const GET = withErrorHandler(
 /**
  * POST /api/surveys/[id]/questions - Create a new question.
  * Auto-assigns order = max(existing order) + 1 when not provided.
+ * @deprecated Use `trpc.surveys.addQuestion` instead
  */
 export const POST = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {

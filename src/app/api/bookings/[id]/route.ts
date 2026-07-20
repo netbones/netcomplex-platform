@@ -17,6 +17,7 @@ import { withTenant } from '@entities/tenant/server';
 
 export const maxDuration = 8;
 
+/** @deprecated Use `trpc.bookings.getBooking` instead */
 export const GET = withErrorHandler(
   async (_request: Request, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;
@@ -35,6 +36,7 @@ export const GET = withErrorHandler(
   }
 );
 
+/** @deprecated Use `trpc.bookings.cancelBooking` instead */
 export const DELETE = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;

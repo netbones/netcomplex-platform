@@ -41,6 +41,7 @@ const VALID_STATUSES = [
 /**
  * GET /api/maintenance/[id] - Get a single maintenance request by ID
  * Includes team and provider assignment details.
+ * @deprecated Use `trpc.maintenance.getRequest` instead
  */
 export const GET = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
@@ -159,6 +160,7 @@ export const GET = withErrorHandler(
 /**
  * PATCH /api/maintenance/[id] - Update a maintenance request
  * Supports all 7 status values and tracks team/provider assignment changes.
+ * @deprecated Use `trpc.maintenance.updateRequest` instead
  */
 export const PATCH = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
@@ -493,6 +495,7 @@ export const PATCH = withErrorHandler(
 
 /**
  * DELETE /api/maintenance/[id] - Delete a maintenance request
+ * @deprecated Use `trpc.maintenance.deleteRequest` instead
  */
 export const DELETE = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {

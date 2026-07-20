@@ -24,6 +24,7 @@ export const maxDuration = 8;
 /**
  * PATCH /api/surveys/[id]/sections/[sectionId] - Update section fields.
  * Accepts partial body: title, description, image.
+ * @deprecated Use `trpc.surveys.updateSection` instead
  */
 export const PATCH = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string; sectionId: string }> }) => {
@@ -92,6 +93,7 @@ export const PATCH = withErrorHandler(
  * DELETE /api/surveys/[id]/sections/[sectionId] - Delete a section.
  * Questions that reference this section have their sectionId nullified via the
  * Question.sectionId SetNull cascade defined in the Prisma schema.
+ * @deprecated Use `trpc.surveys.removeSection` instead
  */
 export const DELETE = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string; sectionId: string }> }) => {

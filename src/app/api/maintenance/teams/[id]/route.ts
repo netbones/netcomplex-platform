@@ -21,6 +21,7 @@ export const maxDuration = 8;
  * @body trade - Updated trade category
  * @body contactName - Updated contact person
  * @body isActive - Toggle active status
+ * @deprecated Use `trpc.maintenance.updateTeam` instead
  */
 export const PATCH = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
@@ -67,6 +68,7 @@ export const PATCH = withErrorHandler(
 
 /**
  * DELETE /api/maintenance/teams/[id] - Soft-delete a maintenance team
+ * @deprecated Use `trpc.maintenance.deleteTeam` instead
  */
 export const DELETE = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {

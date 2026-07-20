@@ -22,6 +22,7 @@ export const dynamic = 'force-dynamic';
 /**
  * GET /api/maintenance/providers - List service providers for the tenant
  * @query isActive - Filter by active status (true/false, default: all)
+ * @deprecated Use `trpc.maintenance.listProviders` instead
  */
 export const GET = withErrorHandler(async (request: Request) => {
   const authError = await requireAnyPermission(['requests']);
@@ -55,6 +56,7 @@ export const GET = withErrorHandler(async (request: Request) => {
  * @body contactName - Contact person name (optional)
  * @body phone - Phone number (optional)
  * @body email - Email address (optional)
+ * @deprecated Use `trpc.maintenance.createProvider` instead
  */
 export const POST = withErrorHandler(async (request: Request) => {
   const authError = await requireAnyPermission(['requests']);
