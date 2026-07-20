@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
-import { authClient } from '@api/client';
+import { authClient, trpc } from '@api/client';
 import {
   AlertTriangle,
   Calendar,
@@ -17,21 +17,6 @@ import { getLocalizedValue } from '@shared/lib/i18n/config';
 import { useLanguage } from '@shared/lib/hooks/useSafeTranslation';
 import { useTenant } from '@entities/tenant';
 import { SetupProgressCard } from '@/features/setup';
-
-async function fetchJson<T>(url: string): Promise<T[]> {
-  try {
-    const res = await fetch(url);
-    if (!res.ok) return [];
-    const body = await res.json();
-    return (body?.data ?? body) as T[];
-  } catch {
-    return [];
-  }
-}
-
-function getUpcomingEvents() {
-  return fetchJson<EventItem>('/api/events?upcoming=true&limit=5');
-}
 
 // ═══════════════════════════════════════════════════════════════
 // TYPES
@@ -582,6 +567,7 @@ export function HomeLayer() {
   const { data: session } = authClient.useSession();
   const { language } = useLanguage();
   const tenant = useTenant();
+  const utils = trpc.useUtils();
 
   const role = session?.user?.role || 'RESIDENT';
   const userId = session?.user?.id;
@@ -602,36 +588,38 @@ export function HomeLayer() {
 
       // Single Promise.all for all zone data — avoids sequential render cascade
       Promise.all([
-        // Urgent announcements
-        fetchJson<Announcement>('/api/announcements?priority=urgent'),
-
-        // Overdue maintenance (resident: own; admin: all)
-        fetchJson<MaintenanceItem>(
-          userId
-            ? `/api/maintenance?overdue=true${role.toUpperCase() === 'RESIDENT' ? `&userId=${userId}` : ''}`
-            : '/api/maintenance?overdue=true'
-        ),
-
-        // Unread message count
-        fetch('/api/messages/unread')
-          .then(r => r.json())
-          .then(d => d?.data?.totalUnread ?? 0)
+        utils.client.content.listAnnouncements
+          .query({ priority: 'urgent' })
+          .then(r => r.data ?? [])
+          .catch(() => []),
+        utils.client.maintenance.listRequests
+          .query({ scope: 'mine' })
+          .then(r => r.data ?? [])
+          .catch(() => []),
+        utils.client.chat.getUnreadCounts
+          .query()
+          .then(d => d.totalUnread)
           .catch(() => 0),
-
-        // Upcoming events (filter today/tomorrow client-side)
-        getUpcomingEvents(),
-
-        // Bookings today
-        fetchJson<BookingItem>('/api/bookings?date=today'),
-
-        // Recent announcements (used for activity + community section)
-        fetchJson<Announcement>('/api/announcements?limit=5'),
-
-        // Community announcements (non-urgent)
-        fetchJson<Announcement>('/api/announcements?limit=5&priority=normal'),
-
-        // User's own maintenance requests for activity zone (scope=mine forces user-scoped view)
-        fetchJson<MaintenanceActivityRow>('/api/maintenance?limit=5&scope=mine'),
+        utils.client.events.listEvents
+          .query({ upcoming: true, limit: 5 })
+          .then(r => r.data ?? [])
+          .catch(() => []),
+        utils.client.bookings.listBookings
+          .query({ date: 'today' })
+          .then(r => r.data ?? [])
+          .catch(() => []),
+        utils.client.content.listAnnouncements
+          .query({ limit: 5 })
+          .then(r => r.data ?? [])
+          .catch(() => []),
+        utils.client.content.listAnnouncements
+          .query({ limit: 5, priority: 'normal' })
+          .then(r => r.data ?? [])
+          .catch(() => []),
+        utils.client.maintenance.listRequests
+          .query({ scope: 'mine' })
+          .then(r => r.data ?? [])
+          .catch(() => []),
       ])
         .then(
           ([
@@ -645,9 +633,9 @@ export function HomeLayer() {
             maintenanceRows,
           ]) => {
             // Filter events to today/tomorrow
-            const todayEvents = (upcomingEvents as EventItem[]).filter(
-              e => isToday(e.startDate) || isTomorrow(e.startDate)
-            );
+            const todayEvents = (upcomingEvents as Array<Record<string, unknown>>).filter(
+              e => isToday(e.date as string) || isTomorrow(e.date as string)
+            ) as unknown as EventItem[];
 
             // Transform maintenance items into activity items
             const maintenanceActivity = (maintenanceRows as MaintenanceActivityRow[]).map(m => ({
@@ -691,7 +679,7 @@ export function HomeLayer() {
           setLoading(false);
         });
     },
-    [userId, role]
+    [userId, language]
   );
 
   useEffect(() => {
