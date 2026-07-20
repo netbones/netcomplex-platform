@@ -21,6 +21,9 @@ export const maxDuration = 8;
 
 const log = createComponentLogger('urgency-api');
 
+/**
+ * @deprecated Use trpc.marketplace.getUrgencyLevels instead.
+ */
 export async function GET(request: Request) {
   try {
     const authError = await requireAnyPermission(['admin', 'settings']);

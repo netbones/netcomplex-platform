@@ -20,6 +20,9 @@ export async function GET(request: NextRequest) {
   }
 }
 
+/**
+ * @deprecated Use trpc.platform.createTenant instead.
+ */
 export async function POST(request: NextRequest) {
   const guard = await requirePlatformAdmin(request);
   if (guard) return guard;

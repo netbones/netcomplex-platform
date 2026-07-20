@@ -44,6 +44,9 @@ function getVisibility(displayStatus: string): 'full' | 'limited' | 'minimal' | 
   }
 }
 
+/**
+ * @deprecated Use trpc.providers.getAnalytics instead.
+ */
 export async function GET(request: NextRequest) {
   try {
     const providerAccess = await requireProviderAccess(request);

@@ -32,6 +32,7 @@ export const maxDuration = 8;
  * POST /api/disputes/[id]/assign — assign moderator.
  * BOARD/ADMIN only. Updates assignedModeratorId and logs ASSIGNED event
  * in a single transaction.
+ * @deprecated Use trpc.disputes.assignDispute instead.
  */
 export const POST = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {

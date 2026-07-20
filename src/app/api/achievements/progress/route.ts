@@ -18,6 +18,9 @@ export const maxDuration = 8;
 
 const log = createComponentLogger('achievements-progress-api');
 
+/**
+ * @deprecated Use trpc.achievements.getMyProgress instead.
+ */
 export async function GET(request: NextRequest) {
   try {
     const sessionRole = await getSessionAndRole();

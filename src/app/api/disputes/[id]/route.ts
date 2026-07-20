@@ -33,6 +33,7 @@ export const maxDuration = 8;
  */
 /**
  * GET /api/disputes/[id] - Get a single dispute with access control.
+ * @deprecated Use trpc.disputes.getDispute instead.
  */
 export const GET = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
@@ -78,6 +79,7 @@ export const GET = withErrorHandler(
 
 /**
  * PATCH /api/disputes/[id] - Update dispute fields with status transition validation.
+ * @deprecated Use trpc.disputes.updateDispute instead.
  */
 export const PATCH = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {

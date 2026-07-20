@@ -10,6 +10,9 @@ export const maxDuration = 8;
 
 const paypal = new PayPalService();
 
+/**
+ * @deprecated Use trpc.marketplace.handleWebhook instead.
+ */
 export async function POST(request: Request) {
   const payload = (await request.json().catch(() => null)) as {
     event_type?: string;

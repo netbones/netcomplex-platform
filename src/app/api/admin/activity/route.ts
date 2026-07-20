@@ -30,6 +30,9 @@ interface ActivityItemRaw {
   metadata: unknown;
 }
 
+/**
+ * @deprecated Use trpc.admin.activity.listActivity instead.
+ */
 export async function GET(request: NextRequest) {
   try {
     const authError = await requireAnyPermission(['admin', 'settings']);

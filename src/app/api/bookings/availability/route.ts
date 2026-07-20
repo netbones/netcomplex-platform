@@ -7,6 +7,9 @@ import { logError } from '@shared/lib';
 
 export const maxDuration = 8;
 
+/**
+ * @deprecated Use trpc.bookings.listFacilities instead.
+ */
 export async function GET(request: Request) {
   try {
     const session = await auth.api.getSession({

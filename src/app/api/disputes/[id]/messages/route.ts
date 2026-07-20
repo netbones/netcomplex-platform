@@ -41,6 +41,7 @@ const supabase = createClient(
 /**
  * GET /api/disputes/[id]/messages — list mediation messages with visibility filtering.
  * Parties see only non-internal messages; moderators see all messages.
+ * @deprecated Use trpc.disputes.listDisputeMessages instead.
  */
 export const GET = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
@@ -106,6 +107,7 @@ export const GET = withErrorHandler(
 /**
  * POST /api/disputes/[id]/messages — create mediation message with
  * isInternal enforcement, sanitizeHtml, and Supabase Realtime broadcast.
+ * @deprecated Use trpc.disputes.addDisputeMessage instead.
  */
 export const POST = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {

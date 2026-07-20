@@ -12,6 +12,9 @@ function parseDateParam(value: string | null): Date | null {
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
+/**
+ * @deprecated Use trpc.providers.getReputationHistory instead.
+ */
 export async function GET(request: NextRequest) {
   try {
     const providerAccess = await requireProviderAccess(request);

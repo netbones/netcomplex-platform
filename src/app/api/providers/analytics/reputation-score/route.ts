@@ -5,6 +5,9 @@ import { logError } from '@shared/lib';
 
 export const maxDuration = 8;
 
+/**
+ * @deprecated Use trpc.providers.getReputationScore instead.
+ */
 export async function GET(request: NextRequest) {
   try {
     const providerAccess = await requireProviderAccess(request);

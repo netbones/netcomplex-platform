@@ -29,6 +29,9 @@ const patchBodySchema = z.object({
   icon: z.string().optional(),
 });
 
+/**
+ * @deprecated Use trpc.achievements.updateAchievement instead.
+ */
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const sessionRole = await getSessionAndRole();

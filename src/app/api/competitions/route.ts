@@ -114,6 +114,7 @@ export const GET = withErrorHandler(async (request: Request) => {
 /**
  * POST /api/competitions - Create a new competition
  * Validates required fields and creates competition with tenant isolation.
+ * @deprecated Use trpc.competitions.createCompetition instead.
  */
 export const POST = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);

@@ -17,6 +17,9 @@ import { PROVIDER_LEGAL_DOCUMENTS, providerLegalAcceptanceSchema } from '@shared
 
 export const maxDuration = 8;
 
+/**
+ * @deprecated Use trpc.providers.getLegalDocuments instead.
+ */
 export const GET = withErrorHandler(async (request: Request) => {
   const { tenantId } = await withTenant();
   const moduleCheck = await assertModuleEnabled('providers');
@@ -35,6 +38,9 @@ export const GET = withErrorHandler(async (request: Request) => {
   });
 });
 
+/**
+ * @deprecated Use trpc.providers.acceptLegalAgreements instead.
+ */
 export const POST = withErrorHandler(async (request: Request) => {
   const auth = await getSessionAndRole(request);
   if (!auth) {

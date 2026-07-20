@@ -58,6 +58,7 @@ export const GET = withErrorHandler(
 /**
  * PATCH /api/competitions/[id] - Update competition by ID
  * Accepts partial updates. Returns updated competition.
+ * @deprecated Use trpc.competitions.updateCompetition instead.
  */
 export const PATCH = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
@@ -140,6 +141,7 @@ export const PATCH = withErrorHandler(
 
 /**
  * DELETE /api/competitions/[id] - Delete competition by ID
+ * @deprecated Use trpc.competitions.deleteCompetition instead.
  */
 export const DELETE = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {

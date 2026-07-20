@@ -11,6 +11,9 @@ import { logError } from '@shared/lib';
 
 export const maxDuration = 8;
 
+/**
+ * @deprecated Use trpc.marketplace.createCheckoutSession instead.
+ */
 export async function POST(request: NextRequest) {
   try {
     const { tenantId } = await withTenant();

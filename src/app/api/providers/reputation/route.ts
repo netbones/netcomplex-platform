@@ -6,6 +6,9 @@ import { and, desc, eq } from 'drizzle-orm';
 
 export const maxDuration = 8;
 
+/**
+ * @deprecated Use trpc.providers.getReputation instead.
+ */
 export async function GET(request: NextRequest) {
   try {
     const providerAccess = await requireProviderAccess(request);

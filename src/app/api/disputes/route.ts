@@ -34,6 +34,7 @@ export const maxDuration = 8;
  * @query category - Filter by dispute category
  * @query page - Page number (1-based, default 1)
  * @query limit - Items per page (default 20)
+ * @deprecated Use trpc.disputes.listDisputes instead.
  */
 export async function GET(request: Request) {
   const authData = await getSessionAndRole(request);
@@ -110,6 +111,7 @@ export async function GET(request: Request) {
  * @body respondentType - Optional respondent type (default: RESIDENT)
  * @body desiredOutcome - Optional desired outcome
  * @body severity - Optional severity level (default: MODERATE)
+ * @deprecated Use trpc.disputes.createDispute instead.
  */
 export async function POST(request: Request) {
   const authData = await getSessionAndRole(request);

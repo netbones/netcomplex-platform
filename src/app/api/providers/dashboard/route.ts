@@ -27,6 +27,9 @@ function resolveTitle(title: unknown): string {
   return 'Untitled listing';
 }
 
+/**
+ * @deprecated Use trpc.providers.getDashboard instead.
+ */
 export async function GET(request: NextRequest) {
   try {
     const providerAccess = await requireProviderAccess(request);

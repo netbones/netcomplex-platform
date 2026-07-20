@@ -39,6 +39,7 @@ export const maxDuration = 8;
  * - Only the complainant can submit (403)
  * - Cooling-off period must have elapsed (423 with remaining seconds)
  * - Atomic DRAFT→SUBMITTED transition with SUBMITTED event log
+ * @deprecated Use trpc.disputes.submitDispute instead.
  */
 export const POST = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {

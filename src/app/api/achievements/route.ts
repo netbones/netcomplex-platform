@@ -18,6 +18,9 @@ export const maxDuration = 8;
 
 const log = createComponentLogger('achievements-api');
 
+/**
+ * @deprecated Use trpc.achievements.listAchievements instead.
+ */
 export async function GET(request: NextRequest) {
   try {
     const sessionRole = await getSessionAndRole(request);

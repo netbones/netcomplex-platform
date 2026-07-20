@@ -30,6 +30,9 @@ function normalizeStatus(value: string | null | undefined): ProviderVerification
     : null;
 }
 
+/**
+ * @deprecated Use trpc.providers.getVerificationStatus instead.
+ */
 export async function GET(request: NextRequest) {
   try {
     const providerAccess = await requireProviderAccess(request);
@@ -54,6 +57,9 @@ export async function GET(request: NextRequest) {
   }
 }
 
+/**
+ * @deprecated Use trpc.providers.updateVerification instead.
+ */
 export async function PATCH(request: NextRequest) {
   try {
     const moduleCheck = await assertModuleEnabled('providers');

@@ -22,6 +22,9 @@ import { providerReviewApprovalSchema } from '@shared/lib/providers';
 
 export const maxDuration = 8;
 
+/**
+ * @deprecated Use trpc.providers.updateVerification instead.
+ */
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const moduleCheck = await assertModuleEnabled('providers');

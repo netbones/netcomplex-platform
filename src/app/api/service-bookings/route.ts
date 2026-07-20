@@ -43,6 +43,7 @@ const VALID_TRANSITIONS: Record<string, BookingStatus[]> = {
  *   role=resident — filter by session user's bookings (default)
  *   role=provider — filter by provider's bookings
  *   limit / offset — pagination
+ * @deprecated Use trpc.marketplace.listServiceBookings instead.
  */
 export async function GET(request: NextRequest) {
   try {
@@ -281,6 +282,7 @@ export async function POST(request: NextRequest) {
  *
  * Per T-50-17: provider can CONFIRM/COMPLETE; either party can CANCEL
  * Validates status transitions server-side
+ * @deprecated Use trpc.marketplace.cancelServiceBooking instead.
  */
 export async function PATCH(request: NextRequest) {
   try {

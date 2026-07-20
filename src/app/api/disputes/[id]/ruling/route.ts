@@ -35,6 +35,7 @@ export const maxDuration = 8;
  * BOARD/ADMIN only. Validates canTransition() before accepting,
  * sets rulingDescription and rulingIssuedAt, transitions to FORMAL_RULING,
  * and logs RULING_ISSUED event in a single transaction.
+ * @deprecated Use trpc.disputes.issueRuling instead.
  */
 export const POST = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {

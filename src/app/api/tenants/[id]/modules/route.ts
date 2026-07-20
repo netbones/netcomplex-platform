@@ -29,6 +29,9 @@ const TIER_ORDER: Record<TenantTier, number> = {
   ENTERPRISE: 3,
 };
 
+/**
+ * @deprecated Use trpc.platform.listTenantModules instead.
+ */
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const authData = await getSessionAndRole(request);
   if (!authData) return apiUnauthorized();
