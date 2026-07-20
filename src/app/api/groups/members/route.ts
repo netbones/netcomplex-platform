@@ -56,7 +56,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   return apiCreated(membership);
 });
 
-/** @deprecated Use `trpc.groups.leaveGroup` instead */
+/** @deprecated Use `trpc.groups.removeMember` instead */
 export const DELETE = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
   if (!authData) return apiUnauthorized();

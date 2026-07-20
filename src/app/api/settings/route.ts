@@ -21,6 +21,9 @@ import { validateSettingValue } from '@shared/lib/settings/validation';
 
 export const maxDuration = 8;
 
+/**
+ * @deprecated Use trpc.settings.listSettings instead.
+ */
 export const GET = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
   if (!authData) return apiUnauthorized();
@@ -50,6 +53,9 @@ export const GET = withErrorHandler(async (request: Request) => {
   return apiSuccess(settingResult[0] || { key, value: null });
 });
 
+/**
+ * @deprecated Use trpc.settings.upsertSetting instead.
+ */
 export const POST = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
   if (!authData) return apiUnauthorized();

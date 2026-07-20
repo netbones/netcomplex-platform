@@ -15,6 +15,9 @@ import { notDeleted } from '@api/server';
 
 export const maxDuration = 8;
 
+/**
+ * @deprecated Use trpc.invitations.cancelInvitation instead.
+ */
 export const DELETE = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
     const authData = await getSessionAndRole(request);

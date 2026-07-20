@@ -31,6 +31,9 @@ import { getLocalizedValue, getLocalizedContent, defaultLanguage } from '@shared
 
 export const maxDuration = 8;
 
+/**
+ * @deprecated Use trpc.identity.getProfile instead.
+ */
 export const GET = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;
@@ -270,6 +273,9 @@ export const GET = withErrorHandler(
   }
 );
 
+/**
+ * @deprecated Use trpc.identity.updateProfile instead.
+ */
 export const PATCH = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;

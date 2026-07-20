@@ -20,6 +20,9 @@ export const maxDuration = 8;
  * Validates an invitation token and returns invitation details.
  * Does NOT require authentication — used by the /invite/[token] page.
  */
+/**
+ * @deprecated Use trpc.invitations.validateInvitation instead.
+ */
 export const GET = withErrorHandler(async (request: Request) => {
   const { searchParams } = new URL(request.url);
   const token = searchParams.get('token');

@@ -30,6 +30,9 @@ export const maxDuration = 8;
  * Returns { key, value } or { key, value: null } if not found.
  * Supports optional ?key= query param as well (for convenience).
  */
+/**
+ * @deprecated Use trpc.settings.getSetting instead.
+ */
 export async function GET(request: Request, { params }: { params: Promise<{ key: string }> }) {
   const { key } = await params;
   const { searchParams } = new URL(request.url);
@@ -59,6 +62,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ key:
  * PATCH /api/settings/[key] — Upsert a setting value for the current tenant.
  * Requires auth + admin permission.
  * Body: { value: string } — the setting value (typically JSON string for complex configs)
+ */
+/**
+ * @deprecated Use trpc.settings.upsertSetting instead.
  */
 export async function PATCH(request: Request, { params }: { params: Promise<{ key: string }> }) {
   const authData = await getSessionAndRole(request);
@@ -138,6 +144,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ ke
 /**
  * DELETE /api/settings/[key] — Soft-delete a setting for the current tenant.
  * Requires auth + admin permission.
+ */
+/**
+ * @deprecated Use trpc.settings.deleteSetting instead.
  */
 export async function DELETE(request: Request, { params }: { params: Promise<{ key: string }> }) {
   const authData = await getSessionAndRole(request);

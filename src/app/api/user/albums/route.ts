@@ -17,6 +17,9 @@ import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
+/**
+ * @deprecated Use trpc.identity.createAlbum instead.
+ */
 export async function POST(request: NextRequest) {
   try {
     const session = await auth.api.getSession({
@@ -127,6 +130,9 @@ export async function POST(request: NextRequest) {
   }
 }
 
+/**
+ * @deprecated Use trpc.identity.listAlbums instead.
+ */
 export async function GET(request: Request) {
   try {
     const session = await auth.api.getSession({

@@ -16,6 +16,9 @@ import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
+/**
+ * @deprecated Use trpc.content.getLikes instead.
+ */
 export const GET = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;
@@ -50,6 +53,9 @@ export const GET = withErrorHandler(
   }
 );
 
+/**
+ * @deprecated Use trpc.content.toggleLike instead.
+ */
 export const POST = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;
@@ -84,6 +90,9 @@ export const POST = withErrorHandler(
   }
 );
 
+/**
+ * @deprecated Use trpc.content.toggleLike instead.
+ */
 export const DELETE = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;

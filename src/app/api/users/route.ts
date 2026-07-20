@@ -36,6 +36,9 @@ export const maxDuration = 8;
 /**
  * GET /api/users - List users with optional filters
  */
+/**
+ * @deprecated Use trpc.identity.listUsers instead.
+ */
 export const GET = withErrorHandler(async (request: Request) => {
   // Enforce tenant isolation
   const { tenantId } = await withTenant();
@@ -189,6 +192,9 @@ export const GET = withErrorHandler(async (request: Request) => {
 
 /**
  * POST /api/users - Create a new user (admin only)
+ */
+/**
+ * @deprecated Use trpc.identity.createProfile instead.
  */
 export const POST = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);

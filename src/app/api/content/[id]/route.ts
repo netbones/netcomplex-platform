@@ -73,6 +73,9 @@ function transformContentForLocale(content: Record<string, unknown>, userLocale:
   };
 }
 
+/**
+ * @deprecated Use trpc.content.getContent instead.
+ */
 export const GET = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;
@@ -175,6 +178,9 @@ export const GET = withErrorHandler(
  * @body defaultLocale - Fallback locale
  * @body contentType - "article" or "campaign"
  */
+/**
+ * @deprecated Use trpc.content.updateContent instead.
+ */
 export const PATCH = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;
@@ -257,6 +263,9 @@ export const PATCH = withErrorHandler(
   }
 );
 
+/**
+ * @deprecated Use trpc.content.softDeleteContent instead.
+ */
 export const DELETE = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;

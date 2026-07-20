@@ -71,6 +71,9 @@ function buildVisibilityFilter(role: string | null | undefined, isOwner: boolean
  *   - category: filter by ResourceCategory
  *   - visibility: admin-only filter by ResourceVisibility
  */
+/**
+ * @deprecated Use trpc.resources.listResources instead.
+ */
 export const GET = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
   const role = authData?.role || null;
@@ -117,6 +120,9 @@ export const GET = withErrorHandler(async (request: Request) => {
 /**
  * POST /api/resources - Create a new resource
  * Requires ADMIN/MANAGER role. Sets tenantId from withTenant(), authorId from session.
+ */
+/**
+ * @deprecated Use trpc.resources.createResource instead.
  */
 export const POST = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);

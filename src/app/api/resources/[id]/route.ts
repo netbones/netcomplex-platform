@@ -45,6 +45,9 @@ async function checkUserOwnsProperty(userId: string, tenantId: string): Promise<
 /**
  * GET /api/resources/[id] - Read single resource with visibility check
  */
+/**
+ * @deprecated Use trpc.resources.getResource instead.
+ */
 export const GET = withErrorHandler(
   async (_request: Request, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;
@@ -119,6 +122,9 @@ export const GET = withErrorHandler(
  * PATCH /api/resources/[id] - Update resource
  * Requires ADMIN/MANAGER role.
  */
+/**
+ * @deprecated Use trpc.resources.updateResource instead.
+ */
 export const PATCH = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;
@@ -190,6 +196,9 @@ export const PATCH = withErrorHandler(
 /**
  * DELETE /api/resources/[id] - Delete resource
  * Requires ADMIN role.
+ */
+/**
+ * @deprecated Use trpc.resources.deleteResource instead.
  */
 export const DELETE = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {

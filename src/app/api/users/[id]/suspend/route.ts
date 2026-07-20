@@ -47,6 +47,9 @@ interface SuspendBody {
  * Deactivates the user account and records the suspension reason.
  * Only ADMIN/MANAGER roles with 'users' permission can suspend.
  */
+/**
+ * @deprecated Use trpc.identity.suspendUser instead.
+ */
 export const POST = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;

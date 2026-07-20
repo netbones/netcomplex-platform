@@ -23,6 +23,9 @@ export const maxDuration = 8;
  * If the user already exists (by email), links them to the tenant with the invited role.
  * If the user doesn't exist, returns the invitation details for token-based signup.
  */
+/**
+ * @deprecated Use trpc.invitations.acceptInvitation instead.
+ */
 export async function POST(request: Request) {
   try {
     const body = await request.json();

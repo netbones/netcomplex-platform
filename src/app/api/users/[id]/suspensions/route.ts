@@ -22,6 +22,9 @@ export const maxDuration = 8;
  * Returns all past and present suspension records, ordered by most recent first.
  * Only ADMIN/MANAGER roles with 'users' permission can view suspension history.
  */
+/**
+ * @deprecated Use trpc.identity.listSuspensions instead.
+ */
 export const GET = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;

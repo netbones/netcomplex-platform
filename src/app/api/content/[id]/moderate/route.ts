@@ -19,6 +19,9 @@ import type { ModerationStatus } from '@api/shared';
 
 export const maxDuration = 8;
 
+/**
+ * @deprecated Use trpc.content.moderateContent instead.
+ */
 export const PATCH = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;

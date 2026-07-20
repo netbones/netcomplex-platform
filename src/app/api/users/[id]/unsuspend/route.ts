@@ -27,6 +27,9 @@ export const maxDuration = 8;
  * Marks the active suspension as inactive and sets user isActive=true atomically.
  * Only ADMIN/MANAGER roles with 'users' permission can unsuspend.
  */
+/**
+ * @deprecated Use trpc.identity.unsuspendUser instead.
+ */
 export const POST = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;

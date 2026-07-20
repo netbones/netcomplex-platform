@@ -43,6 +43,9 @@ export const maxDuration = 8;
  * @query authorId - Filter by author ID (for user's own content)
  * @query locale - Content locale to fetch (default: user's browser locale or 'en')
  */
+/**
+ * @deprecated Use trpc.content.listContent instead.
+ */
 export const GET = withErrorHandler(async (request: Request) => {
   // Enforce tenant isolation
   const { tenantId } = await withTenant();
@@ -85,6 +88,9 @@ export const GET = withErrorHandler(async (request: Request) => {
  * @body published - Whether published
  * @body defaultLocale - Fallback locale (default: "en")
  * @body contentType - "article" or "campaign"
+ */
+/**
+ * @deprecated Use trpc.content.createContent instead.
  */
 export const POST = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);

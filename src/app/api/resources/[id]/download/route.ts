@@ -5,6 +5,9 @@ import { withTenant } from '@entities/tenant/server';
 
 export const maxDuration = 8;
 
+/**
+ * @deprecated Use trpc.resources.incrementDownloadCount instead.
+ */
 export const POST = withErrorHandler(
   async (_request: Request, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;

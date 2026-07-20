@@ -16,6 +16,9 @@ import { logError } from '@shared/lib';
 
 export const maxDuration = 8;
 
+/**
+ * @deprecated Use trpc.identity.listPublicAlbums instead.
+ */
 export async function GET(request: NextRequest) {
   try {
     const authData = await getSessionAndRole(request);

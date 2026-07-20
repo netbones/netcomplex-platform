@@ -24,6 +24,9 @@ export const maxDuration = 8;
 
 const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL || 'http://localhost:3000';
 
+/**
+ * @deprecated Use trpc.invitations.listInvitations instead.
+ */
 export async function GET(request: Request) {
   const authData = await getSessionAndRole(request);
   if (!authData) return apiUnauthorized();
@@ -39,6 +42,9 @@ export async function GET(request: Request) {
   return apiSuccess(invitationList);
 }
 
+/**
+ * @deprecated Use trpc.invitations.createInvitation instead.
+ */
 export async function POST(request: Request) {
   const authData = await getSessionAndRole(request);
   if (!authData) return apiUnauthorized();
