@@ -20,6 +20,7 @@ import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
+/** @deprecated Use `trpc.conversations.listConversations` instead */
 export const GET = withErrorHandler(async (request: Request) => {
   const session = await auth.api.getSession({
     headers: request.headers,
@@ -106,6 +107,7 @@ export const GET = withErrorHandler(async (request: Request) => {
   return apiSuccess(conversationsWithDetails);
 });
 
+/** @deprecated Use `trpc.conversations.createConversation` instead */
 export const POST = withErrorHandler(async (request: Request) => {
   const session = await auth.api.getSession({
     headers: request.headers,

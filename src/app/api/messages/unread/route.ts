@@ -22,6 +22,7 @@ export const maxDuration = 8;
 
 /**
  * GET /api/messages/unread - Get unread message counts for current user
+ * @deprecated Use `trpc.chat.getUnreadCounts` instead
  */
 export async function GET(request: NextRequest) {
   try {
@@ -172,6 +173,7 @@ export async function GET(request: NextRequest) {
 
 /**
  * POST /api/messages/unread - Mark conversation as read
+ * @deprecated Use `trpc.chat.markAsRead` instead
  */
 export async function POST(request: NextRequest) {
   try {

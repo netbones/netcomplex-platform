@@ -51,6 +51,7 @@ const supabase = createClient(
  * GET /api/messages - Get messages for a conversation
  * @query conversationId - Required conversation ID
  * Requires authentication
+ * @deprecated Use `trpc.chat.getMessages` instead
  */
 export async function GET(request: Request) {
   const authData = await getSessionAndRole(request);
@@ -128,6 +129,7 @@ export async function GET(request: Request) {
  * @body content - Message content
  * @body type - Message type (defaults to TEXT)
  * Requires authentication
+ * @deprecated Use `trpc.chat.sendMessage` instead
  */
 export async function POST(request: Request) {
   const authData = await getSessionAndRole(request);

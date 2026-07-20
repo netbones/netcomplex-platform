@@ -22,6 +22,7 @@ export const maxDuration = 8;
 
 const log = createComponentLogger('messages-urgency-api');
 
+/** @deprecated Use `trpc.chat.getMessageUrgency` instead */
 export async function GET() {
   try {
     const session = await auth.api.getSession({

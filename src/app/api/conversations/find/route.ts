@@ -21,6 +21,7 @@ interface ConversationResult {
   [key: string]: unknown;
 }
 
+/** @deprecated Use `trpc.conversations.findOrCreateConversation` instead */
 export const POST = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
   if (!authData) return apiUnauthorized();
