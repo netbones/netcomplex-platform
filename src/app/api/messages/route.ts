@@ -237,6 +237,7 @@ export async function POST(request: Request) {
 /**
  * DELETE /api/messages - Prune expired messages (can be called by cron job)
  * Requires authentication
+ * @deprecated Use trpc.chat.deleteMessage instead.
  */
 export async function DELETE(request: Request) {
   const authData = await getSessionAndRole(request);

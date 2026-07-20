@@ -8,6 +8,9 @@ import { eq, desc, and, lt, isNull } from 'drizzle-orm';
 
 export const maxDuration = 8;
 
+/**
+ * @deprecated Use trpc.admin.billing.getRevenue instead.
+ */
 export async function GET(request: NextRequest) {
   const guard = await requirePlatformAdmin(request);
   if (guard) return guard;

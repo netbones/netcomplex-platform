@@ -9,8 +9,11 @@ import { eq, and, desc, like, or } from 'drizzle-orm';
 
 export const maxDuration = 8;
 
-// GET /api/admin/platform/billing/subscriptions
-// Query params: ?status=ACTIVE&tenantId=xxx&search=planName
+/**
+ * GET /api/admin/platform/billing/subscriptions
+ * Query params: ?status=ACTIVE&tenantId=xxx&search=planName
+ * @deprecated Use trpc.admin.billing.listSubscriptions instead.
+ */
 export async function GET(request: NextRequest) {
   const guard = await requirePlatformAdmin(request);
   if (guard) return guard;

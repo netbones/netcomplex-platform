@@ -29,6 +29,9 @@ async function getUserId(request: Request): Promise<string | null> {
   return session?.user?.id || null;
 }
 
+/**
+ * @deprecated Use trpc.identity.getDashboardStats instead.
+ */
 export const GET = withErrorHandler(async (request: Request) => {
   const { tenantId } = await withTenant();
   const userId = await getUserId(request);

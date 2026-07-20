@@ -13,6 +13,9 @@ import { logError } from '@shared/lib';
 
 export const maxDuration = 8;
 
+/**
+ * @deprecated Use trpc.media.listMedia instead.
+ */
 export async function GET(request: Request) {
   await withTenant();
   const session = await auth.api.getSession({

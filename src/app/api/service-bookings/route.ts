@@ -146,6 +146,7 @@ export async function GET(request: NextRequest) {
  * Booking created with status=PENDING_CONFIRMATION, paymentStatus=PENDING
  * Per T-50-14: userId from session, providerId from listing (not request body)
  * Per T-50-15: conflict check on (listingId, date, startTime) where status != CANCELLED
+ * @deprecated Use trpc.marketplace.createServiceBooking instead.
  */
 export async function POST(request: NextRequest) {
   try {
