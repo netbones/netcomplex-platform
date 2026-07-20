@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import NextImage from 'next/image';
 import { Image as ImageIcon, Globe, ChevronLeft } from 'lucide-react';
+import { trpc } from '@api/client';
 
 interface PublicAlbum {
   id: string;
@@ -20,11 +21,12 @@ export function CommunityGalleryWidget() {
   const [albums, setAlbums] = useState<PublicAlbum[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedAlbum, setSelectedAlbum] = useState<PublicAlbum | null>(null);
+  const utils = trpc.useUtils();
 
   useEffect(() => {
-    fetch('/api/user/albums/public')
-      .then(r => r.json())
-      .then(d => setAlbums(d?.albums || []))
+    utils.client.identity.listPublicAlbums
+      .query()
+      .then(d => setAlbums((d as { albums: PublicAlbum[] })?.albums || []))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
@@ -140,12 +142,15 @@ export function CommunityGalleryWidget() {
 
 function AlbumMediaThumbnail({ mediaId }: { mediaId: string }) {
   const [url, setUrl] = useState<string | null>(null);
+  const utils = trpc.useUtils();
 
   useEffect(() => {
-    fetch('/api/media')
-      .then(r => r.json())
+    utils.client.media.listMedia
+      .query()
       .then(d => {
-        const item = (d?.images || []).find((img: { key: string }) => img.key === mediaId);
+        const item = ((d as { images: Array<{ key: string; url: string }> })?.images || []).find(
+          (img: { key: string }) => img.key === mediaId
+        );
         if (item) setUrl(item.url);
       })
       .catch(() => {});
