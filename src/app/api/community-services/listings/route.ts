@@ -60,7 +60,7 @@ type ListingStatus = (typeof communityServiceListings.status.enumValues)[number]
 type ServiceCategory = (typeof communityServiceListings.category.enumValues)[number];
 
 /**
- * GET /api/community-services/listings - Get community service listings
+ * @deprecated Use trpc.marketplace.listListings instead.
  */
 export async function GET(request: NextRequest) {
   try {
@@ -305,7 +305,7 @@ export async function GET(request: NextRequest) {
 }
 
 /**
- * POST /api/community-services/listings - Create a new service listing
+ * @deprecated Use trpc.marketplace.createListing instead.
  */
 export async function POST(request: NextRequest) {
   try {

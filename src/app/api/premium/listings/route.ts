@@ -22,7 +22,7 @@ import { createId } from '@shared/lib/id';
 export const maxDuration = 8;
 
 /**
- * GET /api/premium/listings - Get property listings for premium user
+ * @deprecated Use trpc.marketplace.listPremiumListings instead.
  */
 export async function GET(request: NextRequest) {
   try {
@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
 }
 
 /**
- * POST /api/premium/listings - Create a new property listing
+ * @deprecated Use trpc.marketplace.createPremiumListing instead.
  */
 export async function POST(request: NextRequest) {
   try {

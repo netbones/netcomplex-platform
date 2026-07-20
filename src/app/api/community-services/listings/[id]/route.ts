@@ -25,7 +25,7 @@ import { logError } from '@shared/lib';
 export const maxDuration = 8;
 
 /**
- * GET /api/community-services/listings/[id] - Get a specific service listing
+ * @deprecated Use trpc.marketplace.getListing instead.
  */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -160,7 +160,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 }
 
 /**
- * PUT /api/community-services/listings/[id] - Update a service listing
+ * @deprecated Use trpc.marketplace.updateListing instead.
  */
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -280,7 +280,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 }
 
 /**
- * DELETE /api/community-services/listings/[id] - Delete a service listing
+ * @deprecated Use trpc.marketplace.deleteListing instead.
  */
 export async function DELETE(
   request: NextRequest,

@@ -22,7 +22,7 @@ import { logError } from '@shared/lib';
 export const maxDuration = 8;
 
 /**
- * GET /api/community-services/analytics - Get marketplace analytics
+ * @deprecated Use trpc.marketplace.getAnalytics instead.
  */
 export async function GET(request: NextRequest) {
   try {

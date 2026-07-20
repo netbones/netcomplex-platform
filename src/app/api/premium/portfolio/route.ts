@@ -21,8 +21,7 @@ import { logError } from '@shared/lib';
 export const maxDuration = 8;
 
 /**
- * POST /api/premium/upgrade-portfolio - Upgrade to Premium Seat with multi-property portfolio
- * Body: { householdIds: string[] } - Array of household IDs to include in portfolio
+ * @deprecated Use trpc.marketplace.activatePremiumSeat instead.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -192,7 +191,7 @@ export async function POST(request: NextRequest) {
 }
 
 /**
- * GET /api/premium/portfolio - Get user's premium portfolio
+ * @deprecated Use trpc.marketplace.getPortfolio instead.
  */
 export async function GET(request: NextRequest) {
   try {

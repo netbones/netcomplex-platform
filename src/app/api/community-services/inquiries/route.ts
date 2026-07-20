@@ -28,7 +28,7 @@ export const maxDuration = 8;
 type InquiryStatus = (typeof communityServiceInquiries.status.enumValues)[number];
 
 /**
- * GET /api/community-services/inquiries - Get user's inquiries (as inquirer)
+ * @deprecated Use trpc.marketplace.listInquiries instead.
  */
 export async function GET(request: NextRequest) {
   try {
@@ -174,7 +174,7 @@ export async function GET(request: NextRequest) {
 }
 
 /**
- * POST /api/community-services/inquiries - Create a service inquiry
+ * @deprecated Use trpc.marketplace.createInquiry instead.
  */
 export async function POST(request: NextRequest) {
   try {

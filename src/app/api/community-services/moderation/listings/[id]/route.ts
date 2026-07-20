@@ -22,7 +22,7 @@ export const maxDuration = 8;
 type ListingStatus = (typeof communityServiceListings.status.enumValues)[number];
 
 /**
- * GET /api/community-services/moderation/listings - Get listings requiring moderation
+ * @deprecated Use trpc.marketplace.listModerationQueue instead.
  */
 export async function GET(request: NextRequest) {
   try {
@@ -119,7 +119,7 @@ export async function GET(request: NextRequest) {
 }
 
 /**
- * POST /api/community-services/moderation/listings/[id]/approve - Approve a listing
+ * @deprecated Use trpc.marketplace.moderateListing instead.
  */
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {

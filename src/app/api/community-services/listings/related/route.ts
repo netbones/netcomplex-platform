@@ -19,6 +19,9 @@ import { logError } from '@shared/lib';
 
 export const maxDuration = 5;
 
+/**
+ * @deprecated Use trpc.marketplace.getRelatedListings instead.
+ */
 export async function GET(request: NextRequest) {
   try {
     // Enforce tenant isolation

@@ -40,7 +40,7 @@ function getPreferredLocale(request: Request): string {
 }
 
 /**
- * GET /api/community-services/provider/inquiries - Get inquiries for provider's listings
+ * @deprecated Use trpc.marketplace.listProviderInquiries instead.
  */
 export async function GET(request: NextRequest) {
   try {
@@ -170,7 +170,7 @@ export async function GET(request: NextRequest) {
 }
 
 /**
- * POST /api/community-services/provider/inquiries/[id]/respond - Respond to an inquiry
+ * @deprecated Use trpc.marketplace.respondToInquiry instead.
  */
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {

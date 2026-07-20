@@ -20,7 +20,7 @@ import { logError } from '@shared/lib';
 export const maxDuration = 8;
 
 /**
- * POST /api/community-services/listings/[id]/publish - Publish or unpublish a listing
+ * @deprecated Use trpc.marketplace.publishListing instead.
  */
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {

@@ -23,7 +23,7 @@ import { createId } from '@shared/lib/id';
 export const maxDuration = 8;
 
 /**
- * GET /api/community-services/reviews/[listingId] - Get reviews for a listing
+ * @deprecated Use trpc.marketplace.listReviews instead.
  */
 export async function GET(
   request: NextRequest,
@@ -124,7 +124,7 @@ export async function GET(
 }
 
 /**
- * POST /api/community-services/reviews/[listingId] - Create a review for a listing
+ * @deprecated Use trpc.marketplace.createReview instead.
  */
 export async function POST(
   request: NextRequest,
