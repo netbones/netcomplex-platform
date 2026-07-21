@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   dbMock: {
     select: vi.fn(),
     insert: vi.fn(),
+    update: vi.fn(),
     delete: vi.fn(),
   },
 }));
@@ -26,6 +27,9 @@ vi.mock('@api/server', async () => {
       joinedAt: 'joinedAt',
     },
     getSessionAndRole: (...args: unknown[]) => mocks.getSessionAndRole(...args),
+    notDeleted: vi.fn(() => true),
+    guardSuspension: vi.fn(() => null),
+    CACHE_TAGS: {},
     now: () => new Date(),
     withErrorHandler: (handler: any) => handler,
     apiSuccess: (data: unknown, _meta?: unknown, status = 200) =>
@@ -46,7 +50,9 @@ vi.mock('@entities/tenant/server', () => ({
   withTenant: () => Promise.resolve({ tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' }),
 }));
 
-vi.mock('@shared/lib', () => ({}));
+vi.mock('@shared/lib', () => ({
+  createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
+}));
 
 import { POST, DELETE } from '@/app/api/groups/members/route';
 
@@ -58,6 +64,11 @@ describe('Groups Members API', () => {
     mocks.dbMock.select.mockReturnValue(makeSelectChain([]));
     mocks.dbMock.insert.mockReturnValue(makeInsertChain([{ id: 'mem-1' }]));
     mocks.dbMock.delete.mockReturnValue(makeDeleteChain());
+  mocks.dbMock.update.mockReturnValue({
+    set: vi.fn(() => ({
+      where: vi.fn(() => Promise.resolve()),
+    })),
+  });
   });
 
   afterEach(() => {
@@ -170,7 +181,7 @@ describe('Groups Members API', () => {
 
       expect(res.status).toBe(200);
       expect((body as any).data).toEqual({ success: true });
-      expect(mocks.dbMock.delete).toHaveBeenCalledTimes(1);
+      expect(mocks.dbMock.update).toHaveBeenCalledTimes(1);
     });
   });
 });

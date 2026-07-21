@@ -18,6 +18,7 @@ vi.mock('next/headers', () => ({
 
 const mocks = vi.hoisted(() => ({
   sessionResult: null as { user: { id: string } } | null,
+  mockRole: 'ADMIN' as string,
   tenantResult: { tenantId: 'test-tenant-id' as string, tenantSlug: 'test-tenant' as string },
   dbMock: {
     select: vi.fn(),
@@ -43,8 +44,20 @@ vi.mock('@api/server', async () => {
         getSession: () => Promise.resolve(mocks.sessionResult),
       },
     },
+    getSessionAndRole: vi.fn(() => {
+      if (!mocks.sessionResult) return Promise.resolve(null);
+      return Promise.resolve({
+        session: { user: { id: mocks.sessionResult.user.id, email: 'test@test.com', name: 'Test' } },
+        userId: mocks.sessionResult.user.id,
+        role: mocks.mockRole,
+        suspension: null,
+      });
+    }),
+    notDeleted: vi.fn(() => true),
+    guardSuspension: vi.fn(() => null),
     db: mocks.dbMock,
     users: { id: 'id', role: 'role', name: 'name' },
+    toBookingDTO: mocks.toBookingDTO,
     revalidateDashboard: mocks.revalidateDashboard,
     emitEvent: vi.fn(),
     now: () => new Date('2026-06-21T12:00:00Z'),
@@ -81,6 +94,7 @@ vi.mock('@shared/lib', () => ({
     return false;
   },
   apiLogger: mocks.apiLogger,
+  createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
 }));
 
 vi.mock('@entities/booking', () => ({
@@ -105,6 +119,7 @@ describe('Bookings API', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.sessionResult = null;
+    mocks.mockRole = 'ADMIN';
     mocks.tenantResult = { tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' };
     mocks.assertModuleEnabled.mockResolvedValue(null);
     mocks.bookingSafeParse.mockReturnValue({ success: true, data: {} });
@@ -201,6 +216,7 @@ describe('Bookings API', () => {
 
     it('passes canViewAll=true for admin roles', async () => {
       mocks.sessionResult = { user: { id: 'user-1' } };
+      mocks.mockRole = 'BOARD';
       mocks.dbMock.select.mockReturnValue(makeSelectChain([{ role: 'BOARD' }]));
       mocks.listBookings.mockResolvedValue([]);
 
@@ -213,6 +229,7 @@ describe('Bookings API', () => {
 
     it('passes canViewAll=false for resident role', async () => {
       mocks.sessionResult = { user: { id: 'user-1' } };
+      mocks.mockRole = 'RESIDENT';
       mocks.dbMock.select.mockReturnValue(makeSelectChain([{ role: 'RESIDENT' }]));
       mocks.listBookings.mockResolvedValue([]);
 
@@ -237,6 +254,7 @@ describe('Bookings API', () => {
 
     it('defaults role to RESIDENT when user result is empty', async () => {
       mocks.sessionResult = { user: { id: 'user-1' } };
+      mocks.mockRole = 'RESIDENT';
       // Empty user result triggers fallback to 'RESIDENT'
       mocks.dbMock.select.mockReturnValue(makeSelectChain([]));
       mocks.listBookings.mockResolvedValue([]);

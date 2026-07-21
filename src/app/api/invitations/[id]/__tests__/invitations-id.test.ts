@@ -37,7 +37,8 @@ vi.mock('@api/server', async () => {
       ) as any,
     apiUnauthorized: (message?: string) => mocks.apiUnauthorized(message),
     getSessionAndRole: (...args: unknown[]) => mocks.getSessionAndRole(...args),
-    notDeleted: vi.fn(),
+    notDeleted: vi.fn(() => true),
+    guardSuspension: vi.fn(() => null),
     now: () => mocks.now(),
     withErrorHandler: (handler: any) => handler,
   };
@@ -49,6 +50,7 @@ vi.mock('@entities/tenant/server', () => ({
 
 vi.mock('@shared/lib', () => ({
   apiLogger: { error: vi.fn(), info: vi.fn(), warn: vi.fn() },
+  createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
 }));
 
 import { DELETE } from '@/app/api/invitations/[id]/route';

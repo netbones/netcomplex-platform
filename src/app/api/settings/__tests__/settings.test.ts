@@ -70,6 +70,8 @@ vi.mock('@api/server', () => ({
   getSessionAndRole: vi.fn(() =>
     Promise.resolve(mocks.authSession ? { userId: mocks.authSession.user.id, role: 'ADMIN' } : null)
   ),
+  notDeleted: vi.fn(() => true),
+  guardSuspension: vi.fn(() => null),
   revalidateAdminChanges: vi.fn(),
   now: vi.fn(() => new Date('2026-06-21T12:00:00Z')),
 }));
@@ -85,6 +87,7 @@ vi.mock('@entities/tenant', () => ({
 
 vi.mock('@shared/lib', () => ({
   hasPermission: vi.fn(() => true),
+  createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
 }));
 
 vi.mock('@shared/lib/settings/validation', () => ({

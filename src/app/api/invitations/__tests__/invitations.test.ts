@@ -54,7 +54,7 @@ vi.mock('@api/server', () => ({
   sendEmail: (...args: unknown[]) => mocks.sendEmail(...args),
   templates: {
     teamInvitation: {
-      subject: 'You have been invited',
+      subject: vi.fn(() => 'You have been invited'),
       getHtml: vi.fn().mockReturnValue('<html>invitation</html>'),
     },
   },
@@ -62,6 +62,8 @@ vi.mock('@api/server', () => ({
   apiError: vi.fn(),
   apiCreated: mocks.apiCreated,
   getSessionAndRole: (...args: unknown[]) => mocks.getSessionAndRole(...args),
+  notDeleted: vi.fn(() => true),
+  guardSuspension: vi.fn(() => null),
   apiUnauthorized: (...args: unknown[]) => mocks.apiUnauthorized(...args),
 }));
 
@@ -71,6 +73,7 @@ vi.mock('@entities/tenant/server', () => ({
 
 vi.mock('@shared/lib', () => ({
   apiLogger: { error: vi.fn(), info: vi.fn(), warn: vi.fn() },
+  createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
 }));
 
 import { GET, POST } from '@/app/api/invitations/route';

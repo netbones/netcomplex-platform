@@ -2,7 +2,7 @@
  * Core CRUD route handler tests for dispute API.
  * Plan 106-01 Task 2 — TDD RED phase.
  */
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from 'vitest';
 
 // ── Hoisted mock state ──
 const mocks = vi.hoisted(() => ({
@@ -11,6 +11,20 @@ const mocks = vi.hoisted(() => ({
   dbMock: {
     select: vi.fn(() => ({
       from: vi.fn(() => ({
+        leftJoin: vi.fn(() => ({
+          where: vi.fn(() => ({
+            limit: vi.fn(() => ({
+              orderBy: vi.fn(() => ({
+                offset: vi.fn(() => Promise.resolve([])),
+              })),
+            })),
+            orderBy: vi.fn(() => ({
+              limit: vi.fn(() => ({
+                offset: vi.fn(() => Promise.resolve([])),
+              })),
+            })),
+          })),
+        })),
         where: vi.fn(() => ({
           limit: vi.fn(() => ({
             orderBy: vi.fn(() => ({
@@ -49,15 +63,14 @@ vi.mock('next/headers', () => ({
 }));
 
 vi.mock('@api/server', () => ({
-  auth: {
-    api: {
-      getSession: vi.fn(() => Promise.resolve(mocks.sessionResult)),
-    },
-  },
+  auth: { api: { getSession: vi.fn(() => Promise.resolve(mocks.sessionResult)) } },
   db: mocks.dbMock,
   disputeCases: {},
   disputeEvents: {},
+  disputeEvidences: {},
   users: {},
+  notDeleted: vi.fn(() => true),
+  guardSuspension: vi.fn(() => null),
   apiSuccess: vi.fn(
     (data: unknown) =>
       new Response(JSON.stringify({ success: true, data }), {
@@ -133,7 +146,6 @@ vi.mock('@api/server', () => ({
         { status: 409, headers: { 'Content-Type': 'application/json' } }
       )
   ),
-
   withErrorHandler: (fn: (...args: unknown[]) => unknown) => fn,
   revalidateDashboard: vi.fn(),
   now: () => new Date(),
@@ -181,9 +193,14 @@ vi.mock('@shared/lib', () => ({
     return false;
   }),
   apiLogger: { error: vi.fn() },
+  createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
 }));
 
-// ── Import the route handlers (will fail until created) ──
+// Pre-warm route imports to avoid i18n timeout on first test
+beforeAll(async () => {
+  await import('../route');
+  await import('../[id]/route');
+});
 
 describe('Dispute API — route.ts (GET list, POST create)', () => {
   beforeEach(() => {
@@ -193,7 +210,7 @@ describe('Dispute API — route.ts (GET list, POST create)', () => {
   afterEach(() => vi.restoreAllMocks());
 
   describe('GET /api/disputes', () => {
-    it('returns 401 when no auth session', async () => {
+    it('returns 401 when no auth session', { timeout: 15000 }, async () => {
       const { GET } = await import('../route');
       const req = new Request('http://localhost/api/disputes');
       const res = await GET(req);

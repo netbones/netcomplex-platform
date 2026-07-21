@@ -22,6 +22,7 @@ vi.mock('@api/server', async () => {
 
 vi.mock('@shared/lib', () => ({
   apiLogger: mocks.apiLogger,
+  createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
 }));
 
 import { POST } from '@/app/api/webhooks/payload/route';

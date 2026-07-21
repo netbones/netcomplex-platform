@@ -74,6 +74,7 @@ vi.mock('@shared/lib', () => ({
   hasPermission: vi.fn(
     (role: string, perm: string) => ['ADMIN', 'BOARD'].includes(role) || perm === 'users'
   ),
+  createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
 }));
 
 import { GET } from '@/app/api/users/[id]/suspensions/route';

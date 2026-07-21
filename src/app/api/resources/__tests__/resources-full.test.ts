@@ -114,6 +114,7 @@ vi.mock('@shared/lib', () => ({
     if (permission === 'contentOwn') return role === 'ADMIN' || role === 'COMMITTEE';
     return false;
   }),
+  createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
 }));
 
 // Import route handlers after mocking

@@ -170,6 +170,7 @@ vi.mock('@shared/lib', () => ({
     if (perm === 'admin') return role === 'ADMIN';
     return false;
   }),
+  createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
 }));
 
 // ── PII sanitizer mock ──

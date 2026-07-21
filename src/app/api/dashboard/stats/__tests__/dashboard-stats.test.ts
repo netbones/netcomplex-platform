@@ -55,7 +55,9 @@ vi.mock('@entities/tenant/server', () => ({
   withTenant: () => Promise.resolve({ tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' }),
 }));
 
-vi.mock('@shared/lib', () => ({}));
+vi.mock('@shared/lib', () => ({
+  createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
+}));
 
 import { GET } from '@/app/api/dashboard/stats/route';
 

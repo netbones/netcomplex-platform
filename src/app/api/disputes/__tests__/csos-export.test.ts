@@ -275,6 +275,7 @@ vi.mock('@shared/lib', () => ({
     return false;
   }),
   logError: vi.fn(),
+  createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
 }));
 
 // ── Helper: create a GET request ──

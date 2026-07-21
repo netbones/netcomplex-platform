@@ -11,6 +11,7 @@ const { selectMock, permMocks } = vi.hoisted(() => ({
 vi.mock('@shared/lib', () => ({
   hasPermission: permMocks.hasPermission,
   apiLogger: permMocks.apiLogger,
+  createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
 }));
 
 vi.mock('@api/server', () => ({

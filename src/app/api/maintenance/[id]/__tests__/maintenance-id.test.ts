@@ -18,6 +18,7 @@ vi.mock('next/headers', () => ({
 
 const mocks = vi.hoisted(() => ({
   sessionResult: null as { user: { id: string } } | null,
+  mockRole: 'ADMIN' as string,
   dbMock: { select: vi.fn(), insert: vi.fn(), update: vi.fn(), delete: vi.fn() },
   revalidateDashboard: vi.fn(),
   nowDate: new Date('2026-06-21T12:00:00Z'),
@@ -67,6 +68,18 @@ vi.mock('@api/server', async () => {
         getSession: () => Promise.resolve(mocks.sessionResult),
       },
     },
+    getSessionAndRole: vi.fn(() => {
+      if (!mocks.sessionResult) return Promise.resolve(null);
+      return Promise.resolve({
+        session: { user: { id: mocks.sessionResult.user.id, email: 'test@test.com', name: 'Test' } },
+        userId: mocks.sessionResult.user.id,
+        role: mocks.mockRole,
+        suspension: null,
+      });
+    }),
+    notDeleted: vi.fn(() => true),
+    guardSuspension: vi.fn(() => null),
+    CACHE_TAGS: {},
     db: mocks.dbMock,
     maintenanceRequests: {
       id: 'id',
@@ -176,6 +189,7 @@ function makeRequest(method: string, body?: unknown): Request {
 beforeEach(() => {
   vi.clearAllMocks();
   mocks.sessionResult = null;
+  mocks.mockRole = 'ADMIN';
 });
 
 afterEach(() => {
@@ -200,6 +214,7 @@ describe('GET /api/maintenance/[id]', () => {
 
   it('returns 403 for non-admin viewing another user request', async () => {
     mocks.sessionResult = { user: { id: 'user-2' } };
+    mocks.mockRole = 'RESIDENT';
     mocks.dbMock.select
       .mockReturnValueOnce(makeSelectChain([{ role: 'RESIDENT' }]))
       .mockReturnValueOnce(makeSelectChain([{ ...mockRequest, userId: 'user-1' }]));
@@ -210,6 +225,7 @@ describe('GET /api/maintenance/[id]', () => {
 
   it('allows resident to view own request', async () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
+    mocks.mockRole = 'RESIDENT';
     mocks.dbMock.select
       .mockReturnValueOnce(makeSelectChain([{ role: 'RESIDENT' }]))
       .mockReturnValueOnce(makeSelectChain([mockRequest]))
@@ -315,6 +331,7 @@ describe('PATCH /api/maintenance/[id]', () => {
 
   it('returns 403 for resident without requests permission', async () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
+    mocks.mockRole = 'RESIDENT';
     mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([{ role: 'RESIDENT' }]));
 
     const res = await PATCH(makeRequest('PATCH', { status: 'ASSIGNED' }), makeParams());
@@ -491,6 +508,7 @@ describe('DELETE /api/maintenance/[id]', () => {
 
   it('returns 403 for resident without requests permission', async () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
+    mocks.mockRole = 'RESIDENT';
     mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([{ role: 'RESIDENT' }]));
 
     const res = await DELETE(makeRequest('DELETE'), makeParams());

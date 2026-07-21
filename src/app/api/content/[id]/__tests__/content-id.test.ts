@@ -76,6 +76,17 @@ vi.mock('@api/server', () => ({
       getSession: vi.fn(() => Promise.resolve(mocks.sessionResult)),
     },
   },
+  getSessionAndRole: vi.fn(() => {
+    if (!mocks.sessionResult) return Promise.resolve(null);
+    return Promise.resolve({
+      session: { user: { id: mocks.sessionResult.user.id, email: 'test@test.com', name: 'Test' } },
+      userId: mocks.sessionResult.user.id,
+      role: 'ADMIN',
+      suspension: null,
+    });
+  }),
+  guardSuspension: vi.fn(() => null),
+  CACHE_TAGS: {},
   db: mocks.dbMock,
   contents: {
     id: 'contents.id',
@@ -125,6 +136,7 @@ vi.mock('@shared/lib', () => ({
   supportedLanguages: ['en', 'af', 'xh', 'zu'],
   defaultLanguage: 'en',
   hasPermission: (...args: any[]) => mocks.hasPermission(...args),
+  createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
 }));
 
 import { GET, PATCH, DELETE } from '@/app/api/content/[id]/route';

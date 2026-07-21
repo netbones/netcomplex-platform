@@ -45,6 +45,7 @@ vi.mock('@entities/tenant', () => ({
 
 vi.mock('@shared/lib', () => ({
   logError: vi.fn(),
+  createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
 }));
 
 import { GET } from '@/app/api/pricing/route';
@@ -82,27 +83,27 @@ describe('Pricing API', () => {
     const response = await GET();
     const body = await response.json();
 
-    const foundation = body.data.plans.find((p: { id: string }) => p.id === 'core');
-    expect(foundation.name).toBe('FOUNDATION');
-    expect(foundation.price).toBe('R299');
-    expect(foundation.period).toBe('/month');
-    expect(foundation.maxPages).toBe(5);
-    expect(foundation.popular).toBe(false);
-    expect(foundation.features).toContain('Up to 5 pages');
-    expect(foundation.features).toContain('Email support');
+    const plan = body.data.plans.find((p: { id: string }) => p.id === 'core');
+    expect(plan.name).toBe('Core');
+    expect(plan.price).toBe('R299');
+    expect(plan.period).toBe('/month');
+    expect(plan.maxPages).toBe(5);
+    expect(plan.popular).toBe(false);
+    expect(plan.features).toContain('Up to 5 pages');
+    expect(plan.features).toContain('Email support');
   });
 
   it('returns correct pricing data for pro-max tier', async () => {
     const response = await GET();
     const body = await response.json();
 
-    const core = body.data.plans.find((p: { id: string }) => p.id === 'pro-max');
-    expect(core.name).toBe('CORE');
-    expect(core.price).toBe('Custom');
-    expect(core.period).toBe('');
-    expect(core.maxPages).toBe(-1);
-    expect(core.popular).toBe(false);
-    expect(core.cta).toBe('Contact Sales');
+    const plan = body.data.plans.find((p: { id: string }) => p.id === 'pro-max');
+    expect(plan.name).toBe('Pro‑Max');
+    expect(plan.price).toBe('Custom');
+    expect(plan.period).toBe('');
+    expect(plan.maxPages).toBe(-1);
+    expect(plan.popular).toBe(false);
+    expect(plan.cta).toBe('Contact Sales');
   });
 
   it('passes tenant auth check', async () => {

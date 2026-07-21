@@ -30,6 +30,18 @@ vi.mock('@api/server', () => ({
       getSession: vi.fn(() => Promise.resolve(mocks.sessionResult)),
     },
   },
+  getSessionAndRole: vi.fn(() => {
+    if (!mocks.sessionResult) return Promise.resolve(null);
+    return Promise.resolve({
+      session: { user: { id: mocks.sessionResult.user.id, email: 'test@test.com', name: 'Test' } },
+      userId: mocks.sessionResult.user.id,
+      role: 'ADMIN',
+      suspension: null,
+    });
+  }),
+  notDeleted: vi.fn(() => true),
+  guardSuspension: vi.fn(() => null),
+  CACHE_TAGS: {},
   listUserImages: vi.fn(() => Promise.resolve(mocks.images)),
   deleteImage: vi.fn(() => Promise.resolve({ error: null })),
   apiSuccess: vi.fn(
@@ -74,6 +86,7 @@ vi.mock('@entities/tenant/server', () => ({
 
 vi.mock('@shared/lib', () => ({
   logError: vi.fn(),
+  createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
 }));
 
 import { GET, DELETE } from '@/app/api/media/route';

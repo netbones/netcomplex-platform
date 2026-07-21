@@ -76,6 +76,7 @@ vi.mock('@shared/lib', () => ({
   hasPermission: vi.fn(
     (role: string, perm: string) => ['ADMIN', 'BOARD'].includes(role) || perm === 'content'
   ),
+  createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
 }));
 
 import { PATCH } from '@/app/api/content/[id]/moderate/route';

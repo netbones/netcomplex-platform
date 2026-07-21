@@ -46,6 +46,11 @@ vi.mock('@api/server', async () => {
       update: vi.fn(() => mocks.dbUpdateChain),
       insert: vi.fn(() => mocks.dbInsertChain),
     },
+    notDeleted: vi.fn(() => true),
+    guardSuspension: vi.fn(() => null),
+    auth: { api: { getSession: vi.fn(() => Promise.resolve(null)) } },
+    revalidateDashboard: vi.fn(),
+    CACHE_TAGS: {},
     settings: {},
     apiSuccess: (data: unknown, _meta?: unknown, status = 200, init?: ResponseInit) =>
       NextResponse.json(
@@ -70,6 +75,8 @@ vi.mock('@shared/lib', async importOriginal => {
   return {
     ...actual,
     createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn() }),
+    isAdmin: (role: string) => role === 'ADMIN',
+    hasPermission: (role: string, ..._args: unknown[]) => role === 'ADMIN',
   };
 });
 

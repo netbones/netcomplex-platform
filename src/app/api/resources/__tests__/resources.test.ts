@@ -37,6 +37,18 @@ vi.mock('@api/server', () => {
         getSession: () => Promise.resolve(mocks.sessionResult),
       },
     },
+    getSessionAndRole: vi.fn(() => {
+      if (!mocks.sessionResult) return Promise.resolve(null);
+      return Promise.resolve({
+        session: { user: { id: mocks.sessionResult.user.id, email: 'test@test.com', name: 'Test' } },
+        userId: mocks.sessionResult.user.id,
+        role: 'ADMIN',
+        suspension: null,
+      });
+    }),
+    notDeleted: vi.fn(() => true),
+    guardSuspension: vi.fn(() => null),
+    CACHE_TAGS: {},
     db: mocks.dbMock,
     users: { id: 'id', role: 'role' },
     resources: {
@@ -83,6 +95,7 @@ vi.mock('@entities/tenant', () => ({
 
 vi.mock('@shared/lib', () => ({
   hasPermission: (...args: unknown[]) => mocks.hasPermissionMock(...args),
+  createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
 }));
 
 import { GET, POST } from '@/app/api/resources/route';
@@ -112,7 +125,6 @@ describe('Resources API', () => {
     mocks.sessionResult = { user: { id: 'user-1' }, session: { id: 'sess-1' } };
     mocks.hasPermissionMock.mockReturnValue(true);
     mocks.dbMock.select
-      .mockReturnValueOnce(makeUserSelect('ADMIN'))
       .mockReturnValueOnce(makeOwnerSelect(true))
       .mockReturnValueOnce(
         makeSelectChain([
@@ -146,7 +158,6 @@ describe('Resources API', () => {
     mocks.sessionResult = { user: { id: 'user-1' }, session: { id: 'sess-1' } };
     mocks.hasPermissionMock.mockReturnValue(true);
     mocks.dbMock.select
-      .mockReturnValueOnce(makeUserSelect('ADMIN'))
       .mockReturnValueOnce(makeOwnerSelect(true))
       .mockReturnValueOnce(makeSelectChain([]));
 

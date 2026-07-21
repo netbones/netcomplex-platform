@@ -160,6 +160,7 @@ vi.mock('@entities/dispute', () => ({
 vi.mock('@shared/lib', () => ({
   apiLogger: { error: vi.fn() },
   hasPermission: vi.fn(() => false),
+  createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
 }));
 
 describe('POST /api/disputes/[id]/submit', () => {

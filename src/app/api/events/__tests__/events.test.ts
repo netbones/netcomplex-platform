@@ -16,6 +16,7 @@ vi.mock('next/headers', () => ({
 
 const mocks = vi.hoisted(() => ({
   sessionResult: null as { user: { id: string } } | null,
+  mockRole: 'ADMIN' as string,
   tenantResult: { tenantId: 'test-tenant-id' as string, tenantSlug: 'test-tenant' as string },
   dbMock: {
     select: vi.fn(),
@@ -41,6 +42,18 @@ vi.mock('@api/server', () => {
         getSession: () => Promise.resolve(mocks.sessionResult),
       },
     },
+    getSessionAndRole: vi.fn(() => {
+      if (!mocks.sessionResult) return Promise.resolve(null);
+      return Promise.resolve({
+        session: { user: { id: mocks.sessionResult.user.id, email: 'test@test.com', name: 'Test' } },
+        userId: mocks.sessionResult.user.id,
+        role: mocks.mockRole,
+        suspension: null,
+      });
+    }),
+    guardSuspension: vi.fn(() => null),
+    notDeleted: vi.fn(() => true),
+    CACHE_TAGS: {},
     db: mocks.dbMock,
     users: { id: 'id', role: 'role' },
     eventAttendees: {
@@ -106,6 +119,7 @@ vi.mock('@shared/lib', () => ({
     if (permission === 'contentOwn') return role === 'ADMIN' || role === 'COMMITTEE';
     return false;
   },
+  createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
 }));
 
 import { GET, POST } from '@/app/api/events/route';
@@ -115,6 +129,7 @@ describe('Events API', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.sessionResult = null;
+    mocks.mockRole = 'ADMIN';
     mocks.tenantResult = { tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' };
     mocks.validateEventFields.mockReturnValue({ valid: true });
   });
@@ -220,6 +235,7 @@ describe('Events API', () => {
 
     it('returns 403 for user without content permission', async () => {
       mocks.sessionResult = { user: { id: 'resident-user' } };
+      mocks.mockRole = 'RESIDENT';
 
       const roleChain = makeSelectChain([{ role: 'RESIDENT' }]);
       mocks.dbMock.select.mockImplementation(() => roleChain);

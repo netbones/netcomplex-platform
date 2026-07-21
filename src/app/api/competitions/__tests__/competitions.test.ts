@@ -36,6 +36,18 @@ vi.mock('@api/server', () => {
         getSession: () => Promise.resolve(mocks.sessionResult),
       },
     },
+    getSessionAndRole: vi.fn(() => {
+      if (!mocks.sessionResult) return Promise.resolve(null);
+      return Promise.resolve({
+        session: { user: { id: mocks.sessionResult.user.id, email: 'test@test.com', name: 'Test' } },
+        userId: mocks.sessionResult.user.id,
+        role: mocks.sessionResult.user.role || 'ADMIN',
+        suspension: null,
+      });
+    }),
+    notDeleted: vi.fn(() => true),
+    guardSuspension: vi.fn(() => null),
+    CACHE_TAGS: {},
     db: mocks.dbMock,
     competitions: {
       id: 'id',
@@ -108,6 +120,7 @@ vi.mock('@shared/lib', () => ({
     if (permission === 'contentOwn') return role === 'ADMIN' || role === 'COMMITTEE';
     return false;
   }),
+  createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
 }));
 
 import { GET, POST } from '@/app/api/competitions/route';

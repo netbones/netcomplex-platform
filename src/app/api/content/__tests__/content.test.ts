@@ -31,6 +31,18 @@ vi.mock('@api/server', () => ({
       getSession: vi.fn(() => Promise.resolve(mocks.authSession)),
     },
   },
+  getSessionAndRole: vi.fn(() => {
+    if (!mocks.authSession) return Promise.resolve(null);
+    return Promise.resolve({
+      session: { user: { id: mocks.authSession.user.id, email: 'test@test.com', name: 'Test' } },
+      userId: mocks.authSession.user.id,
+      role: 'ADMIN',
+      suspension: null,
+    });
+  }),
+  notDeleted: vi.fn(() => true),
+  guardSuspension: vi.fn(() => null),
+  CACHE_TAGS: {},
   users: { id: 'id', role: 'role' },
   revalidateContent: vi.fn(),
   apiCreated: vi.fn(
@@ -67,11 +79,14 @@ vi.mock('@entities/tenant', () => ({
 vi.mock('@entities/content/server', () => ({
   listContent: vi.fn(() => Promise.resolve(mocks.listContentResult)),
   createContent: vi.fn(() => Promise.resolve(mocks.createContentResult)),
+  resolveLocale: vi.fn(() => 'en'),
+  transformContentForLocale: vi.fn((item: unknown) => item),
 }));
 
 vi.mock('@shared/lib', () => ({
   hasPermission: vi.fn(() => true),
   defaultLanguage: 'en',
+  createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
 }));
 
 import { GET, POST } from '@/app/api/content/route';

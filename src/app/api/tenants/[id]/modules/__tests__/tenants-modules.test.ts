@@ -35,6 +35,7 @@ vi.mock('@api/server', async () => {
     and: (...args: unknown[]) => ({ args, op: 'and' }),
     desc: (col: unknown) => ({ col, dir: 'desc' }),
     getSessionAndRole: (...args: unknown[]) => mocks.getSessionAndRole(...args),
+    guardSuspension: vi.fn(() => null),
     apiSuccess: (data: unknown, _meta?: unknown, status = 200, init?: ResponseInit) =>
       NextResponse.json({ success: true, data }, { status, ...(init || {}) }) as any,
     apiUnauthorized: (message = 'Authentication required') =>
@@ -62,6 +63,7 @@ vi.mock('@api/server', async () => {
 
 vi.mock('@shared/lib', () => ({
   apiLogger: mocks.apiLogger,
+  createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
 }));
 
 import { GET } from '@/app/api/tenants/[id]/modules/route';

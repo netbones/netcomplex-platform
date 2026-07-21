@@ -200,6 +200,7 @@ vi.mock('@shared/lib', () => ({
     return value?.en || '';
   },
   defaultLanguage: 'en',
+  createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
 }));
 
 import { GET, PATCH, DELETE } from '@/app/api/users/[id]/route';

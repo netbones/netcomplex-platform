@@ -87,6 +87,7 @@ vi.mock('drizzle-orm', () => ({
 vi.mock('@shared/lib', () => ({
   createId: vi.fn(() => `mock-id-${Math.random().toString(36).slice(2, 8)}`),
   logError: vi.fn(),
+  createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
 }));
 
 // ── Dynamic imports (after mocks) ───────────────────────────────────────

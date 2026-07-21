@@ -52,6 +52,18 @@ vi.mock('@api/server', () => ({
       getSession: () => Promise.resolve(mocks.sessionResult),
     },
   },
+  getSessionAndRole: vi.fn(() => {
+    if (!mocks.sessionResult) return Promise.resolve(null);
+    return Promise.resolve({
+      session: { user: { id: mocks.sessionResult.user.id, email: 'test@test.com', name: 'Test' } },
+      userId: mocks.sessionResult.user.id,
+      role: 'ADMIN',
+      suspension: null,
+    });
+  }),
+  notDeleted: vi.fn(() => true),
+  guardSuspension: vi.fn(() => null),
+  CACHE_TAGS: {},
   db: mocks.dbMock,
   surveys: {
     id: 'id',
@@ -89,9 +101,8 @@ vi.mock('@shared/lib', async importOriginal => {
 import { GET, POST } from '@/app/api/surveys/route';
 import { makeSelectChain } from '@/test/api/helpers';
 
-function setupAuth(role: string) {
+function setupAuth(_role: string) {
   mocks.sessionResult = { user: { id: 'user-1' } };
-  mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([{ role }]));
 }
 
 describe('Surveys API', () => {

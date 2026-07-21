@@ -50,6 +50,7 @@ const mocks = vi.hoisted(() => {
         getSession: vi.fn(),
       },
     },
+    getSessionAndRole: vi.fn(() => Promise.resolve(null)),
     hasPermission: vi.fn(() => true),
     mockAddressReserve,
     MockAddressConflictError: class extends Error {
@@ -84,6 +85,11 @@ vi.mock('@api/server', () => ({
     tier: 'tier',
   },
   auth: mocks.authMock,
+  getSessionAndRole: mocks.getSessionAndRole,
+  now: vi.fn(() => new Date()),
+  notDeleted: vi.fn(() => true),
+  guardSuspension: vi.fn(() => null),
+  CACHE_TAGS: {},
   apiSuccess: vi.fn(
     (data: unknown) =>
       new Response(JSON.stringify({ success: true, data }), {
@@ -161,6 +167,7 @@ vi.mock('@entities/tenant/server', () => ({
 
 vi.mock('@shared/lib', () => ({
   hasPermission: mocks.hasPermission,
+  createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
 }));
 
 import { POST, DELETE } from '@/app/api/seats/route';

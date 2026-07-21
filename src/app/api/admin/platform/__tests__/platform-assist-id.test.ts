@@ -66,6 +66,7 @@ vi.mock('@api/server', async () => {
 
 vi.mock('@shared/lib', () => ({
   logError: (...args: any[]) => mocks.logError(...args),
+  createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
 }));
 
 import { DELETE, PATCH } from '@/app/api/admin/platform/assist/[id]/route';

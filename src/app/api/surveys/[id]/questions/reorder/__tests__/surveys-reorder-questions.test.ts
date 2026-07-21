@@ -83,6 +83,7 @@ vi.mock('@shared/lib', () => ({
       return role === 'ADMIN' || role === 'MANAGER' || role === 'COMMITTEE';
     return false;
   },
+  createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
 }));
 
 import { POST } from '@/app/api/surveys/[id]/questions/reorder/route';

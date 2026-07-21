@@ -112,6 +112,7 @@ vi.mock('@shared/lib', () => ({
     warn: vi.fn(),
   },
   logError: vi.fn(),
+  createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
 }));
 
 // Mock slug generator

@@ -81,6 +81,8 @@ vi.mock('@api/server', () => ({
       getSession: () => Promise.resolve(mocks.sessionResult),
     },
   },
+  getSessionAndRole: vi.fn(() => Promise.resolve(null)),
+  guardSuspension: vi.fn(() => null),
   db: mocks.dbMock,
   events: {
     id: 'id',
@@ -121,6 +123,7 @@ vi.mock('@shared/lib', () => ({
     if (permission === 'contentOwn') return role === 'ADMIN' || role === 'COMMITTEE';
     return false;
   }),
+  createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
 }));
 
 import { GET, PATCH, DELETE } from '@/app/api/events/[id]/route';

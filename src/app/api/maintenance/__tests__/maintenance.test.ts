@@ -38,6 +38,17 @@ vi.mock('@api/server', () => ({
       getSession: () => Promise.resolve(mocks.sessionResult),
     },
   },
+  getSessionAndRole: vi.fn(() => {
+    if (!mocks.sessionResult) return Promise.resolve(null);
+    return Promise.resolve({
+      session: { user: { id: mocks.sessionResult.user.id, email: 'test@test.com', name: 'Test' } },
+      userId: mocks.sessionResult.user.id,
+      role: 'ADMIN',
+      suspension: null,
+    });
+  }),
+  notDeleted: vi.fn(() => true),
+  guardSuspension: vi.fn(() => null),
   db: mocks.dbMock,
   users: { id: 'id', role: 'role', name: 'name', email: 'email' },
   maintenanceRequests: {
@@ -118,6 +129,7 @@ vi.mock('@api/server', () => ({
         { status: 422, headers: { 'Content-Type': 'application/json' } }
       )
   ),
+  emitEvent: vi.fn(),
 }));
 
 // Mock withTenant (consolidated — was split across 2 separate vi.mock calls)

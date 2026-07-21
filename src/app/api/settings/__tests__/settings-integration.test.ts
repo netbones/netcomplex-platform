@@ -41,6 +41,8 @@ vi.mock('@api/server', () => ({
       mocks.authSession ? { userId: mocks.authSession.userId, role: mocks.authSession.role } : null
     )
   ),
+  notDeleted: vi.fn(() => true),
+  guardSuspension: vi.fn(() => null),
   apiSuccess: vi.fn(
     (data: unknown) =>
       new Response(JSON.stringify({ success: true, data }), {
@@ -83,6 +85,7 @@ vi.mock('@entities/tenant/server', () => ({
 
 vi.mock('@shared/lib', () => ({
   hasPermission: vi.fn((role: string) => role === 'ADMIN'),
+  createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
 }));
 
 vi.mock('@shared/lib/settings/validation', () => ({
