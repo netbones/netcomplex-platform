@@ -14,6 +14,8 @@ const mocks = vi.hoisted(() => ({
   upsertServicesConfig: vi.fn(),
   defaultServicesConfig: vi.fn(),
   schemaSafeParse: vi.fn(),
+  guardSuspension: vi.fn(),
+  requireTenantRLS: vi.fn(),
 }));
 
 vi.mock('@api/server', async () => {
@@ -49,6 +51,8 @@ vi.mock('@api/server', async () => {
     withErrorHandler: (handler: any) => handler,
     CACHE_TAGS: { SETTINGS: 'settings' },
     createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn() }),
+    guardSuspension: (...args: unknown[]) => mocks.guardSuspension(...args),
+    requireTenantRLS: (request: any) => mocks.requireTenantRLS(request),
   };
 });
 
@@ -116,6 +120,12 @@ describe('Admin Services Config API', () => {
 
     mocks.getSessionAndRole.mockResolvedValue({ userId: 'admin-1', role: 'ADMIN' });
     mocks.getRLSContext.mockResolvedValue({ ...DEFAULT_RLS_CTX });
+    mocks.requireTenantRLS.mockImplementation(async (request: any) => {
+      const ctx = await mocks.getRLSContext(request);
+      if (!ctx) return { ok: false as const, response: new Response('', { status: 401 }) };
+      return { ok: true as const, ctx, tenantId: ctx.tenantId };
+    });
+    mocks.guardSuspension.mockReturnValue(null);
     mocks.runWithRLS.mockImplementation(async (_ctx: any, fn: any) => fn({}));
     mocks.rateLimitByUser.mockResolvedValue(null);
     mocks.hasPermission.mockReturnValue(true);
@@ -179,12 +189,12 @@ describe('Admin Services Config API', () => {
   describe('PUT /api/admin/services-config', () => {
     const validBody = { heroVisible: false, hoursVisible: false };
 
-    it('returns 403 without a session', async () => {
+    it('returns 401 without a session', async () => {
       mocks.getSessionAndRole.mockResolvedValue(null);
 
       const res = await PUT(makeRequest('PUT', validBody));
 
-      expect(res.status).toBe(403);
+      expect(res.status).toBe(401);
       expect(mocks.runWithRLS).not.toHaveBeenCalled();
     });
 

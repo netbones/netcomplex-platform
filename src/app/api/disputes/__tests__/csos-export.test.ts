@@ -223,6 +223,7 @@ vi.mock('@api/server', () => {
     settings: {},
 
     getSessionAndRole: vi.fn(async () => mocks.authResult),
+    guardSuspension: vi.fn(() => null),
 
     rateLimitByKey: vi.fn(async () => {
       if (mocks.rateLimitReturnNull) return null;

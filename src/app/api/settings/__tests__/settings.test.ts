@@ -153,13 +153,13 @@ describe('Settings API', () => {
       expect(body.data).toEqual({ key: 'nonexistent', value: null });
     });
 
-    it('returns 403 without auth session', async () => {
+    it('returns 401 without auth session', async () => {
       mocks.authSession = null;
 
       const response = await GET(
         new Request('http://localhost:3000/api/settings') as unknown as Request
       );
-      expect(response.status).toBe(403);
+      expect(response.status).toBe(401);
     });
 
     it('returns 403 for non-admin role', async () => {
@@ -255,7 +255,7 @@ describe('Settings API', () => {
       });
     });
 
-    it('returns 403 without auth session', async () => {
+    it('returns 401 without auth session', async () => {
       mocks.authSession = null;
 
       const response = await POST(
@@ -265,7 +265,7 @@ describe('Settings API', () => {
           body: JSON.stringify({ key: 'site_name', value: 'Soralia' }),
         })
       );
-      expect(response.status).toBe(403);
+      expect(response.status).toBe(401);
     });
 
     it('returns 403 when requireAssistScope fails', async () => {

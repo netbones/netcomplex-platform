@@ -47,7 +47,9 @@ vi.mock('@api/server', async () => {
     getSessionAndRole: vi.fn(() => {
       if (!mocks.sessionResult) return Promise.resolve(null);
       return Promise.resolve({
-        session: { user: { id: mocks.sessionResult.user.id, email: 'test@test.com', name: 'Test' } },
+        session: {
+          user: { id: mocks.sessionResult.user.id, email: 'test@test.com', name: 'Test' },
+        },
         userId: mocks.sessionResult.user.id,
         role: mocks.mockRole,
         suspension: null,
@@ -110,6 +112,7 @@ vi.mock('@api/shared', () => ({
 vi.mock('@entities/booking/server', () => ({
   listBookings: (...args: unknown[]) => mocks.listBookings(...args),
   validateFacility: (...args: unknown[]) => mocks.validateFacility(...args),
+  checkBookingConflict: vi.fn(() => Promise.resolve(null)),
   createBooking: (...args: unknown[]) => mocks.createBooking(...args),
 }));
 

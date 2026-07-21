@@ -20,6 +20,7 @@ const mocks = vi.hoisted(() => ({
   requireAnyPermission: vi.fn(),
   getRLSContext: vi.fn(),
   runWithRLS: vi.fn(),
+  requireTenantRLS: vi.fn(),
   dbMock: {
     select: vi.fn(),
     insert: vi.fn(),
@@ -87,6 +88,7 @@ vi.mock('@api/server', async () => {
     requireAnyPermission: (perms: string[]) => mocks.requireAnyPermission(perms),
     getRLSContext: (request: any) => mocks.getRLSContext(request),
     runWithRLS: (ctx: any, fn: any) => mocks.runWithRLS(ctx, fn),
+    requireTenantRLS: (request: any) => mocks.requireTenantRLS(request),
     apiSuccess: (data: unknown, _meta?: unknown, status = 200, init?: ResponseInit) =>
       NextResponse.json({ success: true, data }, { status, ...(init || {}) }) as any,
     apiUnauthorized: (message = 'Authentication required') =>
@@ -138,6 +140,11 @@ describe('Admin API Routes', () => {
 
     mocks.requireAnyPermission.mockResolvedValue(null);
     mocks.getRLSContext.mockResolvedValue({ ...DEFAULT_RLS_CTX });
+    mocks.requireTenantRLS.mockImplementation(async (request: any) => {
+      const ctx = await mocks.getRLSContext(request);
+      if (!ctx) return { ok: false as const, response: new Response('', { status: 401 }) };
+      return { ok: true as const, ctx, tenantId: ctx.tenantId };
+    });
     mocks.runWithRLS.mockImplementation(async (_ctx: any, fn: any) => fn(mocks.dbMock));
     mocks.dbMock.select.mockReturnValue(makeSelectChain([]));
     mocks.dbMock.transaction.mockImplementation(async (fn: any) => fn(mocks.dbMock));

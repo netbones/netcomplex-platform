@@ -102,6 +102,13 @@ vi.mock('@api/server', () => ({
   apiError: mocks.apiError,
   rateLimitByUser: mocks.rateLimitByUser,
   revalidateConversations: mocks.revalidateConversations,
+  getSessionAndRole: vi.fn(async () => {
+    const session = mocks.sessionResult;
+    if (!session) return null;
+    return { session, userId: session.user.id, role: 'RESIDENT', suspension: null };
+  }),
+  notDeleted: vi.fn(() => true),
+  guardSuspension: vi.fn(() => null),
   now: vi.fn(() => new Date('2026-06-21T12:00:00Z')),
 }));
 

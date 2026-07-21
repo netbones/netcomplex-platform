@@ -33,6 +33,7 @@ vi.mock('@api/server', () => ({
     mocks.apiSuccess(data, _meta, status),
   apiUnauthorized: (message?: string) => mocks.apiUnauthorized(message),
   getSessionAndRole: (...args: any[]) => mocks.getSessionAndRole(...args),
+  guardSuspension: vi.fn(() => null),
   withErrorHandler: (handler: any) => handler,
   createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn() }),
 }));

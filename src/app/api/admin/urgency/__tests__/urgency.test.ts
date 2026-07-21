@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   getRLSContext: vi.fn(),
   runWithRLS: vi.fn(),
   now: vi.fn(),
+  requireTenantRLS: vi.fn(),
 }));
 
 vi.mock('@api/server', async () => {
@@ -37,6 +38,7 @@ vi.mock('@api/server', async () => {
         { status: 500 }
       ) as any,
     createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn() }),
+    requireTenantRLS: (request: any) => mocks.requireTenantRLS(request),
   };
 });
 
@@ -58,6 +60,11 @@ describe('GET /api/admin/urgency', () => {
     vi.clearAllMocks();
     mocks.requireAnyPermission.mockResolvedValue(null);
     mocks.getRLSContext.mockResolvedValue({ ...DEFAULT_RLS_CTX });
+    mocks.requireTenantRLS.mockImplementation(async (request: any) => {
+      const ctx = await mocks.getRLSContext(request);
+      if (!ctx) return { ok: false as const, response: new Response('', { status: 401 }) };
+      return { ok: true as const, ctx, tenantId: ctx.tenantId };
+    });
     mocks.now.mockReturnValue(new Date('2026-06-21T12:00:00Z'));
 
     mocks.runWithRLS.mockImplementation(async (_ctx, fn) => {

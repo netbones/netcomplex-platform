@@ -161,6 +161,17 @@ vi.mock('@api/server', () => ({
         { status: 409, headers: { 'Content-Type': 'application/json' } }
       )
   ),
+  getSessionAndRole: vi.fn(() => {
+    if (!mocks.sessionResult) return Promise.resolve(null);
+    return Promise.resolve({
+      session: { user: { id: mocks.sessionResult.user.id } },
+      userId: mocks.sessionResult.user.id,
+      role: 'RESIDENT',
+      suspension: null,
+    });
+  }),
+  guardSuspension: vi.fn(() => null),
+  notDeleted: vi.fn(() => true),
   withErrorHandler: (fn: (...args: unknown[]) => unknown) => fn,
   revalidateDashboard: vi.fn(),
   revalidateConversations: vi.fn(),

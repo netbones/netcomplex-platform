@@ -67,6 +67,8 @@ vi.mock('@api/server', () => ({
   },
   verifyTurnstile: vi.fn().mockResolvedValue(true),
   rateLimitByIP: vi.fn(() => null),
+  rateLimitByKey: vi.fn(() => null),
+  now: vi.fn(() => new Date('2026-06-21T12:00:00Z')),
   apiSuccess: vi.fn((data: unknown, _meta?: unknown, code?: number) => jsonMock(data, code || 200)),
   apiCreated: vi.fn((data: unknown) => jsonMock(data, 201)),
   apiError: vi.fn((_code: string, message: string, status: number) =>

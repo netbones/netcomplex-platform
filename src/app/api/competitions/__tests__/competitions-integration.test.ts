@@ -33,6 +33,14 @@ const { dbMock, authSessionMock, requirePlatformAdminMock } = vi.hoisted(() => (
 vi.mock('@api/server', () => ({
   db: dbMock,
   auth: { api: { getSession: authSessionMock } },
+  getSessionAndRole: vi.fn(() => {
+    return authSessionMock().then(session => {
+      if (!session) return null;
+      return { session, userId: session.user.id, role: 'RESIDENT', suspension: null };
+    });
+  }),
+  guardSuspension: vi.fn(() => null),
+  notDeleted: vi.fn(() => true),
   CACHE_TAGS: { competitions: 'competitions' },
   competitions: {
     tenantId: 'tenantId',

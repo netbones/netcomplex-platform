@@ -92,6 +92,11 @@ vi.mock('@api/server', async () => {
       userId: 'userId',
     },
     users: { id: 'id', role: 'role', name: 'name', email: 'email' },
+    getSessionAndRole: async () => {
+      if (!mocks.sessionResult) return null;
+      return { userId: mocks.sessionResult.user.id, role: 'ADMIN', isPlatformAdmin: false };
+    },
+    guardSuspension: () => null,
     maintenanceRequests: {
       id: 'id',
       tenantId: 'tenantId',

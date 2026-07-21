@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 vi.mock('server-only', () => ({}));
@@ -96,6 +97,17 @@ vi.mock('@api/server', () => ({
       getSession: () => Promise.resolve(mocks.sessionResult),
     },
   },
+  getSessionAndRole: vi.fn(() => {
+    if (!mocks.sessionResult) return Promise.resolve(null);
+    return Promise.resolve({
+      session: mocks.sessionResult,
+      userId: mocks.sessionResult.user.id,
+      role: 'RESIDENT',
+      suspension: null,
+    });
+  }),
+  guardSuspension: vi.fn(() => null),
+  toUserDTO: vi.fn((u: any) => u),
   db: mocks.dbMock,
   users: {
     id: 'id',

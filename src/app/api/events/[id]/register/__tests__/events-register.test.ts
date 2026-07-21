@@ -20,6 +20,23 @@ vi.mock('@api/server', () => ({
       getSession: () => Promise.resolve(mocks.sessionResult),
     },
   },
+  getSessionAndRole: vi.fn(() => {
+    if (!mocks.sessionResult) return Promise.resolve(null);
+    return Promise.resolve({
+      session: mocks.sessionResult,
+      userId: mocks.sessionResult.user.id,
+      role: 'RESIDENT',
+      suspension: null,
+    });
+  }),
+  guardSuspension: vi.fn(() => null),
+  events: {
+    id: 'id',
+    tenantId: 'tenantId',
+    title: 'title',
+    maxAttendees: 'maxAttendees',
+    createdAt: 'createdAt',
+  },
   db: mocks.dbMock,
   eventAttendees: {
     id: 'id',

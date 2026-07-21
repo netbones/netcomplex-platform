@@ -35,6 +35,7 @@ vi.mock('@api/server', () => ({
   ),
   withErrorHandler: vi.fn((handler: (req: Request) => Promise<Response>) => handler as never),
   getSessionAndRole: vi.fn(() => Promise.resolve(mocks.sessionResult)),
+  guardSuspension: vi.fn(() => null),
 }));
 
 vi.mock('@entities/tenant/server', () => ({

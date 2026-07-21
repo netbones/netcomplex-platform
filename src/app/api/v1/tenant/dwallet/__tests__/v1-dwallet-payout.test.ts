@@ -72,6 +72,8 @@ vi.mock('@api/server', () => ({
   apiUnauthorized: vi.fn(() => jsonResponse({ error: 'Unauthorized' }, 401)),
   withErrorHandler: vi.fn((handler: (req: Request) => Promise<Response>) => handler as never),
   getSessionAndRole: vi.fn(() => Promise.resolve(mocks.sessionResult)),
+  guardSuspension: () => null,
+  dWallets: {},
   now: vi.fn(() => new Date('2026-06-26T12:00:00Z')),
 }));
 

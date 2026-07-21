@@ -14,6 +14,15 @@ vi.mock('@api/server', async () => {
   const { NextResponse } = await import('next/server');
   return {
     getRLSContext: (request: any) => mocks.getRLSContext(request),
+    requireTenantRLS: async (request: any) => {
+      const ctx = await mocks.getRLSContext(request);
+      if (!ctx)
+        return {
+          ok: false as const,
+          response: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) as any,
+        };
+      return { ok: true as const, ctx, tenantId: ctx.tenantId };
+    },
     runWithRLS: (ctx: any, fn: any) => mocks.runWithRLS(ctx, fn),
     now: () => mocks.now(),
     maintenanceRequests: {

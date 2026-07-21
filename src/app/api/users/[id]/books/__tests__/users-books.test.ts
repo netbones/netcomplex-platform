@@ -35,6 +35,7 @@ vi.mock('@api/server', async () => {
       books: 'books',
     },
     getSessionAndRole: (...args: unknown[]) => mocks.getSessionAndRole(...args),
+    guardSuspension: vi.fn(() => null),
     apiSuccess: (data: unknown, _meta?: unknown, status = 200, init?: ResponseInit) =>
       NextResponse.json({ success: true, data }, { status, ...(init || {}) }) as any,
     apiNotFound: (message = 'Not found') =>

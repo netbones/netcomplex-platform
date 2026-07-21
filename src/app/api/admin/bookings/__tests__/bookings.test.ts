@@ -67,6 +67,11 @@ vi.mock('@api/server', async () => {
         { success: false, error: { code: 'INTERNAL_ERROR', message } },
         { status: 500 }
       ) as unknown as Response,
+    apiUnauthorized: (message = 'Authentication required') =>
+      NextResponse.json(
+        { success: false, error: { code: 'AUTH_REQUIRED', message } },
+        { status: 401 }
+      ) as unknown as Response,
   };
 });
 
@@ -93,9 +98,9 @@ describe('GET /api/admin/bookings', () => {
     vi.restoreAllMocks();
   });
 
-  it('returns 403 without session', async () => {
+  it('returns 401 without session', async () => {
     const res = await GET();
-    expect(res.status).toBe(403);
+    expect(res.status).toBe(401);
   });
 
   it('returns 403 for non-admin', async () => {
@@ -143,14 +148,14 @@ describe('PUT /api/admin/bookings', () => {
     };
   });
 
-  it('returns 403 without session', async () => {
+  it('returns 401 without session', async () => {
     const res = await PUT(
       new NextRequest('http://localhost:3000', {
         method: 'PUT',
         body: JSON.stringify([]),
       })
     );
-    expect(res.status).toBe(403);
+    expect(res.status).toBe(401);
   });
 
   it('returns 403 for non-admin', async () => {

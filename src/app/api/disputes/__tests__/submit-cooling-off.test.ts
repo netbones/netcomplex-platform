@@ -143,6 +143,8 @@ vi.mock('@api/server', () => ({
         : null
     )
   ),
+  guardSuspension: () => null,
+  notDeleted: vi.fn(() => undefined),
 }));
 
 vi.mock('@entities/tenant/server', () => ({

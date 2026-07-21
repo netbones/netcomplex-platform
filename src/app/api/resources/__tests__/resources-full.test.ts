@@ -79,6 +79,16 @@ vi.mock('@api/server', () => {
       householdId: 'householdId',
       userId: 'userId',
     },
+    getSessionAndRole: vi.fn(() => {
+      if (!mocks.sessionResult) return Promise.resolve(null);
+      return Promise.resolve({
+        session: { user: { id: mocks.sessionResult.user.id } },
+        userId: mocks.sessionResult.user.id,
+        role: 'ADMIN',
+        suspension: null,
+      });
+    }),
+    guardSuspension: vi.fn(() => null),
     revalidateContent: vi.fn(),
     apiSuccess: vi.fn(data => jsonResponse(data, 200)),
     apiCreated: vi.fn(data => jsonResponse(data, 201)),

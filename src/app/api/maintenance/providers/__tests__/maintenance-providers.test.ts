@@ -46,6 +46,7 @@ vi.mock('@api/server', async () => {
   const { NextResponse } = await import('next/server');
   return {
     db: mocks.dbMock,
+    notDeleted: vi.fn(() => true),
     serviceProviders: {
       id: 'id',
       tenantId: 'tenantId',

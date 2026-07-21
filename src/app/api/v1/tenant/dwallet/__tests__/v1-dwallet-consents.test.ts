@@ -94,6 +94,8 @@ vi.mock('@api/server', () => ({
     ) => handler as never
   ),
   getSessionAndRole: vi.fn(() => Promise.resolve(mocks.sessionResult)),
+  guardSuspension: () => null,
+  dWallets: {},
   now: vi.fn(() => new Date('2026-06-26T12:00:00Z')),
 }));
 

@@ -109,6 +109,7 @@ vi.mock('../flags/platform-flags', async () => {
 
 vi.mock('@api/server', () => ({
   getSessionAndRole: vi.fn(),
+  CACHE_TAGS: {},
 }));
 
 vi.mock('@shared/lib', async () => {

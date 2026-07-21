@@ -94,6 +94,7 @@ vi.mock('@api/server', () => ({
   requestHistories: mockTable('requestHistories'),
   auth: { api: { getSession: vi.fn(() => Promise.resolve(null)) } },
   getSessionAndRole: vi.fn(() => Promise.resolve(null)),
+  guardSuspension: () => null,
   requireNotSuspended: vi.fn(),
   requireAnyPermission: vi.fn(),
   throwIfSuspended: vi.fn(),

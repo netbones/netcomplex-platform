@@ -13,6 +13,8 @@ const mocks = vi.hoisted(() => ({
   hasPermission: vi.fn(),
   getPlatformPageFlagsWithTx: vi.fn(),
   setPlatformPageFlagWithTx: vi.fn(),
+  guardSuspension: vi.fn(),
+  requireTenantRLS: vi.fn(),
 }));
 
 vi.mock('@api/server', async () => {
@@ -44,6 +46,8 @@ vi.mock('@api/server', async () => {
       ) as any,
     CACHE_TAGS: { SETTINGS: 'settings' },
     createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn() }),
+    guardSuspension: (...args: any[]) => mocks.guardSuspension(...args),
+    requireTenantRLS: (request: any) => mocks.requireTenantRLS(request),
   };
 });
 
@@ -112,6 +116,12 @@ describe('GET /api/admin/settings/page-flags', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.getRLSContext.mockResolvedValue({ ...DEFAULT_RLS_CTX });
+    mocks.requireTenantRLS.mockImplementation(async (request: any) => {
+      const ctx = await mocks.getRLSContext(request);
+      if (!ctx) return { ok: false as const, response: new Response('', { status: 401 }) };
+      return { ok: true as const, ctx, tenantId: ctx.tenantId };
+    });
+    mocks.guardSuspension.mockReturnValue(null);
     mocks.runWithRLS.mockImplementation(async (_ctx, fn) => fn({}));
     mocks.getPlatformPageFlagsWithTx.mockResolvedValue(MOCK_FLAGS);
   });
@@ -152,10 +162,10 @@ describe('POST /api/admin/settings/page-flags', () => {
     mocks.setPlatformPageFlagWithTx.mockResolvedValue(true);
   });
 
-  it('returns 403 without session', async () => {
+  it('returns 401 without session', async () => {
     mocks.getSessionAndRole.mockResolvedValue(null);
     const res = await POST(makeRequest('POST', { key: 'chat', value: false }));
-    expect(res.status).toBe(403);
+    expect(res.status).toBe(401);
   });
 
   it('returns 403 without admin permission', async () => {
@@ -230,10 +240,10 @@ describe('PUT /api/admin/settings/page-flags', () => {
     mocks.setPlatformPageFlagWithTx.mockResolvedValue(true);
   });
 
-  it('returns 403 without session', async () => {
+  it('returns 401 without session', async () => {
     mocks.getSessionAndRole.mockResolvedValue(null);
     const res = await PUT(makeRequest('PUT', { chat: false }));
-    expect(res.status).toBe(403);
+    expect(res.status).toBe(401);
   });
 
   it('batch updates valid keys', async () => {

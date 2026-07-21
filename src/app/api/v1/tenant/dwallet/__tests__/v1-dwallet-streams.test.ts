@@ -57,6 +57,7 @@ vi.mock('@api/server', () => ({
   apiUnauthorized: vi.fn(() => jsonResponse({ error: 'Unauthorized' }, 401)),
   withErrorHandler: vi.fn((handler: (req: Request) => Promise<Response>) => handler as never),
   getSessionAndRole: vi.fn(() => Promise.resolve(mocks.sessionResult)),
+  guardSuspension: () => null,
 }));
 
 vi.mock('@entities/tenant/server', () => ({

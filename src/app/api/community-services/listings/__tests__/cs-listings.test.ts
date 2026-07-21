@@ -137,6 +137,14 @@ vi.mock('@api/server', () => ({
         headers: { 'Content-Type': 'application/json' },
       })
   ),
+  getSessionAndRole: vi.fn(() =>
+    Promise.resolve(
+      mocks.sessionResult
+        ? { user: mocks.sessionResult.user, role: 'RESIDENT', tenantId: 'test-tenant-id' }
+        : null
+    )
+  ),
+  notDeleted: vi.fn(),
 }));
 
 vi.mock('@entities/tenant/server', () => ({

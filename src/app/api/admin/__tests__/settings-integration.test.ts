@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest } from 'next/server';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
@@ -20,6 +21,8 @@ const mocks = vi.hoisted(() => ({
   revalidatePath: vi.fn(),
   getProviderRegistrationModeImpl: vi.fn(),
   setProviderRegistrationMode: vi.fn(),
+  guardSuspension: vi.fn(),
+  requireTenantRLS: vi.fn(),
 }));
 
 vi.mock('@api/server', async () => {
@@ -56,6 +59,8 @@ vi.mock('@api/server', async () => {
       ) as never,
     CACHE_TAGS: { SETTINGS: 'settings' },
     createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn() }),
+    guardSuspension: (...args: unknown[]) => mocks.guardSuspension(...args),
+    requireTenantRLS: (request: any) => mocks.requireTenantRLS(request),
   };
 });
 
@@ -138,6 +143,12 @@ describe('Admin Settings Integration', () => {
     vi.clearAllMocks();
     mocks.getSessionAndRole.mockResolvedValue({ userId: 'user-1', role: 'ADMIN' });
     mocks.getRLSContext.mockResolvedValue(DEFAULT_RLS_CTX);
+    mocks.requireTenantRLS.mockImplementation(async (request: any) => {
+      const ctx = await mocks.getRLSContext(request);
+      if (!ctx) return { ok: false as const, response: new Response('', { status: 401 }) };
+      return { ok: true as const, ctx, tenantId: ctx.tenantId };
+    });
+    mocks.guardSuspension.mockReturnValue(null);
     mocks.rateLimitByUser.mockResolvedValue(null);
     mocks.hasPermission.mockReturnValue(true);
     mocks.runWithRLS.mockImplementation((_ctx: unknown, fn: (...a: unknown[]) => unknown) =>

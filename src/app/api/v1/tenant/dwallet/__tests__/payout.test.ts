@@ -81,7 +81,9 @@ vi.mock('@api/server', () => ({
         : null
     )
   ),
+  guardSuspension: () => null,
   now: vi.fn(() => new Date('2026-06-21T12:00:00Z')),
+  dWallets: {},
 }));
 
 vi.mock('@entities/tenant/server', () => ({

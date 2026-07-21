@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { NextRequest } from 'next/server';
 
@@ -110,6 +111,7 @@ vi.mock('@api/server', () => ({
     tenantId: 'tenantId',
   },
   users: { id: 'id', role: 'role', name: 'name', avatar: 'avatar' },
+  tenants: { id: 'id', name: 'name', slug: 'slug' },
   premiumSeats: { userId: 'userId', messageRetentionDays: 'messageRetentionDays' },
   announcements: { id: 'id', tenantId: 'tenantId', expiresAt: 'expiresAt' },
   notifications: { id: 'id', userId: 'userId', read: 'read' },
@@ -129,13 +131,25 @@ vi.mock('@api/server', () => ({
         : null
     )
   ),
+  guardSuspension: vi.fn(() => null),
+  notDeleted: vi.fn(),
   now: vi.fn(() => new Date('2026-06-21T12:00:00Z')),
   withErrorHandler: vi.fn((handler: (req: Request) => Promise<Response>) => handler as never),
+}));
+
+vi.mock('next/cache', () => ({
+  unstable_cache: vi.fn((fn: any) => fn),
+  revalidateTag: vi.fn(),
+  revalidatePath: vi.fn(),
 }));
 
 vi.mock('@entities/tenant', () => ({
   withTenant: () => Promise.resolve(mocks.tenantResult),
   assertModuleEnabled: vi.fn(() => Promise.resolve(null)),
+}));
+
+vi.mock('@entities/tenant/server', () => ({
+  withTenant: () => Promise.resolve(mocks.tenantResult),
 }));
 
 vi.mock('@shared/lib', async importOriginal => {
