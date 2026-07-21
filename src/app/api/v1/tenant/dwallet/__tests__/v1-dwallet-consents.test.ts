@@ -103,7 +103,7 @@ vi.mock('@entities/tenant/server', () => ({
   withTenant: () => Promise.resolve({ tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' }),
 }));
 
-vi.mock('@entities/dwallet', () => ({
+vi.mock('@entities/dwallet/server', () => ({
   getOrCreateWallet: vi.fn(() => Promise.resolve(mocks.wallet)),
   consentSchema: { parse: vi.fn((body: unknown) => body) },
 }));

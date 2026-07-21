@@ -82,8 +82,11 @@ vi.mock('@entities/tenant/server', () => ({
 }));
 
 vi.mock('@entities/dwallet', () => ({
-  getOrCreateWallet: vi.fn(() => Promise.resolve(mocks.wallet)),
   payoutRequestSchema: { parse: vi.fn((body: unknown) => body) },
+}));
+
+vi.mock('@entities/dwallet/server', () => ({
+  getOrCreateWallet: vi.fn(() => Promise.resolve(mocks.wallet)),
 }));
 
 import { GET, POST } from '@/app/api/v1/tenant/dwallet/payout/route';

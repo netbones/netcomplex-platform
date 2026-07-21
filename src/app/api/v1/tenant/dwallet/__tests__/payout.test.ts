@@ -90,7 +90,7 @@ vi.mock('@entities/tenant/server', () => ({
   withTenant: () => Promise.resolve(mocks.tenantResult),
 }));
 
-vi.mock('@entities/dwallet', () => ({
+vi.mock('@entities/dwallet/server', () => ({
   getOrCreateWallet: vi.fn(() => Promise.resolve(mocks.walletResult)),
   payoutRequestSchema: {
     parse: vi.fn((input: unknown) => {
