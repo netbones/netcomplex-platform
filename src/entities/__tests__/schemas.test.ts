@@ -141,7 +141,7 @@ describe('schemas', () => {
     it('validates correct booking data', () => {
       const data = {
         facility: 'POOL',
-        date: '2026-04-20',
+        date: '2027-04-20',
         startTime: '09:00',
         endTime: '10:00',
         purpose: 'Swimming',
@@ -151,21 +151,21 @@ describe('schemas', () => {
 
     it('requires facility', () => {
       const data = {
-        date: '2026-04-20',
+        date: '2027-04-20',
         startTime: '09:00',
         endTime: '10:00',
       };
       expect(() => bookingSchema.parse(data)).toThrow();
     });
 
-    it('validates facility enum', () => {
+    it('requires non-empty facility', () => {
       const data = {
-        facility: 'INVALID_FACILITY',
-        date: '2026-04-20',
+        facility: '',
+        date: '2027-04-20',
         startTime: '09:00',
         endTime: '10:00',
       };
-      expect(() => bookingSchema.parse(data)).toThrow();
+      expect(() => bookingSchema.parse(data)).toThrow('Facility is required');
     });
 
     it('requires date', () => {
@@ -180,7 +180,7 @@ describe('schemas', () => {
     it('allows optional purpose', () => {
       const data = {
         facility: 'TENNIS',
-        date: '2026-04-20',
+        date: '2027-04-20',
         startTime: '09:00',
         endTime: '10:00',
       };

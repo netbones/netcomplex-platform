@@ -90,7 +90,10 @@ describe('getHeaderItems', () => {
 
 describe('getMoreDropdownItems', () => {
   it('includes Campaign when Conservation is in header', () => {
-    const items = getMoreDropdownItems(defaultFlags);
+    const items = getMoreDropdownItems({
+      ...defaultFlags,
+      headerLinks: ['conservation', 'directory', 'groups', 'services'],
+    });
     expect(items.some(i => i.href === '/campaign')).toBe(true);
     expect(items.some(i => i.href === '/conservation')).toBe(false);
   });

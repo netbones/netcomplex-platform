@@ -13,6 +13,7 @@ vi.mock('next/navigation', () => ({
 
 // Mock Better Auth client
 const mockSignInEmail = vi.fn();
+const mockSendVerificationOtp = vi.fn();
 vi.mock('@api/client', () => ({
   authClient: {
     useSession: vi.fn(() => ({
@@ -27,11 +28,34 @@ vi.mock('@api/client', () => ({
     signIn: {
       email: mockSignInEmail,
     },
+    emailOtp: {
+      sendVerificationOtp: mockSendVerificationOtp,
+    },
   },
 }));
 
 const mockFetch = vi.fn();
 global.fetch = mockFetch;
+
+vi.mock('@entities/tenant', () => ({
+  useTenant: () => ({
+    id: 'tenant-1',
+    name: 'Soralia Village',
+    slug: 'soralia',
+  }),
+  useTenantLoading: () => false,
+}));
+
+vi.mock('@shared/ui', async () => {
+  const actual = await vi.importActual<typeof import('@shared/ui')>('@shared/ui');
+  return {
+    ...actual,
+    useTurnstile: () => ({
+      token: null,
+      reset: vi.fn(),
+    }),
+  };
+});
 
 describe('SignInPage component', () => {
   beforeEach(() => {
@@ -93,11 +117,13 @@ describe('SignInPage component', () => {
     });
 
     await waitFor(() => {
-      expect(mockSignInEmail).toHaveBeenCalledWith({
-        email: 'test@example.com',
-        password: 'password123',
-        callbackURL: '/dashboard',
-      });
+      expect(mockSignInEmail).toHaveBeenCalledWith(
+        expect.objectContaining({
+          email: 'test@example.com',
+          password: 'password123',
+          callbackURL: '/dashboard',
+        })
+      );
     });
   });
 
@@ -129,7 +155,7 @@ describe('SignInPage component', () => {
 
 describe('ForgotPasswordPage component', () => {
   beforeEach(() => {
-    mockFetch.mockReset();
+    mockSendVerificationOtp.mockReset();
     vi.clearAllMocks();
   });
 
@@ -144,21 +170,18 @@ describe('ForgotPasswordPage component', () => {
 
     expect(screen.getByRole('heading', { name: /forgot password/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /send reset link/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /send code/i })).toBeInTheDocument();
   });
 
-  it('shows success message after submitting', async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({}),
-    });
+  it('calls authClient.emailOtp.sendVerificationOtp on submit', async () => {
+    mockSendVerificationOtp.mockResolvedValueOnce({ error: null });
 
     const { default: ForgotPasswordPage } = await import('@/app/(auth)/forgot-password/page');
 
     render(<ForgotPasswordPage />);
 
     const emailInput = screen.getByLabelText(/email/i);
-    const submitButton = screen.getByRole('button', { name: /send reset link/i });
+    const submitButton = screen.getByRole('button', { name: /send code/i });
 
     await act(async () => {
       fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
@@ -166,14 +189,16 @@ describe('ForgotPasswordPage component', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { name: /check your email/i })).toBeInTheDocument();
+      expect(mockSendVerificationOtp).toHaveBeenCalledWith({
+        email: 'test@example.com',
+        type: 'forget-password',
+      });
     });
   });
 
   it('shows error message on failure', async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: false,
-      json: async () => ({ message: 'User not found' }),
+    mockSendVerificationOtp.mockResolvedValueOnce({
+      error: { message: 'User not found' },
     });
 
     const { default: ForgotPasswordPage } = await import('@/app/(auth)/forgot-password/page');
@@ -181,7 +206,7 @@ describe('ForgotPasswordPage component', () => {
     render(<ForgotPasswordPage />);
 
     const emailInput = screen.getByLabelText(/email/i);
-    const submitButton = screen.getByRole('button', { name: /send reset link/i });
+    const submitButton = screen.getByRole('button', { name: /send code/i });
 
     await act(async () => {
       fireEvent.change(emailInput, { target: { value: 'nonexistent@example.com' } });

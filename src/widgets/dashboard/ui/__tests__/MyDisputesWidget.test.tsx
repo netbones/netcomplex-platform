@@ -10,6 +10,21 @@ import { render, screen, fireEvent } from '@testing-library/react';
 const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
+const mockListDisputes = vi.hoisted(() => vi.fn());
+
+vi.mock('@api/client', () => ({
+  authClient: {
+    useSession: () => ({ data: { user: { id: 'user-1', role: 'RESIDENT' } } }),
+  },
+  trpc: {
+    disputes: {
+      listDisputes: {
+        useQuery: mockListDisputes,
+      },
+    },
+  },
+}));
+
 // Mock the entity/feature imports
 vi.mock('@entities/dispute', () => ({
   DisputeListTable: () => <div data-testid="dispute-list-table">DisputeListTable</div>,
@@ -59,6 +74,12 @@ describe('MyDisputesWidget', () => {
     mockFetch.mockResolvedValue({
       ok: true,
       json: () => Promise.resolve([]),
+    });
+    mockListDisputes.mockReturnValue({
+      data: [],
+      isLoading: false,
+      refetch: vi.fn(),
+      isError: false,
     });
   });
 

@@ -85,6 +85,8 @@ vi.mock('@api/server', () => ({
   maintenanceCategories: {},
   requestNotes: {},
   requestHistories: {},
+  getSessionAndRole: vi.fn(),
+  CACHE_TAGS: {},
 }));
 
 vi.mock('@/shared/api/auth', () => ({
@@ -106,11 +108,6 @@ vi.mock('../flags/platform-flags', async () => {
     getPlatformPageFlags: vi.fn(),
   };
 });
-
-vi.mock('@api/server', () => ({
-  getSessionAndRole: vi.fn(),
-  CACHE_TAGS: {},
-}));
 
 vi.mock('@shared/lib', async () => {
   const actual = await vi.importActual('@shared/lib');
@@ -145,6 +142,7 @@ describe('Mapping completeness', () => {
     'services',
     'dashboard',
     'messages',
+    'dWallet',
   ];
 
   describe('FEATURE_TO_MODULE', () => {
@@ -163,8 +161,8 @@ describe('Mapping completeness', () => {
       }
     });
 
-    it('should have exactly 14 entries (one per FeatureKey)', () => {
-      expect(Object.keys(FEATURE_TO_MODULE)).toHaveLength(14);
+    it('should have exactly 15 entries (one per FeatureKey)', () => {
+      expect(Object.keys(FEATURE_TO_MODULE)).toHaveLength(15);
     });
   });
 

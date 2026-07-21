@@ -102,6 +102,9 @@ describe('DisputeForm', () => {
     });
 
     const callArgs = mockFetch.mock.calls[0];
+    expect(callArgs[0]).toBe('/api/disputes');
+    expect(callArgs[1]).toBeDefined();
+    expect(callArgs[1]).toHaveProperty('body');
     const body = JSON.parse(callArgs[1].body);
     expect(body.category).toBe('NOISE');
     expect(body.title).toBe('Loud music at night');

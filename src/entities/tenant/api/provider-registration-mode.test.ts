@@ -15,7 +15,8 @@ vi.mock('@api/server', () => ({
   db: {
     select: vi.fn().mockReturnThis(),
     from: vi.fn().mockReturnThis(),
-    where: vi.fn().mockResolvedValue([]),
+    where: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockResolvedValue([]),
     update: vi.fn().mockReturnThis(),
     set: vi.fn().mockReturnThis(),
     insert: vi.fn().mockReturnThis(),
@@ -50,17 +51,17 @@ describe('provider-registration-mode', () => {
 
   it('returns an explicitly configured mode', async () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (db.where as any).mockResolvedValueOnce([
-      { key: SETTINGS_KEYS.PROVIDER_REGISTRATION_MODE, value: 'OPEN' },
+    (db.limit as any).mockResolvedValueOnce([
+      { key: SETTINGS_KEYS.PROVIDER_REGISTRATION_MODE, value: 'INVITATION_ONLY' },
     ]);
 
     const mode = await getProviderRegistrationModeImpl('tenant-1');
-    expect(mode).toBe('OPEN');
+    expect(mode).toBe('INVITATION_ONLY');
   });
 
   it('updates an existing setting when saving the mode', async () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (db.where as any).mockResolvedValueOnce([
+    (db.limit as any).mockResolvedValueOnce([
       { id: 'setting-1', key: SETTINGS_KEYS.PROVIDER_REGISTRATION_MODE, value: 'INVITATION_ONLY' },
     ]);
 

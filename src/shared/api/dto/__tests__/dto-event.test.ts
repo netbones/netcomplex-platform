@@ -10,6 +10,8 @@ function makeEvent(overrides: Partial<EventRow> = {}): EventRow {
     id: 'event-1',
     tenantId: 'tenant-1',
     title: 'Community BBQ',
+    category: null,
+    maxAttendees: null,
     description: 'Annual community BBQ event',
     date: new Date('2026-06-15T10:00:00.000Z'),
     location: 'Community Park',

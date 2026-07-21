@@ -109,15 +109,14 @@ describe('ConfigureSection', () => {
     expect(screen.getByText(/Upgrade for More Modules/)).toBeTruthy();
   });
 
-  it('does not show maintenance toggle on foundation tier', () => {
+  it('shows maintenance toggle on foundation tier', () => {
     renderConfigure('foundation');
-    expect(screen.queryByLabelText('Toggle Maintenance')).toBeNull();
+    expect(screen.getByLabelText('Toggle Maintenance')).toBeTruthy();
   });
 
-  it('does not show maintenance toggle on pro-max tier', () => {
+  it('shows maintenance toggle on pro-max tier', () => {
     renderConfigure('pro-max');
-    // Maintenance is core-only
-    expect(screen.queryByLabelText('Toggle Maintenance')).toBeNull();
+    expect(screen.getByLabelText('Toggle Maintenance')).toBeTruthy();
   });
 
   it('shows maintenance toggle on core tier', () => {
@@ -131,8 +130,8 @@ describe('ConfigureSection', () => {
     mockFetch.mockClear();
     renderConfigure('core');
 
-    const bookingsToggle = screen.getByLabelText('Toggle Bookings');
-    fireEvent.click(bookingsToggle);
+    const maintenanceToggle = screen.getByLabelText('Toggle Maintenance');
+    fireEvent.click(maintenanceToggle);
 
     // Wait for debounce (500ms) — use minimal wait for test
     await vi.waitFor(
@@ -146,8 +145,8 @@ describe('ConfigureSection', () => {
   it('shows "Saving" indicator when toggle changes', async () => {
     renderConfigure('core');
 
-    const bookingsToggle = screen.getByLabelText('Toggle Bookings');
-    fireEvent.click(bookingsToggle);
+    const maintenanceToggle = screen.getByLabelText('Toggle Maintenance');
+    fireEvent.click(maintenanceToggle);
 
     // "Saving changes…" text should appear
     expect(screen.getByText('Saving changes…')).toBeTruthy();

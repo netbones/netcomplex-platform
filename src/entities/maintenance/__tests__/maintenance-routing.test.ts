@@ -34,6 +34,7 @@ vi.mock('@api/server', () => {
       occupancyType: 'occupancyType',
       createdAt: new Date(),
     },
+    notDeleted: vi.fn(() => ({})),
   };
 });
 

@@ -56,7 +56,7 @@ export const FEATURE_TO_MODULE: Record<FeatureKey, string | null> = {
   chat: 'chat',
   news: 'news',
   dashboard: null,
-  dWallet: 'dWallet',
+  dWallet: null,
   directory: 'directory',
   resources: 'resources',
   conservation: 'conservation',

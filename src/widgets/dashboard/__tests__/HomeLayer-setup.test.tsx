@@ -31,6 +31,37 @@ vi.mock('@api/client', () => ({
       data: { user: { id: 'user-1', role: 'ADMIN' } },
     }),
   },
+  trpc: {
+    useUtils: () => ({
+      client: {
+        content: {
+          listAnnouncements: {
+            query: vi.fn(() => Promise.resolve({ data: [] })),
+          },
+        },
+        maintenance: {
+          listRequests: {
+            query: vi.fn(() => Promise.resolve({ data: [] })),
+          },
+        },
+        chat: {
+          getUnreadCounts: {
+            query: vi.fn(() => Promise.resolve({ data: 0 })),
+          },
+        },
+        events: {
+          listEvents: {
+            query: vi.fn(() => Promise.resolve({ data: [] })),
+          },
+        },
+        bookings: {
+          listBookings: {
+            query: vi.fn(() => Promise.resolve({ data: [] })),
+          },
+        },
+      },
+    }),
+  },
 }));
 
 vi.mock('@shared/lib/hooks/useSafeTranslation', () => ({
