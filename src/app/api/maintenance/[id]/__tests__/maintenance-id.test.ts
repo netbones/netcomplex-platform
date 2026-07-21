@@ -71,7 +71,9 @@ vi.mock('@api/server', async () => {
     getSessionAndRole: vi.fn(() => {
       if (!mocks.sessionResult) return Promise.resolve(null);
       return Promise.resolve({
-        session: { user: { id: mocks.sessionResult.user.id, email: 'test@test.com', name: 'Test' } },
+        session: {
+          user: { id: mocks.sessionResult.user.id, email: 'test@test.com', name: 'Test' },
+        },
         userId: mocks.sessionResult.user.id,
         role: mocks.mockRole,
         suspension: null,
@@ -204,9 +206,7 @@ describe('GET /api/maintenance/[id]', () => {
 
   it('returns 404 when request not found', async () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
-    mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
-      .mockReturnValueOnce(makeSelectChain([]));
+    mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([]));
 
     const res = await GET(makeRequest('GET'), makeParams());
     expect(res.status).toBe(404);
@@ -215,9 +215,9 @@ describe('GET /api/maintenance/[id]', () => {
   it('returns 403 for non-admin viewing another user request', async () => {
     mocks.sessionResult = { user: { id: 'user-2' } };
     mocks.mockRole = 'RESIDENT';
-    mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'RESIDENT' }]))
-      .mockReturnValueOnce(makeSelectChain([{ ...mockRequest, userId: 'user-1' }]));
+    mocks.dbMock.select.mockReturnValueOnce(
+      makeSelectChain([{ ...mockRequest, userId: 'user-1' }])
+    );
 
     const res = await GET(makeRequest('GET'), makeParams());
     expect(res.status).toBe(403);
@@ -227,7 +227,6 @@ describe('GET /api/maintenance/[id]', () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
     mocks.mockRole = 'RESIDENT';
     mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'RESIDENT' }]))
       .mockReturnValueOnce(makeSelectChain([mockRequest]))
       .mockReturnValueOnce(makeSelectChain([{ name: 'Test User', email: 'test@test.com' }]))
       .mockReturnValueOnce(makeSelectChain([{ street: '123 Main', unit: 'Apt 4' }]));
@@ -250,7 +249,6 @@ describe('GET /api/maintenance/[id]', () => {
       assignedProviderId: 'prov-1',
     };
     mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
       .mockReturnValueOnce(makeSelectChain([withAssignments]))
       .mockReturnValueOnce(makeSelectChain([{ name: 'Alice', email: 'alice@test.com' }]))
       .mockReturnValueOnce(makeSelectChain([{ street: '456 Oak', unit: '2B' }]))
@@ -279,7 +277,6 @@ describe('GET /api/maintenance/[id]', () => {
   it('returns null team/provider when not assigned', async () => {
     mocks.sessionResult = { user: { id: 'admin-1' } };
     mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
       .mockReturnValueOnce(makeSelectChain([mockRequest]))
       .mockReturnValueOnce(makeSelectChain([{ name: 'Alice', email: 'alice@test.com' }]))
       .mockReturnValueOnce(makeSelectChain([{ street: '123 Main', unit: 'Apt 4' }]));
@@ -292,9 +289,7 @@ describe('GET /api/maintenance/[id]', () => {
 
   it('enforces tenant isolation', async () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
-    mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
-      .mockReturnValueOnce(makeSelectChain([])); // tenant mismatch
+    mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([])); // tenant mismatch
 
     const res = await GET(makeRequest('GET'), makeParams());
     expect(res.status).toBe(404);
@@ -303,7 +298,6 @@ describe('GET /api/maintenance/[id]', () => {
   it('handles missing property gracefully', async () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
     mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
       .mockReturnValueOnce(makeSelectChain([mockRequest]))
       .mockReturnValueOnce(makeSelectChain([{ name: 'Bob', email: 'bob@test.com' }]))
       .mockReturnValueOnce(makeSelectChain([])); // property not found
@@ -332,7 +326,6 @@ describe('PATCH /api/maintenance/[id]', () => {
   it('returns 403 for resident without requests permission', async () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
     mocks.mockRole = 'RESIDENT';
-    mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([{ role: 'RESIDENT' }]));
 
     const res = await PATCH(makeRequest('PATCH', { status: 'ASSIGNED' }), makeParams());
     expect(res.status).toBe(403);
@@ -340,9 +333,7 @@ describe('PATCH /api/maintenance/[id]', () => {
 
   it('returns 404 when request not found', async () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
-    mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
-      .mockReturnValueOnce(makeSelectChain([]));
+    mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([]));
 
     const res = await PATCH(makeRequest('PATCH', { status: 'ASSIGNED' }), makeParams());
     expect(res.status).toBe(404);
@@ -350,9 +341,7 @@ describe('PATCH /api/maintenance/[id]', () => {
 
   it('returns 403 for invalid status value', async () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
-    mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
-      .mockReturnValueOnce(makeSelectChain([mockRequest]));
+    mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([mockRequest]));
 
     const res = await PATCH(makeRequest('PATCH', { status: 'INVALID' }), makeParams());
     expect(res.status).toBe(403);
@@ -360,9 +349,7 @@ describe('PATCH /api/maintenance/[id]', () => {
 
   it('updates status and creates history entry', async () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
-    mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
-      .mockReturnValueOnce(makeSelectChain([mockRequest]));
+    mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([mockRequest]));
     mocks.dbMock.update.mockReturnValue(
       makeUpdateChain([{ ...mockRequest, status: 'ASSIGNED', updatedAt: mocks.nowDate }])
     );
@@ -378,9 +365,9 @@ describe('PATCH /api/maintenance/[id]', () => {
 
   it('sets completedAt when transitioning to COMPLETED', async () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
-    mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
-      .mockReturnValueOnce(makeSelectChain([{ ...mockRequest, status: 'IN_PROGRESS' }]));
+    mocks.dbMock.select.mockReturnValueOnce(
+      makeSelectChain([{ ...mockRequest, status: 'IN_PROGRESS' }])
+    );
 
     const updated = {
       ...mockRequest,
@@ -401,9 +388,7 @@ describe('PATCH /api/maintenance/[id]', () => {
 
   it('updates priority and creates history entry', async () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
-    mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
-      .mockReturnValueOnce(makeSelectChain([mockRequest]));
+    mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([mockRequest]));
 
     const updated = { ...mockRequest, priority: 'LOW', updatedAt: mocks.nowDate };
     mocks.dbMock.update.mockReturnValue(makeUpdateChain([updated]));
@@ -415,9 +400,7 @@ describe('PATCH /api/maintenance/[id]', () => {
 
   it('updates description without history entry', async () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
-    mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
-      .mockReturnValueOnce(makeSelectChain([mockRequest]));
+    mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([mockRequest]));
 
     const updated = { ...mockRequest, description: 'Updated desc', updatedAt: mocks.nowDate };
     mocks.dbMock.update.mockReturnValue(makeUpdateChain([updated]));
@@ -430,9 +413,7 @@ describe('PATCH /api/maintenance/[id]', () => {
 
   it('updates assignedTo and creates history entry', async () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
-    mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
-      .mockReturnValueOnce(makeSelectChain([mockRequest]));
+    mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([mockRequest]));
 
     const updated = { ...mockRequest, assignedTo: 'Bob', updatedAt: mocks.nowDate };
     mocks.dbMock.update.mockReturnValue(makeUpdateChain([updated]));
@@ -444,9 +425,7 @@ describe('PATCH /api/maintenance/[id]', () => {
 
   it('updates estimatedCost and actualCost', async () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
-    mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
-      .mockReturnValueOnce(makeSelectChain([mockRequest]));
+    mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([mockRequest]));
 
     const updated = {
       ...mockRequest,
@@ -468,9 +447,7 @@ describe('PATCH /api/maintenance/[id]', () => {
 
   it('updates scheduledDate and creates history entry', async () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
-    mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
-      .mockReturnValueOnce(makeSelectChain([mockRequest]));
+    mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([mockRequest]));
 
     const newDate = new Date('2026-06-28T09:00:00Z');
     const updated = { ...mockRequest, scheduledDate: newDate, updatedAt: mocks.nowDate };
@@ -486,9 +463,7 @@ describe('PATCH /api/maintenance/[id]', () => {
 
   it('enforces tenant isolation on update', async () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
-    mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
-      .mockReturnValueOnce(makeSelectChain([])); // other tenant
+    mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([])); // other tenant
 
     const res = await PATCH(makeRequest('PATCH', { status: 'ASSIGNED' }), makeParams());
     expect(res.status).toBe(404);

@@ -147,27 +147,20 @@ vi.mock('@api/server', () => {
             // Call routing: each .where() increment
             const call = mocks.selectCallCounter;
 
-            // .limit() is for dispute and user lookups
+            // .limit() is for dispute and settings lookups
             const limitFn = () => {
-              if (call === 1) {
-                // User lookup in getSessionAndRole
-                return Promise.resolve([{ role: mocks.authResult?.role || 'RESIDENT' }]);
-              }
-              // Dispute lookup
               return Promise.resolve(mocks.disputeInDb ? [mocks.disputeInDb] : []);
             };
 
             // .orderBy() is for events, messages, versions
             const orderByFn = () => {
-              if (call === 3 || call === 7) {
+              if (call === 3) {
                 return Promise.resolve(mocks.eventsInDb);
               }
-              if (call === 4 || call === 8) {
-                // Messages query
+              if (call === 5) {
                 return Promise.resolve(mocks.messagesInDb);
               }
-              if (call === 5 || call === 9) {
-                // Message versions query
+              if (call === 6) {
                 return Promise.resolve(mocks.messageVersionsInDb);
               }
               // Default: evidence data
@@ -176,9 +169,6 @@ vi.mock('@api/server', () => {
 
             // Default where (no limit/orderBy) — for evidence, settings, etc.
             const whereResult = () => {
-              if (call === 1) {
-                return Promise.resolve([{ role: mocks.authResult?.role || 'RESIDENT' }]);
-              }
               return Promise.resolve(mocks.evidenceInDb);
             };
 
@@ -260,6 +250,7 @@ vi.mock('@api/server', () => {
       )
     ),
 
+    notDeleted: vi.fn(() => true),
     withErrorHandler: (fn: (...args: unknown[]) => unknown) => fn,
   };
 });

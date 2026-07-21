@@ -270,11 +270,8 @@ describe('POST /api/maintenance/[id]/assign', () => {
 
   it('returns 404 when maintenance request not found', async () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
-    // First select: getSessionAndRole (users lookup) → admin
-    // Second select: maintenance request lookup → empty (not found)
-    mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
-      .mockReturnValueOnce(makeSelectChain([]));
+    // Only select call: maintenance request lookup → empty (not found)
+    mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([]));
 
     const res = await POST(makeRequest({ teamId: TEAM_ID }), makeParams());
     expect(res.status).toBe(404);
@@ -282,9 +279,7 @@ describe('POST /api/maintenance/[id]/assign', () => {
 
   it('returns 400 when neither teamId nor providerId provided', async () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
-    mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
-      .mockReturnValueOnce(makeSelectChain([mockRequest]));
+    mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([mockRequest]));
 
     const res = await POST(makeRequest({}), makeParams());
     expect(res.status).toBe(400);
@@ -293,7 +288,6 @@ describe('POST /api/maintenance/[id]/assign', () => {
   it('returns 400 when team is not found', async () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
     mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
       .mockReturnValueOnce(makeSelectChain([mockRequest]))
       .mockReturnValueOnce(makeSelectChain([])); // team not found
 
@@ -304,7 +298,6 @@ describe('POST /api/maintenance/[id]/assign', () => {
   it('returns 400 when team is inactive', async () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
     mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
       .mockReturnValueOnce(makeSelectChain([mockRequest]))
       .mockReturnValueOnce(makeSelectChain([inactiveTeam]));
 
@@ -315,7 +308,6 @@ describe('POST /api/maintenance/[id]/assign', () => {
   it('returns 400 when provider is not found', async () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
     mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
       .mockReturnValueOnce(makeSelectChain([mockRequest]))
       .mockReturnValueOnce(makeSelectChain([])); // provider not found
 
@@ -326,7 +318,6 @@ describe('POST /api/maintenance/[id]/assign', () => {
   it('returns 400 when provider is inactive', async () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
     mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
       .mockReturnValueOnce(makeSelectChain([mockRequest]))
       .mockReturnValueOnce(makeSelectChain([inactiveProvider]));
 
@@ -343,14 +334,7 @@ describe('POST /api/maintenance/[id]/assign', () => {
       updatedAt: mocks.nowDate,
     };
 
-    // Return db.select() per call order in the route:
-    // 1. getSessionAndRole → user role
-    // 2. MR lookup → existing request (SUBMITTED)
-    // 3. Team validation → active team
-    // 4. New team name lookup (for history)
-    // 5. Post-update team fetch
     mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
       .mockReturnValueOnce(makeSelectChain([mockRequest]))
       .mockReturnValueOnce(makeSelectChain([activeTeam]))
       .mockReturnValueOnce(makeSelectChain([{ name: 'Plumbers' }]))
@@ -380,7 +364,6 @@ describe('POST /api/maintenance/[id]/assign', () => {
     };
 
     mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
       .mockReturnValueOnce(makeSelectChain([mockRequest]))
       .mockReturnValueOnce(makeSelectChain([activeProvider]))
       .mockReturnValueOnce(makeSelectChain([{ companyName: 'FixIt Co' }]))
@@ -413,7 +396,6 @@ describe('POST /api/maintenance/[id]/assign', () => {
     };
 
     mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
       .mockReturnValueOnce(makeSelectChain([inProgressRequest]))
       .mockReturnValueOnce(makeSelectChain([activeTeam]))
       .mockReturnValueOnce(makeSelectChain([{ name: 'Plumbers' }]))
@@ -441,7 +423,6 @@ describe('POST /api/maintenance/[id]/assign', () => {
     };
 
     mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
       .mockReturnValueOnce(makeSelectChain([mockRequest]))
       .mockReturnValueOnce(makeSelectChain([activeTeam]))
       .mockReturnValueOnce(makeSelectChain([{ name: 'Plumbers' }]))
@@ -462,9 +443,7 @@ describe('POST /api/maintenance/[id]/assign', () => {
 
   it('enforces tenant isolation on request lookup', async () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
-    mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
-      .mockReturnValueOnce(makeSelectChain([])); // other tenant → not found
+    mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([])); // other tenant → not found
 
     const res = await POST(makeRequest({ teamId: TEAM_ID }), makeParams());
     expect(res.status).toBe(404);

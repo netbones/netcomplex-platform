@@ -163,10 +163,17 @@ vi.mock('@api/server', () => ({
   ),
   getSessionAndRole: vi.fn(() => {
     if (!mocks.sessionResult) return Promise.resolve(null);
+    const roleMap: Record<string, string> = {
+      'user-resident': 'RESIDENT',
+      'user-board': 'BOARD',
+      'user-admin': 'ADMIN',
+      'user-committee': 'COMMITTEE',
+      'user-other': 'RESIDENT',
+    };
     return Promise.resolve({
       session: { user: { id: mocks.sessionResult.user.id } },
       userId: mocks.sessionResult.user.id,
-      role: 'RESIDENT',
+      role: roleMap[mocks.sessionResult.user.id] || 'RESIDENT',
       suspension: null,
     });
   }),
@@ -261,20 +268,6 @@ describe('Dispute Messages — [id]/messages/route.ts', () => {
     const selectFrom = vi.fn((_table: unknown) => {
       const tableLimit = vi.fn(() => {
         mocks.selectCallCounter++;
-        if (mocks.selectCallCounter === 1) {
-          const userRole = mocks.sessionResult
-            ? (
-                {
-                  'user-resident': 'RESIDENT',
-                  'user-board': 'BOARD',
-                  'user-admin': 'ADMIN',
-                  'user-committee': 'COMMITTEE',
-                } as Record<string, string>
-              )[mocks.sessionResult.user.id] || 'RESIDENT'
-            : 'RESIDENT';
-          return Promise.resolve([{ role: userRole }]);
-        }
-        // Lazy read mocks.disputeInDb at call time, not capture time
         return Promise.resolve(mocks.disputeInDb ? [mocks.disputeInDb] : []);
       });
       const tableWhere = vi.fn(() => ({
@@ -286,7 +279,6 @@ describe('Dispute Messages — [id]/messages/route.ts', () => {
     (mocks.dbMock as Record<string, unknown>).select = vi.fn(() => ({ from: selectFrom }));
   });
   afterEach(() => {
-    // Skip restoreAllMocks to avoid resetting mock implementations set up in beforeEach
     vi.clearAllMocks();
   });
 
@@ -516,14 +508,6 @@ describe('Dispute Evidence — [id]/evidence/route.ts', () => {
     const selectFrom = vi.fn(() => {
       const tableLimit = vi.fn(() => {
         mocks.selectCallCounter++;
-        if (mocks.selectCallCounter === 1) {
-          const userRole = mocks.sessionResult
-            ? ({ 'user-resident': 'RESIDENT', 'user-board': 'BOARD' } as Record<string, string>)[
-                mocks.sessionResult.user.id
-              ] || 'RESIDENT'
-            : 'RESIDENT';
-          return Promise.resolve([{ role: userRole }]);
-        }
         return Promise.resolve(mocks.disputeInDb ? [mocks.disputeInDb] : []);
       });
       const tableWhere = vi.fn(() => ({
@@ -622,14 +606,6 @@ describe('Dispute Assign — [id]/assign/route.ts', () => {
     const selectFrom = vi.fn(() => {
       const tableLimit = vi.fn(() => {
         mocks.selectCallCounter++;
-        if (mocks.selectCallCounter === 1) {
-          const userRole = mocks.sessionResult
-            ? ({ 'user-resident': 'RESIDENT', 'user-board': 'BOARD' } as Record<string, string>)[
-                mocks.sessionResult.user.id
-              ] || 'RESIDENT'
-            : 'RESIDENT';
-          return Promise.resolve([{ role: userRole }]);
-        }
         return Promise.resolve(mocks.disputeInDb ? [mocks.disputeInDb] : []);
       });
       const tableWhere = vi.fn(() => ({
@@ -719,14 +695,6 @@ describe('Dispute Ruling — [id]/ruling/route.ts', () => {
     const selectFrom = vi.fn(() => {
       const tableLimit = vi.fn(() => {
         mocks.selectCallCounter++;
-        if (mocks.selectCallCounter === 1) {
-          const userRole = mocks.sessionResult
-            ? ({ 'user-resident': 'RESIDENT', 'user-board': 'BOARD' } as Record<string, string>)[
-                mocks.sessionResult.user.id
-              ] || 'RESIDENT'
-            : 'RESIDENT';
-          return Promise.resolve([{ role: userRole }]);
-        }
         return Promise.resolve(mocks.disputeInDb ? [mocks.disputeInDb] : []);
       });
       const tableWhere = vi.fn(() => ({

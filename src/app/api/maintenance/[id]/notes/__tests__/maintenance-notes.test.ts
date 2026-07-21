@@ -18,6 +18,7 @@ vi.mock('next/headers', () => ({
 
 const mocks = vi.hoisted(() => ({
   sessionResult: null as { user: { id: string } } | null,
+  mockRole: 'ADMIN' as string,
   dbMock: { select: vi.fn(), insert: vi.fn(), update: vi.fn(), delete: vi.fn() },
   revalidateDashboard: vi.fn(),
   hasPermission: vi.fn((role: string | null | undefined, permission: string) => {
@@ -92,7 +93,7 @@ vi.mock('@api/server', async () => {
     users: { id: 'id', role: 'role', name: 'name', email: 'email' },
     getSessionAndRole: async () => {
       if (!mocks.sessionResult) return null;
-      return { userId: mocks.sessionResult.user.id, role: 'ADMIN', isPlatformAdmin: false };
+      return { userId: mocks.sessionResult.user.id, role: mocks.mockRole, isPlatformAdmin: false };
     },
     guardSuspension: () => null,
     maintenanceRequests: {
@@ -183,6 +184,7 @@ function makeRequest(method: string, body?: unknown): Request {
 beforeEach(() => {
   vi.clearAllMocks();
   mocks.sessionResult = null;
+  mocks.mockRole = 'ADMIN';
   mocks.revalidateDashboard.mockClear();
 });
 
@@ -202,9 +204,7 @@ describe('GET /api/maintenance/[id]/notes', () => {
 
   it('returns 404 when maintenance request not found', async () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
-    mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
-      .mockReturnValueOnce(makeSelectChain([]));
+    mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([]));
 
     const res = await GET(makeRequest('GET'), makeParams());
     expect(res.status).toBe(404);
@@ -213,7 +213,6 @@ describe('GET /api/maintenance/[id]/notes', () => {
   it('returns all notes including internal for admin', async () => {
     mocks.sessionResult = { user: { id: 'admin-1' } };
     mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
       .mockReturnValueOnce(makeSelectChain([mockRequest]))
       .mockReturnValueOnce(makeSelectChain(noteEntries));
 
@@ -230,12 +229,10 @@ describe('GET /api/maintenance/[id]/notes', () => {
 
   it('returns only non-internal notes for resident', async () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
-    // RESIDENT role naturally fails the permission check via the mock implementation
+    mocks.mockRole = 'RESIDENT';
 
-    // Only return non-internal notes (simulating the filter)
     const publicNotes = noteEntries.filter(n => !n.isInternal);
     mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'RESIDENT' }]))
       .mockReturnValueOnce(makeSelectChain([mockRequest]))
       .mockReturnValueOnce(makeSelectChain(publicNotes));
 
@@ -252,7 +249,6 @@ describe('GET /api/maintenance/[id]/notes', () => {
   it('returns empty array when no notes exist', async () => {
     mocks.sessionResult = { user: { id: 'admin-1' } };
     mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
       .mockReturnValueOnce(makeSelectChain([mockRequest]))
       .mockReturnValueOnce(makeSelectChain([]));
 
@@ -266,7 +262,6 @@ describe('GET /api/maintenance/[id]/notes', () => {
   it('includes user info in each note', async () => {
     mocks.sessionResult = { user: { id: 'admin-1' } };
     mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
       .mockReturnValueOnce(makeSelectChain([mockRequest]))
       .mockReturnValueOnce(makeSelectChain(noteEntries));
 
@@ -281,9 +276,7 @@ describe('GET /api/maintenance/[id]/notes', () => {
 
   it('enforces tenant isolation', async () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
-    mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
-      .mockReturnValueOnce(makeSelectChain([])); // other tenant
+    mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([])); // other tenant
 
     const res = await GET(makeRequest('GET'), makeParams());
     expect(res.status).toBe(404);
@@ -303,7 +296,7 @@ describe('POST /api/maintenance/[id]/notes', () => {
 
   it('returns 403 without requests permission', async () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
-    mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([{ role: 'RESIDENT' }]));
+    mocks.mockRole = 'RESIDENT';
 
     const res = await POST(makeRequest('POST', { content: 'Test note' }), makeParams());
     expect(res.status).toBe(403);
@@ -311,9 +304,7 @@ describe('POST /api/maintenance/[id]/notes', () => {
 
   it('returns 404 when maintenance request not found', async () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
-    mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
-      .mockReturnValueOnce(makeSelectChain([])); // MR not found
+    mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([])); // MR not found
 
     const res = await POST(makeRequest('POST', { content: 'Test note' }), makeParams());
     expect(res.status).toBe(404);
@@ -321,9 +312,7 @@ describe('POST /api/maintenance/[id]/notes', () => {
 
   it('returns 400 when content is missing', async () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
-    mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
-      .mockReturnValueOnce(makeSelectChain([mockRequest]));
+    mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([mockRequest]));
 
     const res = await POST(makeRequest('POST', {}), makeParams());
     expect(res.status).toBe(400);
@@ -331,9 +320,7 @@ describe('POST /api/maintenance/[id]/notes', () => {
 
   it('returns 201 and creates a note with isInternal defaulting to true', async () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
-    mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
-      .mockReturnValueOnce(makeSelectChain([mockRequest]));
+    mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([mockRequest]));
 
     const createdNote = {
       id: 'note-new',
@@ -355,9 +342,7 @@ describe('POST /api/maintenance/[id]/notes', () => {
 
   it('creates a public note when isInternal is false', async () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
-    mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
-      .mockReturnValueOnce(makeSelectChain([mockRequest]));
+    mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([mockRequest]));
 
     const createdNote = {
       id: 'note-public',
@@ -382,9 +367,7 @@ describe('POST /api/maintenance/[id]/notes', () => {
 
   it('calls revalidateDashboard after creation', async () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
-    mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
-      .mockReturnValueOnce(makeSelectChain([mockRequest]));
+    mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([mockRequest]));
 
     mocks.dbMock.insert.mockReturnValue(
       makeInsertChain([
@@ -405,9 +388,7 @@ describe('POST /api/maintenance/[id]/notes', () => {
 
   it('enforces tenant isolation', async () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
-    mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
-      .mockReturnValueOnce(makeSelectChain([])); // other tenant
+    mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([])); // other tenant
 
     const res = await POST(makeRequest('POST', { content: 'Test' }), makeParams());
     expect(res.status).toBe(404);

@@ -16,6 +16,7 @@ vi.mock('next/headers', () => ({
 
 const mocks = vi.hoisted(() => ({
   sessionResult: null as { user: { id: string } } | null,
+  mockRole: 'RESIDENT' as string,
   tenantResult: { tenantId: 'test-tenant-id' as string, tenantSlug: 'test-tenant' as string },
   dbMock: {
     select: vi.fn(),
@@ -105,7 +106,7 @@ vi.mock('@api/server', () => ({
   getSessionAndRole: vi.fn(async () => {
     const session = mocks.sessionResult;
     if (!session) return null;
-    return { session, userId: session.user.id, role: 'RESIDENT', suspension: null };
+    return { session, userId: session.user.id, role: mocks.mockRole, suspension: null };
   }),
   notDeleted: vi.fn(() => true),
   guardSuspension: vi.fn(() => null),
@@ -153,6 +154,7 @@ describe('Messages API', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.sessionResult = null;
+    mocks.mockRole = 'RESIDENT';
     mocks.tenantResult = { tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' };
     mocks.rateLimitByUser.mockReturnValue(null);
 
@@ -199,7 +201,6 @@ describe('Messages API', () => {
       };
 
       mocks.dbMock.select
-        .mockReturnValueOnce(makeSelectChain([{ role: 'RESIDENT' }]))
         .mockReturnValueOnce(makeSelectChain([{ id: 'cp-1' }]))
         .mockReturnValueOnce(makeSelectChain([mockMsg]));
 
@@ -214,9 +215,7 @@ describe('Messages API', () => {
     it('returns 403 for non-participant', async () => {
       mocks.sessionResult = { user: { id: 'user-1' } };
 
-      mocks.dbMock.select
-        .mockReturnValueOnce(makeSelectChain([{ role: 'RESIDENT' }]))
-        .mockReturnValueOnce(makeSelectChain([]));
+      mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([]));
 
       const request = new Request('http://localhost:3000/api/messages?conversationId=conv-1');
       const response = await GET(request);
@@ -286,9 +285,7 @@ describe('Messages API', () => {
     it('returns 403 when user is not a participant', async () => {
       mocks.sessionResult = { user: { id: 'user-1' } };
 
-      mocks.dbMock.select
-        .mockReturnValueOnce(makeSelectChain([{ role: 'RESIDENT' }]))
-        .mockReturnValueOnce(makeSelectChain([]));
+      mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([]));
 
       const request = new Request('http://localhost:3000/api/messages', {
         method: 'POST',
@@ -316,7 +313,6 @@ describe('Messages API', () => {
       const senderInfo = { id: 'user-1', name: 'Test User', avatar: null };
 
       mocks.dbMock.select
-        .mockReturnValueOnce(makeSelectChain([{ role: 'RESIDENT' }]))
         .mockReturnValueOnce(makeSelectChain([{ id: 'cp-1' }]))
         .mockReturnValueOnce(makeSelectChain([{ messageRetentionDays: 30 }]))
         .mockReturnValueOnce(makeSelectChain([senderInfo]));
@@ -378,7 +374,7 @@ describe('Messages API', () => {
 
     it('prunes expired messages for admin', async () => {
       mocks.sessionResult = { user: { id: 'admin-1' } };
-      mocks.dbMock.select.mockReturnValue(makeSelectChain([{ role: 'ADMIN' }]));
+      mocks.mockRole = 'ADMIN';
       mocks.dbMock.update.mockReturnValue(makeUpdateChain([{ id: 'msg-1' }, { id: 'msg-2' }]));
 
       const request = new Request('http://localhost:3000/api/messages', { method: 'DELETE' });

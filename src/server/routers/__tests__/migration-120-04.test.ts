@@ -18,7 +18,7 @@ function readRouterSource(filename: string): string {
 // ──────────────────────────────────────────
 
 describe('dwallet.ts migration', () => {
-  const source = readRouterSource('dwallet.ts');
+  const source = readRouterSource('marketplace/dwallet.ts');
 
   test('uses tenantProcedure (not bare protectedProcedure)', () => {
     // After migration, all tenant-scoped procs should use tenantProcedure
@@ -41,8 +41,9 @@ describe('dwallet.ts migration', () => {
     expect(source).toMatch(/@tenant/);
   });
 
-  test('imports DTOs from @server/dto', () => {
-    expect(source).toMatch(/from\s+['"]@server\/dto['"]/);
+  test('imports DTOs from @api/server barrel', () => {
+    expect(source).toMatch(/(walletTransactionDto|consentDto|payoutDto)/);
+    expect(source).toMatch(/from\s+['"]@api\/server['"]/);
   });
 });
 
@@ -51,7 +52,7 @@ describe('dwallet.ts migration', () => {
 // ──────────────────────────────────────────
 
 describe('competitions.ts migration', () => {
-  const source = readRouterSource('competitions.ts');
+  const source = readRouterSource('community/competitions.ts');
 
   test('uses toEnvelope on returns', () => {
     // Per plan: competitions.ts should use toEnvelope
@@ -80,11 +81,11 @@ describe('competitions.ts migration', () => {
 // ──────────────────────────────────────────
 
 describe('resources.ts migration', () => {
-  const source = readRouterSource('resources.ts');
+  const source = readRouterSource('core/resources.ts');
 
-  test('imports resourceDto from @server/dto', () => {
+  test('imports resourceDto from @api/server barrel', () => {
     expect(source).toMatch(/resourceDto/);
-    expect(source).toMatch(/from\s+['"]@server\/dto['"]/);
+    expect(source).toMatch(/from\s+['"]@api\/server['"]/);
   });
 
   test('no longer uses raw DB row returns without DTO parsing', () => {
@@ -114,11 +115,11 @@ describe('resources.ts migration', () => {
 // ──────────────────────────────────────────
 
 describe('disputes.ts migration', () => {
-  const source = readRouterSource('disputes.ts');
+  const source = readRouterSource('operations/disputes.ts');
 
-  test('imports dispute DTOs from @server/dto', () => {
+  test('imports dispute DTOs from @api/server barrel', () => {
     expect(source).toMatch(/disputeCaseDto|disputeEventDto|disputeEvidenceDto|disputeMessageDto/);
-    expect(source).toMatch(/from\s+['"]@server\/dto['"]/);
+    expect(source).toMatch(/from\s+['"]@api\/server['"]/);
   });
 
   test('uses DTO parsing on returns (no raw DB rows)', () => {

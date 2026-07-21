@@ -16,11 +16,22 @@ vi.mock('next/headers', () => ({
 
 const mocks = vi.hoisted(() => ({
   sessionResult: null as { user: { id: string }; session: { id: string } } | null,
+  mockRole: 'ADMIN' as string | null,
   tenantResult: { tenantId: 'test-tenant-id' as string, tenantSlug: 'test-tenant' as string },
   dbMock: {
     select: vi.fn(),
-    insert: vi.fn(),
-    update: vi.fn(),
+    insert: vi.fn(() => ({
+      values: vi.fn(() => ({
+        returning: vi.fn(() => Promise.resolve([])),
+      })),
+    })),
+    update: vi.fn(() => ({
+      set: vi.fn(() => ({
+        where: vi.fn(() => ({
+          returning: vi.fn(() => Promise.resolve([])),
+        })),
+      })),
+    })),
   },
   hasPermissionMock: vi.fn(),
   revalidateContent: vi.fn(),
@@ -42,9 +53,11 @@ vi.mock('@api/server', () => {
     getSessionAndRole: vi.fn(() => {
       if (!mocks.sessionResult) return Promise.resolve(null);
       return Promise.resolve({
-        session: { user: { id: mocks.sessionResult.user.id, email: 'test@test.com', name: 'Test' } },
+        session: {
+          user: { id: mocks.sessionResult.user.id, email: 'test@test.com', name: 'Test' },
+        },
         userId: mocks.sessionResult.user.id,
-        role: 'ADMIN',
+        role: mocks.mockRole,
         suspension: null,
       });
     }),
@@ -98,7 +111,6 @@ vi.mock('@api/server', () => {
     ),
     now: vi.fn(() => new Date('2026-06-21T12:00:00Z')),
     revalidateContent: mocks.revalidateContent,
-    notDeleted: vi.fn(),
   };
 });
 
@@ -174,8 +186,22 @@ describe('Resources [id] API', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.sessionResult = null;
+    mocks.mockRole = 'ADMIN';
     mocks.tenantResult = { tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' };
     mocks.hasPermissionMock.mockReturnValue(false);
+    mocks.dbMock.select = vi.fn();
+    mocks.dbMock.insert = vi.fn(() => ({
+      values: vi.fn(() => ({
+        returning: vi.fn(() => Promise.resolve([])),
+      })),
+    }));
+    mocks.dbMock.update = vi.fn(() => ({
+      set: vi.fn(() => ({
+        where: vi.fn(() => ({
+          returning: vi.fn(() => Promise.resolve([])),
+        })),
+      })),
+    }));
   });
 
   afterEach(() => {
@@ -206,7 +232,6 @@ describe('Resources [id] API', () => {
       mocks.sessionResult = { user: { id: 'user-1' }, session: { id: 'sess-1' } };
       mocks.hasPermissionMock.mockReturnValue(true);
       mocks.dbMock.select
-        .mockReturnValueOnce(makeUserSelect('ADMIN'))
         .mockReturnValueOnce(makeOwnerSelect(true))
         .mockReturnValueOnce(makeSelectChain([RESOURCE]))
         .mockReturnValueOnce(makeSelectChain(VERSIONS));
@@ -221,8 +246,8 @@ describe('Resources [id] API', () => {
 
     it('returns 200 with versions for MANAGER (role-based access)', async () => {
       mocks.sessionResult = { user: { id: 'user-1' }, session: { id: 'sess-1' } };
+      mocks.mockRole = 'MANAGER';
       mocks.dbMock.select
-        .mockReturnValueOnce(makeUserSelect('MANAGER'))
         .mockReturnValueOnce(makeOwnerSelect(true))
         .mockReturnValueOnce(makeSelectChain([RESOURCE]))
         .mockReturnValueOnce(makeSelectChain(VERSIONS));
@@ -236,8 +261,8 @@ describe('Resources [id] API', () => {
 
     it('returns 200 with versions for BOARD (role-based access)', async () => {
       mocks.sessionResult = { user: { id: 'user-1' }, session: { id: 'sess-1' } };
+      mocks.mockRole = 'BOARD';
       mocks.dbMock.select
-        .mockReturnValueOnce(makeUserSelect('BOARD'))
         .mockReturnValueOnce(makeOwnerSelect(true))
         .mockReturnValueOnce(makeSelectChain([RESOURCE]))
         .mockReturnValueOnce(makeSelectChain(VERSIONS));
@@ -251,8 +276,8 @@ describe('Resources [id] API', () => {
 
     it('returns 200 for COMMITTEE with ALL_RESIDENTS visibility', async () => {
       mocks.sessionResult = { user: { id: 'user-1' }, session: { id: 'sess-1' } };
+      mocks.mockRole = 'COMMITTEE';
       mocks.dbMock.select
-        .mockReturnValueOnce(makeUserSelect('COMMITTEE'))
         .mockReturnValueOnce(makeOwnerSelect(false))
         .mockReturnValueOnce(makeSelectChain([RESOURCE]))
         .mockReturnValueOnce(makeSelectChain(VERSIONS));
@@ -266,8 +291,8 @@ describe('Resources [id] API', () => {
 
     it('returns 403 for COMMITTEE with BOARD_ONLY visibility', async () => {
       mocks.sessionResult = { user: { id: 'user-1' }, session: { id: 'sess-1' } };
+      mocks.mockRole = 'COMMITTEE';
       mocks.dbMock.select
-        .mockReturnValueOnce(makeUserSelect('COMMITTEE'))
         .mockReturnValueOnce(makeOwnerSelect(false))
         .mockReturnValueOnce(makeSelectChain([{ ...RESOURCE, visibility: 'BOARD_ONLY' }]));
 
@@ -277,8 +302,8 @@ describe('Resources [id] API', () => {
 
     it('returns 200 for RESIDENT owner with ALL_RESIDENTS', async () => {
       mocks.sessionResult = { user: { id: 'user-1' }, session: { id: 'sess-1' } };
+      mocks.mockRole = 'RESIDENT';
       mocks.dbMock.select
-        .mockReturnValueOnce(makeUserSelect('RESIDENT'))
         .mockReturnValueOnce(makeOwnerSelect(true))
         .mockReturnValueOnce(makeSelectChain([RESOURCE]))
         .mockReturnValueOnce(makeSelectChain(VERSIONS));
@@ -292,8 +317,8 @@ describe('Resources [id] API', () => {
 
     it('returns 403 for RESIDENT owner with BOARD_ONLY', async () => {
       mocks.sessionResult = { user: { id: 'user-1' }, session: { id: 'sess-1' } };
+      mocks.mockRole = 'RESIDENT';
       mocks.dbMock.select
-        .mockReturnValueOnce(makeUserSelect('RESIDENT'))
         .mockReturnValueOnce(makeOwnerSelect(true))
         .mockReturnValueOnce(makeSelectChain([{ ...RESOURCE, visibility: 'BOARD_ONLY' }]));
 
@@ -303,8 +328,8 @@ describe('Resources [id] API', () => {
 
     it('returns 403 for RESIDENT owner with COMMITTEE_ONLY', async () => {
       mocks.sessionResult = { user: { id: 'user-1' }, session: { id: 'sess-1' } };
+      mocks.mockRole = 'RESIDENT';
       mocks.dbMock.select
-        .mockReturnValueOnce(makeUserSelect('RESIDENT'))
         .mockReturnValueOnce(makeOwnerSelect(true))
         .mockReturnValueOnce(makeSelectChain([{ ...RESOURCE, visibility: 'COMMITTEE_ONLY' }]));
 
@@ -314,8 +339,8 @@ describe('Resources [id] API', () => {
 
     it('returns 200 for RESIDENT non-owner with ALL_RESIDENTS', async () => {
       mocks.sessionResult = { user: { id: 'user-1' }, session: { id: 'sess-1' } };
+      mocks.mockRole = 'RESIDENT';
       mocks.dbMock.select
-        .mockReturnValueOnce(makeUserSelect('RESIDENT'))
         .mockReturnValueOnce(makeOwnerSelect(false))
         .mockReturnValueOnce(makeSelectChain([RESOURCE]))
         .mockReturnValueOnce(makeSelectChain(VERSIONS));
@@ -329,8 +354,8 @@ describe('Resources [id] API', () => {
 
     it('returns 403 for RESIDENT non-owner with restricted visibility', async () => {
       mocks.sessionResult = { user: { id: 'user-1' }, session: { id: 'sess-1' } };
+      mocks.mockRole = 'RESIDENT';
       mocks.dbMock.select
-        .mockReturnValueOnce(makeUserSelect('RESIDENT'))
         .mockReturnValueOnce(makeOwnerSelect(false))
         .mockReturnValueOnce(makeSelectChain([{ ...RESOURCE, visibility: 'OWNERS_ONLY' }]));
 
@@ -390,9 +415,7 @@ describe('Resources [id] API', () => {
     it('returns 404 when resource not found', async () => {
       mocks.sessionResult = { user: { id: 'user-1' }, session: { id: 'sess-1' } };
       mocks.hasPermissionMock.mockReturnValue(true);
-      mocks.dbMock.select
-        .mockReturnValueOnce(makeUserSelect('ADMIN'))
-        .mockReturnValueOnce(makeSelectChain([]));
+      mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([]));
 
       const res = await callPatch();
       expect(res.status).toBe(404);
@@ -401,9 +424,7 @@ describe('Resources [id] API', () => {
     it('returns 410 when resource has been soft-deleted', async () => {
       mocks.sessionResult = { user: { id: 'user-1' }, session: { id: 'sess-1' } };
       mocks.hasPermissionMock.mockReturnValue(true);
-      mocks.dbMock.select
-        .mockReturnValueOnce(makeUserSelect('ADMIN'))
-        .mockReturnValueOnce(makeSelectChain([RESOURCE_SOFT_DELETED]));
+      mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([RESOURCE_SOFT_DELETED]));
 
       const res = await callPatch();
       expect(res.status).toBe(410);
@@ -413,9 +434,7 @@ describe('Resources [id] API', () => {
       mocks.sessionResult = { user: { id: 'user-1' }, session: { id: 'sess-1' } };
       mocks.hasPermissionMock.mockReturnValue(true);
       const updated = { ...RESOURCE, title: 'Updated Guide' };
-      mocks.dbMock.select
-        .mockReturnValueOnce(makeUserSelect('ADMIN'))
-        .mockReturnValueOnce(makeSelectChain([RESOURCE]));
+      mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([RESOURCE]));
       mocks.dbMock.update.mockReturnValueOnce(makeUpdateChain([updated]));
 
       const res = await callPatch('resource-1', { title: 'Updated Guide' });
@@ -437,9 +456,7 @@ describe('Resources [id] API', () => {
         fileSize: 500,
       };
       const updated = { ...resourceWithFile, fileUrl: 'https://new.pdf' };
-      mocks.dbMock.select
-        .mockReturnValueOnce(makeUserSelect('ADMIN'))
-        .mockReturnValueOnce(makeSelectChain([resourceWithFile]));
+      mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([resourceWithFile]));
       mocks.dbMock.insert.mockReturnValueOnce({ values: vi.fn() });
       mocks.dbMock.update.mockReturnValueOnce(makeUpdateChain([updated]));
 
@@ -456,9 +473,7 @@ describe('Resources [id] API', () => {
       mocks.hasPermissionMock.mockReturnValue(true);
       const resourceWithVersion = { ...RESOURCE, version: '1.0' };
       const updated = { ...resourceWithVersion, version: '2.0' };
-      mocks.dbMock.select
-        .mockReturnValueOnce(makeUserSelect('ADMIN'))
-        .mockReturnValueOnce(makeSelectChain([resourceWithVersion]));
+      mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([resourceWithVersion]));
       mocks.dbMock.insert.mockReturnValueOnce({ values: vi.fn() });
       mocks.dbMock.update.mockReturnValueOnce(makeUpdateChain([updated]));
 
@@ -474,9 +489,7 @@ describe('Resources [id] API', () => {
       mocks.sessionResult = { user: { id: 'user-1' }, session: { id: 'sess-1' } };
       mocks.hasPermissionMock.mockReturnValue(true);
       const updated = { ...RESOURCE, publishedAt: new Date('2026-07-01T00:00:00Z') };
-      mocks.dbMock.select
-        .mockReturnValueOnce(makeUserSelect('ADMIN'))
-        .mockReturnValueOnce(makeSelectChain([RESOURCE]));
+      mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([RESOURCE]));
       mocks.dbMock.update.mockReturnValueOnce(makeUpdateChain([updated]));
 
       const res = await callPatch('resource-1', { publishedAt: '2026-07-01T00:00:00Z' });
@@ -513,9 +526,7 @@ describe('Resources [id] API', () => {
     it('returns 404 when resource not found', async () => {
       mocks.sessionResult = { user: { id: 'user-1' }, session: { id: 'sess-1' } };
       mocks.hasPermissionMock.mockReturnValue(true);
-      mocks.dbMock.select
-        .mockReturnValueOnce(makeUserSelect('ADMIN'))
-        .mockReturnValueOnce(makeSelectChain([]));
+      mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([]));
 
       const res = await callDelete();
       expect(res.status).toBe(404);
@@ -524,9 +535,7 @@ describe('Resources [id] API', () => {
     it('soft-deletes and returns success', async () => {
       mocks.sessionResult = { user: { id: 'user-1' }, session: { id: 'sess-1' } };
       mocks.hasPermissionMock.mockReturnValue(true);
-      mocks.dbMock.select
-        .mockReturnValueOnce(makeUserSelect('ADMIN'))
-        .mockReturnValueOnce(makeSelectChain([{ id: RESOURCE.id }]));
+      mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([{ id: RESOURCE.id }]));
       mocks.dbMock.update.mockReturnValueOnce(makeUpdateChain([RESOURCE]));
 
       const res = await callDelete();

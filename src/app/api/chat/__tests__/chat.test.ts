@@ -21,6 +21,7 @@ vi.mock('next/headers', () => ({
 
 const mocks = vi.hoisted(() => ({
   sessionResult: null as { user: { id: string } } | null,
+  mockRole: 'RESIDENT' as string,
   tenantResult: { tenantId: 'test-tenant-id' as string, tenantSlug: 'test-tenant' as string },
   dbMock: {
     select: vi.fn(),
@@ -127,7 +128,12 @@ vi.mock('@api/server', () => ({
   getSessionAndRole: vi.fn(() =>
     Promise.resolve(
       mocks.sessionResult
-        ? { user: mocks.sessionResult.user, role: 'RESIDENT', tenantId: 'test-tenant-id' }
+        ? {
+            user: mocks.sessionResult.user,
+            userId: mocks.sessionResult.user.id,
+            role: mocks.mockRole,
+            tenantId: 'test-tenant-id',
+          }
         : null
     )
   ),
@@ -203,6 +209,7 @@ describe('Chat/Conversations API', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.sessionResult = null;
+    mocks.mockRole = 'RESIDENT';
     mocks.tenantResult = { tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' };
     mocks.rateLimitByUser.mockReturnValue(null);
 
@@ -509,7 +516,6 @@ describe('Chat/Conversations API', () => {
       };
 
       mocks.dbMock.select
-        .mockReturnValueOnce(makeSelectChain([{ role: 'RESIDENT' }]))
         .mockReturnValueOnce(makeSelectChain([{ id: 'cp-1' }]))
         .mockReturnValueOnce(makeSelectChain([mockMsg]));
 
@@ -524,9 +530,7 @@ describe('Chat/Conversations API', () => {
     it('returns 403 for non-participant, non-admin', async () => {
       mocks.sessionResult = { user: { id: 'user-1' } };
 
-      mocks.dbMock.select
-        .mockReturnValueOnce(makeSelectChain([{ role: 'RESIDENT' }]))
-        .mockReturnValueOnce(makeSelectChain([]));
+      mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([]));
 
       const request = req('http://localhost:3000/api/messages?conversationId=conv-1');
       const response = await GETMessages(request);
@@ -581,7 +585,6 @@ describe('Chat/Conversations API', () => {
       const senderInfo = { id: 'user-1', name: 'Test User', avatar: null };
 
       mocks.dbMock.select
-        .mockReturnValueOnce(makeSelectChain([{ role: 'RESIDENT' }]))
         .mockReturnValueOnce(makeSelectChain([{ id: 'cp-1' }]))
         .mockReturnValueOnce(makeSelectChain([{ messageRetentionDays: 30 }]))
         .mockReturnValueOnce(makeSelectChain([senderInfo]));
@@ -645,7 +648,7 @@ describe('Chat/Conversations API', () => {
 
     it('prunes expired and deleted messages for admin', async () => {
       mocks.sessionResult = { user: { id: 'admin-1' } };
-      mocks.dbMock.select.mockReturnValue(makeSelectChain([{ role: 'ADMIN' }]));
+      mocks.mockRole = 'ADMIN';
       mocks.dbMock.update.mockReturnValue(makeUpdateChain([{ id: 'msg-1' }, { id: 'msg-2' }]));
 
       const request = req('http://localhost:3000/api/messages', { method: 'DELETE' });

@@ -17,6 +17,7 @@ vi.mock('next/headers', () => ({
 
 const mocks = vi.hoisted(() => ({
   sessionResult: null as { user: { id: string } } | null,
+  mockRole: 'RESIDENT' as string,
   tenantResult: { tenantId: 'test-tenant-id' as string, tenantSlug: 'test-tenant' as string },
   dbMock: {
     select: vi.fn(),
@@ -137,7 +138,7 @@ vi.mock('@api/server', () => ({
     return Promise.resolve({
       session: mocks.sessionResult,
       userId: mocks.sessionResult.user.id,
-      role: 'RESIDENT',
+      role: mocks.mockRole,
       suspension: null,
     });
   }),
@@ -156,6 +157,7 @@ import { makeSelectChain } from '@/test/api/helpers';
 
 function setupAuth(role = 'ADMIN') {
   mocks.sessionResult = { user: { id: 'admin-1' } };
+  mocks.mockRole = role;
   return role;
 }
 
@@ -163,6 +165,7 @@ describe('Users API', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.sessionResult = null;
+    mocks.mockRole = 'RESIDENT';
     mocks.tenantResult = { tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' };
   });
 
@@ -171,9 +174,8 @@ describe('Users API', () => {
   });
 
   it('returns paginated users list', async () => {
-    setupAuth();
+    setupAuth('ADMIN');
     mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
       .mockReturnValueOnce(
         makeSelectChain([
           {
@@ -247,7 +249,6 @@ describe('Users API', () => {
   it('returns empty list when no users match', async () => {
     setupAuth();
     mocks.dbMock.select
-      .mockReturnValueOnce(makeSelectChain([{ role: 'ADMIN' }]))
       .mockReturnValueOnce(makeSelectChain([]))
       .mockReturnValueOnce(makeSelectChain([{ total: 0 }]));
 

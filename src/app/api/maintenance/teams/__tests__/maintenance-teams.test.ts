@@ -18,6 +18,7 @@ vi.mock('next/headers', () => ({
 
 const mocks = vi.hoisted(() => ({
   requireAnyPermission: vi.fn(),
+  notDeleted: vi.fn(() => true),
   dbMock: { select: vi.fn(), insert: vi.fn(), update: vi.fn(), delete: vi.fn() },
   apiSuccess: vi.fn(
     (data: unknown) =>
@@ -57,6 +58,7 @@ vi.mock('@api/server', async () => {
       updatedAt: 'updatedAt',
       deletedAt: 'deletedAt',
     },
+    notDeleted: mocks.notDeleted,
     now: () => new Date('2026-06-21T12:00:00Z'),
     requireAnyPermission: (perms: string[]) => mocks.requireAnyPermission(perms),
     apiSuccess: mocks.apiSuccess,

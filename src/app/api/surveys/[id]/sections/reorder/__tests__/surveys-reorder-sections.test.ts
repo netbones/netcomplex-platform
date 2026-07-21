@@ -6,6 +6,7 @@ vi.mock('server-only', () => ({}));
 
 const mocks = vi.hoisted(() => ({
   sessionResult: null as { user: { id: string } } | null,
+  mockRole: 'ADMIN' as string,
   tenantResult: { tenantId: 'test-tenant-id' as string, tenantSlug: 'test-tenant' as string },
   dbMock: {
     select: vi.fn(),
@@ -67,7 +68,7 @@ vi.mock('@api/server', () => ({
     return Promise.resolve({
       session: { user: { id: mocks.sessionResult.user.id } },
       userId: mocks.sessionResult.user.id,
-      role: 'ADMIN',
+      role: mocks.mockRole,
       suspension: null,
     });
   }),
@@ -113,13 +114,14 @@ function makeParams(id: string) {
 
 function setupAuth(role: string) {
   mocks.sessionResult = { user: { id: 'user-1' } };
-  mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([{ role }]));
+  mocks.mockRole = role;
 }
 
 describe('POST /api/surveys/[id]/sections/reorder', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.sessionResult = null;
+    mocks.mockRole = 'ADMIN';
     mocks.tenantResult = { tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' };
   });
 

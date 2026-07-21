@@ -18,16 +18,20 @@ vi.mock('next/headers', () => ({
 }));
 
 // ── Hoisted mocks (per-test configurable) ──
-const { dbMock, authSessionMock, requirePlatformAdminMock } = vi.hoisted(() => ({
-  dbMock: {
-    select: vi.fn(),
-    insert: vi.fn(),
-    update: vi.fn(),
-    delete: vi.fn(),
-  },
-  authSessionMock: vi.fn(() => Promise.resolve(null)),
-  requirePlatformAdminMock: vi.fn(),
-}));
+const { dbMock, authSessionMock, requirePlatformAdminMock, mockRole } = vi.hoisted(() => {
+  const mockRole = { current: 'RESIDENT' as string };
+  return {
+    dbMock: {
+      select: vi.fn(),
+      insert: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+    },
+    authSessionMock: vi.fn(() => Promise.resolve(null)),
+    requirePlatformAdminMock: vi.fn(),
+    mockRole,
+  };
+});
 
 // ── Single consolidated @api/server mock ──
 vi.mock('@api/server', () => ({
@@ -36,7 +40,7 @@ vi.mock('@api/server', () => ({
   getSessionAndRole: vi.fn(() => {
     return authSessionMock().then(session => {
       if (!session) return null;
-      return { session, userId: session.user.id, role: 'RESIDENT', suspension: null };
+      return { session, userId: session.user.id, role: mockRole.current, suspension: null };
     });
   }),
   guardSuspension: vi.fn(() => null),
@@ -218,6 +222,7 @@ describe('Competition API', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(auth.api.getSession).mockResolvedValue(null);
+    mockRole.current = 'RESIDENT';
   });
 
   afterEach(() => {
@@ -291,13 +296,13 @@ describe('Competition API', () => {
       vi.mocked(auth.api.getSession).mockResolvedValue({
         user: { id: 'admin-user' } as any,
       } as any);
+      mockRole.current = 'ADMIN';
 
-      const roleChain = makeSelectChain([{ role: 'ADMIN' }]);
       const insertChain = makeInsertChain([
         { id: 'new-comp', title: 'New Competition', status: 'DRAFT' },
       ]);
 
-      dbMock.select.mockImplementation(() => roleChain);
+      dbMock.select.mockImplementation(() => makeSelectChain([]));
       dbMock.insert.mockImplementation(() => insertChain);
 
       const request = new Request('http://localhost/api/competitions', {

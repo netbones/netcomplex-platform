@@ -101,8 +101,9 @@ describe('DisputeForm', () => {
       expect(mockFetch).toHaveBeenCalled();
     });
 
-    const callArgs = mockFetch.mock.calls[0];
-    expect(callArgs[0]).toBe('/api/disputes');
+    const disputeCall = mockFetch.mock.calls.find((c: unknown[]) => c[0] === '/api/disputes');
+    expect(disputeCall).toBeDefined();
+    const callArgs = disputeCall!;
     expect(callArgs[1]).toBeDefined();
     expect(callArgs[1]).toHaveProperty('body');
     const body = JSON.parse(callArgs[1].body);

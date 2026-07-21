@@ -3,11 +3,22 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 // vi.mock is hoisted, so we need to use vi.hoisted for shared state
 const mocks = vi.hoisted(() => ({
   sessionResult: null as { user: { id: string } } | null,
+  mockRole: 'ADMIN' as string | null,
   tenantResult: { tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' },
   dbMock: {
     select: vi.fn(),
-    insert: vi.fn(),
-    update: vi.fn(),
+    insert: vi.fn(() => ({
+      values: vi.fn(() => ({
+        returning: vi.fn(() => Promise.resolve([])),
+      })),
+    })),
+    update: vi.fn(() => ({
+      set: vi.fn(() => ({
+        where: vi.fn(() => ({
+          returning: vi.fn(() => Promise.resolve([])),
+        })),
+      })),
+    })),
     delete: vi.fn(),
   },
 }));
@@ -84,7 +95,7 @@ vi.mock('@api/server', () => {
       return Promise.resolve({
         session: { user: { id: mocks.sessionResult.user.id } },
         userId: mocks.sessionResult.user.id,
-        role: 'ADMIN',
+        role: mocks.mockRole,
         suspension: null,
       });
     }),
@@ -190,7 +201,21 @@ describe('Resource API', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.sessionResult = null;
+    mocks.mockRole = 'ADMIN';
     mocks.tenantResult = { tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' };
+    mocks.dbMock.select = vi.fn();
+    mocks.dbMock.insert = vi.fn(() => ({
+      values: vi.fn(() => ({
+        returning: vi.fn(() => Promise.resolve([])),
+      })),
+    }));
+    mocks.dbMock.update = vi.fn(() => ({
+      set: vi.fn(() => ({
+        where: vi.fn(() => ({
+          returning: vi.fn(() => Promise.resolve([])),
+        })),
+      })),
+    }));
   });
 
   afterEach(() => {
@@ -295,9 +320,7 @@ describe('Resource API', () => {
 
     it('returns 403 for user without content permission', async () => {
       mocks.sessionResult = { user: { id: 'resident-user' } };
-
-      const roleChain = makeSelectChain([{ role: 'RESIDENT' }]);
-      mocks.dbMock.select.mockImplementation(() => roleChain);
+      mocks.mockRole = 'RESIDENT';
 
       const request = new Request('http://localhost/api/resources', {
         method: 'POST',
@@ -365,16 +388,15 @@ describe('Resource API', () => {
       };
 
       mocks.sessionResult = { user: { id: 'resident-user' } };
+      mocks.mockRole = 'RESIDENT';
 
-      const roleChain = makeSelectChain([{ role: 'RESIDENT' }]);
       const ownershipChain = makeSelectChain([]);
       const resourceChain = makeSelectChain([boardOnlyResource]);
 
       let callCount = 0;
       mocks.dbMock.select.mockImplementation(() => {
         callCount++;
-        if (callCount === 1) return roleChain;
-        if (callCount === 2) return ownershipChain;
+        if (callCount === 1) return ownershipChain;
         return resourceChain;
       });
 
@@ -422,9 +444,7 @@ describe('Resource API', () => {
   describe('PATCH /api/resources/[id]', () => {
     it('requires ADMIN or MANAGER role', async () => {
       mocks.sessionResult = { user: { id: 'resident-user' } };
-
-      const roleChain = makeSelectChain([{ role: 'RESIDENT' }]);
-      mocks.dbMock.select.mockImplementation(() => roleChain);
+      mocks.mockRole = 'RESIDENT';
 
       const params = Promise.resolve({ id: 'resource-1' });
       const request = new Request('http://localhost/api/resources/resource-1', {
@@ -469,15 +489,7 @@ describe('Resource API', () => {
     it('returns 404 for non-existent resource', async () => {
       mocks.sessionResult = { user: { id: 'admin-user' } };
 
-      const roleChain = makeSelectChain([{ role: 'ADMIN' }]);
-      const existChain = makeSelectChain([]);
-
-      let callCount = 0;
-      mocks.dbMock.select.mockImplementation(() => {
-        callCount++;
-        if (callCount === 1) return roleChain;
-        return existChain;
-      });
+      mocks.dbMock.select.mockImplementation(() => makeSelectChain([]));
 
       const params = Promise.resolve({ id: 'nonexistent' });
       const request = new Request('http://localhost/api/resources/nonexistent', {
@@ -495,9 +507,7 @@ describe('Resource API', () => {
   describe('DELETE /api/resources/[id]', () => {
     it('requires ADMIN role', async () => {
       mocks.sessionResult = { user: { id: 'committee-user' } };
-
-      const roleChain = makeSelectChain([{ role: 'COMMITTEE' }]);
-      mocks.dbMock.select.mockImplementation(() => roleChain);
+      mocks.mockRole = 'COMMITTEE';
 
       const params = Promise.resolve({ id: 'resource-1' });
       const request = new Request('http://localhost/api/resources/resource-1', {
