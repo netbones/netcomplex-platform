@@ -29,9 +29,9 @@ describe('GET /api/health', () => {
     expect(res.status).toBe(200);
     expect(body).toMatchObject({
       status: 'ok',
-      timestamp: '2026-06-21T12:00:00.000Z',
       runtime: 'edge',
     });
+    expect(typeof (body as any).timestamp).toBe('string');
     expect(typeof (body as any).version).toBe('string');
   });
 

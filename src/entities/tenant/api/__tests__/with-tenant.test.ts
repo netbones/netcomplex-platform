@@ -51,8 +51,7 @@ describe('withTenant', () => {
 
   it('returns resolved tenant when session tenant matches', async () => {
     mocks.resolveTenantFromRequestHeaders.mockResolvedValue({ id: 't1', slug: 'soralia' });
-    mocks.getSession.mockResolvedValue({ user: { id: 'u1' } });
-    mocks.dbSelect.mockResolvedValue([{ tenantId: 't1', isPlatformAdmin: false }]);
+    mocks.getSession.mockResolvedValue({ user: { id: 'u1', tenantId: 't1' } });
 
     await expect(withTenant()).resolves.toEqual({ tenantId: 't1', tenantSlug: 'soralia' });
   });
@@ -62,8 +61,7 @@ describe('withTenant', () => {
       id: 't2',
       slug: 'solaris-heights',
     });
-    mocks.getSession.mockResolvedValue({ user: { id: 'u1' } });
-    mocks.dbSelect.mockResolvedValue([{ tenantId: 't1', isPlatformAdmin: false }]);
+    mocks.getSession.mockResolvedValue({ user: { id: 'u1', tenantId: 't1' } });
 
     await expect(withTenant()).rejects.toBeInstanceOf(TenantMismatchError);
   });

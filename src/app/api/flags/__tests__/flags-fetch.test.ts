@@ -157,7 +157,7 @@ describe('Page Visibility Integration', () => {
     });
   });
 
-  it('should default headerLinks to conservation', () => {
+  it('should default headerLinks to an array of valid focus spaces', () => {
     const defaultFlags = {
       campaign: true,
       conservation: 'default' as const,
@@ -178,7 +178,9 @@ describe('Page Visibility Integration', () => {
       headerLinks: ['directory', 'groups', 'services', 'resources'] as const,
     };
 
-    expect(defaultFlags.headerLinks).toBe('conservation');
+    expect(defaultFlags.headerLinks).toEqual(
+      expect.arrayContaining(['directory', 'groups', 'services', 'resources'])
+    );
   });
 });
 
