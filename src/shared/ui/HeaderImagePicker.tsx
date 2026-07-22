@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { X, Image as ImageIcon } from 'lucide-react';
+import { X, Image as ImageIcon, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface HeaderImagePickerProps {
@@ -20,6 +20,22 @@ interface MediaItem {
   uploadedAt: string;
 }
 
+async function fetchMyImages(): Promise<MediaItem[]> {
+  const r = await fetch('/api/media');
+  const d = await r.json();
+  return d.images || [];
+}
+
+async function uploadMyImage(file: File): Promise<void> {
+  const formData = new FormData();
+  formData.append('file', file);
+  const res = await fetch('/api/upload', { method: 'POST', body: formData });
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.error || 'Upload failed');
+  }
+}
+
 export function HeaderImagePicker({
   open,
   onClose,
@@ -30,24 +46,50 @@ export function HeaderImagePicker({
   const [systemImages, setSystemImages] = useState<MediaItem[]>([]);
   const [myImages, setMyImages] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
   const [selected, setSelected] = useState(currentImage || '');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (!open) return;
+  const loadImages = () => {
     setLoading(true);
-    setSelected(currentImage || '');
-
     Promise.all([
       fetch('/api/admin/media')
         .then(r => r.json())
         .then(d => setSystemImages(d.images || []))
         .catch(() => {}),
-      fetch('/api/media')
-        .then(r => r.json())
-        .then(d => setMyImages(d.images || []))
+      fetchMyImages()
+        .then(setMyImages)
         .catch(() => {}),
     ]).finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    if (!open) return;
+    setSelected(currentImage || '');
+    loadImages();
   }, [open, currentImage]);
+
+  const handleUpload = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    setUploading(true);
+    const filesArray = Array.from(files);
+    const loadingToast = toast.loading(`Uploading ${filesArray.length} image(s)...`);
+
+    for (const file of filesArray) {
+      try {
+        await uploadMyImage(file);
+      } catch (err) {
+        toast.error(`${file.name}: ${err instanceof Error ? err.message : 'Upload failed'}`);
+      }
+    }
+
+    toast.dismiss(loadingToast);
+    setUploading(false);
+    const refreshed = await fetchMyImages().catch(() => [] as MediaItem[]);
+    setMyImages(refreshed);
+    toast.success('Images uploaded!');
+  };
 
   if (!open) return null;
 
@@ -100,6 +142,45 @@ export function HeaderImagePicker({
         </div>
 
         <div className="flex-1 overflow-y-auto p-6">
+          {tab === 'my' && (
+            <div
+              className={`border-2 border-dashed rounded-lg p-4 mb-4 text-center transition-colors ${
+                dragOver
+                  ? 'border-indigo-500 bg-indigo-50'
+                  : 'border-gray-300 hover:border-gray-400'
+              }`}
+              onDragOver={e => {
+                e.preventDefault();
+                setDragOver(true);
+              }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={e => {
+                e.preventDefault();
+                setDragOver(false);
+                handleUpload(e.dataTransfer.files);
+              }}
+            >
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/gif,image/webp"
+                multiple
+                className="hidden"
+                onChange={e => handleUpload(e.target.files)}
+              />
+              <div className="cursor-pointer py-2" onClick={() => fileInputRef.current?.click()}>
+                <Upload
+                  className={`mx-auto text-gray-400 mb-1 ${uploading ? 'animate-bounce' : ''}`}
+                  size={24}
+                />
+                <p className="text-sm text-gray-600">
+                  {uploading ? 'Uploading...' : 'Drag & drop images or click to browse'}
+                </p>
+                <p className="text-xs text-gray-400 mt-0.5">JPEG, PNG, GIF, WebP • Max 2MB</p>
+              </div>
+            </div>
+          )}
+
           {loading ? (
             <div className="grid grid-cols-3 gap-4">
               {[...Array(6)].map((_, i) => (
@@ -112,7 +193,7 @@ export function HeaderImagePicker({
               <p className="text-sm">
                 {tab === 'system'
                   ? 'No system images yet. Admin can upload from the admin panel.'
-                  : 'No personal images yet. Upload from the Media widget.'}
+                  : 'No personal images yet. Upload using the area above.'}
               </p>
             </div>
           ) : (

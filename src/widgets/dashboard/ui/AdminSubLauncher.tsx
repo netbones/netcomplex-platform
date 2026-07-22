@@ -197,6 +197,14 @@ export const ADMIN_DOMAIN_DEFINITIONS: AdminDomainDef[] = [
     description: 'Platform configuration and health',
     category: 'system',
   },
+  {
+    id: 'gallery',
+    labelKey: 'domains.gallery',
+    descriptionKey: 'domains.descriptions.gallery',
+    icon: '/platform/gallery.svg',
+    description: 'Manage system gallery images',
+    category: 'system',
+  },
 ];
 
 export function groupDomainsByCategory(
@@ -248,6 +256,8 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.descriptions.disputes': 'Dispute moderation and resolution',
   'domains.descriptions.dwallet': 'Community value distribution and payout management',
   'domains.descriptions.system': 'Platform configuration and health',
+  'domains.gallery': 'Gallery',
+  'domains.descriptions.gallery': 'Manage system gallery images',
   'domains.descriptions.services': 'Configure the public services page',
   'domains.descriptions.carousel': 'Manage homepage hero carousel slides',
   'domains.descriptions.adminBookings': 'Manage bookable facilities and settings',
