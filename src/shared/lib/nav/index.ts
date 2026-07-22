@@ -27,17 +27,10 @@ export const NAV_REGISTRY: NavItem[] = [
   { id: 'services', nameKey: 'nav.services', href: '/services', flag: 'services' },
   { id: 'resources', nameKey: 'nav.resources', href: '/resources', flag: 'resources' },
   { id: 'news', nameKey: 'nav.news', href: '/news', flag: 'news', permission: 'content' },
-  {
-    id: 'maintenance',
-    nameKey: 'nav.maintenance',
-    href: '/maintenance',
-    flag: 'maintenance',
-    permission: 'requests',
-  },
   { id: 'surveys', nameKey: 'nav.surveys', href: '/surveys', flag: 'surveys' },
   { id: 'competition', nameKey: 'nav.competition', href: '/competition', flag: 'competitions' },
-  { id: 'conservation', nameKey: 'nav.conservation', href: '/conservation', flag: 'conservation' },
   { id: 'campaign', nameKey: 'nav.campaign', href: '/campaign', flag: 'campaign' },
+  { id: 'conservation', nameKey: 'nav.conservation', href: '/conservation', flag: 'conservation' },
   { id: 'dashboard', nameKey: 'nav.dashboard', href: '/dashboard' },
   {
     id: 'bookings',
@@ -47,6 +40,13 @@ export const NAV_REGISTRY: NavItem[] = [
     permission: 'bookings',
   },
   { id: 'messages', nameKey: 'nav.messages', href: '/messages', permission: 'messages' },
+  {
+    id: 'maintenance',
+    nameKey: 'nav.maintenance',
+    href: '/maintenance',
+    flag: 'maintenance',
+    permission: 'requests',
+  },
 
   // ═══════════════════════════════════════════════════════════════
   // DASHBOARD FOCUS SPACES (Phase 30-B)

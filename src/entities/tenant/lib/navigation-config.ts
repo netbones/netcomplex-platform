@@ -116,20 +116,20 @@ export const WORKSPACE_ITEMS: NavItem[] = [
     icon: 'home',
   },
   {
-    href: '/messages',
-    labelKey: 'nav.messages',
-    section: 'workspace',
-    flagKey: 'messages',
-    requiresAuth: true,
-    icon: 'mail',
-  },
-  {
     href: '/bookings',
     labelKey: 'nav.bookings',
     section: 'workspace',
     flagKey: 'bookings',
     requiresAuth: true,
     icon: 'calendar',
+  },
+  {
+    href: '/messages',
+    labelKey: 'nav.messages',
+    section: 'workspace',
+    flagKey: 'messages',
+    requiresAuth: true,
+    icon: 'mail',
   },
   {
     href: '/maintenance',
