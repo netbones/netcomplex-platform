@@ -24,6 +24,7 @@ import {
   ChevronRight,
   Activity as ActivityIcon,
 } from 'lucide-react';
+import { useSafeTranslation } from '@shared/lib';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Helpers
@@ -31,14 +32,6 @@ import {
 
 const TABS = ['overview', 'activity', 'impact', 'consents', 'payouts'] as const;
 type TabKey = (typeof TABS)[number];
-
-const TAB_LABELS: Record<TabKey, string> = {
-  overview: 'Overview',
-  activity: 'Activity',
-  impact: 'Impact',
-  consents: 'Consents',
-  payouts: 'Payouts',
-};
 
 function formatZAR(amount: string | number): string {
   const num = typeof amount === 'string' ? Number(amount) : amount;
@@ -54,33 +47,60 @@ function formatDate(dateStr: string | null): string {
   });
 }
 
-function getTypeBadge(type: TransactionItem['type']) {
+function getTypeBadge(
+  type: TransactionItem['type'],
+  tx: ReturnType<typeof useSafeTranslation>['tx']
+) {
   switch (type) {
     case 'CREDIT':
-      return { label: 'Value Earned', className: 'bg-indigo-50 text-indigo-600' };
+      return {
+        label: tx('dwallet.valueEarnedLabel', 'Value Earned'),
+        className: 'bg-indigo-50 text-indigo-600',
+      };
     case 'DEBIT':
-      return { label: 'Value Used', className: 'bg-slate-100 text-slate-600' };
+      return {
+        label: tx('dwallet.valueUsedLabel', 'Value Used'),
+        className: 'bg-slate-100 text-slate-600',
+      };
     case 'ROLLOVER':
-      return { label: 'Value Rolled', className: 'bg-slate-50 text-slate-400' };
+      return {
+        label: tx('dwallet.valueRolledLabel', 'Value Rolled'),
+        className: 'bg-slate-50 text-slate-400',
+      };
     case 'ADJUSTMENT':
-      return { label: 'Adjustment', className: 'bg-gray-50 text-gray-400' };
+      return {
+        label: tx('dwallet.adjustmentLabel', 'Adjustment'),
+        className: 'bg-gray-50 text-gray-400',
+      };
     default:
       return { label: type, className: 'bg-slate-50 text-slate-500' };
   }
 }
 
-function getPayoutStatusBadge(status: PayoutRequestItem['status']) {
+function getPayoutStatusBadge(
+  status: PayoutRequestItem['status'],
+  tx: ReturnType<typeof useSafeTranslation>['tx']
+) {
   switch (status) {
     case 'PENDING':
-      return { label: 'Pending', className: 'bg-slate-100 text-slate-500' };
+      return { label: tx('dwallet.pending', 'Pending'), className: 'bg-slate-100 text-slate-500' };
     case 'PROCESSING':
-      return { label: 'Processing', className: 'bg-indigo-50 text-indigo-500' };
+      return {
+        label: tx('dwallet.processing', 'Processing'),
+        className: 'bg-indigo-50 text-indigo-500',
+      };
     case 'COMPLETED':
-      return { label: 'Completed', className: 'bg-indigo-50 text-indigo-600' };
+      return {
+        label: tx('dwallet.completed', 'Completed'),
+        className: 'bg-indigo-50 text-indigo-600',
+      };
     case 'REJECTED':
-      return { label: 'Rejected', className: 'bg-slate-100 text-slate-600' };
+      return {
+        label: tx('dwallet.rejected', 'Rejected'),
+        className: 'bg-slate-100 text-slate-600',
+      };
     case 'CANCELLED':
-      return { label: 'Cancelled', className: 'bg-gray-50 text-gray-400' };
+      return { label: tx('dwallet.cancelled', 'Cancelled'), className: 'bg-gray-50 text-gray-400' };
     default:
       return { label: status, className: 'bg-slate-50 text-slate-500' };
   }
@@ -152,6 +172,7 @@ function ConsentToggle({
 // ═══════════════════════════════════════════════════════════════════════════
 
 function PageHeader({ balance, isLoading }: { balance: string | undefined; isLoading: boolean }) {
+  const { tx } = useSafeTranslation();
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -177,7 +198,7 @@ function PageHeader({ balance, isLoading }: { balance: string | undefined; isLoa
               type="button"
               onClick={() => setMenuOpen(!menuOpen)}
               className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50 transition-colors"
-              aria-label="More options"
+              aria-label={tx('dwallet.moreOptions', 'More options')}
             >
               <MoreHorizontal className="w-4 h-4" />
             </button>
@@ -189,7 +210,7 @@ function PageHeader({ balance, isLoading }: { balance: string | undefined; isLoa
                   className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
                 >
                   <FileText className="w-4 h-4 inline mr-2" />
-                  Download Annual Statement
+                  {tx('dwallet.downloadStatement', 'Download Annual Statement')}
                 </button>
                 <button
                   type="button"
@@ -197,7 +218,7 @@ function PageHeader({ balance, isLoading }: { balance: string | undefined; isLoa
                   className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
                 >
                   <Shield className="w-4 h-4 inline mr-2" />
-                  Delete My Data
+                  {tx('dwallet.deleteMyData', 'Delete My Data')}
                 </button>
               </div>
             )}
@@ -216,7 +237,9 @@ function PageHeader({ balance, isLoading }: { balance: string | undefined; isLoa
             <p className="text-3xl font-semibold text-indigo-600">
               {balance ? formatZAR(balance) : 'R 0.00'}
             </p>
-            <p className="text-sm text-slate-400 mt-1">Available Value</p>
+            <p className="text-sm text-slate-400 mt-1">
+              {tx('dwallet.availableValue', 'Available Value')}
+            </p>
           </>
         )}
       </div>
@@ -235,6 +258,7 @@ function TabBar({
   activeTab: TabKey;
   onTabChange: (tab: TabKey) => void;
 }) {
+  const { tx } = useSafeTranslation();
   return (
     <div className="flex border-b border-slate-200 mb-6 overflow-x-auto">
       {TABS.map(tab => (
@@ -248,7 +272,7 @@ function TabBar({
               : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
           }`}
         >
-          {TAB_LABELS[tab]}
+          {tx(`dwallet.${tab}`, tab.charAt(0).toUpperCase() + tab.slice(1))}
         </button>
       ))}
     </div>
@@ -272,6 +296,8 @@ function OverviewTab({
   streams: StreamConfig[];
   isLoading: boolean;
 }) {
+  const { tx } = useSafeTranslation();
+
   if (isLoading) {
     return <LoadingSkeleton className="space-y-4" />;
   }
@@ -282,10 +308,14 @@ function OverviewTab({
         <div className="w-16 h-16 rounded-full bg-indigo-50 flex items-center justify-center mb-4">
           <Image src="/platform/wallet-red.svg" alt="dWallet" width={32} height={32} />
         </div>
-        <h3 className="text-base font-semibold text-slate-700 mb-2">No community activity yet</h3>
+        <h3 className="text-base font-semibold text-slate-700 mb-2">
+          {tx('dwallet.noActivity', 'No community activity yet')}
+        </h3>
         <p className="text-sm text-slate-500 max-w-xs">
-          Your dWallet is ready. Value earned through data sharing will appear here as it is
-          distributed.
+          {tx(
+            'dwallet.noActivityDesc',
+            'Your dWallet is ready. Value earned through data sharing will appear here as it is distributed.'
+          )}
         </p>
       </div>
     );
@@ -301,30 +331,39 @@ function OverviewTab({
       {/* Available Value + Lifetime Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="border border-slate-200 rounded-lg p-4 bg-white">
-          <p className="text-xs text-slate-400 mb-1">Available Value</p>
+          <p className="text-xs text-slate-400 mb-1">
+            {tx('dwallet.availableValue', 'Available Value')}
+          </p>
           <p className="text-xl font-semibold text-indigo-600">{formatZAR(balanceStr)}</p>
         </div>
         <div className="border border-slate-200 rounded-lg p-4 bg-white">
-          <p className="text-xs text-slate-400 mb-1">Value Earned (Lifetime)</p>
+          <p className="text-xs text-slate-400 mb-1">
+            {tx('dwallet.valueEarned', 'Value Earned (Lifetime)')}
+          </p>
           <p className="text-xl font-semibold text-slate-700">{formatZAR(lifetimeEarned)}</p>
         </div>
         <div className="border border-slate-200 rounded-lg p-4 bg-white">
-          <p className="text-xs text-slate-400 mb-1">Value Withdrawn</p>
+          <p className="text-xs text-slate-400 mb-1">
+            {tx('dwallet.valueWithdrawn', 'Value Withdrawn')}
+          </p>
           <p className="text-xl font-semibold text-slate-700">{formatZAR(lifetimePaid)}</p>
         </div>
       </div>
 
       {/* Earnings Breakdown Card */}
       <div className="border border-slate-200 rounded-lg p-5 bg-white">
-        <h4 className="text-sm font-semibold text-slate-700 mb-3">Where Your Value Comes From</h4>
+        <h4 className="text-sm font-semibold text-slate-700 mb-3">
+          {tx('dwallet.valueSources', 'Where Your Value Comes From')}
+        </h4>
         {streams.length === 0 ? (
-          <p className="text-sm text-slate-400">No active revenue streams yet.</p>
+          <p className="text-sm text-slate-400">
+            {tx('dwallet.noStreams', 'No active revenue streams yet.')}
+          </p>
         ) : (
           <div className="space-y-2">
             {streams.map(stream => {
               const consent = consents.find(c => c.streamKey === stream.key);
               const granted = consent?.granted ?? false;
-              // Show stream contribution info
               const pct = Number(stream.residentSharePct) || 0;
               return (
                 <div
@@ -334,10 +373,17 @@ function OverviewTab({
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-slate-700">{stream.label}</p>
                     <p className="text-xs text-slate-400 mt-0.5">
-                      Stream contributes {pct}% of its distributable surplus to the pool
+                      {tx(
+                        'dwallet.streamContributes',
+                        'Stream contributes {pct}% of its distributable surplus to the pool',
+                        { pct }
+                      )}
                     </p>
                     <p className="text-xs text-slate-400">
-                      Consent: {granted ? 'Granted' : 'Not granted'}
+                      Consent:{' '}
+                      {granted
+                        ? tx('dwallet.consentGranted', 'Granted')
+                        : tx('dwallet.consentNotGranted', 'Not granted')}
                     </p>
                   </div>
                   <span className="text-sm font-medium text-indigo-600 shrink-0">
@@ -347,36 +393,49 @@ function OverviewTab({
               );
             })}
             <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-              <span className="text-sm font-semibold text-slate-700">Total Your Share</span>
+              <span className="text-sm font-semibold text-slate-700">
+                {tx('dwallet.totalYourShare', 'Total Your Share')}
+              </span>
               <span className="text-sm font-semibold text-indigo-600">{formatZAR(balanceStr)}</span>
             </div>
           </div>
         )}
         <p className="text-xs text-slate-400 mt-3 leading-relaxed">
-          Your share = total Resident Data Share pool ÷ all program participants. Equal distribution
-          — all opt-in residents receive the same amount. Per-stream consent controls data usage,
-          not payout calculation.
+          {tx(
+            'dwallet.yourShareDesc',
+            'Your share = total Resident Data Share pool ÷ all program participants. Equal distribution — all opt-in residents receive the same amount. Per-stream consent controls data usage, not payout calculation.'
+          )}
         </p>
       </div>
 
       {/* Community Impact Card */}
       <div className="border border-slate-200 rounded-lg p-5 bg-white">
-        <h4 className="text-sm font-semibold text-slate-700 mb-3">Community Impact</h4>
+        <h4 className="text-sm font-semibold text-slate-700 mb-3">
+          {tx('dwallet.communityImpact', 'Community Impact')}
+        </h4>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <p className="text-xs text-slate-400">Active Revenue Streams</p>
+            <p className="text-xs text-slate-400">
+              {tx('dwallet.activeStreams', 'Active Revenue Streams')}
+            </p>
             <p className="text-lg font-semibold text-slate-700">{activeStreamCount}</p>
           </div>
           <div>
-            <p className="text-xs text-slate-400">Participating Residents</p>
+            <p className="text-xs text-slate-400">
+              {tx('dwallet.participatingResidents', 'Participating Residents')}
+            </p>
             <p className="text-lg font-semibold text-slate-700">—</p>
           </div>
           <div>
-            <p className="text-xs text-slate-400">Total Resident Share Pool</p>
+            <p className="text-xs text-slate-400">
+              {tx('dwallet.totalPool', 'Total Resident Share Pool')}
+            </p>
             <p className="text-lg font-semibold text-slate-700">—</p>
           </div>
           <div>
-            <p className="text-xs text-slate-400">Your Estimated Share</p>
+            <p className="text-xs text-slate-400">
+              {tx('dwallet.yourEstimatedShare', 'Your Estimated Share')}
+            </p>
             <p className="text-lg font-semibold text-indigo-600">—</p>
           </div>
         </div>
@@ -389,7 +448,7 @@ function OverviewTab({
           className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
         >
           <CreditCard className="w-4 h-4" />
-          Request Payout
+          {tx('dwallet.requestPayout', 'Request Payout')}
         </Link>
         <button
           type="button"
@@ -416,7 +475,7 @@ function OverviewTab({
             <table className="w-full text-sm">
               <tbody>
                 {transactions.slice(0, 5).map(txn => {
-                  const badge = getTypeBadge(txn.type);
+                  const badge = getTypeBadge(txn.type, tx);
                   const isPositive = txn.type === 'CREDIT';
                   return (
                     <tr key={txn.id} className="border-b border-slate-50 last:border-b-0">
@@ -454,6 +513,7 @@ function OverviewTab({
 // ═══════════════════════════════════════════════════════════════════════════
 
 function ActivityTab() {
+  const { tx } = useSafeTranslation();
   const [transactions, setTransactions] = useState<TransactionItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -593,7 +653,7 @@ function ActivityTab() {
               </thead>
               <tbody>
                 {transactions.map(txn => {
-                  const badge = getTypeBadge(txn.type);
+                  const badge = getTypeBadge(txn.type, tx);
                   const isPositive = txn.type === 'CREDIT';
                   return (
                     <tr key={txn.id} className="border-b border-slate-50 hover:bg-slate-50">
@@ -899,6 +959,7 @@ function PayoutsTab({
   requestPayout: ReturnType<typeof useWallet>['requestPayout'];
   isRequestingPayout: boolean;
 }) {
+  const { tx } = useSafeTranslation();
   const [amount, setAmount] = useState('');
   const [payouts, setPayouts] = useState<PayoutRequestItem[]>([]);
   const [isLoadingPayouts, setIsLoadingPayouts] = useState(true);
@@ -1068,7 +1129,7 @@ function PayoutsTab({
                 </thead>
                 <tbody>
                   {payouts.map(payout => {
-                    const statusBadge = getPayoutStatusBadge(payout.status);
+                    const statusBadge = getPayoutStatusBadge(payout.status, tx);
                     return (
                       <tr key={payout.id} className="border-b border-slate-50 hover:bg-slate-50">
                         <td className="py-2.5 px-3 text-slate-500">
@@ -1108,6 +1169,7 @@ function PayoutsTab({
 // ═══════════════════════════════════════════════════════════════════════════
 
 function DWalletPageContent() {
+  const { tx } = useSafeTranslation();
   const searchParams = useSearchParams();
   const router = useRouter();
   const {
@@ -1183,9 +1245,11 @@ function DWalletPageContent() {
           <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mb-4">
             <Info className="w-8 h-8 text-red-400" />
           </div>
-          <h3 className="text-lg font-semibold text-slate-800 mb-2">Could not load dWallet</h3>
+          <h3 className="text-lg font-semibold text-slate-800 mb-2">
+            {tx('dwallet.couldNotLoad', 'Could not load dWallet')}
+          </h3>
           <p className="text-sm text-slate-500 max-w-md">
-            Please refresh the page or try again later.
+            {tx('dwallet.refreshPage', 'Please refresh the page or try again later.')}
           </p>
         </div>
       </div>
