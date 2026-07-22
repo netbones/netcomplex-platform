@@ -29,6 +29,7 @@ import { maintenanceTeamMembers } from './maintenance-team-members';
 import { internalMaintenanceNotes } from './internal-maintenance-notes';
 import { invitations } from './invitations';
 import { maintenanceRequests } from './maintenance-requests';
+import { mediaUploads } from './media-uploads';
 import { members } from './members';
 import { messages } from './messages';
 import { notifications } from './notifications';
@@ -126,6 +127,7 @@ export const usersRelations = relations(users, helpers => ({
   MaintenanceRequest: helpers.many(maintenanceRequests, {
     relationName: 'MaintenanceRequestTouser',
   }),
+  mediaUploads: helpers.many(mediaUploads, { relationName: 'MediaUploadTouser' }),
   member: helpers.many(members, { relationName: 'MemberTouser' }),
   Message: helpers.many(messages, { relationName: 'MessageTouser' }),
   Notification: helpers.many(notifications, { relationName: 'NotificationTouser' }),

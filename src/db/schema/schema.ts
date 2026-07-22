@@ -112,6 +112,7 @@ import * as disputeMessages from './dispute-messages';
 import * as disputeMessageVersions from './dispute-message-versions';
 import * as disputeNotifications from './dispute-notifications';
 import * as bursaries from './bursaries';
+import * as mediaUploads from './media-uploads';
 import * as outboxes from './outboxes';
 import * as outboxDeadLetters from './outbox-dead-letters';
 import * as tenants from './tenants';
@@ -226,6 +227,7 @@ import * as disputeMessagesRelations from './dispute-messages-relations';
 import * as disputeMessageVersionsRelations from './dispute-message-versions-relations';
 import * as disputeNotificationsRelations from './dispute-notifications-relations';
 import * as bursariesRelations from './bursaries-relations';
+import * as mediaUploadsRelations from './media-uploads-relations';
 import * as tenantsRelations from './tenants-relations';
 
 export const schema = {
@@ -345,6 +347,7 @@ export const schema = {
   ...bursaries,
   ...outboxes,
   ...outboxDeadLetters,
+  ...mediaUploads,
   ...tenants,
   ...accountsRelations,
   ...passkeysRelations,
@@ -457,5 +460,6 @@ export const schema = {
   ...disputeMessageVersionsRelations,
   ...disputeNotificationsRelations,
   ...bursariesRelations,
+  ...mediaUploadsRelations,
   ...tenantsRelations,
 };

@@ -88,6 +88,7 @@ import { supports } from './supports';
 import { tenantInvoices } from './tenant-invoices';
 import { tenantPayments } from './tenant-payments';
 import { tenantSubscriptions } from './tenant-subscriptions';
+import { mediaUploads } from './media-uploads';
 import { assistSessions } from './assist-sessions';
 import { tenantAchievements } from './tenant-achievements';
 import { tenantModules } from './tenant-modules';
@@ -230,6 +231,7 @@ export const tenantsRelations = relations(tenants, helpers => ({
   TenantSubscription: helpers.many(tenantSubscriptions, {
     relationName: 'TenantToTenantSubscription',
   }),
+  MediaUpload: helpers.many(mediaUploads, { relationName: 'MediaUploadToTenant' }),
   assistSessions: helpers.many(assistSessions, { relationName: 'AssistSessionToTenant' }),
   tenantAchievements: helpers.many(tenantAchievements, {
     relationName: 'TenantToTenantAchievement',
