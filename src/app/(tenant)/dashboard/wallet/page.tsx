@@ -361,14 +361,25 @@ function OverviewTab({
 
   return (
     <div className="space-y-6">
-      {/* Available Value + Lifetime Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="border border-slate-200 rounded-lg p-4 bg-white">
+      {/* Available Value Hero + Pictograph */}
+      <div className="flex items-center justify-center gap-8 py-6">
+        <div className="text-center">
           <p className="text-xs text-slate-400 mb-1">
             {tx('dwallet.availableValue', 'Available Value')}
           </p>
-          <p className="text-xl font-semibold text-indigo-600">{formatZAR(balanceStr)}</p>
+          <p className="text-3xl font-bold text-indigo-600">{formatZAR(balanceStr)}</p>
         </div>
+        <Image
+          src="/platform/info/dwallet-register.svg"
+          alt=""
+          width={120}
+          height={90}
+          className="shrink-0"
+        />
+      </div>
+
+      {/* Lifetime Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="border border-slate-200 rounded-lg p-4 bg-white">
           <p className="text-xs text-slate-400 mb-1">
             {tx('dwallet.valueEarned', 'Value Earned (Lifetime)')}
