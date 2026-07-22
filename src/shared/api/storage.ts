@@ -6,6 +6,8 @@ import {
 } from '@aws-sdk/client-s3';
 import { createId } from '@shared/lib/id';
 import { logError } from '@shared/lib';
+import { db, mediaUploads } from './db';
+import { eq, and, desc } from 'drizzle-orm';
 
 // Validate required environment variables at startup
 const requiredEnvVars = [
@@ -79,7 +81,11 @@ export interface MediaItem {
   uploadedAt: string;
 }
 
-export async function uploadImage(file: File, userId: string): Promise<UploadResult> {
+export async function uploadImage(
+  file: File,
+  userId: string,
+  tenantId?: string
+): Promise<UploadResult> {
   if (!file.type.startsWith('image/')) {
     return { url: '', key: '', error: 'Invalid file type. Only images are allowed.' };
   }
@@ -118,6 +124,26 @@ export async function uploadImage(file: File, userId: string): Promise<UploadRes
     await s3Client.send(command);
 
     const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${BUCKET_NAME}/${key}`;
+
+    db.insert(mediaUploads)
+      .values({
+        id: createId(),
+        userId,
+        tenantId: tenantId ?? '',
+        key,
+        url: publicUrl,
+        fileName: file.name,
+        fileSize: file.size,
+        mimeType: file.type,
+      })
+      .catch(err =>
+        logError(
+          { component: 'storage', operation: 'uploadImage' },
+          'Failed to write media record',
+          err
+        )
+      );
+
     return { url: publicUrl, key };
   } catch (error) {
     logError({ component: 'storage', operation: 'uploadImage' }, 'Failed to upload image', error);
@@ -126,6 +152,26 @@ export async function uploadImage(file: File, userId: string): Promise<UploadRes
 }
 
 export async function listUserImages(userId: string): Promise<MediaItem[]> {
+  try {
+    const records = await db
+      .select()
+      .from(mediaUploads)
+      .where(eq(mediaUploads.userId, userId))
+      .orderBy(desc(mediaUploads.createdAt));
+
+    if (records.length > 0) {
+      return records.map(r => ({
+        key: r.key,
+        url: r.url,
+        name: r.fileName,
+        size: r.fileSize,
+        uploadedAt: r.createdAt.toISOString(),
+      }));
+    }
+  } catch (error) {
+    logError({ component: 'storage', operation: 'listUserImages' }, 'DB query failed', error);
+  }
+
   const prefix = `users/${userId}/`;
 
   try {
@@ -172,6 +218,17 @@ export async function deleteImage(
     });
 
     await s3Client.send(command);
+
+    db.delete(mediaUploads)
+      .where(and(eq(mediaUploads.key, key), eq(mediaUploads.userId, userId)))
+      .catch(err =>
+        logError(
+          { component: 'storage', operation: 'deleteImage' },
+          'Failed to delete media record',
+          err
+        )
+      );
+
     return { success: true };
   } catch (error) {
     logError({ component: 'storage', operation: 'deleteImage' }, 'Failed to delete image', error);
@@ -218,6 +275,26 @@ export async function uploadTenantImage(file: File, tenantId: string): Promise<U
     await s3Client.send(command);
 
     const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${BUCKET_NAME}/${key}`;
+
+    db.insert(mediaUploads)
+      .values({
+        id: createId(),
+        userId: '',
+        tenantId,
+        key,
+        url: publicUrl,
+        fileName: file.name,
+        fileSize: file.size,
+        mimeType: file.type,
+      })
+      .catch(err =>
+        logError(
+          { component: 'storage', operation: 'uploadTenantImage' },
+          'Failed to write media record',
+          err
+        )
+      );
+
     return { url: publicUrl, key };
   } catch (error) {
     logError(
@@ -230,6 +307,26 @@ export async function uploadTenantImage(file: File, tenantId: string): Promise<U
 }
 
 export async function listTenantImages(tenantId: string): Promise<MediaItem[]> {
+  try {
+    const records = await db
+      .select()
+      .from(mediaUploads)
+      .where(eq(mediaUploads.tenantId, tenantId))
+      .orderBy(desc(mediaUploads.createdAt));
+
+    if (records.length > 0) {
+      return records.map(r => ({
+        key: r.key,
+        url: r.url,
+        name: r.fileName,
+        size: r.fileSize,
+        uploadedAt: r.createdAt.toISOString(),
+      }));
+    }
+  } catch (error) {
+    logError({ component: 'storage', operation: 'listTenantImages' }, 'DB query failed', error);
+  }
+
   const prefix = `tenants/${tenantId}/system/`;
 
   try {
@@ -279,6 +376,17 @@ export async function deleteTenantImage(
     });
 
     await s3Client.send(command);
+
+    db.delete(mediaUploads)
+      .where(and(eq(mediaUploads.key, key), eq(mediaUploads.tenantId, tenantId)))
+      .catch(err =>
+        logError(
+          { component: 'storage', operation: 'deleteTenantImage' },
+          'Failed to delete media record',
+          err
+        )
+      );
+
     return { success: true };
   } catch (error) {
     logError(
