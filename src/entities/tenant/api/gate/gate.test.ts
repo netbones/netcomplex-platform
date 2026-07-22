@@ -86,7 +86,7 @@ vi.mock('@api/server', () => ({
   requestNotes: {},
   requestHistories: {},
   getSessionAndRole: vi.fn(),
-  CACHE_TAGS: {},
+  CACHE_TAGS: { SETTINGS: 'settings' },
 }));
 
 vi.mock('@/shared/api/auth', () => ({

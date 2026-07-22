@@ -155,6 +155,8 @@ vi.mock('@api/server', () => {
       )
     ),
 
+    notDeleted: () => true,
+
     // withErrorHandler passthrough
     withErrorHandler: (fn: (...args: unknown[]) => unknown) => fn,
   };

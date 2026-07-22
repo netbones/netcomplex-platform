@@ -249,7 +249,7 @@ describe('v1 re-export routes', () => {
     for (const [path, methods] of routes) {
       describe(`/api/v1/tenant/${path}`, () => {
         it('re-exports all expected handlers', async () => {
-          const mod = await import(`@/app/api/v1/tenant/${path}/route`);
+          const mod = await import(/* @vite-ignore */ `@/app/api/v1/tenant/${path}/route`);
           for (const method of methods) {
             expect(mod[method as keyof typeof mod]).toBeInstanceOf(Function);
           }

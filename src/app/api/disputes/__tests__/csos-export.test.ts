@@ -250,7 +250,7 @@ vi.mock('@api/server', () => {
       )
     ),
 
-    notDeleted: vi.fn(() => true),
+    notDeleted: () => true,
     withErrorHandler: (fn: (...args: unknown[]) => unknown) => fn,
   };
 });
