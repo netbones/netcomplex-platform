@@ -369,13 +369,7 @@ function OverviewTab({
           </p>
           <p className="text-3xl font-bold text-indigo-600">{formatZAR(balanceStr)}</p>
         </div>
-        <Image
-          src="/platform/info/dwallet-register.svg"
-          alt=""
-          width={120}
-          height={90}
-          className="shrink-0"
-        />
+        <Image src="/platform/wallet-red.svg" alt="" width={120} height={90} className="shrink-0" />
       </div>
 
       {/* Lifetime Stats */}
