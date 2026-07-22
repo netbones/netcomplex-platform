@@ -72,25 +72,23 @@ export const groupDetailDto = groupDto.extend({
       image: z.string().nullable(),
     })
     .nullable(),
-  members: z
-    .array(
-      z.object({
-        id: z.string(),
-        userId: z.string(),
-        groupId: z.string(),
-        role: z.string(),
-        joinedAt: dateSchema,
-        user: z
-          .object({
-            id: z.string(),
-            name: z.string(),
-            image: z.string().nullable(),
-          })
-          .nullable(),
-      })
-    )
-    .optional(),
-  contents: z.array(z.unknown()).optional(),
+  members: z.array(
+    z.object({
+      id: z.string(),
+      userId: z.string(),
+      groupId: z.string(),
+      role: z.string(),
+      joinedAt: dateSchema,
+      user: z
+        .object({
+          id: z.string(),
+          name: z.string(),
+          image: z.string().nullable(),
+        })
+        .nullable(),
+    })
+  ),
+  contents: z.array(z.unknown()),
 });
 
 export const meritDto = createSelectSchema(communityMerits, {

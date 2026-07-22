@@ -104,7 +104,7 @@ export default function GroupDetailPage() {
         <div className="flex items-center space-x-6 text-sm text-gray-500">
           <span>
             <Users className="mr-2" />
-            {group.members.length} members
+            {group.members?.length ?? 0} members
           </span>
           <span>
             <User className="mr-2" />
@@ -124,7 +124,7 @@ export default function GroupDetailPage() {
               </button>
             </div>
 
-            {group.contents.length > 0 ? (
+            {group.contents && group.contents.length > 0 ? (
               <div className="space-y-4">
                 {group.contents.map(post => (
                   <div key={post.id} className="border-b border-gray-100 pb-4">
@@ -147,7 +147,7 @@ export default function GroupDetailPage() {
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-lg font-semibold mb-4">Members</h2>
             <div className="space-y-3">
-              {group.members.map(m => (
+              {group.members?.map(m => (
                 <div key={m.user.id} className="flex items-center">
                   <div className="relative w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 text-sm font-medium mr-3 overflow-hidden flex-shrink-0">
                     {m.user.image ? (
@@ -163,7 +163,9 @@ export default function GroupDetailPage() {
                 </div>
               ))}
             </div>
-            {group.members.length === 0 && <p className="text-gray-500 text-sm">No members yet</p>}
+            {(!group.members || group.members.length === 0) && (
+              <p className="text-gray-500 text-sm">No members yet</p>
+            )}
           </div>
         </div>
       </div>
