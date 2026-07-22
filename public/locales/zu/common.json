@@ -25,6 +25,10 @@
     "messages": "Umlando",
     "notifications": "Izaziso",
     "settings": "amasethi",
+    "profileSettings": "Amasethi ephrofayili",
+    "billing": "I-Billing & Plan Centre",
+    "themeLight": "Imodi yokukhanya",
+    "themeDark": "Imodi yobumnyama",
     "login": "Ngena",
     "logout": "Phuma",
     "admin": "Admin",
@@ -56,7 +60,8 @@
     "users": "UkuLawulwa kwabasebenzisi",
     "requests": "Izicelo zokuNakekela",
     "content": "UkuLawulwa koKuxhaswa",
-    "groups": "AmaQembu aneNtandokazi"
+    "groups": "AmaQembu aneNtandokazi",
+    "disputes": "Izingxabano"
   },
   "footer": {
     "description": "{{description}}",

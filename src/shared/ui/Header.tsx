@@ -11,7 +11,7 @@ import { useGateContext } from '@features/gate';
 import { usePageFlags } from '@shared/lib/hooks/usePageFlags';
 import { type PlatformPageFlags } from '@shared/lib';
 import { NAV_REGISTRY, isNavItemVisible } from '@/shared/lib/nav';
-import { Wallet } from 'lucide-react';
+import { Wallet, Sun, Moon, User, CreditCard } from 'lucide-react';
 import { MobileMenu } from './MobileMenu';
 import { useTenant } from '@entities/tenant';
 
@@ -156,13 +156,27 @@ function AvatarDropdown({
   pathname: string;
 }) {
   const [open, setOpen] = useState(false);
+  const [dark, setDark] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = stored ? stored === 'dark' : prefersDark;
+    setDark(isDark);
+    document.documentElement.classList.toggle('dark', isDark);
+  }, []);
+
+  const toggleTheme = () => {
+    const next = !dark;
+    setDark(next);
+    localStorage.setItem('theme', next ? 'dark' : 'light');
+    document.documentElement.classList.toggle('dark', next);
+  };
 
   const role = session.user.role;
   const workspaceItems = NAV_REGISTRY.filter(
-    item =>
-      ['dashboard', 'messages', 'bookings', 'maintenance'].includes(item.id) &&
-      isNavItemVisible(item, flags, role)
+    item => ['dashboard'].includes(item.id) && isNavItemVisible(item, flags, role)
   );
 
   useEffect(() => {
@@ -218,7 +232,7 @@ function AvatarDropdown({
               key={item.id}
               href={item.href}
               onClick={() => setOpen(false)}
-              className={`block px-4 py-2 text-sm hover:bg-gray-100 ${
+              className={`flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100 ${
                 pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))
                   ? 'text-soralia-primary font-medium'
                   : 'text-gray-700'
@@ -227,7 +241,30 @@ function AvatarDropdown({
               {t(item.nameKey)}
             </Link>
           ))}
-          {flags?.dWallet && (
+
+          <Link
+            href="/profile"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100 text-gray-700"
+          >
+            <User className="w-4 h-4 text-indigo-600" />
+            {t('nav.profileSettings')}
+          </Link>
+
+          <button
+            onClick={toggleTheme}
+            className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm hover:bg-gray-100 text-gray-700 cursor-pointer"
+            type="button"
+          >
+            {dark ? (
+              <Sun className="w-4 h-4 text-amber-500" />
+            ) : (
+              <Moon className="w-4 h-4 text-indigo-600" />
+            )}
+            {dark ? t('nav.themeLight') : t('nav.themeDark')}
+          </button>
+
+          {flags.dWallet && (
             <Link
               href="/dashboard/wallet"
               onClick={() => setOpen(false)}
@@ -237,14 +274,16 @@ function AvatarDropdown({
               {t('spaces.wallet')}
             </Link>
           )}
-          <div className="border-t border-gray-100 my-1" />
+
           <Link
-            href="/profile"
+            href="/billing"
             onClick={() => setOpen(false)}
-            className="block px-4 py-2 text-sm hover:bg-gray-100 text-gray-700"
+            className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100 text-gray-700"
           >
-            Settings
+            <CreditCard className="w-4 h-4 text-indigo-600" />
+            {t('nav.billing')}
           </Link>
+
           <div className="border-t border-gray-100 my-1" />
           <button
             onClick={() => {

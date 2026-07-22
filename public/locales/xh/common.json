@@ -25,6 +25,10 @@
     "messages": "Imiyalezo",
     "notifications": "Iimpazamo",
     "settings": "Iisetingi",
+    "profileSettings": "Iisetingi zeprofayile",
+    "billing": "Ibilling & Plan Centre",
+    "themeLight": "Imo yokukhanya",
+    "themeDark": "Imo yobumnyama",
     "login": "Ngena",
     "logout": "Phuma",
     "admin": "Admin",
@@ -56,7 +60,8 @@
     "users": "Ul.awulo lwabasebenzisi",
     "requests": "Iimfuno zokuGcina",
     "content": "Ul.awulo lweXwebhu",
-    "groups": "AmaQela anomDla"
+    "groups": "AmaQela anomDla",
+    "disputes": "Iingxabano"
   },
   "footer": {
     "description": "{{description}}",

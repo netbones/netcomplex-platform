@@ -25,6 +25,10 @@
     "messages": "Messages",
     "notifications": "Notifications",
     "settings": "Settings",
+    "profileSettings": "Profile Settings",
+    "billing": "Billing & Plan Centre",
+    "themeLight": "Light Mode",
+    "themeDark": "Dark Mode",
     "login": "Sign In",
     "logout": "Sign Out",
     "admin": "Admin",
@@ -56,7 +60,8 @@
     "users": "User Management",
     "requests": "Maintenance Requests",
     "content": "Content Management",
-    "groups": "Interest Groups"
+    "groups": "Interest Groups",
+    "disputes": "Disputes"
   },
   "footer": {
     "description": "{{description}}",

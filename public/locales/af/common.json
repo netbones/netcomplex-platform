@@ -25,6 +25,10 @@
     "messages": "Boodskappe",
     "notifications": "Kennisgewings",
     "settings": "Instellings",
+    "profileSettings": "Profiel Instellings",
+    "billing": "Fakturering & Plan Sentrum",
+    "themeLight": "Lig Modus",
+    "themeDark": "Donker Modus",
     "login": "Teken aan",
     "logout": "Teken uit",
     "admin": "Admin",
@@ -56,7 +60,8 @@
     "users": "Gebruikersbestuur",
     "requests": "Instandhoudingsversoeke",
     "content": "Inhoudbestuur",
-    "groups": "Belangegroepe"
+    "groups": "Belangegroepe",
+    "disputes": "Geskille"
   },
   "footer": {
     "description": "{{description}}",

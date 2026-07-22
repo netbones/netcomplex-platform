@@ -104,7 +104,7 @@ const SETTING_DEFS = [
     dbKey: 'page_dwallet_enabled',
     flagKey: 'dWallet',
     type: 'boolean',
-    defaultValue: false,
+    defaultValue: true,
   },
   {
     dbKey: 'page_providers_enabled',
