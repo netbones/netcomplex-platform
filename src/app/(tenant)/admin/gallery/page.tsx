@@ -28,7 +28,7 @@ export default function AdminGalleryPage() {
     try {
       const res = await fetch('/api/admin/media');
       const data = await res.json();
-      setImages(data.images || []);
+      setImages(data.data?.images || data.images || []);
     } catch (err) {
       log.error({}, 'Failed to fetch gallery images', err);
       toast.error('Failed to load gallery images');

@@ -18,7 +18,7 @@ export async function POST(request: Request) {
   const rateLimit = await rateLimitByIP(request, { windowMs: 60_000, maxRequests: 10 });
   if (rateLimit) return rateLimit;
 
-  await withTenant(); // Enforce tenant context
+  const { tenantId } = await withTenant(); // Enforce tenant context
   const session = await auth.api.getSession({
     headers: request.headers,
   });
@@ -35,7 +35,7 @@ export async function POST(request: Request) {
       return apiError('VALIDATION_ERROR', 'No file provided', 400);
     }
 
-    const result = await uploadImage(file, session.user.id);
+    const result = await uploadImage(file, session.user.id, tenantId);
 
     if (result.error) {
       return apiError('VALIDATION_ERROR', String(result.error), 400);

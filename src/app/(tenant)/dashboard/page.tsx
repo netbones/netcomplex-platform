@@ -28,8 +28,8 @@ export default function DashboardHome() {
     fetch(`/api/users/${userId}`)
       .then(r => r.json())
       .then(d => {
-        const h = d?.profileData?.headerImage || null;
-        setHeaderImage(h);
+        const profile = d?.data?.profileData || d?.profileData;
+        setHeaderImage(profile?.headerImage || null);
       })
       .catch(() => {})
       .finally(() => setProfileLoading(false));
@@ -38,13 +38,14 @@ export default function DashboardHome() {
   const handleHeaderSelect = async (url: string) => {
     if (!userId) return;
     setHeaderImage(url);
-    await fetch(`/api/users/${userId}`, {
+    const res = await fetch(`/api/users/${userId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         profileData: { headerImage: url },
       }),
     });
+    if (!res.ok) throw new Error('Failed to save header image');
   };
 
   const handleDismiss = async () => {

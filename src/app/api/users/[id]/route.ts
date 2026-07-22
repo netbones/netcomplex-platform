@@ -67,6 +67,7 @@ export const GET = withErrorHandler(
         showPhone: users.showPhone,
         notificationPreferences: users.notificationPreferences,
         role: users.role,
+        profileData: users.profileData,
         createdAt: users.createdAt,
         profileSlug: users.profileSlug,
       })
@@ -93,6 +94,7 @@ export const GET = withErrorHandler(
           showPhone: users.showPhone,
           notificationPreferences: users.notificationPreferences,
           role: users.role,
+          profileData: users.profileData,
           createdAt: users.createdAt,
           profileSlug: users.profileSlug,
         })
@@ -358,7 +360,13 @@ export const PATCH = withErrorHandler(
       updateData.residencyType = String(body.residencyType);
     }
     if (body.profileData !== undefined) {
-      updateData.profileData = body.profileData;
+      const [existingUser] = await db
+        .select({ profileData: users.profileData })
+        .from(users)
+        .where(and(eq(users.id, id), eq(users.tenantId, tenantId)))
+        .limit(1);
+      const existing = (existingUser?.profileData ?? {}) as Record<string, unknown>;
+      updateData.profileData = { ...existing, ...body.profileData };
     }
     if (body.notificationPreferences !== undefined) {
       updateData.notificationPreferences = body.notificationPreferences;

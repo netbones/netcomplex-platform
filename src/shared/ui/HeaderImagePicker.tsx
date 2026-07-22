@@ -23,10 +23,10 @@ interface MediaItem {
 async function fetchMyImages(): Promise<MediaItem[]> {
   const r = await fetch('/api/media');
   const d = await r.json();
-  return d.images || [];
+  return d.data?.images || d.images || [];
 }
 
-async function uploadMyImage(file: File): Promise<void> {
+async function uploadMyImage(file: File): Promise<{ url: string; key: string }> {
   const formData = new FormData();
   formData.append('file', file);
   const res = await fetch('/api/upload', { method: 'POST', body: formData });
@@ -34,6 +34,8 @@ async function uploadMyImage(file: File): Promise<void> {
     const error = await res.json();
     throw new Error(error.error || 'Upload failed');
   }
+  const data = await res.json();
+  return { url: data.data.url, key: data.data.key };
 }
 
 export function HeaderImagePicker({
@@ -56,7 +58,7 @@ export function HeaderImagePicker({
     Promise.all([
       fetch('/api/admin/media')
         .then(r => r.json())
-        .then(d => setSystemImages(d.images || []))
+        .then(d => setSystemImages(d.data?.images || d.images || []))
         .catch(() => {}),
       fetchMyImages()
         .then(setMyImages)
@@ -75,10 +77,18 @@ export function HeaderImagePicker({
     setUploading(true);
     const filesArray = Array.from(files);
     const loadingToast = toast.loading(`Uploading ${filesArray.length} image(s)...`);
+    const uploaded: MediaItem[] = [];
 
     for (const file of filesArray) {
       try {
-        await uploadMyImage(file);
+        const { url, key } = await uploadMyImage(file);
+        uploaded.push({
+          url,
+          key,
+          name: file.name,
+          size: file.size,
+          uploadedAt: new Date().toISOString(),
+        });
       } catch (err) {
         toast.error(`${file.name}: ${err instanceof Error ? err.message : 'Upload failed'}`);
       }
@@ -86,17 +96,29 @@ export function HeaderImagePicker({
 
     toast.dismiss(loadingToast);
     setUploading(false);
-    const refreshed = await fetchMyImages().catch(() => [] as MediaItem[]);
-    setMyImages(refreshed);
+    if (uploaded.length > 0) {
+      setMyImages(prev => [...uploaded, ...prev]);
+      if (uploaded.length === 1) setSelected(uploaded[0].url);
+    }
+    fetchMyImages()
+      .then(serverImages => {
+        if (serverImages.length > 0) setMyImages(serverImages);
+      })
+      .catch(() => {});
+    if (fileInputRef.current) fileInputRef.current.value = '';
     toast.success('Images uploaded!');
   };
 
   if (!open) return null;
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!selected) return;
-    onSelect(selected);
-    toast.success('Header image updated');
+    try {
+      await onSelect(selected);
+      toast.success('Header image updated');
+    } catch {
+      toast.error('Failed to save header image');
+    }
     onClose();
   };
 
