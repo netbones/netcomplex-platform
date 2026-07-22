@@ -129,6 +129,7 @@ model Tenant {
   TenantPayment           TenantPayment[]
   TenantSubscription      TenantSubscription[]
 
+  MediaUpload             MediaUpload[]
   assistSessions          AssistSession[]
   tenantAchievements      TenantAchievement[]
   tenantModules           TenantModule[]

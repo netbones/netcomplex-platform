@@ -147,6 +147,7 @@ import { addressEndpointsRelations } from '@schema/address-endpoints-relations';
 import { tenantSetups } from '@schema/tenant-setups';
 import { setupMissions } from '@schema/setup-missions';
 import { setupSettings } from '@schema/setup-settings';
+import { mediaUploads } from '@schema/media-uploads';
 
 import { ENV } from 'varlock/env';
 import { dbLogger } from '@shared/lib';
@@ -246,6 +247,7 @@ const dbSchema = {
   disputeMessageVersions,
   disputeMessages,
   disputeNotifications,
+  mediaUploads,
   addresses,
   addressesRelations,
   handles,
@@ -490,6 +492,7 @@ export {
   handlesRelations,
   addressEndpoints,
   addressEndpointsRelations,
+  mediaUploads,
   tenantSetups,
   setupMissions,
   setupSettings,

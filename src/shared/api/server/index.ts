@@ -108,6 +108,7 @@ export {
   disputeMessageVersions,
   disputeMessages,
   disputeNotifications,
+  mediaUploads,
   residentDelegations,
   agentTokens,
   delegationActions,

@@ -159,6 +159,7 @@ model user {
   invitation                                            Invitation[]
   maintenanceRequestsAsLandlord                         MaintenanceRequest[]      @relation("MaintenanceRequest_landlord")
   MaintenanceRequest                                    MaintenanceRequest[]
+  mediaUploads                                          MediaUpload[]
   member                                                Member[]
   Message                                               Message[]
   Notification                                          Notification[]
@@ -2571,6 +2572,25 @@ model OutboxDeadLetter {
 
   @@index([type])
   @@index([tenantId])
+}
+
+model MediaUpload {
+  id        String   @id @default(uuid())
+  userId    String
+  tenantId  String
+  key       String
+  url       String
+  fileName  String
+  fileSize  Int
+  mimeType  String
+  createdAt DateTime @default(now())
+
+  user   user   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+
+  @@index([userId])
+  @@index([tenantId])
+  @@index([userId, createdAt])
 }
 
 enum DelegationStatus {
