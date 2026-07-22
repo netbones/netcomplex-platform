@@ -245,7 +245,15 @@
     "streamLabel_service_provider_listings": "Service Provider Listings",
     "streamLabel_premium_placements": "Premium Placements",
     "streamLabel_agent_registrations": "Agent Registrations",
-    "streamLabel_agent_premium_listings": "Agent Premium Listings"
+    "streamLabel_agent_premium_listings": "Agent Premium Listings",
+    "streamDesc_survey_participation": "Controls data usage for third-party surveys",
+    "streamDesc_marketplace_activity": "Controls data usage for marketplace analytics",
+    "streamDesc_agent_transactions": "Controls data usage for agent marketplace",
+    "streamDesc_value_added_services": "Controls data usage for VAS improvement",
+    "streamDesc_service_provider_listings": "Controls data usage for provider analytics",
+    "streamDesc_premium_placements": "Controls data usage for listing analytics",
+    "streamDesc_agent_registrations": "Controls data usage for agent registration data",
+    "streamDesc_agent_premium_listings": "Controls data usage for premium listing data"
   },
   "setup": {
     "title": "Community Setup",

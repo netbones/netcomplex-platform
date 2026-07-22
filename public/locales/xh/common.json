@@ -257,7 +257,15 @@
     "streamLabel_service_provider_listings": "Uluhlu lwabaBoneleli beNkonzo",
     "streamLabel_premium_placements": "Ukwabekwa kwi-Premium",
     "streamLabel_agent_registrations": "Ubhaliso lwee-Agent",
-    "streamLabel_agent_premium_listings": "Uluhlu lwee-Agent ezi-Premium"
+    "streamLabel_agent_premium_listings": "Uluhlu lwee-Agent ezi-Premium",
+    "streamDesc_survey_participation": "Ilawula ukusetyenziswa kwedatha kophando lwamaqela esithathu",
+    "streamDesc_marketplace_activity": "Ilawula ukusetyenziswa kwedatha kuhlalutyo lwemarike",
+    "streamDesc_agent_transactions": "Ilawula ukusetyenziswa kwedatha kwimarike yee-agent",
+    "streamDesc_value_added_services": "Ilawula ukusetyenziswa kwedatha kuphuculo lwe-VAS",
+    "streamDesc_service_provider_listings": "Ilawula ukusetyenziswa kwedatha kuhlalutyo lwababoneleli",
+    "streamDesc_premium_placements": "Ilawula ukusetyenziswa kwedatha kuhlalutyo loluhlu",
+    "streamDesc_agent_registrations": "Ilawula ukusetyenziswa kwedatha kwidatha yobhaliso lwe-agent",
+    "streamDesc_agent_premium_listings": "Ilawula ukusetyenziswa kwedatha kwidatha yoluhlu lwepremiyamu"
   },
   "setup": {
     "title": "Ukuseta Uluntu",

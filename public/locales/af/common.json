@@ -257,7 +257,15 @@
     "streamLabel_service_provider_listings": "Diensverskaffer Lysings",
     "streamLabel_premium_placements": "Premie Plasings",
     "streamLabel_agent_registrations": "Agent Registrasies",
-    "streamLabel_agent_premium_listings": "Agent Premie Lysings"
+    "streamLabel_agent_premium_listings": "Agent Premie Lysings",
+    "streamDesc_survey_participation": "Beheer data gebruik vir derdeparty-opnames",
+    "streamDesc_marketplace_activity": "Beheer data gebruik vir markplek-analitiek",
+    "streamDesc_agent_transactions": "Beheer data gebruik vir agent-markplek",
+    "streamDesc_value_added_services": "Beheer data gebruik vir WTD-verbetering",
+    "streamDesc_service_provider_listings": "Beheer data gebruik vir verskaffer-analitiek",
+    "streamDesc_premium_placements": "Beheer data gebruik vir lising-analitiek",
+    "streamDesc_agent_registrations": "Beheer data gebruik vir agent-registrasiedata",
+    "streamDesc_agent_premium_listings": "Beheer data gebruik vir premie-lisingdata"
   },
   "setup": {
     "title": "Gemeenskapopstelling",

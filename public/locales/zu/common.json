@@ -257,7 +257,15 @@
     "streamLabel_service_provider_listings": "Uhlu lwabaHlinzeki beNkonzo",
     "streamLabel_premium_placements": "Ukubekwa kwe-Premium",
     "streamLabel_agent_registrations": "Ukubhaliswa kwama-Agent",
-    "streamLabel_agent_premium_listings": "Uhlu lwama-Agent we-Premium"
+    "streamLabel_agent_premium_listings": "Uhlu lwama-Agent we-Premium",
+    "streamDesc_survey_participation": "Ilawula ukusetshenziswa kwedatha ezinhlolombangweni zenkampani yangaphandle",
+    "streamDesc_marketplace_activity": "Ilawula ukusetshenziswa kwedatha ekuhlaziyweni kwemakethe",
+    "streamDesc_agent_transactions": "Ilawula ukusetshenziswa kwedatha emakethe ye-agent",
+    "streamDesc_value_added_services": "Ilawula ukusetshenziswa kwedatha ekuthuthukisweni kwe-VAS",
+    "streamDesc_service_provider_listings": "Ilawula ukusetshenziswa kwedatha ekuhlaziyweni kwabahlinzeki",
+    "streamDesc_premium_placements": "Ilawula ukusetshenziswa kwedatha ekuhlaziyweni kohlu",
+    "streamDesc_agent_registrations": "Ilawula ukusetshenziswa kwedatha kudatha yokubhalisa i-agent",
+    "streamDesc_agent_premium_listings": "Ilawula ukusetshenziswa kwedatha kuhlu lwemininingwane ye-premium"
   },
   "setup": {
     "title": "Ukusetha Umphakathi",

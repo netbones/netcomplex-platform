@@ -182,6 +182,20 @@ function getStreamLabelKey(streamKey: string) {
   return map[streamKey] ?? '';
 }
 
+function getStreamDescKey(streamKey: string) {
+  const map: Record<string, string> = {
+    survey_participation: 'dwallet.streamDesc_survey_participation',
+    marketplace_activity: 'dwallet.streamDesc_marketplace_activity',
+    agent_transactions: 'dwallet.streamDesc_agent_transactions',
+    value_added_services: 'dwallet.streamDesc_value_added_services',
+    service_provider_listings: 'dwallet.streamDesc_service_provider_listings',
+    premium_placements: 'dwallet.streamDesc_premium_placements',
+    agent_registrations: 'dwallet.streamDesc_agent_registrations',
+    agent_premium_listings: 'dwallet.streamDesc_agent_premium_listings',
+  };
+  return map[streamKey] ?? '';
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // Page Header
 // ═══════════════════════════════════════════════════════════════════════════
@@ -980,9 +994,13 @@ function ConsentsTab({
               <ConsentToggle
                 key={consent.streamKey}
                 streamKey={consent.streamKey}
-                label={consent.label}
+                label={tx(getStreamLabelKey(consent.streamKey), consent.label)}
                 granted={consent.granted}
-                subtitle={consent.description ?? undefined}
+                subtitle={
+                  consent.description
+                    ? tx(getStreamDescKey(consent.streamKey), consent.description)
+                    : undefined
+                }
                 dateLine={
                   consent.granted && consent.grantedAt
                     ? tx('dwallet.grantedOn', 'Granted {date}', {
