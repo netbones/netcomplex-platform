@@ -249,7 +249,15 @@
     "dateRequested": "Date Requested",
     "statusCol": "Status",
     "processedDate": "Processed Date",
-    "notes": "Notes"
+    "notes": "Notes",
+    "streamLabel_survey_participation": "Ukubamba iqhaza ocwaningweni",
+    "streamLabel_marketplace_activity": "Umsebenzi wemakethe",
+    "streamLabel_agent_transactions": "Okwenziwa ama-Agent",
+    "streamLabel_value_added_services": "Izinsiza eziKhulisa Inani",
+    "streamLabel_service_provider_listings": "Uhlu lwabaHlinzeki beNkonzo",
+    "streamLabel_premium_placements": "Ukubekwa kwe-Premium",
+    "streamLabel_agent_registrations": "Ukubhaliswa kwama-Agent",
+    "streamLabel_agent_premium_listings": "Uhlu lwama-Agent we-Premium"
   },
   "setup": {
     "title": "Ukusetha Umphakathi",

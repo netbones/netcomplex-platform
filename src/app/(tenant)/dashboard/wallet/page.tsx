@@ -168,6 +168,20 @@ function ConsentToggle({
   );
 }
 
+function getStreamLabelKey(streamKey: string) {
+  const map: Record<string, string> = {
+    survey_participation: 'dwallet.streamLabel_survey_participation',
+    marketplace_activity: 'dwallet.streamLabel_marketplace_activity',
+    agent_transactions: 'dwallet.streamLabel_agent_transactions',
+    value_added_services: 'dwallet.streamLabel_value_added_services',
+    service_provider_listings: 'dwallet.streamLabel_service_provider_listings',
+    premium_placements: 'dwallet.streamLabel_premium_placements',
+    agent_registrations: 'dwallet.streamLabel_agent_registrations',
+    agent_premium_listings: 'dwallet.streamLabel_agent_premium_listings',
+  };
+  return map[streamKey] ?? '';
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // Page Header
 // ═══════════════════════════════════════════════════════════════════════════
@@ -376,7 +390,9 @@ function OverviewTab({
                   className="flex items-center justify-between py-2 border-b border-slate-50 last:border-b-0"
                 >
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-slate-700">{stream.label}</p>
+                    <p className="text-sm text-slate-700">
+                      {tx(getStreamLabelKey(stream.key), stream.label)}
+                    </p>
                     <p className="text-xs text-slate-400 mt-0.5">
                       {tx(
                         'dwallet.streamContributes',
@@ -856,7 +872,9 @@ function ImpactTab({ streams }: { streams: StreamConfig[] }) {
               const pct = Number(stream.residentSharePct) || 0;
               return (
                 <div key={stream.key} className="flex items-center gap-3">
-                  <span className="text-sm text-slate-700 flex-1">{stream.label}</span>
+                  <span className="text-sm text-slate-700 flex-1">
+                    {tx(getStreamLabelKey(stream.key), stream.label)}
+                  </span>
                   <div className="flex-1 bg-slate-100 rounded-full h-2 overflow-hidden">
                     <div
                       className="h-full bg-indigo-500 rounded-full transition-all"

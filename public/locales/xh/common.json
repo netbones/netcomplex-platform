@@ -249,7 +249,15 @@
     "dateRequested": "Date Requested",
     "statusCol": "Status",
     "processedDate": "Processed Date",
-    "notes": "Notes"
+    "notes": "Notes",
+    "streamLabel_survey_participation": "Ukuthatha Inxaxheba kuPhando",
+    "streamLabel_marketplace_activity": "Umsebenzi weMarike",
+    "streamLabel_agent_transactions": "Iintengiselwano zee-Agent",
+    "streamLabel_value_added_services": "Iinkonzo eziZongeziweyo",
+    "streamLabel_service_provider_listings": "Uluhlu lwabaBoneleli beNkonzo",
+    "streamLabel_premium_placements": "Ukwabekwa kwi-Premium",
+    "streamLabel_agent_registrations": "Ubhaliso lwee-Agent",
+    "streamLabel_agent_premium_listings": "Uluhlu lwee-Agent ezi-Premium"
   },
   "setup": {
     "title": "Ukuseta Uluntu",

@@ -249,7 +249,15 @@
     "dateRequested": "Date Requested",
     "statusCol": "Status",
     "processedDate": "Processed Date",
-    "notes": "Notes"
+    "notes": "Notes",
+    "streamLabel_survey_participation": "Deelname aan Opname",
+    "streamLabel_marketplace_activity": "Markplek Aktiwiteit",
+    "streamLabel_agent_transactions": "Agent Transaksies",
+    "streamLabel_value_added_services": "Waarde-Toegevoegde Dienste",
+    "streamLabel_service_provider_listings": "Diensverskaffer Lysings",
+    "streamLabel_premium_placements": "Premie Plasings",
+    "streamLabel_agent_registrations": "Agent Registrasies",
+    "streamLabel_agent_premium_listings": "Agent Premie Lysings"
   },
   "setup": {
     "title": "Gemeenskapopstelling",

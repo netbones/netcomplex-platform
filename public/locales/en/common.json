@@ -237,7 +237,15 @@
     "dateRequested": "Date Requested",
     "statusCol": "Status",
     "processedDate": "Processed Date",
-    "notes": "Notes"
+    "notes": "Notes",
+    "streamLabel_survey_participation": "Survey Participation",
+    "streamLabel_marketplace_activity": "Marketplace Activity",
+    "streamLabel_agent_transactions": "Agent Transactions",
+    "streamLabel_value_added_services": "Value-Added Services",
+    "streamLabel_service_provider_listings": "Service Provider Listings",
+    "streamLabel_premium_placements": "Premium Placements",
+    "streamLabel_agent_registrations": "Agent Registrations",
+    "streamLabel_agent_premium_listings": "Agent Premium Listings"
   },
   "setup": {
     "title": "Community Setup",
