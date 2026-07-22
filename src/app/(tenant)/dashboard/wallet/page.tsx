@@ -131,6 +131,7 @@ function ConsentToggle({
   onToggle,
   isPending,
 }: ConsentToggleProps) {
+  const { tx } = useSafeTranslation();
   return (
     <div
       className={isMaster ? 'py-4 border-b-2 border-indigo-100' : 'py-3 border-b border-slate-100'}
@@ -149,7 +150,7 @@ function ConsentToggle({
           type="button"
           role="switch"
           aria-checked={granted}
-          aria-label={`Toggle ${label} consent`}
+          aria-label={tx('dwallet.toggleConsent', 'Toggle {label} consent', { label })}
           disabled={isPending}
           onClick={() => onToggle(streamKey, !granted)}
           className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 ${
@@ -181,8 +182,12 @@ function PageHeader({ balance, isLoading }: { balance: string | undefined; isLoa
         <div className="flex items-center gap-3">
           <Image src="/platform/wallet-red.svg" alt="dWallet" width={28} height={28} />
           <div>
-            <h2 className="text-2xl font-bold text-slate-800">My dWallet</h2>
-            <p className="text-sm text-slate-500">Your data, your consent, your rewards</p>
+            <h2 className="text-2xl font-bold text-slate-800">
+              {tx('dwallet.myDwallet', 'My dWallet')}
+            </h2>
+            <p className="text-sm text-slate-500">
+              {tx('dwallet.yourDataYourConsent', 'Your data, your consent, your rewards')}
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -191,7 +196,7 @@ function PageHeader({ balance, isLoading }: { balance: string | undefined; isLoa
             className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-600 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
           >
             <Download className="w-4 h-4" />
-            Export
+            {tx('dwallet.export', 'Export')}
           </button>
           <div className="relative">
             <button
@@ -455,7 +460,7 @@ function OverviewTab({
           className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] border border-slate-300 text-slate-600 text-sm font-medium rounded-lg hover:bg-slate-50 transition-colors"
         >
           <Download className="w-4 h-4" />
-          Export My Data
+          {tx('dwallet.exportMyData', 'Export My Data')}
         </button>
       </div>
 
@@ -463,12 +468,14 @@ function OverviewTab({
       {transactions.length > 0 && (
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h4 className="text-sm font-semibold text-slate-700">Recent Community Activity</h4>
+            <h4 className="text-sm font-semibold text-slate-700">
+              {tx('dwallet.recentCommunityActivity', 'Recent Community Activity')}
+            </h4>
             <Link
               href="/dashboard/wallet?tab=activity"
               className="text-sm text-indigo-600 hover:text-indigo-700"
             >
-              View all &rarr;
+              {tx('dwallet.viewAll', 'View all →')}
             </Link>
           </div>
           <div className="border border-slate-200 rounded-lg bg-white overflow-hidden">
@@ -568,11 +575,11 @@ function ActivityTab() {
           }}
           className="border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
         >
-          <option value="">All Types</option>
-          <option value="CREDIT">Value Earned</option>
-          <option value="DEBIT">Value Used</option>
-          <option value="ROLLOVER">Value Rolled</option>
-          <option value="ADJUSTMENT">Adjustment</option>
+          <option value="">{tx('dwallet.allTypes', 'All Types')}</option>
+          <option value="CREDIT">{tx('dwallet.valueEarnedLabel', 'Value Earned')}</option>
+          <option value="DEBIT">{tx('dwallet.valueUsedLabel', 'Value Used')}</option>
+          <option value="ROLLOVER">{tx('dwallet.valueRolledLabel', 'Value Rolled')}</option>
+          <option value="ADJUSTMENT">{tx('dwallet.adjustmentLabel', 'Adjustment')}</option>
         </select>
         <input
           type="date"
@@ -582,7 +589,7 @@ function ActivityTab() {
             setPage(1);
           }}
           className="border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-          placeholder="Start date"
+          placeholder={tx('dwallet.startDate', 'Start date')}
         />
         <input
           type="date"
@@ -592,7 +599,7 @@ function ActivityTab() {
             setPage(1);
           }}
           className="border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-          placeholder="End date"
+          placeholder={tx('dwallet.endDate', 'End date')}
         />
       </div>
 
@@ -608,7 +615,7 @@ function ActivityTab() {
             onClick={fetchTransactions}
             className="mt-2 text-sm text-indigo-600 hover:text-indigo-700"
           >
-            Retry
+            {tx('dwallet.retryBtn', 'Retry')}
           </button>
         </div>
       )}
@@ -617,9 +624,11 @@ function ActivityTab() {
       {!isLoading && !error && transactions.length === 0 && (
         <div className="text-center py-12">
           <ActivityIcon className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-          <p className="text-sm text-slate-500">No community activity yet.</p>
+          <p className="text-sm text-slate-500">
+            {tx('dwallet.noActivity', 'No community activity yet')}
+          </p>
           <p className="text-xs text-slate-400 mt-1">
-            Value earned through data sharing will appear here.
+            {tx('dwallet.noActivityTabDesc', 'Value earned through data sharing will appear here.')}
           </p>
         </div>
       )}
@@ -632,22 +641,22 @@ function ActivityTab() {
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50">
                   <th className="text-left py-2 px-3 text-xs font-medium text-slate-400 uppercase">
-                    Date
+                    {tx('dwallet.dateCol', 'Date')}
                   </th>
                   <th className="text-left py-2 px-3 text-xs font-medium text-slate-400 uppercase">
-                    Type
+                    {tx('dwallet.typeCol', 'Type')}
                   </th>
                   <th className="text-left py-2 px-3 text-xs font-medium text-slate-400 uppercase">
-                    Source
+                    {tx('dwallet.sourceCol', 'Source')}
                   </th>
                   <th className="text-right py-2 px-3 text-xs font-medium text-slate-400 uppercase">
-                    Amount
+                    {tx('dwallet.amountCol', 'Amount')}
                   </th>
                   <th className="text-right py-2 px-3 text-xs font-medium text-slate-400 uppercase">
-                    Value Before
+                    {tx('dwallet.valueBeforeCol', 'Value Before')}
                   </th>
                   <th className="text-right py-2 px-3 text-xs font-medium text-slate-400 uppercase">
-                    Value After
+                    {tx('dwallet.valueAfterCol', 'Value After')}
                   </th>
                 </tr>
               </thead>
@@ -691,7 +700,11 @@ function ActivityTab() {
           {totalPages > 1 && (
             <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 bg-slate-50">
               <p className="text-xs text-slate-500">
-                Page {page} of {totalPages} ({total} records)
+                {tx('dwallet.pageOf', 'Page {page} of {total}', {
+                  page: String(page),
+                  total: String(totalPages),
+                })}{' '}
+                ({tx('dwallet.records', '{count} records', { count: String(total) })})
               </p>
               <div className="flex items-center gap-1">
                 <button
@@ -724,6 +737,7 @@ function ActivityTab() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 function ImpactTab({ streams }: { streams: StreamConfig[] }) {
+  const { tx } = useSafeTranslation();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -744,26 +758,41 @@ function ImpactTab({ streams }: { streams: StreamConfig[] }) {
       {/* Derived Impact Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="border border-slate-200 rounded-lg p-4 bg-white">
-          <p className="text-xs text-slate-400 mb-1">Total Resident Share Pool (Current Period)</p>
+          <p className="text-xs text-slate-400 mb-1">
+            {tx('dwallet.totalResidentSharePool', 'Total Resident Share Pool (Current Period)')}
+          </p>
           <p className="text-xl font-semibold text-slate-800">R 0.00</p>
         </div>
         <div className="border border-slate-200 rounded-lg p-4 bg-white">
-          <p className="text-xs text-slate-400 mb-1">Participating Residents</p>
+          <p className="text-xs text-slate-400 mb-1">
+            {tx('dwallet.participatingResidents', 'Participating Residents')}
+          </p>
           <p className="text-xl font-semibold text-slate-800">—</p>
-          <p className="text-xs text-slate-400 mt-1">residents currently opted in</p>
+          <p className="text-xs text-slate-400 mt-1">
+            {tx('dwallet.residentsCurrentlyOptedIn', 'residents currently opted in')}
+          </p>
         </div>
         <div className="border border-slate-200 rounded-lg p-4 bg-white">
-          <p className="text-xs text-slate-400 mb-1">Your Estimated Share</p>
+          <p className="text-xs text-slate-400 mb-1">
+            {tx('dwallet.yourEstimatedShare', 'Your Estimated Share')}
+          </p>
           <p className="text-xl font-semibold text-indigo-600">R 0.00</p>
-          <p className="text-xs text-slate-400 mt-1">1/— of community total</p>
+          <p className="text-xs text-slate-400 mt-1">
+            {tx('dwallet.oneOf', '1/{total} of community total', { total: '—' })}
+          </p>
         </div>
         <div className="border border-slate-200 rounded-lg p-4 bg-white">
-          <p className="text-xs text-slate-400 mb-1">Active Revenue Streams</p>
+          <p className="text-xs text-slate-400 mb-1">
+            {tx('dwallet.activeStreams', 'Active Revenue Streams')}
+          </p>
           <p className="text-xl font-semibold text-slate-800">
             {activeStreams} of {streams.length || 8}
           </p>
           <p className="text-xs text-slate-400 mt-1">
-            revenue streams generating value this period
+            {tx(
+              'dwallet.revenueStreamsGeneratingValue',
+              'revenue streams generating value this period'
+            )}
           </p>
         </div>
       </div>
@@ -773,29 +802,40 @@ function ImpactTab({ streams }: { streams: StreamConfig[] }) {
         <div className="flex items-start gap-3">
           <Info className="w-5 h-5 text-slate-400 mt-0.5 shrink-0" />
           <div>
-            <h4 className="text-sm font-semibold text-slate-700 mb-2">Community Benefit Fund</h4>
+            <h4 className="text-sm font-semibold text-slate-700 mb-2">
+              {tx('dwallet.communityBenefitFund', 'Community Benefit Fund')}
+            </h4>
             <p className="text-sm text-slate-500 leading-relaxed mb-4">
-              This fund supports projects that benefit all residents — infrastructure, events,
-              security, and facility upgrades. It is not your personal balance. Disbursed by the HOA
-              Board per Schedule F Section F6.4.
+              {tx(
+                'dwallet.fundDescription',
+                'This fund supports projects that benefit all residents — infrastructure, events, security, and facility upgrades. It is not your personal balance. Disbursed by the HOA Board per Schedule F Section F6.4.'
+              )}
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <p className="text-xs text-slate-400">Current Balance</p>
+                <p className="text-xs text-slate-400">
+                  {tx('dwallet.currentBalance', 'Current Balance')}
+                </p>
                 <p className="text-base font-semibold text-slate-700">—</p>
               </div>
               <div>
-                <p className="text-xs text-slate-400">Unclaimed Transfers</p>
+                <p className="text-xs text-slate-400">
+                  {tx('dwallet.unclaimedTransfers', 'Unclaimed Transfers')}
+                </p>
                 <p className="text-base font-semibold text-slate-700">—</p>
-                <p className="text-xs text-slate-400">from expired rewards after 12 months</p>
+                <p className="text-xs text-slate-400">
+                  {tx('dwallet.fromExpiredRewards', 'from expired rewards after 12 months')}
+                </p>
               </div>
               <div>
-                <p className="text-xs text-slate-400">Next Allocation</p>
+                <p className="text-xs text-slate-400">
+                  {tx('dwallet.nextAllocation', 'Next Allocation')}
+                </p>
                 <p className="text-base font-semibold text-slate-700">—</p>
               </div>
             </div>
             <a href="#" className="inline-block mt-4 text-sm text-indigo-600 hover:text-indigo-700">
-              View Community Projects &rarr;
+              {tx('dwallet.viewCommunityProjects', 'View Community Projects →')}
             </a>
           </div>
         </div>
@@ -804,10 +844,12 @@ function ImpactTab({ streams }: { streams: StreamConfig[] }) {
       {/* Revenue Stream Contribution Breakdown */}
       <div className="border border-slate-200 rounded-lg p-5 bg-white">
         <h4 className="text-sm font-semibold text-slate-700 mb-3">
-          Revenue Stream Contribution Breakdown
+          {tx('dwallet.revenueStreamBreakdown', 'Revenue Stream Contribution Breakdown')}
         </h4>
         {streams.length === 0 ? (
-          <p className="text-sm text-slate-400">No active revenue streams yet.</p>
+          <p className="text-sm text-slate-400">
+            {tx('dwallet.noStreams', 'No active revenue streams yet.')}
+          </p>
         ) : (
           <div className="space-y-2">
             {streams.map(stream => {
@@ -828,9 +870,10 @@ function ImpactTab({ streams }: { streams: StreamConfig[] }) {
           </div>
         )}
         <p className="text-xs text-slate-400 mt-3 leading-relaxed">
-          Your share = total Resident Data Share pool ÷ all program participants. Equal distribution
-          — all opt-in residents receive the same amount. Per-stream consent controls data usage,
-          not payout calculation.
+          {tx(
+            'dwallet.equalDistDesc',
+            'Your share = total Resident Data Share pool ÷ all program participants. Equal distribution — all opt-in residents receive the same amount. Per-stream consent controls data usage, not payout calculation.'
+          )}
         </p>
       </div>
 
@@ -838,10 +881,14 @@ function ImpactTab({ streams }: { streams: StreamConfig[] }) {
       {streams.length === 0 && (
         <div className="text-center py-8">
           <TrendingUp className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-          <p className="text-sm text-slate-500">No impact data yet.</p>
+          <p className="text-sm text-slate-500">
+            {tx('dwallet.noImpactDataYet', 'No impact data yet.')}
+          </p>
           <p className="text-xs text-slate-400 mt-1">
-            Community impact metrics will appear once your data sharing generates community-wide
-            contributions.
+            {tx(
+              'dwallet.impactDataDesc',
+              'Community impact metrics will appear once your data sharing generates community-wide contributions.'
+            )}
           </p>
         </div>
       )}
@@ -864,6 +911,7 @@ function ConsentsTab({
   isUpdating: boolean;
   onToggle: (streamKey: string, granted: boolean) => void;
 }) {
+  const { tx } = useSafeTranslation();
   if (isLoading) {
     return <LoadingSkeleton className="space-y-3" />;
   }
@@ -879,16 +927,23 @@ function ConsentsTab({
           <div className="px-5">
             <ConsentToggle
               streamKey={masterConsent.streamKey}
-              label="Resident Data Share Program"
+              label={tx('dwallet.consentLabel', 'Resident Data Share Program')}
               granted={masterConsent.granted}
               isMaster
-              subtitle="Share in platform revenue earned by the community. Your share = total pool ÷ all participants."
+              subtitle={tx(
+                'dwallet.consentSubtitle',
+                'Share in platform revenue earned by the community. Your share = total pool ÷ all participants.'
+              )}
               dateLine={
                 masterConsent.granted && masterConsent.grantedAt
-                  ? `Granted ${formatDate(masterConsent.grantedAt)}`
+                  ? tx('dwallet.grantedOn', 'Granted {date}', {
+                      date: formatDate(masterConsent.grantedAt),
+                    })
                   : masterConsent.revokedAt
-                    ? `Revoked ${formatDate(masterConsent.revokedAt)} (paused)`
-                    : 'No consent granted'
+                    ? tx('dwallet.revokedPaused', 'Revoked {date} (paused)', {
+                        date: formatDate(masterConsent.revokedAt),
+                      })
+                    : tx('dwallet.noConsentGranted', 'No consent granted')
               }
               onToggle={onToggle}
               isPending={isUpdating}
@@ -900,7 +955,7 @@ function ConsentsTab({
         <div className="px-5 pb-2">
           {perStreamConsents.length === 0 ? (
             <p className="py-4 text-sm text-slate-400 text-center">
-              No per-stream consents configured yet.
+              {tx('dwallet.noPerStreamConsents', 'No per-stream consents configured yet.')}
             </p>
           ) : (
             perStreamConsents.map(consent => (
@@ -912,10 +967,14 @@ function ConsentsTab({
                 subtitle={consent.description ?? undefined}
                 dateLine={
                   consent.granted && consent.grantedAt
-                    ? `Granted ${formatDate(consent.grantedAt)}`
+                    ? tx('dwallet.grantedOn', 'Granted {date}', {
+                        date: formatDate(consent.grantedAt),
+                      })
                     : consent.revokedAt
-                      ? `Revoked ${formatDate(consent.revokedAt)} (paused)`
-                      : 'No consent granted'
+                      ? tx('dwallet.revokedPaused', 'Revoked {date} (paused)', {
+                          date: formatDate(consent.revokedAt),
+                        })
+                      : tx('dwallet.noConsentGranted', 'No consent granted')
                 }
                 onToggle={onToggle}
                 isPending={isUpdating}
@@ -929,15 +988,19 @@ function ConsentsTab({
           <div className="flex items-start gap-2">
             <Info className="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
             <p className="text-xs text-slate-500 leading-relaxed">
-              Revoking consent stops future data usage for that stream. Past value earned is not
-              affected. To stop receiving future rewards, use the Resident Data Share Program toggle
-              above.
+              {tx(
+                'dwallet.consentRevokeInfo',
+                'Revoking consent stops future data usage for that stream. Past value earned is not affected. To stop receiving future rewards, use the Resident Data Share Program toggle above.'
+              )}
             </p>
           </div>
           <div className="flex items-start gap-2">
             <Shield className="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
             <p className="text-xs text-slate-400 leading-relaxed">
-              All consent changes are logged and retained for 5 years per Schedule G4.
+              {tx(
+                'dwallet.consentLoggedInfo',
+                'All consent changes are logged and retained for 5 years per Schedule G4.'
+              )}
             </p>
           </div>
         </div>
@@ -1000,11 +1063,11 @@ function PayoutsTab({
       setSubmitError(null);
       const numAmount = parseFloat(amount);
       if (isNaN(numAmount) || numAmount <= 0) {
-        setSubmitError('Please enter a valid amount');
+        setSubmitError(tx('dwallet.enterAmount', 'Please enter a valid amount'));
         return;
       }
       if (numAmount < 50) {
-        setSubmitError('Minimum payout amount is R50');
+        setSubmitError(tx('dwallet.minPayout', 'Minimum payout amount is R50'));
         return;
       }
       requestPayout({ amount: numAmount });
@@ -1016,11 +1079,13 @@ function PayoutsTab({
     <div className="space-y-6">
       {/* Payout Request Form */}
       <div className="border border-slate-200 rounded-lg p-5 bg-white">
-        <h4 className="text-sm font-semibold text-slate-700 mb-3">Request Payout</h4>
+        <h4 className="text-sm font-semibold text-slate-700 mb-3">
+          {tx('dwallet.requestPayout', 'Request Payout')}
+        </h4>
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
             <label htmlFor="payout-amount" className="block text-xs text-slate-500 mb-1">
-              Amount (ZAR)
+              {tx('dwallet.amountZar', 'Amount (ZAR)')}
             </label>
             <input
               id="payout-amount"
@@ -1034,9 +1099,9 @@ function PayoutsTab({
             />
           </div>
           <div>
-            <p className="text-xs text-slate-400 mb-1">Method</p>
+            <p className="text-xs text-slate-400 mb-1">{tx('dwallet.method', 'Method')}</p>
             <p className="text-sm text-slate-600 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200">
-              Bank Transfer
+              {tx('dwallet.bankTransfer', 'Bank Transfer')}
             </p>
           </div>
           {submitError && <p className="text-xs text-red-600">{submitError}</p>}
@@ -1045,7 +1110,10 @@ function PayoutsTab({
             disabled={isBelowThreshold || isRequestingPayout}
             title={
               isBelowThreshold
-                ? 'Minimum R50 community value required to request a payout'
+                ? tx(
+                    'dwallet.minPayoutDesc',
+                    'Minimum R50 community value required to request a payout'
+                  )
                 : undefined
             }
             className={`inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-lg text-sm font-medium transition-colors ${
@@ -1055,7 +1123,9 @@ function PayoutsTab({
             }`}
           >
             <CreditCard className="w-4 h-4" />
-            {isRequestingPayout ? 'Requesting...' : 'Request Payout'}
+            {isRequestingPayout
+              ? tx('dwallet.requesting', 'Requesting...')
+              : tx('dwallet.requestPayout', 'Request Payout')}
           </button>
         </form>
       </div>
@@ -1064,31 +1134,45 @@ function PayoutsTab({
       <div className="border border-slate-200 rounded-lg p-4 bg-slate-50">
         <div className="flex items-start gap-2 mb-3">
           <Info className="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
-          <h4 className="text-sm font-semibold text-slate-700">Payout Compliance Notes</h4>
+          <h4 className="text-sm font-semibold text-slate-700">
+            {tx('dwallet.payoutComplianceNotes', 'Payout Compliance Notes')}
+          </h4>
         </div>
         <ul className="space-y-2 text-sm text-slate-500">
           <li className="flex items-start gap-2">
             <span className="text-indigo-600 font-medium shrink-0">•</span>
-            <span>Minimum payout: R50 threshold. Monthly or on request (Schedule G, G3).</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="text-indigo-600 font-medium shrink-0">•</span>
             <span>
-              Unclaimed rewards transfer to the Community Benefit Fund after 12 months from the
-              credit date (Schedule G, G3).
+              {tx(
+                'dwallet.minPayoutNote',
+                'Minimum payout: R50 threshold. Monthly or on request (Schedule G, G3).'
+              )}
             </span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-indigo-600 font-medium shrink-0">•</span>
             <span>
-              Per-resident reward = total pool ÷ active opt-in participants (Schedule G, G3).
+              {tx(
+                'dwallet.unclaimedRewardsNote',
+                'Unclaimed rewards transfer to the Community Benefit Fund after 12 months from the credit date (Schedule G, G3).'
+              )}
             </span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-indigo-600 font-medium shrink-0">•</span>
             <span>
-              All distributions, payouts, and unclaimed transfers are logged and retained per
-              Schedule G4 audit requirements.
+              {tx(
+                'dwallet.perResidentRewardNote',
+                'Per-resident reward = total pool ÷ active opt-in participants (Schedule G, G3).'
+              )}
+            </span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-indigo-600 font-medium shrink-0">•</span>
+            <span>
+              {tx(
+                'dwallet.distributionsLoggedNote',
+                'All distributions, payouts, and unclaimed transfers are logged and retained per Schedule G4 audit requirements.'
+              )}
             </span>
           </li>
         </ul>
@@ -1096,13 +1180,17 @@ function PayoutsTab({
 
       {/* Payout History */}
       <div>
-        <h4 className="text-sm font-semibold text-slate-700 mb-3">Payout History</h4>
+        <h4 className="text-sm font-semibold text-slate-700 mb-3">
+          {tx('dwallet.payoutHistory', 'Payout History')}
+        </h4>
         {isLoadingPayouts ? (
           <LoadingSkeleton className="h-24" />
         ) : payouts.length === 0 ? (
           <div className="text-center py-8 border border-slate-200 rounded-lg bg-white">
             <CreditCard className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-            <p className="text-sm text-slate-500">No payout requests yet.</p>
+            <p className="text-sm text-slate-500">
+              {tx('dwallet.noPayoutRequestsYet', 'No payout requests yet.')}
+            </p>
           </div>
         ) : (
           <div className="border border-slate-200 rounded-lg bg-white overflow-hidden">
@@ -1111,19 +1199,19 @@ function PayoutsTab({
                 <thead>
                   <tr className="border-b border-slate-200 bg-slate-50">
                     <th className="text-left py-2 px-3 text-xs font-medium text-slate-400 uppercase">
-                      Date Requested
+                      {tx('dwallet.dateRequested', 'Date Requested')}
                     </th>
                     <th className="text-left py-2 px-3 text-xs font-medium text-slate-400 uppercase">
-                      Amount
+                      {tx('dwallet.amountCol', 'Amount')}
                     </th>
                     <th className="text-left py-2 px-3 text-xs font-medium text-slate-400 uppercase">
-                      Status
+                      {tx('dwallet.statusCol', 'Status')}
                     </th>
                     <th className="text-left py-2 px-3 text-xs font-medium text-slate-400 uppercase">
-                      Processed Date
+                      {tx('dwallet.processedDate', 'Processed Date')}
                     </th>
                     <th className="text-left py-2 px-3 text-xs font-medium text-slate-400 uppercase">
-                      Notes
+                      {tx('dwallet.notes', 'Notes')}
                     </th>
                   </tr>
                 </thead>
