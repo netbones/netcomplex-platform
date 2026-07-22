@@ -191,13 +191,11 @@ export const groupsRouter = router({
       const countByGroupId = new Map(memberCounts.map(r => [r.groupId, r.count]));
 
       return toEnvelope(
-        groupList.map(group =>
-          groupDto.parse({
-            ...group,
-            owner: { id: group.ownerId, name: group.ownerName ?? 'Unknown' },
-            _count: { members: countByGroupId.get(group.id) ?? 0 },
-          })
-        )
+        groupList.map(group => ({
+          ...group,
+          owner: { id: group.ownerId, name: group.ownerName ?? 'Unknown' },
+          _count: { members: countByGroupId.get(group.id) ?? 0 },
+        }))
       );
     }),
 

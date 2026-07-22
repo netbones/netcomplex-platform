@@ -1,86 +1,78 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { authClient } from '@api/client';
+import { authClient, trpc } from '@api/client';
 import Image from 'next/image';
-import { createComponentLogger } from '@shared/lib';
 
-import { Plus, User, Users } from 'lucide-react';
-const log = createComponentLogger('group-detail-page');
-
-interface Content {
-  id: string;
-  title: string;
-  excerpt: string | null;
-  publishedAt: string | null;
-  author: { name: string | null };
-}
+import { Loader2, Plus, User, Users } from 'lucide-react';
 
 interface Member {
   role: string;
   user: { id: string; name: string; image: string | null };
 }
 
-interface Group {
-  id: string;
-  name: string;
-  description: string | null;
-  category: string;
-  isPublic: boolean;
-  owner: { id: string; name: string };
-  members: Member[];
-  contents: Content[];
-}
-
 export default function GroupDetailPage() {
   const params = useParams() as { id?: string } | null;
   const id = params?.id;
-  const [group, setGroup] = useState<Group | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [isMember, setIsMember] = useState(false);
   const { data: session } = authClient.useSession();
+  const utils = trpc.useUtils();
 
-  useEffect(() => {
-    if (!id) return;
+  const { data: envelope, isLoading } = trpc.groups.getGroup.useQuery(
+    { id: id! },
+    { enabled: !!id }
+  );
+  const group = envelope?.data as
+    | {
+        id: string;
+        name: string;
+        description: string | null;
+        category: string;
+        isPublic: boolean;
+        owner: { id: string; name: string };
+        members: Member[];
+        contents: {
+          id: string;
+          title: string;
+          excerpt: string | null;
+          publishedAt: string | null;
+          author: { name: string | null };
+        }[];
+      }
+    | undefined;
 
-    fetch(`/api/groups/${id}`)
-      .then(res => res.json())
-      .then(body => {
-        if (body?.error) {
-          log.error({}, 'Failed to fetch group', body.error);
-          return;
-        }
-        const groupData = body?.data ?? body;
-        setGroup(groupData);
-        setLoading(false);
-      });
-  }, [id]);
+  const joinMutation = trpc.groups.joinGroup.useMutation({
+    onSuccess: () => utils.groups.getGroup.invalidate({ id: id! }),
+  });
+  const leaveMutation = trpc.groups.leaveGroup.useMutation({
+    onSuccess: () => utils.groups.getGroup.invalidate({ id: id! }),
+  });
+
+  const isMember = group?.members?.some(m => m.user.id === session?.user?.id) ?? false;
 
   const handleJoin = async () => {
-    if (!session?.user?.id) return;
-    const res = await fetch('/api/groups/members', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: session.user.id, groupId: id }),
-    });
-    if (res.ok) {
-      setIsMember(true);
+    if (!id) return;
+    try {
+      await joinMutation.mutateAsync({ groupId: id });
+    } catch {
+      // error handled by tRPC
     }
   };
 
   const handleLeave = async () => {
-    if (!session?.user?.id) return;
-    const res = await fetch(`/api/groups/members?userId=${session.user.id}&groupId=${id}`, {
-      method: 'DELETE',
-    });
-    if (res.ok) {
-      setIsMember(false);
+    if (!id) return;
+    try {
+      await leaveMutation.mutateAsync({ groupId: id });
+    } catch {
+      // error handled by tRPC
     }
   };
 
-  if (loading) {
-    return <div className="p-8 text-center">Loading...</div>;
+  if (isLoading) {
+    return (
+      <div className="p-8 text-center">
+        <Loader2 className="mx-auto animate-spin" />
+      </div>
+    );
   }
 
   if (!group) {

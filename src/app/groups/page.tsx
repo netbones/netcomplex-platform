@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { INTEREST_CATEGORIES } from '@shared/lib';
 import { usePageLoading } from '@shared/ui';
+import { trpc } from '@api/client';
 
-import { Users } from 'lucide-react';
+import { Loader2, Users } from 'lucide-react';
 interface Group {
   id: string;
   name: string;
@@ -22,8 +23,8 @@ interface Group {
 
 export default function GroupsHubPage() {
   const { t } = useTranslation(['common', 'groups']);
-  const [groups, setGroups] = useState<Group[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: envelope, isLoading } = trpc.groups.listGroups.useQuery();
+  const groups: Group[] = (envelope?.data ?? []) as Group[];
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedAccess, setSelectedAccess] = useState('all');
 
@@ -32,25 +33,10 @@ export default function GroupsHubPage() {
       { label: 'Home', href: '/' },
       { label: 'Groups', href: '/groups' },
     ],
-    { additionalLoading: loading }
+    { additionalLoading: isLoading }
   );
 
   // Resident type filtering removed - now handled by group access control
-
-  useEffect(() => {
-    fetch('/api/groups')
-      .then(res => res.json())
-      .then(body => {
-        const data = body?.data ?? body;
-        if (Array.isArray(data)) {
-          setGroups(data);
-        }
-        setLoading(false);
-      })
-      .catch(() => {
-        setLoading(false);
-      });
-  }, []);
 
   const filteredGroups = Array.isArray(groups)
     ? groups.filter(g => {

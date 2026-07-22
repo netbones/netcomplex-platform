@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Breadcrumbs } from '@shared/ui';
+import { trpc } from '@api/client';
 
 import { Loader2, Plus, Trash2, User, Users } from 'lucide-react';
 interface Group {
@@ -16,24 +16,20 @@ interface Group {
 }
 
 export default function GroupsPage() {
-  const [groups, setGroups] = useState<Group[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch('/api/groups')
-      .then(res => res.json())
-      .then(body => {
-        const data = body?.data ?? body;
-        setGroups(Array.isArray(data) ? data : []);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
+  const utils = trpc.useUtils();
+  const { data: envelope, isLoading } = trpc.groups.listGroups.useQuery();
+  const deleteMutation = trpc.groups.deleteGroup.useMutation({
+    onSuccess: () => utils.groups.listGroups.invalidate(),
+  });
+  const groups: Group[] = (envelope?.data ?? []) as Group[];
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this group?')) return;
-    await fetch(`/api/groups/${id}`, { method: 'DELETE' });
-    setGroups(groups.filter(g => g.id !== id));
+    try {
+      await deleteMutation.mutateAsync({ id });
+    } catch {
+      // error handled by tRPC
+    }
   };
 
   return (
@@ -51,7 +47,7 @@ export default function GroupsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {loading ? (
+        {isLoading ? (
           <div className="col-span-full text-center py-12 text-gray-500">
             <Loader2 className="text-4xl mb-4" />
             <p>Loading groups...</p>
