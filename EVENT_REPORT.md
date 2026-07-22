@@ -2,7 +2,8 @@
 
 > **Date:** 2026-07-15
 > **Scope:** All event-related code across DB schema, API routes, tRPC routers, entities, features, widgets, DTOs, and tests.
-> **Status:** Verified against codebase 2026-07-15. Corrections applied.
+> **Status:** ✅ 13/17 issues resolved (2026-07-22). See each section for fix commit.
+> **Fixes applied in:** `f2b13fc2` (P0), `851c8577` (P1-P2), `7dc12a08` (P3).
 
 ## Verification Corrections
 
@@ -35,6 +36,8 @@ The following corrections were made after checking every claim against the sourc
 
 ### 1. Schema Mismatch: `eventSchema` vs `adminEventSchema` vs DB Model
 
+> ✅ **Fixed** in `f2b13fc2` — removed `eventSchema` entirely. Consolidated to single schema.
+
 **Location:** `src/entities/event/schema.ts`
 
 There are **two conflicting event schemas** plus a third input schema in tRPC:
@@ -50,6 +53,8 @@ There are **two conflicting event schemas** plus a third input schema in tRPC:
 ---
 
 ### 2. Public Events Endpoint Is Broken
+
+> ✅ **Fixed** in `f2b13fc2` — dedicated unauthenticated GET handler at `/api/v1/public/events` with `isPublic = true` filter.
 
 **Location:** `src/app/api/v1/public/events/route.ts`
 
@@ -71,6 +76,8 @@ This re-exports the authenticated GET handler. It returns 401 without a session.
 
 ### 3. Duplicate `useUpcomingEvents` Hooks — Cache Collision
 
+> ✅ **Fixed** in `851c8577` — removed shared hook from `@shared/lib/hooks`, `EventsWidget` now imports typed version from `@features/events`.
+
 **Two versions exist:**
 
 | File                                             | Typed                  | Stale Time | Import Path         |
@@ -87,6 +94,8 @@ Both use the same query key `['events', 'upcoming']`. The dashboard widget (`Eve
 ---
 
 ### 4. Admin `EventList` Component Doesn't Authenticate
+
+> ✅ **Fixed** in `851c8577` — now unwraps `{ success, data }` envelope and handles errors.
 
 **Location:** `src/widgets/admin/ui/EventList.tsx` line 25
 
@@ -107,6 +116,8 @@ fetch('/api/events')
 ---
 
 ### 5. `emitEvent('event.rsvp', ...)` on Event Creation Is Semantically Wrong
+
+> ✅ **Fixed** in `f2b13fc2` — removed `emitEvent('event.rsvp')` from both REST and tRPC create handlers.
 
 **Locations:**
 
@@ -134,6 +145,8 @@ This fires an `event.rsvp` event when an admin **creates** an event — in both 
 
 ### 6. Registration Cancellation Uses UPDATE With Fragile Destructuring
 
+> ✅ **Fixed** in `851c8577` — replaced array destructuring with `.then(rows => rows[0])`.
+
 **Locations:**
 
 - `src/server/routers/community/events.ts` line 350-360 (tRPC `cancelRegistration`)
@@ -155,6 +168,8 @@ const [deleted] = await db.update(eventAttendees)
 ---
 
 ### 7. Re-Registration After Cancellation Is Impossible (P0 — MISSED IN ORIGINAL REPORT)
+
+> ✅ **Fixed** in `f2b13fc2` — changed unregister to hard-delete in both REST DELETE and tRPC `cancelRegistration`. Added `isNull(deletedAt)` filter to registration checks.
 
 **Locations:**
 
@@ -183,6 +198,8 @@ const [existing] = await db
 ---
 
 ### 8. REST Unregister Endpoint Missing Tenant Isolation (P0 — MISSED IN ORIGINAL REPORT)
+
+> ✅ **Fixed** in `f2b13fc2` — added `withTenant()` and `tenantId` filter to REST DELETE handler.
 
 **Location:** `src/app/api/events/[id]/register/route.ts` line 94-107 (REST DELETE)
 
@@ -213,6 +230,8 @@ The DELETE handler does **not** call `withTenant()` and the WHERE clause does **
 
 ### 9. No Event Categories/Tags Implemented
 
+> ✅ **Fixed** in `851c8577` — added `category` column to Event model, passed `input.category` through tRPC handler, implemented filtering in `listEvents()`.
+
 The tRPC `ListEventsInput` (line 39) accepts a `category` param:
 
 ```ts
@@ -227,6 +246,8 @@ But neither the DB schema nor the service layer implements category filtering. T
 
 ### 10. No Max Attendees Enforcement
 
+> ✅ **Fixed** in `851c8577` — added `maxAttendees integer` column, capacity check before registration insert.
+
 The `eventSchema` has a `maxAttendees` field but the actual DB `Event` model has no capacity column. The registration system never checks capacity limits.
 
 **Fix:** Add `maxAttendees integer` to the DB schema and check `count(attendees) < event.maxAttendees` before inserting in `registerForEvent`.
@@ -234,6 +255,8 @@ The `eventSchema` has a `maxAttendees` field but the actual DB `Event` model has
 ---
 
 ### 11. No Recurring Events Support
+
+> 🟡 **Not yet implemented** — no BD issue tracking this. Requires: `recurrenceRule` text field, expansion view, scheduled instance generation.
 
 Events are single-point-in-time. There's no support for recurring events (weekly yoga, monthly meetings) — a core need for community platforms.
 
@@ -246,6 +269,8 @@ Events are single-point-in-time. There's no support for recurring events (weekly
 ---
 
 ### 12. Missing Composite Indexes on Hot Query Patterns
+
+> ✅ **Fixed** in `851c8577` — added `@@index([tenantId, date])`, `@@index([tenantId, category])`, `@@index([eventId, tenantId])`.
 
 The Prisma schema has `@@index([date])` on `Event` but queries frequently filter by `tenantId + date` combined. A composite index would help. Similarly, `EventAttendee` is queried by `(eventId, userId)` for registration checks but only has individual indexes.
 
@@ -262,6 +287,8 @@ The Prisma schema has `@@index([date])` on `Event` but queries frequently filter
 ## Minor Issues
 
 ### 13. `EventList` Uses Font Awesome via CDN Dependency
+
+> 🟡 **Not fixed** — 69 occurrences across 12 admin widget files. Would require replacing `<i>` tags with `lucide-react` icons.
 
 Uses `<i className="fas fa-edit">` and `<i className="fas fa-trash">` (lines 98, 120). Font Awesome is loaded globally via CDN link tag in `src/app/layout.tsx` line 74:
 
@@ -280,6 +307,8 @@ Uses `<i className="fas fa-edit">` and `<i className="fas fa-trash">` (lines 98,
 
 ### 14. `formatForDatePicker` Loses Timezone Info
 
+> ✅ **Fixed** in `7dc12a08` — replaced `toISOString().slice(0,10)` with local date methods.
+
 **Location:** `src/widgets/admin/ui/EventForm.tsx` line 27-36
 
 ```ts
@@ -294,6 +323,8 @@ return d.toISOString().slice(0, 10);
 
 ### 15. `EventAttendance` Component Uses Raw `fetch`
 
+> ✅ **Fixed** in `7dc12a08` — replaced raw `fetch` + `useEffect` with `useQuery` + `useMutation` from TanStack Query.
+
 **Location:** `src/features/events/ui/EventAttendance.tsx`
 
 Uses raw `fetch` with `useEffect` instead of TanStack Query. This bypasses the shared cache, meaning the dashboard widget and this component can show different attendee counts simultaneously.
@@ -303,6 +334,8 @@ Uses raw `fetch` with `useEffect` instead of TanStack Query. This bypasses the s
 ---
 
 ### 16. `DisputeEventType` Enum Mixes Concerns
+
+> 🟡 **Not fixed** — would require splitting into `DisputeStatusTransition` and `DisputeAuditEvent` enums.
 
 **Location:** `src/db/schema/dispute-event-type-enum.ts`
 
@@ -316,6 +349,8 @@ The enum has 15 values including `NOTE_ADDED`, `EVIDENCE_ADDED` — these are au
 ---
 
 ### 17. Prisma Model Uses Lowercase `user` (Better Auth Convention)
+
+> 🟡 **Not fixed** — coordinated upgrade needed. Deferred to Better Auth major version upgrade.
 
 **Location:** `prisma/schema/schema.prisma` line 96
 
@@ -333,37 +368,44 @@ Inconsistent with the rest of the codebase which uses `User`/`users`.
 
 ## Summary Matrix
 
-| #   | Severity | Issue                                                | Effort |
-| --- | -------- | ---------------------------------------------------- | ------ |
-| 1   | **P0**   | `eventSchema` dead code conflicts with DB model      | Low    |
-| 2   | **P0**   | Public events endpoint always returns 401            | Medium |
-| 3   | **P1**   | Duplicate hooks cause cache collision                | Low    |
-| 4   | **P1**   | Admin `EventList` doesn't handle API envelope shape  | Low    |
-| 5   | **P1**   | Wrong `emitEvent` on creation (both REST & tRPC)     | Low    |
-| 6   | **P1**   | Fragile undefined from empty array destructuring     | Low    |
-| 7   | **P0**   | Re-registration after cancellation is blocked        | Low    |
-| 8   | **P0**   | REST unregister missing tenant isolation             | Low    |
-| 9   | **P2**   | Category param accepted but not implemented          | Medium |
-| 10  | **P2**   | No max attendees enforcement                         | Medium |
-| 11  | **P3**   | No recurring events                                  | High   |
-| 12  | **P2**   | Missing composite indexes                            | Low    |
-| 13  | **P3**   | Font Awesome CDN dependency (icons work but fragile) | Low    |
-| 14  | **P3**   | Timezone-aware date formatting                       | Low    |
-| 15  | **P3**   | Raw fetch bypasses cache                             | Low    |
-| 16  | **P3**   | Mixed concern in `DisputeEventType` enum             | Medium |
-| 17  | **P3**   | Lowercase `user` model (Better Auth convention)      | Low    |
+| #   | Severity | Issue                                               | Effort | Status         |
+| --- | -------- | --------------------------------------------------- | ------ | -------------- |
+| 1   | **P0**   | `eventSchema` dead code conflicts with DB model     | Low    | ✅ `f2b13fc2`  |
+| 2   | **P0**   | Public events endpoint always returns 401           | Medium | ✅ `f2b13fc2`  |
+| 3   | **P1**   | Duplicate hooks cause cache collision               | Low    | ✅ `851c8577`  |
+| 4   | **P1**   | Admin `EventList` doesn't handle API envelope shape | Low    | ✅ `851c8577`  |
+| 5   | **P1**   | Wrong `emitEvent` on creation (both REST & tRPC)    | Low    | ✅ `f2b13fc2`  |
+| 6   | **P1**   | Fragile undefined from empty array destructuring    | Low    | ✅ `851c8577`  |
+| 7   | **P0**   | Re-registration after cancellation is blocked       | Low    | ✅ `f2b13fc2`  |
+| 8   | **P0**   | REST unregister missing tenant isolation            | Low    | ✅ `f2b13fc2`  |
+| 9   | **P2**   | Category param accepted but not implemented         | Medium | ✅ `851c8577`  |
+| 10  | **P2**   | No max attendees enforcement                        | Medium | ✅ `851c8577`  |
+| 11  | **P3**   | No recurring events                                 | High   | 🟡 Not started |
+| 12  | **P2**   | Missing composite indexes                           | Low    | ✅ `851c8577`  |
+| 13  | **P3**   | Font Awesome CDN dependency                         | Low    | 🟡 Not started |
+| 14  | **P3**   | Timezone-aware date formatting                      | Low    | ✅ `7dc12a08`  |
+| 15  | **P3**   | Raw fetch bypasses cache                            | Low    | ✅ `7dc12a08`  |
+| 16  | **P3**   | Mixed concern in `DisputeEventType` enum            | Medium | 🟡 Not started |
+| 17  | **P3**   | Lowercase `user` model (Better Auth convention)     | Low    | 🟡 Not started |
 
 ---
 
-## Recommended Action Order
+## Remaining Work (4 items, all P3)
 
-1. **P0-7:** Fix re-registration — change unregister to hard-delete or filter `deletedAt IS NULL` in registration check
-2. **P0-8:** Add `tenantId` filter to REST unregister DELETE handler
-3. **P0-1:** Remove `eventSchema` — eliminates confusion, zero risk
-4. **P0-2:** Create public events endpoint — unlocks external event discovery
-5. **P1-3:** Consolidate `useUpcomingEvents` — prevents runtime cache corruption
-6. **P1-4:** Fix `EventList` response parsing — admin UI becomes usable
-7. **P1-5:** Fix `emitEvent` on creation (both handlers) — stops incorrect achievement triggers
-8. **P1-6:** Harden unregister destructuring — prevents edge-case crashes
-9. **P2-9, P2-10, P2-12:** Add category, maxAttendees, composite indexes — schema evolution
-10. **P3:** Address minor issues iteratively
+| #   | Issue                                                        | BD Issue    |
+| --- | ------------------------------------------------------------ | ----------- |
+| 11  | Recurring events support                                     | Not tracked |
+| 13  | Font Awesome → lucide-react migration                        | Not tracked |
+| 16  | Split `DisputeEventType` enum                                | Not tracked |
+| 17  | Lowercase `user` model (coordinate with Better Auth upgrade) | Not tracked |
+
+---
+
+## Remaining Work (4 items, all P3)
+
+| #   | Issue                                                        | BD Issue    |
+| --- | ------------------------------------------------------------ | ----------- |
+| 11  | Recurring events support                                     | Not tracked |
+| 13  | Font Awesome → lucide-react migration                        | Not tracked |
+| 16  | Split `DisputeEventType` enum                                | Not tracked |
+| 17  | Lowercase `user` model (coordinate with Better Auth upgrade) | Not tracked |
