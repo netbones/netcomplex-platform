@@ -40,7 +40,7 @@ export function ConversationDetail({
       <div
         className={`flex-1 flex flex-col items-center justify-center text-center p-8 bg-gray-50/30`}
       >
-        <div className="w-20 h-20 relative mb-4">
+        <div className="w-32 h-32 relative mb-4">
           <Image src="/platform/info/chatting.svg" alt="" fill className="object-contain" />
         </div>
         <h3 className="text-lg font-bold text-gray-900 mb-1">Select a conversation</h3>
