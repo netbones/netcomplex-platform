@@ -266,14 +266,21 @@ function PageHeader({ balance, isLoading }: { balance: string | undefined; isLoa
             <div className="h-5 w-64 bg-slate-100 rounded" />
           </div>
         ) : (
-          <>
+          <div className="flex flex-col items-center">
             <p className="text-3xl font-semibold text-indigo-600">
               {balance ? formatZAR(balance) : 'R 0.00'}
             </p>
             <p className="text-sm text-slate-400 mt-1">
               {tx('dwallet.availableValue', 'Available Value')}
             </p>
-          </>
+            <Image
+              src="/platform/info/dwallet.svg"
+              alt=""
+              width={120}
+              height={90}
+              className="shrink-0 mt-3"
+            />
+          </div>
         )}
       </div>
     </div>
@@ -361,17 +368,6 @@ function OverviewTab({
 
   return (
     <div className="space-y-6">
-      {/* Available Value Hero + Pictograph */}
-      <div className="flex items-center justify-center gap-8 py-6">
-        <div className="text-center">
-          <p className="text-xs text-slate-400 mb-1">
-            {tx('dwallet.availableValue', 'Available Value')}
-          </p>
-          <p className="text-3xl font-bold text-indigo-600">{formatZAR(balanceStr)}</p>
-        </div>
-        <Image src="/platform/wallet-red.svg" alt="" width={120} height={90} className="shrink-0" />
-      </div>
-
       {/* Lifetime Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="border border-slate-200 rounded-lg p-4 bg-white">
