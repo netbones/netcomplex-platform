@@ -369,7 +369,7 @@ function OverviewTab({
           </p>
           <p className="text-3xl font-bold text-indigo-600">{formatZAR(balanceStr)}</p>
         </div>
-        <Image
+        <img
           src="/platform/info/dwallet-register.svg"
           alt=""
           width={120}
