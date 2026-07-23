@@ -8,7 +8,7 @@
 > `soralia-village-zbvq` (401 hotfix, committed), `soralia-village-0jh1` (Setup Center).
 > Docs: `docs/advisories/ADVISORY-031.md` (supersedes ADVISORY-030), `ONBOARDING_REFACTOR.md`.
 
-> **Last updated:** 2026-07-20 (Session 17 — REST → tRPC deprecation markers epic)
+> **Last updated:** 2026-07-23 (Session 18 — M5 reframe: Platform Launch)
 > **Total remaining:** 44 issues
 > **Closed this session:** 7 (`0orq`, `7a02`, `gb5p`, `tbtr`, `2pxb`, `owuh`, `bnxu`)
 > **Created this session:** 28 (`5z3g`, `0orq`, `7a02`, `gb5p`, `tbtr`, `7tqj`, `sioz`, `g8c3`, `2pxb`, `8rve`, `owuh`, `h9o4`, `e8hs`, `tkt5`, `ee5p`, `3m0h`, `qzll`, `axh6`, `vukt`, `c3zg`, `bnxu`, `hiu2` epic + 6 subtasks)
@@ -106,11 +106,11 @@ The RLS work spans three issues. The migration (`4a6`) is a Phase 43 prerequisit
 
 ---
 
-## dWallet (Phase 47, M5b — reclassified 2026-06-06)
+## dWallet (Phase 47, M5 — reclassified 2026-07-23)
 
 Phase 47 was originally classified as M6+ (post-launch) on the assumption that dWallet depended on an external NetBones Privacy-as-a-Service product. The `docs/architecture/DWALLET_SPEC.md` (written 2026-06-06) reframes this: **dWallet IS the privacy module.** The append-only `DataConsent` + `WalletTransaction` models are themselves the consent ledger and rights-of-data-subject surface (POPIA / LGPD principles).
 
-Phase 47 is now M5b (anchor tenant launch) because dWallet is the **headline selling point** for the Soralia Village anchor tenant. Without dWallet, the pitch collapses to "another community portal." Execution is launch-blocking, alongside Community Merits (phase 45) and the other M5b features.
+Phase 47 is now an **M5 optional addendum** (not launch-blocking). dWallet requires a tenant to sign the addendum; tenants can launch on M5 core features (Community Merits, OTP, i18n, billing, RLS) without it. Provider Platform, Service Marketplace, and Dispute Resolution follow the same addendum pattern.
 
 ### Related BD issues
 
@@ -118,7 +118,7 @@ Phase 47 is now M5b (anchor tenant launch) because dWallet is the **headline sel
 | ------ | ----------------------------------------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `7cp`  | Complete formal POPIA compliance audit for South Africa tenant          | ○      | Elevated from "should do" to launch-readiness by dWallet. Original M4.5 deferral re-scoped.                                                                    |
 | `jc1`  | Implement cookie management for privacy compliance                      | ○      | Re-scoped. dWallet's `DataConsent` is consent of record — cookie management may still be useful for general privacy hygiene but is not a dWallet prerequisite. |
-| `5m7l` | Confirm Schedule F Table 2 revenue share percentages with anchor tenant | ○      | **NEW.** dWallet M5b launch-readiness blocker. Production `DataRevenueStream` seed is gated on this. Development (Sub-phases A-F) proceeds in parallel.        |
+| `5m7l` | Confirm Schedule F Table 2 revenue share percentages with anchor tenant | ○      | dWallet addendum prerequisite. Production `DataRevenueStream` seed is gated on this. Development (Sub-phases A-F) proceeds in parallel.                        |
 
 **Spec source of truth:** `docs/architecture/DWALLET_SPEC.md`
 
@@ -329,7 +329,7 @@ Phase 47 is now M5b (anchor tenant launch) because dWallet is the **headline sel
 ## Recommended Next Actions
 
 1. **`5z3g`** — Define USER role + role lifecycle for sign-ups, adoptions, and providers (Better Auth hardcodes `role='user'`, PG enum lacks it → 422s)
-2. **`5m7l`** — Confirm Schedule F Table 2 revenue share percentages with anchor tenant (dWallet M5b launch-readiness — see "dWallet" section above)
+2. **`5m7l`** — Confirm Schedule F Table 2 revenue share percentages with anchor tenant (dWallet addendum prerequisite — see "dWallet" section above)
 3. **`cs5`** — MyHomeSpace property linking bug (user has property but shows "No property linked")
 4. **`ka6`** — Design decision: widget placement across Focus Spaces (UX call needed)
 5. **`6d8`** — Migrate React imports to Preact (performance)
