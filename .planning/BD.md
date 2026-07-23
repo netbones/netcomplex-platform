@@ -8,18 +8,18 @@
 > `soralia-village-zbvq` (401 hotfix, committed), `soralia-village-0jh1` (Setup Center).
 > Docs: `docs/advisories/ADVISORY-031.md` (supersedes ADVISORY-030), `ONBOARDING_REFACTOR.md`.
 
-> **Last updated:** 2026-07-23 (Session 19 — Auth gating audit, 3 new issues)
-> **Total remaining:** 48 issues
+> **Last updated:** 2026-07-23 (Session 19 — Auth gating audit: all 3 issues closed)
+> **Total remaining:** 45 issues
 > **Note:** BD is for quick fixes and small tasks. **Any BD issue touching 5+ files across multiple FSD slices, or requiring new directories/types, is GSD territory — escalate it.**
 
 ## Summary by Priority
 
-| Priority | Open  | Focus                                                           |
-| -------- | ----- | --------------------------------------------------------------- |
-| **P1**   | **3** | **Onboarding refactor, Request-Scope Engine, auth gap**         |
-| P2       | 9     | Platform hardening, ticketing, Provider Platform, module gating |
-| P3       | 31    | API debt, Provider Platform gaps, RLS, analytics, dead imports  |
-| P4       | 5     | G4 tenant-neutral, OpenAPI, barrel, settings export             |
+| Priority | Open  | Focus                                               |
+| -------- | ----- | --------------------------------------------------- |
+| **P1**   | **2** | **Onboarding refactor, Request-Scope Engine**       |
+| P2       | 8     | Platform hardening, ticketing, Provider Platform    |
+| P3       | 30    | API debt, Provider Platform gaps, RLS, analytics    |
+| P4       | 5     | G4 tenant-neutral, OpenAPI, barrel, settings export |
 
 ## Summary by Status
 
@@ -30,21 +30,19 @@
 
 ---
 
-## P1 — Critical (3 issues)
+## P1 — Critical (2 issues)
 
 | ID     | Type | Title                                                                            | Status |
 | ------ | ---- | -------------------------------------------------------------------------------- | ------ |
-| `fjtn` | bug  | GET /api/content has no authentication — critical                                | ○      |
 | `bawf` | task | Onboarding refactor: defer tenant provisioning until post-verification (GSD)     | ○      |
 | `63pl` | task | ADR-027: Request-Scope Engine — advisor review + feature-branch Phase 0/1A/1B/1C | ○      |
 
 ---
 
-## P2 — High Priority (9 issues)
+## P2 — High Priority (8 issues)
 
 | ID     | Type    | Title                                                                                  | Status |
 | ------ | ------- | -------------------------------------------------------------------------------------- | ------ |
-| `al6p` | epic    | Module gating audit: add assertModuleEnabled to 9+ unguarded modules                   | ○      |
 | `8lus` | task    | Apply outbox migration + build dispatcher worker                                       | ○      |
 | `d982` | task    | CMS post-M5 phase candidates: versioning, audit logging, image transforms              | ○      |
 | `z76s` | task    | Platform architecture hardening: RLS activation, rate limiting, outbox, API            | ○      |
@@ -125,7 +123,6 @@ Phase 47 is an **M5 optional addendum** (not launch-blocking). dWallet requires 
 | `c2dd` | tRPC Audit Deferred Items: rate-limit infrastructure, router splitting   | ○      | tRPC audit               |
 | `7tqj` | Fix mock isolation in remaining colocated tests                          | ○      | Test debt                |
 | `hoab` | Add type column to Setting table or migrate to JSONB                     | ○      | Schema debt              |
-| `6e1y` | Clean up dead auth imports in 14 API routes                              | ○      | LINT.md                  |
 
 ### RLS & Security
 
@@ -228,6 +225,14 @@ Phase 47 is an **M5 optional addendum** (not launch-blocking). dWallet requires 
 | `xlmw`  | Add i18n to dWallet dashboard page                                    | Delivered                           |
 | `zb38`  | Group detail page: fix crash when members/contents is undefined       | Fixed                               |
 
+### Session 19 — Auth Gating Audit (3 closed)
+
+| ID     | Title                                                                | Reason             |
+| ------ | -------------------------------------------------------------------- | ------------------ |
+| `fjtn` | GET /api/content has no authentication — critical                    | Fixed — auth added |
+| `al6p` | Module gating audit: add assertModuleEnabled to 9+ unguarded modules | Delivered          |
+| `6e1y` | Clean up dead auth imports in 14 API routes                          | Delivered          |
+
 ### Earlier Sessions
 
 Refer to git history for Session 1–12b closed items.
@@ -236,19 +241,16 @@ Refer to git history for Session 1–12b closed items.
 
 ## Recommended Next Actions
 
-1. **`fjtn`** (P1) — **GET /api/content has no authentication** — critical auth gap, simple fix
-2. **`al6p`** (P2) — **Module gating audit** — harden 9+ modules with assertModuleEnabled
-3. **`6e1y`** (P3) — **Clean up dead auth imports** — 14 files, pure dead code removal
-4. **`bawf`** — Onboarding refactor (GSD territory — needs phase, not BD)
-5. **`63pl`** — ADR-027: Request-Scope Engine advisor review (blocking architecture decision)
-6. **`8lus`** — Apply outbox migration + build dispatcher worker (infrastructure)
-7. **`z76s`** — Platform architecture hardening: RLS, rate limiting, outbox, API consolidation
-8. **`vo6v`** — Ticketing system gap closure: SLA, escalation, notifications
-9. **`bgb`** — Epic: Interests Visualization (in-progress)
-10. **`hh1t`** — Provider Platform: Paystack/PayPal gateway integration
-11. **`5m7l`** — Confirm Schedule F Table 2 revenue share % (dWallet addendum prerequisite)
-12. **`sioz`** — Model duplication: seat polymorphism, invoice/payment overlap (in-progress)
-13. **`h9o4`** — Adopt notDeleted() helper across all query files
+1. **`bawf`** — Onboarding refactor (GSD territory — needs phase, not BD)
+2. **`63pl`** — ADR-027: Request-Scope Engine advisor review (blocking architecture decision)
+3. **`8lus`** — Apply outbox migration + build dispatcher worker (infrastructure)
+4. **`z76s`** — Platform architecture hardening: RLS, rate limiting, outbox, API consolidation
+5. **`vo6v`** — Ticketing system gap closure: SLA, escalation, notifications
+6. **`bgb`** — Epic: Interests Visualization (in-progress)
+7. **`hh1t`** — Provider Platform: Paystack/PayPal gateway integration
+8. **`5m7l`** — Confirm Schedule F Table 2 revenue share % (dWallet addendum prerequisite)
+9. **`sioz`** — Model duplication: seat polymorphism, invoice/payment overlap (in-progress)
+10. **`h9o4`** — Adopt notDeleted() helper across all query files
 
 ### Architecture Roadmap (from `docs/cleaner_react_architecture.md` audit)
 
