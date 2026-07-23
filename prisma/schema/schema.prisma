@@ -473,15 +473,23 @@ model TenantModule {
   @@index([moduleKey])
 }
 
+enum SettingValueType {
+  STRING
+  NUMBER
+  BOOLEAN
+  JSON
+}
+
 model Setting {
-  id            String    @id
+  id            String           @id
   tenantId      String
-  Tenant        Tenant    @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  Tenant        Tenant           @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   key           String
   value         String
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @default(now()) @updatedAt
-  schemaVersion Int       @default(1)
+  type          SettingValueType @default(STRING)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @default(now()) @updatedAt
+  schemaVersion Int              @default(1)
   deletedAt     DateTime?
 
   @@unique([tenantId, key])

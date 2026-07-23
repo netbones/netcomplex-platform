@@ -8,8 +8,8 @@
 > `soralia-village-zbvq` (401 hotfix, committed), `soralia-village-0jh1` (Setup Center).
 > Docs: `docs/advisories/ADVISORY-031.md` (supersedes ADVISORY-030), `ONBOARDING_REFACTOR.md`.
 
-> **Last updated:** 2026-07-23 (Session 19 — Auth gating audit: all 3 issues closed)
-> **Total remaining:** 45 issues
+> **Last updated:** 2026-07-23 (Session 19 — Auth gating audit + Setting type column)
+> **Total remaining:** 44 issues
 > **Note:** BD is for quick fixes and small tasks. **Any BD issue touching 5+ files across multiple FSD slices, or requiring new directories/types, is GSD territory — escalate it.**
 
 ## Summary by Priority
@@ -18,7 +18,7 @@
 | -------- | ----- | --------------------------------------------------- |
 | **P1**   | **2** | **Onboarding refactor, Request-Scope Engine**       |
 | P2       | 8     | Platform hardening, ticketing, Provider Platform    |
-| P3       | 30    | API debt, Provider Platform gaps, RLS, analytics    |
+| P3       | 29    | API debt, Provider Platform gaps, RLS, analytics    |
 | P4       | 5     | G4 tenant-neutral, OpenAPI, barrel, settings export |
 
 ## Summary by Status
@@ -122,7 +122,7 @@ Phase 47 is an **M5 optional addendum** (not launch-blocking). dWallet requires 
 | `uovk` | Migrate Supabase Realtime send() to httpSend() when available            | ○      | Real-time infra          |
 | `c2dd` | tRPC Audit Deferred Items: rate-limit infrastructure, router splitting   | ○      | tRPC audit               |
 | `7tqj` | Fix mock isolation in remaining colocated tests                          | ○      | Test debt                |
-| `hoab` | Add type column to Setting table or migrate to JSONB                     | ○      | Schema debt              |
+| `hoab` | Add type column to Setting table or migrate to JSONB                     | ✅     | Schema debt              |
 
 ### RLS & Security
 
@@ -227,11 +227,12 @@ Phase 47 is an **M5 optional addendum** (not launch-blocking). dWallet requires 
 
 ### Session 19 — Auth Gating Audit (3 closed)
 
-| ID     | Title                                                                | Reason             |
-| ------ | -------------------------------------------------------------------- | ------------------ |
-| `fjtn` | GET /api/content has no authentication — critical                    | Fixed — auth added |
-| `al6p` | Module gating audit: add assertModuleEnabled to 9+ unguarded modules | Delivered          |
-| `6e1y` | Clean up dead auth imports in 14 API routes                          | Delivered          |
+| ID     | Title                                                                | Reason                        |
+| ------ | -------------------------------------------------------------------- | ----------------------------- |
+| `fjtn` | GET /api/content has no authentication — critical                    | Fixed — auth added            |
+| `al6p` | Module gating audit: add assertModuleEnabled to 9+ unguarded modules | Delivered                     |
+| `6e1y` | Clean up dead auth imports in 14 API routes                          | Delivered                     |
+| `hoab` | Add type column to Setting table or migrate to JSONB                 | Delivered — type column added |
 
 ### Earlier Sessions
 

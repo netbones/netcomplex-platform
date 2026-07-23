@@ -98,6 +98,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ ke
   }
 
   const value = typeof body.value === 'string' ? body.value : JSON.stringify(body.value);
+  const setType = (body.type ?? 'STRING') as 'STRING' | 'NUMBER' | 'BOOLEAN' | 'JSON';
 
   const validation = validateSettingValue(key, value);
   if (!validation.valid) {
@@ -118,12 +119,12 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ ke
       // Update existing
       await db
         .update(settings)
-        .set({ value })
+        .set({ value, type: setType })
         .where(and(eq(settings.tenantId, tenantId), eq(settings.key, key)));
     } else {
       // Insert new
       const id = `${tenantId}_${key}`.replace(/[^a-zA-Z0-9_-]/g, '_').toLowerCase();
-      await db.insert(settings).values({ id, tenantId, key, value });
+      await db.insert(settings).values({ id, tenantId, key, value, type: setType });
     }
 
     writeAuditLog({

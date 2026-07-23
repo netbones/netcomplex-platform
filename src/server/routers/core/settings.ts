@@ -17,11 +17,13 @@ import { validateSettingValue } from '@shared/lib/settings/validation';
 import { toEnvelope } from '@api/server';
 import { settingDto } from '@api/server';
 import { notDeleted } from '@api/server';
-
+const SETTING_VALUE_TYPES = ['STRING', 'NUMBER', 'BOOLEAN', 'JSON'] as const;
+const SettingValueType = z.enum(SETTING_VALUE_TYPES);
 const SettingByKeyInput = z.object({ key: z.string() });
 const UpsertSettingInput = z.object({
   key: z.string().min(1),
   value: z.string(),
+  type: SettingValueType.optional(),
 });
 const DeleteSettingInput = z.object({ key: z.string() });
 
@@ -82,6 +84,8 @@ export const settingsRouter = router({
 
       const tenantId = ctx.tenantId;
 
+      const setType = (input.type ?? 'STRING') as 'STRING' | 'NUMBER' | 'BOOLEAN' | 'JSON';
+
       const validation = validateSettingValue(input.key, input.value);
       if (!validation.valid) {
         throw new TRPCError({
@@ -103,7 +107,7 @@ export const settingsRouter = router({
       if (existing) {
         const [updated] = await db
           .update(settings)
-          .set({ value: input.value, updatedAt: now() })
+          .set({ value: input.value, type: setType, updatedAt: now() })
           .where(and(eq(settings.tenantId, tenantId), eq(settings.key, input.key)))
           .returning();
 
@@ -112,7 +116,7 @@ export const settingsRouter = router({
         const id = `${tenantId}_${input.key}`.replace(/[^a-zA-Z0-9_-]/g, '_').toLowerCase();
         const [created] = await db
           .insert(settings)
-          .values({ id, tenantId, key: input.key, value: input.value })
+          .values({ id, tenantId, key: input.key, value: input.value, type: setType })
           .returning();
 
         result = created;

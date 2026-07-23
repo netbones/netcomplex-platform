@@ -91,9 +91,9 @@ import { tenantSubscriptions } from './tenant-subscriptions';
 import { mediaUploads } from './media-uploads';
 import { assistSessions } from './assist-sessions';
 import { tenantAchievements } from './tenant-achievements';
-import { tenantFeatureFlags } from './tenant-feature-flags';
 import { tenantModules } from './tenant-modules';
 import { tenantSetups } from './tenant-setups';
+import { tenantFeatureFlags } from './tenant-feature-flags';
 
 export const tenantsRelations = relations(tenants, helpers => ({
   owner: helpers.one(users, {

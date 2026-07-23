@@ -9,6 +9,6 @@ const dateSch = z
 
 export const settingDto = createSelectSchema(settings, {
   updatedAt: dateSch,
-}).pick({ key: true, value: true });
+}).pick({ key: true, value: true, type: true });
 
 export type SettingDto = z.infer<typeof settingDto>;

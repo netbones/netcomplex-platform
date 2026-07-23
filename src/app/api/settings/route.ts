@@ -75,6 +75,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   interface SettingBody {
     key: string;
     value: string;
+    type?: 'STRING' | 'NUMBER' | 'BOOLEAN' | 'JSON';
   }
 
   const body = (await request.json()) as SettingBody;
@@ -96,10 +97,12 @@ export const POST = withErrorHandler(async (request: Request) => {
 
   const oldValue = existing[0]?.value ?? null;
 
+  const setType = (body.type ?? 'STRING') as 'STRING' | 'NUMBER' | 'BOOLEAN' | 'JSON';
+
   if (existing[0]) {
     const updated = await db
       .update(settings)
-      .set({ value: body.value })
+      .set({ value: body.value, type: setType })
       .where(and(eq(settings.tenantId, tenantId), eq(settings.key, body.key)))
       .returning();
 
@@ -117,7 +120,7 @@ export const POST = withErrorHandler(async (request: Request) => {
     const newId = body.key.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
     const created = await db
       .insert(settings)
-      .values({ id: newId, tenantId, key: body.key, value: body.value })
+      .values({ id: newId, tenantId, key: body.key, value: body.value, type: setType })
       .returning();
 
     writeAuditLog({

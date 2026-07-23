@@ -112,10 +112,11 @@ import * as disputeMessages from './dispute-messages';
 import * as disputeMessageVersions from './dispute-message-versions';
 import * as disputeNotifications from './dispute-notifications';
 import * as bursaries from './bursaries';
-import * as mediaUploads from './media-uploads';
 import * as outboxes from './outboxes';
 import * as outboxDeadLetters from './outbox-dead-letters';
+import * as mediaUploads from './media-uploads';
 import * as tenants from './tenants';
+import * as tenantFeatureFlags from './tenant-feature-flags';
 import * as accountsRelations from './accounts-relations';
 import * as passkeysRelations from './passkeys-relations';
 import * as sessionsRelations from './sessions-relations';
@@ -228,9 +229,8 @@ import * as disputeMessageVersionsRelations from './dispute-message-versions-rel
 import * as disputeNotificationsRelations from './dispute-notifications-relations';
 import * as bursariesRelations from './bursaries-relations';
 import * as mediaUploadsRelations from './media-uploads-relations';
-import * as tenantFeatureFlags from './tenant-feature-flags';
-import * as tenantFeatureFlagsRelations from './tenant-feature-flags-relations';
 import * as tenantsRelations from './tenants-relations';
+import * as tenantFeatureFlagsRelations from './tenant-feature-flags-relations';
 
 export const schema = {
   ...accounts,
@@ -252,7 +252,6 @@ export const schema = {
   ...userDevices,
   ...platformModules,
   ...tenantModules,
-  ...tenantFeatureFlags,
   ...settings,
   ...tenantSetups,
   ...setupMissions,
@@ -352,6 +351,7 @@ export const schema = {
   ...outboxDeadLetters,
   ...mediaUploads,
   ...tenants,
+  ...tenantFeatureFlags,
   ...accountsRelations,
   ...passkeysRelations,
   ...sessionsRelations,
@@ -370,7 +370,6 @@ export const schema = {
   ...userDevicesRelations,
   ...platformModulesRelations,
   ...tenantModulesRelations,
-  ...tenantFeatureFlagsRelations,
   ...settingsRelations,
   ...tenantSetupsRelations,
   ...setupMissionsRelations,
@@ -466,4 +465,5 @@ export const schema = {
   ...bursariesRelations,
   ...mediaUploadsRelations,
   ...tenantsRelations,
+  ...tenantFeatureFlagsRelations,
 };
