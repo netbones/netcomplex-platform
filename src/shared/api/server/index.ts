@@ -71,6 +71,7 @@ export {
   communityMerits,
   groupMembershipRequests,
   platformModules,
+  tenantFeatureFlags,
   tenantModules,
   assistSessions,
   resources,

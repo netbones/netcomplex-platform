@@ -12,7 +12,7 @@
  * with the multi-tenant system.
  */
 
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import 'server-only';
 
 import type { TierLevel } from '@entities/tenant';
@@ -22,6 +22,7 @@ import type { Tenant, TenantTier } from '@shared/lib';
 import {
   db,
   tenants,
+  tenantFeatureFlags,
   users,
   households,
   bookings,
@@ -167,7 +168,10 @@ export const getCurrentTenant = async (): Promise<Tenant | undefined> => {
 };
 
 // Type helper to convert Drizzle result to Tenant
-function toTenant(row: Record<string, unknown>): Tenant {
+function toTenant(
+  row: Record<string, unknown>,
+  featureFlagsOverride?: Record<string, boolean>
+): Tenant {
   return {
     id: row.id as string,
     name: row.name as string,
@@ -191,7 +195,7 @@ function toTenant(row: Record<string, unknown>): Tenant {
     tier: (row.tier as TenantTier) || 'STANDARD',
     maxPages: row.maxPages as number,
     pageCount: row.pageCount as number,
-    featureFlags: row.featureFlags as Record<string, boolean>,
+    featureFlags: featureFlagsOverride ?? (row.featureFlags as Record<string, boolean>),
     modules:
       (row.modules as
         | Record<string, { enabled: boolean; config?: Record<string, unknown> }>
@@ -201,10 +205,18 @@ function toTenant(row: Record<string, unknown>): Tenant {
   };
 }
 
+async function loadTenantWithFlags(
+  row: Record<string, unknown> | undefined
+): Promise<Tenant | undefined> {
+  if (!row) return undefined;
+  const flags = await getTenantFeatureFlags(row.id as string);
+  return toTenant(row, flags);
+}
+
 export const getTenantById = unstable_cache(
   async (id: string): Promise<Tenant | undefined> => {
     const result = await db.select().from(tenants).where(eq(tenants.id, id)).limit(1);
-    return result[0] ? toTenant(result[0]) : undefined;
+    return loadTenantWithFlags(result[0]);
   },
   ['tenant-by-id'],
   { revalidate: 60, tags: ['tenant-lookup'] }
@@ -213,7 +225,7 @@ export const getTenantById = unstable_cache(
 export const getTenantBySlug = unstable_cache(
   async (slug: string): Promise<Tenant | undefined> => {
     const result = await db.select().from(tenants).where(eq(tenants.slug, slug)).limit(1);
-    return result[0] ? toTenant(result[0]) : undefined;
+    return loadTenantWithFlags(result[0]);
   },
   ['tenant-by-slug'],
   { revalidate: 60, tags: ['tenant-lookup'] }
@@ -222,7 +234,7 @@ export const getTenantBySlug = unstable_cache(
 export const getTenantByDomain = unstable_cache(
   async (domain: string): Promise<Tenant | undefined> => {
     const result = await db.select().from(tenants).where(eq(tenants.customDomain, domain)).limit(1);
-    return result[0] ? toTenant(result[0]) : undefined;
+    return loadTenantWithFlags(result[0]);
   },
   ['tenant-by-domain'],
   { revalidate: 60, tags: ['tenant-lookup'] }
@@ -244,7 +256,57 @@ export async function getTenantByUserId(userId: string): Promise<Tenant | null |
 
 export async function listTenants(): Promise<Tenant[]> {
   const result = await db.select().from(tenants);
-  return result.map(toTenant);
+  return result.map(row => toTenant(row));
+}
+
+// ── TenantFeatureFlag CRUD ──
+
+export async function getTenantFeatureFlags(tenantId: string): Promise<Record<string, boolean>> {
+  const rows = await db
+    .select({ featureKey: tenantFeatureFlags.featureKey, enabled: tenantFeatureFlags.enabled })
+    .from(tenantFeatureFlags)
+    .where(eq(tenantFeatureFlags.tenantId, tenantId));
+  const flags: Record<string, boolean> = {};
+  for (const row of rows) {
+    flags[row.featureKey] = row.enabled;
+  }
+  return flags;
+}
+
+export async function setTenantFeatureFlag(
+  tenantId: string,
+  featureKey: string,
+  enabled: boolean
+): Promise<void> {
+  await db
+    .insert(tenantFeatureFlags)
+    .values({
+      id: createId(),
+      tenantId,
+      featureKey,
+      enabled,
+    })
+    .onConflictDoUpdate({
+      target: [tenantFeatureFlags.tenantId, tenantFeatureFlags.featureKey],
+      set: { enabled, updatedAt: new Date() },
+    });
+}
+
+export async function setTenantFeatureFlags(
+  tenantId: string,
+  flags: Record<string, boolean>
+): Promise<void> {
+  for (const [featureKey, enabled] of Object.entries(flags)) {
+    await setTenantFeatureFlag(tenantId, featureKey, enabled);
+  }
+}
+
+export async function deleteTenantFeatureFlag(tenantId: string, featureKey: string): Promise<void> {
+  await db
+    .delete(tenantFeatureFlags)
+    .where(
+      and(eq(tenantFeatureFlags.tenantId, tenantId), eq(tenantFeatureFlags.featureKey, featureKey))
+    );
 }
 
 export async function createTenant(data: {
@@ -290,18 +352,34 @@ export async function createTenant(data: {
     ownerId: data.ownerId ?? null,
   };
   const result = await db.insert(tenants).values(row).returning();
-  return toTenant(result[0] as unknown as Record<string, unknown>);
+  const tenant = toTenant(result[0] as unknown as Record<string, unknown>);
+
+  // Seed feature flags into normalized table
+  const flags = (data.featureFlags ?? {}) as Record<string, boolean>;
+  if (Object.keys(flags).length > 0) {
+    await setTenantFeatureFlags(tenant.id, flags);
+  }
+
+  return tenant;
 }
 
 export async function updateTenant(
   id: string,
   data: Partial<Omit<Tenant, 'id' | 'createdAt'>>
 ): Promise<Tenant> {
+  const { featureFlags, ...rest } = data;
   const result = await db
     .update(tenants)
-    .set({ ...data, updatedAt: new Date() })
+    .set({
+      ...rest,
+      featureFlags: featureFlags ?? undefined,
+      updatedAt: new Date(),
+    })
     .where(eq(tenants.id, id))
     .returning();
+  if (featureFlags) {
+    await setTenantFeatureFlags(id, featureFlags as Record<string, boolean>);
+  }
   return toTenant(result[0]);
 }
 

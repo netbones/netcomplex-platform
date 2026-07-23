@@ -228,6 +228,8 @@ import * as disputeMessageVersionsRelations from './dispute-message-versions-rel
 import * as disputeNotificationsRelations from './dispute-notifications-relations';
 import * as bursariesRelations from './bursaries-relations';
 import * as mediaUploadsRelations from './media-uploads-relations';
+import * as tenantFeatureFlags from './tenant-feature-flags';
+import * as tenantFeatureFlagsRelations from './tenant-feature-flags-relations';
 import * as tenantsRelations from './tenants-relations';
 
 export const schema = {
@@ -250,6 +252,7 @@ export const schema = {
   ...userDevices,
   ...platformModules,
   ...tenantModules,
+  ...tenantFeatureFlags,
   ...settings,
   ...tenantSetups,
   ...setupMissions,
@@ -367,6 +370,7 @@ export const schema = {
   ...userDevicesRelations,
   ...platformModulesRelations,
   ...tenantModulesRelations,
+  ...tenantFeatureFlagsRelations,
   ...settingsRelations,
   ...tenantSetupsRelations,
   ...setupMissionsRelations,

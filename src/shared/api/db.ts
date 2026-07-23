@@ -89,6 +89,7 @@ import { agentAccesses } from '@schema/agent-accesses';
 import { platformSuspensions } from '@schema/platform-suspensions';
 import { communityMerits } from '@schema/community-merits';
 import { platformModules } from '@schema/platform-modules';
+import { tenantFeatureFlags } from '@schema/tenant-feature-flags';
 import { tenantModules } from '@schema/tenant-modules';
 import { groupMembershipRequests } from '@schema/group-membership-requests';
 import { assistSessions } from '@schema/assist-sessions';
@@ -207,6 +208,7 @@ const dbSchema = {
   communityMerits,
   groupMembershipRequests,
   platformModules,
+  tenantFeatureFlags,
   tenantModules,
   assistSessions,
   resources,
@@ -443,6 +445,7 @@ export {
   communityMerits,
   groupMembershipRequests,
   platformModules,
+  tenantFeatureFlags,
   tenantModules,
   assistSessions,
   resources,

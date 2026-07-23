@@ -134,6 +134,21 @@ model Tenant {
   tenantAchievements      TenantAchievement[]
   tenantModules           TenantModule[]
   tenantSetup             TenantSetup?
+  tenantFeatureFlags      TenantFeatureFlag[]
 
   @@index([ownerId])
+}
+
+model TenantFeatureFlag {
+  id         String    @id @default(uuid())
+  tenantId   String
+  featureKey String
+  enabled    Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime?
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, featureKey])
+  @@index([tenantId])
 }

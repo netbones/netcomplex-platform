@@ -47,6 +47,7 @@ export * from '@schema/standard-seats';
 export * from '@schema/subscription-tiers';
 export * from '@schema/survey-sections';
 export * from '@schema/surveys';
+export * from '@schema/tenant-feature-flags';
 export * from '@schema/tenant-modules';
 export * from '@schema/tenants';
 export * from '@schema/two-factors';

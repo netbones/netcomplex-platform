@@ -91,6 +91,7 @@ import { tenantSubscriptions } from './tenant-subscriptions';
 import { mediaUploads } from './media-uploads';
 import { assistSessions } from './assist-sessions';
 import { tenantAchievements } from './tenant-achievements';
+import { tenantFeatureFlags } from './tenant-feature-flags';
 import { tenantModules } from './tenant-modules';
 import { tenantSetups } from './tenant-setups';
 
@@ -238,4 +239,7 @@ export const tenantsRelations = relations(tenants, helpers => ({
   }),
   tenantModules: helpers.many(tenantModules, { relationName: 'TenantToTenantModule' }),
   tenantSetup: helpers.one(tenantSetups),
+  tenantFeatureFlags: helpers.many(tenantFeatureFlags, {
+    relationName: 'TenantToTenantFeatureFlag',
+  }),
 }));

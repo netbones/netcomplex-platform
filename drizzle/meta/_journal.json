@@ -8,6 +8,13 @@
       "when": 1783513040659,
       "tag": "0000_dusty_cassandra_nova",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1784791272041,
+      "tag": "0002_cool_susan_delgado",
+      "breakpoints": true
     }
   ]
 }
