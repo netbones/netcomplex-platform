@@ -9,7 +9,7 @@
 > Docs: `docs/advisories/ADVISORY-031.md` (supersedes ADVISORY-030), `ONBOARDING_REFACTOR.md`.
 
 > **Last updated:** 2026-07-23 (Session 18 — BD.md reconciliation with bd)
-> **Total remaining:** 46 issues
+> **Total remaining:** 45 issues
 > **Note:** BD is for quick fixes and small tasks. **Any BD issue touching 5+ files across multiple FSD slices, or requiring new directories/types, is GSD territory — escalate it.**
 
 ## Summary by Priority
@@ -18,14 +18,14 @@
 | -------- | ----- | --------------------------------------------------- |
 | **P1**   | **2** | **Onboarding refactor, Request-Scope Engine**       |
 | P2       | 8     | Platform hardening, ticketing, Provider Platform    |
-| P3       | 31    | API debt, Provider Platform gaps, RLS, analytics    |
+| P3       | 30    | API debt, Provider Platform gaps, RLS, analytics    |
 | P4       | 5     | G4 tenant-neutral, OpenAPI, barrel, settings export |
 
 ## Summary by Status
 
 | Status        | Count |
 | ------------- | ----- |
-| ○ Open        | 43    |
+| ○ Open        | 42    |
 | ◐ In Progress | 3     |
 
 ---
@@ -123,7 +123,6 @@ Phase 47 is an **M5 optional addendum** (not launch-blocking). dWallet requires 
 | `c2dd` | tRPC Audit Deferred Items: rate-limit infrastructure, router splitting   | ○      | tRPC audit               |
 | `7tqj` | Fix mock isolation in remaining colocated tests                          | ○      | Test debt                |
 | `hoab` | Add type column to Setting table or migrate to JSONB                     | ○      | Schema debt              |
-| `3a3v` | fsd: 12+ dead FSD slices                                                 | ○      | Steiger audit            |
 
 ### RLS & Security
 
