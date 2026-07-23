@@ -4,7 +4,6 @@ import {
   apiSuccess,
   apiUnauthorized,
   apiValidationError,
-  auth,
   db,
   disputeCases,
   disputeEvents,
@@ -19,7 +18,7 @@ import { getTableColumns } from 'drizzle-orm';
 import { disputeCreateSchema } from '@entities/dispute';
 import { generateDisputeReference } from '@entities/dispute/server';
 import { eq, and, desc, sql } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant/server';
+import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { ALL_DISPUTE_CATEGORIES, ALL_DISPUTE_STATUSES } from '@entities/dispute';
 import { createId } from '@shared/lib/id';
 
@@ -44,6 +43,8 @@ export async function GET(request: Request) {
   }
   const guard = guardSuspension(authData);
   if (guard) return guard;
+  const featureCheck = await assertModuleEnabled('disputes');
+  if (featureCheck) return featureCheck;
 
   const canViewAll = hasPermission(authData.role, 'admin');
 
@@ -119,6 +120,10 @@ export async function POST(request: Request) {
   if (!authData) {
     return apiUnauthorized();
   }
+  const guard = guardSuspension(authData);
+  if (guard) return guard;
+  const featureCheck = await assertModuleEnabled('disputes');
+  if (featureCheck) return featureCheck;
 
   try {
     const body = await request.json();

@@ -1,5 +1,4 @@
 import {
-  auth,
   db,
   requestHistories,
   users,
@@ -20,7 +19,7 @@ import { hasPermission } from '@shared/lib';
 
 import { eq, desc, and } from 'drizzle-orm';
 
-import { withTenant } from '@entities/tenant/server';
+import { withTenant, assertModuleEnabled } from '@entities/tenant/server';
 import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
@@ -38,6 +37,8 @@ export const GET = withErrorHandler(
     }
     const guard = guardSuspension(authData);
     if (guard) return guard;
+    const featureCheck = await assertModuleEnabled('maintenance');
+    if (featureCheck) return featureCheck;
 
     const canViewAll = hasPermission(authData.role, 'requests');
     if (!canViewAll) {

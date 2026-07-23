@@ -4,13 +4,11 @@ import {
   apiForbidden,
   apiSuccess,
   apiUnauthorized,
-  auth,
   db,
   notDeleted,
   now,
   resources,
   revalidateContent,
-  users,
   withErrorHandler,
   getSessionAndRole,
   guardSuspension,
@@ -18,7 +16,7 @@ import {
 
 import { eq, and, desc, inArray } from 'drizzle-orm';
 
-import { withTenant } from '@entities/tenant/server';
+import { withTenant, assertModuleEnabled } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
 import { createId } from '@shared/lib/id';
 
@@ -132,6 +130,8 @@ export const POST = withErrorHandler(async (request: Request) => {
   }
   const guard = guardSuspension(authData);
   if (guard) return guard;
+  const featureCheck = await assertModuleEnabled('resources');
+  if (featureCheck) return featureCheck;
 
   if (!hasPermission(authData.role, 'content')) {
     return apiForbidden();

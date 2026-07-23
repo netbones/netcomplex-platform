@@ -1,5 +1,4 @@
 import {
-  auth,
   db,
   groupMembershipRequests,
   users,
@@ -15,7 +14,7 @@ import {
 import { hasPermission } from '@shared/lib';
 
 import { eq, and, desc } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant/server';
+import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 
 export const maxDuration = 8;
 
@@ -37,6 +36,8 @@ export const GET = withErrorHandler(async (request: Request) => {
   }
   const guard = guardSuspension(authData);
   if (guard) return guard;
+  const featureCheck = await assertModuleEnabled('groups');
+  if (featureCheck) return featureCheck;
 
   if (!hasPermission(authData.role, 'content')) {
     return apiForbidden('Insufficient permissions');

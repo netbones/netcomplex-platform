@@ -1,5 +1,4 @@
 import {
-  auth,
   db,
   users,
   eventAttendees,
@@ -15,7 +14,7 @@ import {
 
 import { eq, inArray, and, sql } from 'drizzle-orm';
 
-import { withTenant } from '@entities/tenant/server';
+import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
 import { listEvents, createEvent, validateEventFields } from '@entities/event/server';
 import { createId } from '@shared/lib/id';
@@ -95,6 +94,8 @@ export const GET = withErrorHandler(async (request: Request) => {
   }
   const guard = guardSuspension(authData);
   if (guard) return guard;
+  const featureCheck = await assertModuleEnabled('events');
+  if (featureCheck) return featureCheck;
 
   // Enforce tenant isolation
   const { tenantId } = await withTenant();

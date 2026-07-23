@@ -1,5 +1,4 @@
 import {
-  auth,
   db,
   users,
   profiles,
@@ -23,7 +22,7 @@ import { hasPermission } from '@shared/lib';
 import { eq, and, or, asc, ilike, count, ne, sql, inArray } from 'drizzle-orm';
 
 import type { SQL } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant/server';
+import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { toUserDTO } from '@api/server';
 import { createId } from '@shared/lib/id';
 export const maxDuration = 8;
@@ -201,6 +200,8 @@ export const POST = withErrorHandler(async (request: Request) => {
   if (!authData) return apiUnauthorized();
   const guard = guardSuspension(authData);
   if (guard) return guard;
+  const featureCheck = await assertModuleEnabled('users');
+  if (featureCheck) return featureCheck;
   if (!hasPermission(authData.role, 'users')) return apiForbidden();
 
   const body = await request.json();

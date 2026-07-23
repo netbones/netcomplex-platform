@@ -1,8 +1,6 @@
 import {
-  auth,
   db,
   surveys,
-  users,
   questions,
   responses,
   apiCreated,
@@ -18,7 +16,7 @@ import {
 import { hasPermission } from '@shared/lib';
 
 import { eq, and, desc, sql } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant/server';
+import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
@@ -31,6 +29,8 @@ export const GET = withErrorHandler(async (request: Request) => {
   }
   const guard = guardSuspension(authData);
   if (guard) return guard;
+  const featureCheck = await assertModuleEnabled('surveys');
+  if (featureCheck) return featureCheck;
 
   const { tenantId } = await withTenant();
   const { searchParams } = new URL(request.url);

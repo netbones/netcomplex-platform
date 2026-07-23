@@ -2,7 +2,6 @@ import {
   apiForbidden,
   apiNotFound,
   apiUnauthorized,
-  auth,
   db,
   disputeCases,
   disputeEvents,
@@ -13,14 +12,13 @@ import {
   now,
   rateLimitByKey,
   settings,
-  users,
   withErrorHandler,
   getSessionAndRole,
   guardSuspension,
 } from '@api/server';
 import { hasPermission } from '@shared/lib';
 import { eq, and, asc, gte, inArray, sql } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant/server';
+import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { NextResponse } from 'next/server';
 import { buildCsosExportPdf } from './build-csos-pdf';
 import { createId } from '@shared/lib/id';
@@ -46,6 +44,8 @@ export const GET = withErrorHandler(
     }
     const guard = guardSuspension(authData);
     if (guard) return guard;
+    const featureCheck = await assertModuleEnabled('disputes');
+    if (featureCheck) return featureCheck;
 
     // Fetch dispute with tenant scoping and soft-delete exclusion
     const [dispute] = await db

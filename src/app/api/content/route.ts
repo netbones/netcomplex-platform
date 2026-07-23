@@ -1,7 +1,4 @@
 import {
-  auth,
-  db,
-  users,
   revalidateContent,
   apiCreated,
   apiForbidden,
@@ -14,11 +11,7 @@ import {
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
-import { requireAssistScope } from '@entities/tenant/server';
-
-import { eq } from 'drizzle-orm';
-
-import { withTenant } from '@entities/tenant/server';
+import { requireAssistScope, assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import {
   listContent,
   createContent,
@@ -47,6 +40,17 @@ export const maxDuration = 8;
  * @deprecated Use trpc.content.listContent instead.
  */
 export const GET = withErrorHandler(async (request: Request) => {
+  const authData = await getSessionAndRole(request);
+
+  if (!authData) {
+    return apiUnauthorized();
+  }
+  const guard = guardSuspension(authData);
+  if (guard) return guard;
+
+  const featureCheck = await assertModuleEnabled('content');
+  if (featureCheck) return featureCheck;
+
   // Enforce tenant isolation
   const { tenantId } = await withTenant();
 

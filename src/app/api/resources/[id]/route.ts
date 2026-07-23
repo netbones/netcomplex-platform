@@ -1,9 +1,7 @@
 import {
-  auth,
   db,
   resources,
   resourceVersions,
-  users,
   revalidateContent,
   apiForbidden,
   apiSuccess,
@@ -19,7 +17,7 @@ import {
 
 import { eq, desc, and } from 'drizzle-orm';
 
-import { withTenant } from '@entities/tenant/server';
+import { withTenant, assertModuleEnabled } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
 import { createId } from '@shared/lib/id';
 
@@ -135,6 +133,8 @@ export const PATCH = withErrorHandler(
     }
     const guard = guardSuspension(authData);
     if (guard) return guard;
+    const featureCheck = await assertModuleEnabled('resources');
+    if (featureCheck) return featureCheck;
 
     if (!hasPermission(authData.role, 'content')) {
       return apiForbidden();

@@ -6,7 +6,6 @@ import {
   apiSuccess,
   apiUnauthorized,
   apiValidationError,
-  auth,
   conversationParticipants,
   db,
   messages,
@@ -28,7 +27,7 @@ import { apiLogger } from '@shared/lib';
 // Drizzle imports - use db.ts exports
 
 import { eq, and, or, isNull, isNotNull, gt, lt, asc } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant/server';
+import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { sanitizeHtml } from '@/shared/lib/sanitize/server';
 
 import { hasPermission } from '@shared/lib';
@@ -61,6 +60,8 @@ export async function GET(request: Request) {
   }
   const guard = guardSuspension(authData);
   if (guard) return guard;
+  const featureCheck = await assertModuleEnabled('chat');
+  if (featureCheck) return featureCheck;
 
   const { searchParams } = new URL(request.url);
   const conversationId = searchParams.get('conversationId');

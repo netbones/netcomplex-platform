@@ -1,5 +1,4 @@
 import {
-  auth,
   revalidateDashboard,
   apiCreated,
   apiError,

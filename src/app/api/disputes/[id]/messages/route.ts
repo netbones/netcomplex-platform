@@ -6,14 +6,12 @@ import {
   apiSuccess,
   apiUnauthorized,
   apiValidationError,
-  auth,
   db,
   disputeCases,
   disputeMessages,
   notDeleted,
   now,
   rateLimitByUser,
-  users,
   withErrorHandler,
   getSessionAndRole,
   guardSuspension,
@@ -24,7 +22,7 @@ import { disputeMessageCreateSchema } from '@entities/dispute';
 import { apiLogger, hasPermission } from '@shared/lib';
 import { sanitizeHtml } from '@/shared/lib/sanitize/server';
 import { eq, and, asc } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant/server';
+import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
@@ -55,6 +53,8 @@ export const GET = withErrorHandler(
     }
     const guard = guardSuspension(authData);
     if (guard) return guard;
+    const featureCheck = await assertModuleEnabled('disputes');
+    if (featureCheck) return featureCheck;
 
     // Fetch dispute to verify access
     const [dispute] = await db
@@ -119,6 +119,8 @@ export const POST = withErrorHandler(
     if (!authData) {
       return apiUnauthorized();
     }
+    const featureCheck = await assertModuleEnabled('disputes');
+    if (featureCheck) return featureCheck;
 
     // Rate limit: 30 messages per minute per user
     const rateLimit = await rateLimitByUser(authData.userId, {

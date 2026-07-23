@@ -6,13 +6,11 @@ import {
   apiSuccess,
   apiUnauthorized,
   apiValidationError,
-  auth,
   db,
   disputeCases,
   disputeEvents,
   notDeleted,
   now,
-  users,
   withErrorHandler,
   getSessionAndRole,
   guardSuspension,
@@ -22,7 +20,7 @@ import { disputeRulingSchema } from '@entities/dispute';
 import { canTransition } from '@entities/dispute';
 import { apiLogger, hasPermission } from '@shared/lib';
 import { eq, and } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant/server';
+import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
@@ -49,6 +47,8 @@ export const POST = withErrorHandler(
     }
     const guard = guardSuspension(authData);
     if (guard) return guard;
+    const featureCheck = await assertModuleEnabled('disputes');
+    if (featureCheck) return featureCheck;
 
     // Role guard: only BOARD and ADMIN can issue rulings
     if (authData.role !== 'BOARD' && !hasPermission(authData.role, 'admin')) {

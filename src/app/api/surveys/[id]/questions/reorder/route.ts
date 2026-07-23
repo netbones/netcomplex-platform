@@ -1,9 +1,7 @@
 import {
-  auth,
   db,
   questions,
   surveys,
-  users,
   apiForbidden,
   apiNotFound,
   apiSuccess,
@@ -18,7 +16,7 @@ import {
 import { hasPermission } from '@shared/lib';
 
 import { eq, and, inArray } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant/server';
+import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 
 export const maxDuration = 8;
 /**
@@ -35,6 +33,8 @@ export const POST = withErrorHandler(
     }
     const guard = guardSuspension(authData);
     if (guard) return guard;
+    const featureCheck = await assertModuleEnabled('surveys');
+    if (featureCheck) return featureCheck;
 
     if (!hasPermission(authData.role, 'content')) {
       return apiForbidden();

@@ -6,14 +6,12 @@ import {
   apiSuccess,
   apiUnauthorized,
   apiValidationError,
-  auth,
   db,
   disputeCases,
   disputeEvents,
   notDeleted,
   now,
   revalidateDashboard,
-  users,
   withErrorHandler,
   getSessionAndRole,
   guardSuspension,
@@ -23,7 +21,7 @@ import { hasPermission, apiLogger } from '@shared/lib';
 import { disputeUpdateSchema } from '@entities/dispute';
 import { canTransition } from '@entities/dispute';
 import { eq, and } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant/server';
+import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
@@ -47,6 +45,8 @@ export const GET = withErrorHandler(
     }
     const guard = guardSuspension(authData);
     if (guard) return guard;
+    const featureCheck = await assertModuleEnabled('disputes');
+    if (featureCheck) return featureCheck;
 
     // Fetch with tenant scoping and soft-delete exclusion
     const [dispute] = await db
@@ -91,6 +91,8 @@ export const PATCH = withErrorHandler(
     if (!authData) {
       return apiUnauthorized();
     }
+    const featureCheck = await assertModuleEnabled('disputes');
+    if (featureCheck) return featureCheck;
 
     let body: unknown;
     try {
