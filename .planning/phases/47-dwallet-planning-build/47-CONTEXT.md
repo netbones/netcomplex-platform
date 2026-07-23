@@ -14,7 +14,7 @@ spec: docs/architecture/DWALLET_SPEC.md
 
 **Goal:** Implement the dWallet module — a per-resident data rights, consent, and rewards wallet — as defined in `docs/architecture/DWALLET_SPEC.md` (Schedule G of the SaaS License Agreement, Soralia Village v10). This phase supersedes the original "external NetBones Privacy-as-a-Service dependency" framing: **dWallet is the privacy-as-a-service module**. The DataConsent + WalletTransaction append-only models are themselves the consent ledger and rights-of-data-subject surface (POPIA / LGPD principles).
 
-**Why M5b, not M6+:** dWallet is **the** headline differentiator that closes Soralia Village as the anchor tenant. The pitch to Soralia's 180 homes is: "you own your data, you grant granular consent per use, you earn revenue share." Without dWallet, the anchor tenant pitch is reduced to "another community portal." This phase must land in the M5b launch bundle alongside Community Merits, i18n, OTP, and MyHomeSpace — it is launch-blocking, not a post-launch nicety.
+**Why dWallet is an addendum, not launch-blocking:** dWallet is a Foundation-tier optional addendum — tenants opt in by signing the data-rights SaaS agreement addendum. It is NOT required for platform launch. The phase ships when a tenant requests it.
 
 **Launch-readiness blocker (active, not deferred):** Schedule F Table 2 revenue share percentages. The spec provides placeholder values (30% / 40% / 20% / 35%) that must be confirmed against the executed SaaS agreement **before** the M5b launch checklist can flip to green. The schema supports any value, so development (Sub-phases A–F) proceeds in parallel; production seeding is gated on client confirmation. Tracked as a separate BD issue and listed in the M5 launch checklist.
 
@@ -23,7 +23,7 @@ spec: docs/architecture/DWALLET_SPEC.md
 - `7cp` — Complete formal POPIA compliance audit for South Africa tenant (still in scope; dWallet elevates the audit priority from "should do" to "must do before production seeding")
 - `jc1` — Implement cookie management for privacy compliance (re-scoped: no longer a NetBones integration blocker. Cookie management may still be useful for general privacy hygiene but is **not** a dWallet prerequisite — the DataConsent model is consent of record.)
 
-**Why this phase exists:** dWallet is a flagship post-anchor-tenant feature and a legal requirement of Schedule G. Without the append-only consent ledger, the Resident Data Share programme has no consent-of-record surface and the platform cannot lawfully monetise tenant data. The spec was written 2026-06-06; this CONTEXT.md is being brought into alignment.
+**Why this phase exists:** dWallet is an optional addendum for tenants that opt into the data-rights programme (Schedule G). Without the append-only consent ledger, the Resident Data Share programme has no consent-of-record surface and the platform cannot lawfully monetise tenant data. The spec was written 2026-06-06; this CONTEXT.md is being brought into alignment.
 
 **Blocker for production seeding (not for development):** Schedule F Table 2 revenue share percentages. The spec provides placeholder percentages (30% / 40% / 20% / 35%) but the exact values must be confirmed against the executed SaaS agreement before `DataRevenueStream` seed runs in production. Schema supports any value.
 
@@ -131,4 +131,4 @@ These are non-negotiable per the spec. Any plan that violates them is a reject.
 - Sub-phase A should land in a dedicated worktree per the project's GSD worktree protocol (AGENTS.md §"Git Worktree Isolation").
 - Per the spec's own instructions, the agent that lands Sub-phase A should create the 7 BD issues listed in the spec's "BD Issues to Create" section during the planning step, not during execution.
 - The spec's "Known Integration Points to Verify" grep commands should be run as the closing check on Sub-phase B and again on Sub-phase E.
-- **Execution priority:** dWallet is co-launch-blocking with Community Merits (phase 45). Recommend executing phase 45 and phase 47 in parallel worktrees if capacity allows, or sequencing 45 → 47 if solo. Do not slip phase 47 to M6+ — the anchor-tenant deal assumes dWallet at launch.
+- **Execution priority:** dWallet is an optional addendum — execute when a tenant opts in. Not a dependency of Phase 45 or M5 done-state.

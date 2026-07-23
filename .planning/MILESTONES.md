@@ -99,32 +99,38 @@ forward-looking.
 
 **Failure mode:** If any verifiable criterion fails, M4.5 is "blocked on <criterion>". M5 does not start until M4.5 is green. No exceptions — this is the buffer that prevents M5 from being launched on a broken foundation.
 
-### M5 — Anchor Tenant Launch (📋 PLANNED)
+### M5 — Platform Launch (📋 PLANNED)
 
-**Goal:** Close the 5 architecture-audit issues, ship Community Merits, OTP password reset, MyHomeSpace bug, and the 37-widget i18n batch. Ready for Soralia Village (180 homes) production traffic.
-**Phase range:** New (43+), pulling from BD backlog
-**Status:** Planning. Sources:
+**Goal:** Make the platform self-sufficient — any admin can sign up at `/platform/signup`, onboard a tenant, and get a working community with features matching their tier. No dependency on any specific tenant sign-off. dWallet, Provider Platform, Service Marketplace, Dispute Resolution are optional addenda that individual tenants can adopt post-launch — they are NOT launch-blocking.
 
-- BD `qig` — shared HTTP client (unblocks 2/3 audit chapters)
-- BD `fpc` — tRPC coverage expansion
-- BD `9xr` — pure domain helpers + unit tests
-- BD `5u2` — maintenance API transform dedup
-- BD `1ei` — widget useEffect+fetch → useQuery migration
-- BD `2at` — Community Merits & Standing System
-- BD `l23` / `0f7` — i18n for all pages (✅ delivered Phase 45-04/45-05). Remaining structural i18n tracked in `7qkl`
-- BD `cs5` — MyHomeSpace property linking bug
-- BD `0tb` — OTP password reset
+**Phase range:** 44 (M5a hardening), 45 (launch features), 110 (access control), 120 (API governance), 104–108 (dispute resolution — optional addendum)
 
-**Verifiable:** All 5 audit issues closed with tests, audit document `docs/cleaner_react_architecture.md` marked "all chapters resolved", Soralia admin can invite 180 homes via batch import, anchor-tenant launch checklist (TBD) green.
+**Status:** Active. Phases 44, 45, 110, 120 in progress. Dispute resolution (104–108) deferred to tenant opt-in.
 
-**Decomposition (added 2026-06-03 per Section 7 Gap C1):** M5 has 10 work items with no priority or scope. Proposed split:
+**Core launch verifiable (ALL must pass to declare M5 done):**
 
-- **M5a — Audit Closure (5 items).** qig, fpc, 9xr, 5u2, 1ei. Verifiable: `docs/cleaner_react_architecture.md` marked "all chapters resolved" + 5 unit-test suites.
-- **M5b — Anchor Tenant Features (13 items).** 2at, l23 ✅, 0f7 ✅, cs5, 0tb + 7qkl (structural i18n — replaces l23/0f7 scope) + Phase 47 dWallet (2 items: 7cp, jc1) + Phase 46 Provider Platform (4 items: kia, 9e8, 69c, 4fh) + Phase 50 Service Marketplace (4 items: gtm, cp8, qx7, 4vk). Verifiable: Soralia admin can invite 180 homes via batch import + the M5 launch checklist (Gap η) is green.
+1. Any admin can sign up at `/platform/signup`, create a tenant, and complete the onboarding wizard
+2. All 3 tiers (core, foundation, pro-max) gate the correct modules — verified by `tiers.test.ts` (37 tests) and the gate test suite
+3. Cross-tenant isolation enforced by RLS on all sensitive routes — verified by route audit (`docs/SECURITY_AUDIT_M4.5.md`)
+4. Platform billing foundation live — tenants can see their plan, caps, and usage (soft/hard limits)
+5. Community Merits system live with standing tiers, admin page at `/admin/merits`
+6. OTP password reset works end-to-end via Better Auth emailOTP plugin
+7. i18n renders in all 4 locales (en, af, xh, zu) without console errors on tenant routes
+8. Feature gate (`canAccess()`) is the canonical entry point — legacy gate systems removed
+9. No tenant-specific code or config — any tenant slug works with zero customisation
 
-M5a is "we cleaned up", M5b is "we shipped launch features". Different verifiables, different stakeholders. M5a unblocks future work; M5b unblocks anchor-tenant traffic.
+**Addenda (NOT launch-blocking — tenant opts in post-launch):**
 
-**M5 ready signal (added 2026-06-03 per Section 7 Gap N2):** M5 planning begins when (a) M4 is complete (Phases 41 and 42 shipped) AND (b) the M5 launch checklist (`.planning/M5-LAUNCH-CHECKLIST.md`, Gap η) is drafted. Without both, M5 has no done-state and no launch criteria.
+- **dWallet** (Phase 47) — per-resident data rights and revenue-share. Foundation-tier optional addendum.
+- **Provider Platform** (Phase 46) — service provider onboarding, verification, billing
+- **Service Marketplace** (Phase 50) — community services directory with booking
+- **Dispute Resolution** (Phases 104–108) — formal dispute workflow for CSOS compliance
+
+**Decomposition:**
+
+- **M5a — Hardening (Phase 44).** FSD enforcement, observability plan, audit closure, pnpm advisories, M4.5 follow-ups. Verifiable: Steiger clean on `dev`, monitoring plan documented, all audit BD issues closed.
+- **M5b — Launch Features (Phase 45).** OTP (45-01), Community Merits (45-02/03), i18n batch (45-04/05). Verifiable: all 5 plans shipped.
+- **Addenda (Phases 46, 47, 50, 104–108).** Each is a self-contained phase gated on tenant opt-in — not required for M5 done-state.
 
 ### M7 — Monorepo Migration (📋 PLANNED)
 
@@ -190,11 +196,9 @@ named, located, and remediable.
 
 **Status:** Phase 11 (Prisma To Drizzle) verified complete and removed from M6+. Phases 03 and 04 retained in M6+ with explicit blockers (post-deployment validation test; i18n router extension). 3 status drift fixes (Phase 33, 38, 40) in d11d8f2 commit. The CI step (compare on-disk SUMMARYs against ROADMAP status) is still recommended for full resolution.
 
-### Gap η — Anchor-tenant launch criteria are unstated
+### Gap η — ~~Anchor-tenant launch criteria are unstated~~ ✅ RESOLVED (2026-07-23)
 
-**Where:** PROJECT.md "Active" requirements.
-**Symptom:** M5 is "ready for 180 homes" but we haven't defined what that means. Soft-launch vs full launch? Pilot cohort? Onboarding flow validation?
-**Remedy:** Write `.planning/M5-LAUNCH-CHECKLIST.md` with: (a) pilot cohort size (suggest 10–20 homes), (b) data migration rehearsal criteria, (c) POPIA attestation, (d) rollback plan, (e) comms templates. This is M5's real planning artifact.
+**Resolution:** M5 is now "Platform Launch" — exit criteria are platform self-sufficiency, not any specific tenant. M5 `Verifiable` section (§2) defines 9 core criteria covering signup, tier gating, RLS, billing, merits, OTP, i18n, gate consolidation, and tenant-agnostic code. No launch checklist needed — the verifiable criteria are the checklist.
 
 ---
 
@@ -235,7 +239,7 @@ In priority order. Each step is small enough to do in one session.
 3. **Add pre-commit hook for `validate.health`** — modify the existing lint-staged config to run GSD health check on `.planning/**/*.md` changes. Catches status drift at commit time.
 4. **Pick up Phase 41 in a worktree** — 3 plans, 1 wave, narrow scope, post-advisory audit. Per GSD worktree protocol (mandated 2026-06-03). M4 is unblocked the moment this ships.
 5. **Decide on the 3 deferred planning phases** — archive to `milestones/archived/` (clean approach) or keep polluting the ready backlog (current approach). Recommend archive; defer to user.
-6. **Write M5 launch checklist** — `.planning/M5-LAUNCH-CHECKLIST.md` with the 5 criteria from Gap η.
+6. **M5 launch criteria** — ✅ defined inline in §2 M5 verifiable block (9 criteria). No separate checklist needed.
 7. **Document the cadence ritual in AGENTS.md** — add a "Cadence & Milestone Discipline" section that codifies §4. This is the durable enforcement.
 
 ---
@@ -297,11 +301,9 @@ Resolution: Added `lint-staged` rule in `package.json` that runs `gsd-sdk query 
 
 ### 7.3 Scope gaps — milestones that are too big or too undefined
 
-**Gap C1 — M5 has 10 work items with no priority ranking or scope estimate.**
+**Gap C1 — ~~M5 has 10 work items with no priority ranking or scope estimate.~~ ✅ RESOLVED (2026-07-23)**
 
-Evidence: MILESTONES.md §2 M5 lists 9 BD issues + 1 missing i18n router phase = 10 work items. No priority order, no effort estimate, no dependency graph. The "Verifiable" line is vague ("audit document marked 'all chapters resolved'") — it's a single binary signal, not the 10 separate verifications we'd actually need.
-
-Remedy: Decompose M5 into M5a (audit closure — qig, fpc, 9xr, 5u2, 1ei) and M5b (anchor-tenant features — 2at, l23 ✅, 0f7 ✅, cs5, 0tb, 7qkl). M5a is "we cleaned up", M5b is "we shipped the launch features". Different verifiables. Different stakeholders.
+**Resolution:** M5 reframed as "Platform Launch" with 9 concrete verifiable criteria in §2. Decomposition: M5a (hardening) + M5b (launch features) + optional addenda (dWallet, Provider Platform, Service Marketplace, Dispute Resolution — NOT launch-blocking). Each addendum is a self-contained phase gated on tenant opt-in.
 
 **Gap C2 — M3 is the largest single milestone (10 phases) in retrospect.**
 
@@ -329,11 +331,9 @@ Evidence: The "9/9 verified" and "10/10 plans shipped" lines in §2 are author a
 
 Remedy: Gap S1 (milestone-level VERIFICATION docs) addresses this. Until then, treat the "shipped" claim as the author's working assumption, not audited fact.
 
-**Gap N2 — No "ready signal" for M5.**
+**Gap N2 — ~~No "ready signal" for M5.~~ ✅ RESOLVED (2026-07-23)**
 
-Evidence: M5 has 10 work items, all sourced from BD. None are "in flight" (no plans drafted, no phase numbers assigned). M5's start trigger is implicit ("when M4 is done").
-
-Remedy: Define an explicit M5 start signal: "M5 planning begins when M4 is complete AND the M5 launch checklist is drafted." The M5 launch checklist is Gap η from §3.
+**Resolution:** M5 ready signal is now "M4 is complete AND §2 M5 verifiable criteria are approved." The 9 criteria serve as both the launch checklist and the done-state. No separate checklist artifact needed.
 
 **Gap N3 — No version tags or release branches.**
 
@@ -343,27 +343,27 @@ Remedy: Tag each shipped milestone on the main branch (`git tag v0.1.0 M0` for e
 
 ### 7.5 Summary of Gaps Located in This Review
 
-| ID  | Gap                                  | Severity | Effort to fix      | Owner           |
-| --- | ------------------------------------ | -------- | ------------------ | --------------- |
-| S1  | No milestone-level VERIFICATION docs | High     | 4 × 10 min         | This session    |
-| S2  | No `.planning/retros/` directory     | High     | 5 min              | This session    |
-| S3  | No `.planning/templates/retro.md`    | Medium   | 15 min             | This session    |
-| S4  | No pre-commit hook for status drift  | Medium   | 20 min             | Next session    |
-| C1  | M5 has 10 unscoped items             | High     | 30 min (decompose) | This session    |
-| C2  | M3 was 10 phases (post-hoc learning) | Low      | Note only          | Already shipped |
-| C3  | Phase 99 orphan in M6+               | Low      | 2 min              | This session    |
-| C4  | No M4.5 stabilization milestone      | Medium   | 15 min (decide)    | This session    |
-| N1  | M0-M3 "shipped" claims informal      | High     | Resolved by S1     | —               |
-| N2  | No M5 ready signal                   | Medium   | 10 min             | This session    |
-| N3  | No version tags or release branches  | Low      | 4 × 30 sec         | This session    |
+| ID  | Gap                                  | Severity | Status                 | Owner    |
+| --- | ------------------------------------ | -------- | ---------------------- | -------- |
+| S1  | No milestone-level VERIFICATION docs | High     | Open                   | —        |
+| S2  | No `.planning/retros/` directory     | High     | Open                   | —        |
+| S3  | No `.planning/templates/retro.md`    | Medium   | Open                   | —        |
+| S4  | No pre-commit hook for status drift  | Medium   | Resolved 2026-06-03    | —        |
+| C1  | M5 scope undefined                   | High     | ✅ Resolved 2026-07-23 | This ses |
+| C2  | M3 was 10 phases (post-hoc learning) | Low      | Note only              | —        |
+| C3  | Phase 99 orphan in M6+               | Low      | Open                   | —        |
+| C4  | No M4.5 stabilization milestone      | Medium   | Resolved 2026-06-03    | —        |
+| N1  | M0-M3 "shipped" claims informal      | High     | Resolved by S1         | —        |
+| N2  | No M5 ready signal                   | Medium   | ✅ Resolved 2026-07-23 | This ses |
+| N3  | No version tags or release branches  | Low      | Open                   | —        |
 
-### 7.6 Action Plan (in order)
+### 7.6 Action Plan (in order — ✅ = done this session)
 
-1. **Create `.planning/templates/retro.md`** (S3) — template is a precondition for S1, S2.
-2. **Create `.planning/retros/` directory** (S2) — empty for now.
-3. **Write 4 retro docs** (S1) — one per shipped milestone. Uses template.
-4. **Decompose M5 into M5a/M5b** (C1) — update §2 M5 to reflect the split.
-5. **Add M5 ready signal** (N2) — one sentence in §2 M5.
+1. ~~Create `.planning/templates/retro.md`~~ (S3) — template is a precondition for S1, S2.
+2. ~~Create `.planning/retros/` directory~~ (S2) — empty for now.
+3. ~~Write 4 retro docs~~ (S1) — one per shipped milestone. Uses template.
+4. **✅ Decompose M5 into M5a/M5b + addenda** (C1) — §2 M5 updated with 9 verifiable criteria, optional addenda decoupled.
+5. **✅ Add M5 ready signal** (N2) — §2 M5 includes verifiable block as launch checklist.
 6. **Tag shipped milestones** (N3) — 4 `git tag` commands.
 7. **Move Phase 99 out of M6+** (C3) — 1-line edit.
 8. **Decide on M4.5** (C4) — yes/no/merge decision.

@@ -11,7 +11,7 @@ expansion_reason: 2026-06-07 milestone reshape — M4.5 soak repositioned to M5b
 
 # Phase 44: M5a Hardening & Launch Readiness
 
-**Goal:** Close all known critical bugs, enforce FSD architecture boundaries, resolve security advisories, plan monitoring infrastructure, and complete the audit-closure/conflict-register work so the system is ready for the 7-day soak and the Soralia Village (180-home) production launch. After Phase 44, the codebase should be **"quiet"** — no known P0/P1 bugs, no architectural debt to freeze around, no FSD violations, no security advisories that would block production traffic.
+**Goal:** Close all known critical bugs, enforce FSD architecture boundaries, resolve security advisories, plan monitoring infrastructure, and complete the audit-closure/conflict-register work so the platform is stable for any tenant onboarding. After Phase 44, the codebase should be **"quiet"** — no known P0/P1 bugs, no architectural debt to freeze around, no FSD violations, no security advisories that would block production traffic.
 
 **Why this phase exists (2026-06-07 reshape):** The 7-day production soak was originally placed in M4.5 as a "stabilization" activity. This was a category error — the soak is a launch verification, not a production-readiness deliverable. The team is mid-journey in the dev cycle (just discovered lib18n typo + tenantConfig barrel gap + missing FSD linter) and would get noise rather than signal from a 7-day soak run before stability is achieved. M4.5 now correctly closes with "code-complete + blocker-fixes shipped". The soak is the FIRST activity of M5b (Phase 45), not the LAST activity of M4.5. Phase 44 takes everything that needs to be hardened before that soak and consolidates it here.
 

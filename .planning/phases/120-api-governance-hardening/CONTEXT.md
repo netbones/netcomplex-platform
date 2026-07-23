@@ -2,7 +2,7 @@
 
 **Gathered:** 2026-06-30
 **Status:** Planning
-**Milestone:** M5 — Anchor Tenant Launch (hardening)
+**Milestone:** M5 — Platform Launch
 
 <domain>
 

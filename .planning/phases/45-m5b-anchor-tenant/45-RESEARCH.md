@@ -1,4 +1,4 @@
-# Phase 45: Anchor Tenant Features — Research
+# Phase 45: M5b Launch Features — Research
 
 **Researched:** 2026-06-18
 **Domain:** Community management platform — authentication, gamification, i18n, rich text

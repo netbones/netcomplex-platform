@@ -2,7 +2,7 @@
 
 **Gathered:** 2026-07-01
 **Status:** Ready for planning
-**Milestone:** M5 — Anchor Tenant Launch (post-hardening) / M5+ workspace evolution
+**Milestone:** M5 — Platform Launch / M5+ workspace evolution
 **Sources:**
 
 - ADDENDUM-023 — 4 binding constraints + Workspace Registry requirement

@@ -7,7 +7,7 @@ updated: 2026-06-16
 milestone: M5b (anchor tenant launch)
 ---
 
-# Phase 45: Anchor Tenant Features
+# Phase 45: M5b Launch Features
 
 **Gathered:** 2026-06-16
 **Status:** Ready for planning
@@ -39,7 +39,7 @@ Ship the 4 launch-blocking features for Soralia Village's 180-home rollout. Each
 
 ### Phase Identity
 
-- **D-01:** Phase name is "Anchor Tenant Features" — the 7-day soak was originally repositioned here but creates the wrong framing. Soak gets its own separate phase when the system is ready for it.
+- **D-01:** Phase name is "Launch Features" — no tenant-specific scope. The 7-day soak is not part of this phase.
 
 ### Community Merits — Data Model
 

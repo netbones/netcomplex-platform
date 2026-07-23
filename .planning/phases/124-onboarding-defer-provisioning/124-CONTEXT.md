@@ -3,7 +3,7 @@
 **Source:** ADVISORY-031 — Onboarding Refactor: Defer Tenant Provisioning Until Post-Verification (Option C — "defer, don't reserve"). Supersedes the ADVISORY-030 draft; §10 is the formal response to COMMUNIQUE-12.
 **BD issue:** soralia-village-bawf (P1, GSD-escalated)
 **Related:** soralia-village-zbvq (401 hotfix — committed `2707e9b6`), soralia-village-0jh1 (Phase 123 Setup Center)
-**Milestone:** M4 Production-Ready / M5 Anchor Tenant Launch (confirm placement at roadmap)
+**Milestone:** M4 Production-Ready / M5 Platform Launch
 **Priority:** High
 **Depends on:** Phase 123 (Setup Center) — **complete**. This phase picks up the signup/registration change that Phase 123 explicitly deferred (see `123-CONTEXT.md` Out of Scope).
 

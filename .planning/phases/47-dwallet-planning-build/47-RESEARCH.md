@@ -6,7 +6,7 @@
 
 ## Summary
 
-The dWallet is the headline anchor-tenant selling point for Soralia Village (180 homes) — a per-resident data rights, consent, and rewards wallet built as a true double-entry ledger from day one. This module is legally required by Schedule G of the SaaS License Agreement and must comply with POPIA and LGPD principles.
+The dWallet is an optional Foundation-tier addendum — a per-resident data rights, consent, and rewards wallet built as a true double-entry ledger from day one. This module is legally required by Schedule G of the SaaS License Agreement (for tenants that opt into the data-rights programme) and must comply with POPIA and LGPD principles.
 
 The implementation scope is defined in `docs/architecture/DWALLET_SPEC.md` and decomposed into six sub-phases (A–F) per `47-CONTEXT.md`:
 

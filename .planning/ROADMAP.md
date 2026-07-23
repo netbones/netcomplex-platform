@@ -10,17 +10,17 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 Phases are grouped into milestones (M0–M6+). See `.planning/MILESTONES.md` for full structure, gap analysis, and cadence ritual.
 
-| Milestone                         | Goal                                                                                                                                                       | Phases                                                                                                                                                                                   | Status           |
-| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
-| **M0 Foundation**                 | Multi-tenant substrate + base modules                                                                                                                      | 00, 01, 02, 03, 05, 06, 07, 08, 11                                                                                                                                                       | ✅ Shipped       |
-| **M1 Core Comm & Auth**           | Real-time chat, email, schema hardening, onboarding                                                                                                        | 09, 10, 18, 19, 20                                                                                                                                                                       | ✅ Shipped       |
-| **M2 Dashboard & Navigation**     | Focus Spaces, single-source nav, widget system                                                                                                             | 22, 24, 25, 26, 27, 28, 29, 30, 31                                                                                                                                                       | ✅ Shipped       |
-| **M3 Trust, Safety & Engagement** | Admin command surface, suspension, surveys, ticketing                                                                                                      | 21, 23, 32, 33, 34, 36, 37, 38, 39, 40                                                                                                                                                   | ✅ Shipped       |
-| **M4 Production-Ready**           | API governance, gate consolidation, i18n hydration                                                                                                         | 35, 41, 42                                                                                                                                                                               | ✅ Complete      |
-| **M4.5 Stabilization**            | 7-day soak, perf baseline, rollback test, locale check                                                                                                     | 43 (blockers), then (no new phases)                                                                                                                                                      | 🚧 Blocked on 43 |
-| **M5 Anchor Tenant Launch**       | Audit closure, Community Merits, OTP, dWallet, Provider Platform, Service Marketplace, Dispute Resolution, AI Pool Billing, Access Control, API Governance | 44 (M5a), 45 (M5b), 46 (Provider Platform), 47 (dWallet), 50 (Service Marketplace), 104–108 (Dispute Resolution), 109 (AI Surcharge Billing), 110 (Access Control), 120 (API Governance) | 📋 Planning      |
-| **M5+ Post-Launch**               | Future features, second tenant                                                                                                                             | deferred                                                                                                                                                                                 | Deferred         |
-| **M7 Monorepo Migration**         | Turborepo + pnpm monorepo for web + mobile code sharing                                                                                                    | 112, 113, 114, 115, 116, 117+                                                                                                                                                            | 📋 Planning      |
+| Milestone                         | Goal                                                                                                                                                                              | Phases                                                                                   | Status           |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ---------------- |
+| **M0 Foundation**                 | Multi-tenant substrate + base modules                                                                                                                                             | 00, 01, 02, 03, 05, 06, 07, 08, 11                                                       | ✅ Shipped       |
+| **M1 Core Comm & Auth**           | Real-time chat, email, schema hardening, onboarding                                                                                                                               | 09, 10, 18, 19, 20                                                                       | ✅ Shipped       |
+| **M2 Dashboard & Navigation**     | Focus Spaces, single-source nav, widget system                                                                                                                                    | 22, 24, 25, 26, 27, 28, 29, 30, 31                                                       | ✅ Shipped       |
+| **M3 Trust, Safety & Engagement** | Admin command surface, suspension, surveys, ticketing                                                                                                                             | 21, 23, 32, 33, 34, 36, 37, 38, 39, 40                                                   | ✅ Shipped       |
+| **M4 Production-Ready**           | API governance, gate consolidation, i18n hydration                                                                                                                                | 35, 41, 42                                                                               | ✅ Complete      |
+| **M4.5 Stabilization**            | 7-day soak, perf baseline, rollback test, locale check                                                                                                                            | 43 (blockers), then (no new phases)                                                      | 🚧 Blocked on 43 |
+| **M5 Platform Launch**            | Platform self-sufficiency: any admin signs up, onboards a tenant, gets correct tier-gated features. RLS enforced, billing live, merits/OTP/i18n shipped. No tenant-specific code. | 44 (M5a hardening), 45 (M5b launch features), 110 (access control), 120 (API governance) | 🟡 Active        |
+| **M5+ Post-Launch**               | Future features, second tenant                                                                                                                                                    | deferred                                                                                 | Deferred         |
+| **M7 Monorepo Migration**         | Turborepo + pnpm monorepo for web + mobile code sharing                                                                                                                           | 112, 113, 114, 115, 116, 117+                                                            | 📋 Planning      |
 
 **Phase numbering note:** IDs are stable (not renumbered on re-order). Duplicates exist: `03` (Localization vs Second Tenant), `11` (Announcements vs Prisma→Drizzle). The duplicate pair has a "Planning Complete (deferred)" status on the second one, except `11-prisma-to-drizzle` which was verified complete (2026-06-03) and moved to M0. Out-of-order numeric IDs (01 after 04; 35 after 39; 99 last) reflect creation sequence, not logical order. See MILESTONES.md Gap ε.
 
@@ -759,21 +759,19 @@ Plans:
 
 ---
 
-## M5 — Anchor Tenant Launch (Planning)
+## M5 — Platform Launch (Active)
 
-_Harden the codebase to launch-readiness, ship the launch-blocking features: Community Merits, OTP password reset, 37-widget i18n batch, dWallet (the headline data-rights + revenue-share selling point), Provider Platform, and Service Marketplace. The 7-day production soak is deferred to its own phase when the system is stable and ready for launch verification. Ready for Soralia Village (180 homes) production traffic. Decomposed into M5a (hardening) and M5b (anchor tenant features)._
+_Make the platform self-sufficient — any admin can sign up at `/platform/signup`, onboard a tenant, and get a working community with features matching their tier. No dependency on any specific tenant sign-off. See `.planning/MILESTONES.md` §2 for the 9 verifiable exit criteria. dWallet, Provider Platform, Service Marketplace, Dispute Resolution are optional addenda — NOT launch-blocking._
 
-**Source backlog:** BD issues from `docs/cleaner_react_architecture.md` audit (5 issues) + Soralia launch features (5 issues) + M4.5 follow-ups + pnpm advisories + FSD debt + new monitoring infrastructure. See Phase 44 and 45 for breakdown.
+**Core scope:** Phase 44 (M5a hardening) → Phase 45 (M5b launch features: OTP, Merits, i18n) → Phase 110 (access control) → Phase 120 (API governance). Addenda are self-contained tenant-opt-in phases (46, 47, 50, 104–108).
 
-**Activates when:** M4.5 is green (Phase 43 5/5 shipped + de8x closed + r13u planned). ✅
-
-**Milestone reshape rationale (2026-06-07):** The 7-day production soak was originally placed in M4.5 as a "stabilization" activity. This was a category error — the soak is a launch verification, not a production-readiness deliverable. The team is mid-journey in the dev cycle (just discovered lib18n typo + tenantConfig barrel gap + missing FSD linter) and would get noise rather than signal from a 7-day soak run before stability is achieved. M4.5 now correctly closes with "code-complete + blocker-fixes shipped" rather than "soak complete". The soak is the FIRST activity of M5b, not the LAST activity of M4.5. See `.planning/STATE.md` for the operational state machine.
+**Activates when:** M4.5 is green (Phase 43 5/5 shipped). ✅
 
 ---
 
 ## Phase 44: M5a Hardening & Launch Readiness
 
-**Goal:** Close all known critical bugs, enforce FSD architecture boundaries, resolve security advisories, plan monitoring infrastructure, and complete the audit-closure/conflict-register work so the system is ready for the 7-day soak and the Soralia Village (180-home) production launch. After Phase 44, the codebase should be "quiet" — no known P0/P1 bugs, no architectural debt to freeze around, no FSD violations, no security advisories that would block production traffic.
+**Goal:** Close all known critical bugs, enforce FSD architecture boundaries, resolve security advisories, plan monitoring infrastructure, and complete the audit-closure/conflict-register work so the platform is stable for any tenant onboarding. After Phase 44, the codebase should be "quiet" — no known P0/P1 bugs, no architectural debt to freeze around, no FSD violations, no security advisories that would block production traffic.
 
 **Status:** Planning (renamed from "M5a Audit Closure" to "M5a Hardening & Launch Readiness" on 2026-06-07; expanded scope to include pre-soak hardening)
 
@@ -815,9 +813,9 @@ _Harden the codebase to launch-readiness, ship the launch-blocking features: Com
 
 ---
 
-## Phase 45: Anchor Tenant Features
+## Phase 45: M5b Launch Features
 
-**Goal:** Ship the 4 launch-blocking features for Soralia Village's 180-home rollout. Community Merits drives engagement, i18n drives 4-locale adoption, OTP drives security posture. The 7-day production soak is NOT in this phase — deferred to a separate phase when the system is stable and you're ready for launch verification.
+**Goal:** Ship the 4 platform-launch features: OTP password reset, Community Merits, i18n batch for visible widgets, Tiptap content localization. These are the core launch-blocking items — the platform cannot go live without them, but they are not tenant-specific.
 
 **Status:** Planned — 5 plans in 5 waves
 
@@ -944,7 +942,7 @@ _Features explicitly deferred to post-M5b. The 8 feature items originally in the
 
 ## Phase 46: Provider Platform
 
-**Goal:** Ship the Provider Platform cluster — provider analytics, provider dashboard, third-party provider registration, and provider billing & subscription. These 4 features enable the provider economy for the Soralia Village anchor tenant launch.
+**Goal:** Ship the Provider Platform cluster — provider analytics, provider dashboard, third-party provider registration, and provider billing & subscription. These 4 features enable the provider economy. Optional addendum — tenant opts in post-launch.
 
 **Status:** Complete — 4 plans delivered, plus 3 post-completion MITIGATION fixes
 
@@ -1066,7 +1064,7 @@ Plans:
 
 ## Phase 47: dWallet Planning & Build
 
-**Goal:** Implement the dWallet module — per-resident data rights, granular consent, and revenue-share rewards — as defined in `docs/architecture/DWALLET_SPEC.md` (Schedule G of the Soralia Village v10 SaaS agreement). **The headline anchor-tenant selling point:** "You own your data, you grant consent per use, you earn revenue share." Without dWallet, the Soralia pitch collapses to a generic community portal.
+**Goal:** Implement the dWallet module — per-resident data rights, granular consent, and revenue-share rewards — as defined in `docs/architecture/DWALLET_SPEC.md` (Schedule G of the SaaS agreement). **An optional Foundation-tier addendum:** tenants opt into the data-rights programme by signing the addendum. After opt-in: "You own your data, you grant consent per use, you earn revenue share."
 
 **Status:** Planning (elevated from M6+ to M5b on 2026-06-06 — see `.planning/phases/47-dwallet-planning-build/47-CONTEXT.md` for the full sub-phase breakdown)
 
@@ -1135,7 +1133,7 @@ Plans:
 
 ## Phase 50: Service Marketplace
 
-**Goal:** Ship the Service Marketplace cluster — notification system, payment processing, booking calendar integration, and mobile optimization. These 4 features enable the core marketplace experience for the Soralia Village anchor tenant launch.
+**Goal:** Ship the Service Marketplace cluster — notification system, payment processing, booking calendar integration, and mobile optimization. These 4 features enable the core marketplace experience. Optional addendum — tenant opts in post-launch.
 
 **Status:** Planning Complete — 4 plans in 3 waves
 
@@ -1479,7 +1477,7 @@ Plans:
 
 **Status:** Complete
 
-**Milestone:** M5 — Anchor Tenant Launch
+**Milestone:** M5 — Platform Launch
 
 **Depends on:** Phase 110
 
@@ -1503,7 +1501,7 @@ Plans:
 
 **Status:** Planning Complete — 6 plans in 3 waves
 
-**Milestone:** M5 — Anchor Tenant Launch (hardening)
+**Milestone:** M5 — Platform Launch (hardening)
 
 **Depends on:** BD `soralia-village-c2dd` (tRPC audit — complete), BD `soralia-village-wdnk` (ctx narrowing — complete), BD `soralia-village-7fly` (rate limiting — complete)
 
@@ -1535,7 +1533,7 @@ Plans:
 
 **Status:** Planning Complete — 3 plans
 
-**Milestone:** M5 — Anchor Tenant Launch (hardening)
+**Milestone:** M5 — Platform Launch (hardening)
 
 **Depends on:** BD `soralia-village-71gn` (critical fixes — complete), BD `soralia-village-7dfv` (debt reduction — complete), BD `soralia-village-iswf` (medium-term — complete)
 
@@ -1688,7 +1686,7 @@ _Turborepo + pnpm workspaces monorepo for web (Next.js) + mobile (Expo) code sha
 
 **Status:** Planning
 
-**Milestone:** M5 — Anchor Tenant Launch (hardening)
+**Milestone:** M5 — Platform Launch (hardening)
 
 **Depends on:** Phase 111
 

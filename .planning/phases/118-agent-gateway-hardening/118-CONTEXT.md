@@ -53,7 +53,7 @@ Five work items:
 
 - **D-14:** Add Phase 111 block to ROADMAP.md following the existing phase entry template (goal, status: Complete, plan listing with checkmarks)
 - **D-15:** Map Phase 111's 37 must-have truths to REQUIREMENTS.md — trace each truth to an existing requirement or note where new requirements should be filed
-- **D-16:** Phase 111 block belongs in M5 (Anchor Tenant Launch) milestone section per MILESTONES.md grouping
+- **D-16:** Phase 111 block belongs in M5 (Platform Launch) milestone section per MILESTONES.md grouping
 
 ### Quality Gates
 
