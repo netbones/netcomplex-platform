@@ -135,6 +135,7 @@ model Tenant {
   tenantModules           TenantModule[]
   tenantSetup             TenantSetup?
   tenantFeatureFlags      TenantFeatureFlag[]
+  meetingProxies          MeetingProxy[]
 
   @@index([ownerId])
 }
