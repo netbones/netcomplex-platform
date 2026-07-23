@@ -460,7 +460,7 @@ function ListingsTab({
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
               />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Category</label>
                 <select
@@ -616,7 +616,7 @@ function ListingsTab({
           {listings.map(listing => (
             <div
               key={listing.id}
-              className="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:bg-gray-50 group"
+              className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg border border-gray-100 hover:bg-gray-50 group gap-2"
             >
               <Link
                 href={`/services/${listing.slug || listing.id}`}
@@ -642,7 +642,7 @@ function ListingsTab({
                   </p>
                 </div>
               </Link>
-              <div className="flex items-center gap-2 text-xs text-gray-500 shrink-0">
+              <div className="flex items-center gap-2 text-xs text-gray-500 shrink-0 flex-wrap">
                 {listing.isPublished ? (
                   <button
                     onClick={e => {

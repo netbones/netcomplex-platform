@@ -159,7 +159,7 @@ export function UnifiedResidentCard({
       {/* Header */}
       <div
         className={`${finalHeaderColor} p-4 text-white ${
-          viewMode === 'list' ? 'w-64 shrink-0 z-10' : ''
+          viewMode === 'list' ? 'w-48 sm:w-64 shrink-0 z-10' : ''
         }`}
       >
         <div className="flex items-center gap-3">
@@ -216,7 +216,7 @@ export function UnifiedResidentCard({
       <div
         className={`p-4 ${
           viewMode === 'list'
-            ? 'flex-1 flex items-center justify-between z-10 mr-48'
+            ? 'flex-1 flex items-center justify-between z-10 mr-32 sm:mr-48'
             : 'flex gap-4 items-start'
         }`}
       >
@@ -290,7 +290,7 @@ export function UnifiedResidentCard({
 
       {/* Property  - List view only */}
       {viewMode === 'list' && (
-        <div className="absolute inset-y-0 right-0 w-48 flex z-0">
+        <div className="absolute inset-y-0 right-0 w-32 sm:w-48 flex z-0">
           {/* Owner card: full width image */}
           {!isRenter() && hasHomeImage && (
             <div className="w-full h-full relative">

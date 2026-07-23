@@ -91,11 +91,11 @@ export function DirectoryPage() {
           className="w-full md:w-80 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-soralia-primary"
         />
 
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
           <select
             value={filterType}
             onChange={e => setFilterType(e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-soralia-primary"
+            className="w-full sm:w-auto border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-soralia-primary"
           >
             <option>All Residents</option>
             <option>Board Members</option>
@@ -107,7 +107,7 @@ export function DirectoryPage() {
           <select
             value={filterStreet}
             onChange={e => setFilterStreet(e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-soralia-primary"
+            className="w-full sm:w-auto border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-soralia-primary"
           >
             <option>All Streets</option>
             {streets.map(street => (
@@ -160,11 +160,11 @@ export function DirectoryPage() {
           className="w-full md:w-80 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-soralia-primary"
         />
 
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
           <select
             value={category}
             onChange={e => setServiceCategory(e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-soralia-primary"
+            className="w-full sm:w-auto border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-soralia-primary"
           >
             <option value="ALL">All Categories</option>
             <option value="GARDENING">Gardening</option>
@@ -181,7 +181,7 @@ export function DirectoryPage() {
           <select
             value={serviceType}
             onChange={e => setServiceTypeFilter(e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-soralia-primary"
+            className="w-full sm:w-auto border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-soralia-primary"
           >
             <option value="ALL">All Types</option>
             <option value="COMMUNITY">Community Services</option>
@@ -189,7 +189,7 @@ export function DirectoryPage() {
             <option value="THIRD_PARTY">Trusted Providers</option>
           </select>
 
-          <label className="flex items-center gap-2">
+          <label className="flex items-center gap-2 shrink-0">
             <input
               type="checkbox"
               checked={verifiedOnly}
