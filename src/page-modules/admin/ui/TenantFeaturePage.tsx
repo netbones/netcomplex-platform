@@ -138,7 +138,7 @@ async function FeatureManager({ id }: { id: string }) {
                   <span className="font-semibold">{tier.name}</span>
                 </div>
                 <p className="text-sm text-gray-500">
-                  {tier.maxPages === -1 ? 'Unlimited' : tier.maxPages} pages
+                  {tier.maxUsers === -1 ? 'Unlimited' : tier.maxUsers} users
                 </p>
                 {isCurrent && <span className="text-xs text-indigo-600 font-medium">Current</span>}
               </div>

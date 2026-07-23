@@ -143,6 +143,7 @@ describe('Mapping completeness', () => {
     'dashboard',
     'messages',
     'dWallet',
+    'merits',
   ];
 
   describe('FEATURE_TO_MODULE', () => {
@@ -161,8 +162,8 @@ describe('Mapping completeness', () => {
       }
     });
 
-    it('should have exactly 15 entries (one per FeatureKey)', () => {
-      expect(Object.keys(FEATURE_TO_MODULE)).toHaveLength(15);
+    it('should have exactly 16 entries (one per FeatureKey)', () => {
+      expect(Object.keys(FEATURE_TO_MODULE)).toHaveLength(16);
     });
   });
 
@@ -229,8 +230,8 @@ describe('Mapping completeness', () => {
       }
     });
 
-    it('should have exactly 15 entries (one per FeatureKey)', () => {
-      expect(Object.keys(FEATURE_TO_REGISTRY)).toHaveLength(15);
+    it('should have exactly 16 entries (one per FeatureKey)', () => {
+      expect(Object.keys(FEATURE_TO_REGISTRY)).toHaveLength(16);
     });
   });
 
@@ -301,7 +302,7 @@ describe('canAccess()', () => {
   it('should deny with reason="tier" when tenant tier is too low for the module', async () => {
     const lowTierCtx = { ...baseCtx, tier: 'STANDARD' as const };
 
-    const result = await canAccess(lowTierCtx, 'maintenance');
+    const result = await canAccess(lowTierCtx, 'services');
     expect(result.allowed).toBe(false);
     expect(result.reason).toBe('tier');
   });
@@ -348,7 +349,7 @@ describe('canAccess()', () => {
     const { isModuleEnabled } = await import('../../lib/modules');
     const lowTierCtx = { ...baseCtx, tier: 'STANDARD' as const };
 
-    const result = await canAccess(lowTierCtx, 'maintenance');
+    const result = await canAccess(lowTierCtx, 'services');
     expect(result.reason).toBe('tier');
 
     expect(isModuleEnabled).not.toHaveBeenCalled();

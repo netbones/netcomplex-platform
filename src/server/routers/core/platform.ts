@@ -214,7 +214,7 @@ export const platformRouter = router({
               active: true,
               subscriptionTier: castPlan(input.plan),
               tier: 'STANDARD',
-              maxPages: tierConfig.maxPages,
+              maxPages: tierConfig.maxUsers,
               pageCount: 0,
               featureFlags: {},
               ownerId: userId,

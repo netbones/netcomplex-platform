@@ -279,6 +279,7 @@ export const TIERS: Record<TierLevel, TierDefinition> = {
       'marketplace',
       'externalSurveys',
       'merits',
+      'dWallet',
       'maintenanceTicketing',
       'property',
       'agentGateway',
