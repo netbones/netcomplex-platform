@@ -1,6 +1,6 @@
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from '@better-auth/drizzle-adapter';
-import { twoFactor, organization, bearer, emailOTP, admin } from 'better-auth/plugins';
+import { twoFactor, organization, bearer, emailOTP, admin, oneTap } from 'better-auth/plugins';
 import { passkey } from '@better-auth/passkey';
 import { nextCookies } from 'better-auth/next-js';
 import { waitUntil } from '@vercel/functions';
@@ -182,6 +182,9 @@ export const auth = betterAuth({
     organization(),
     bearer(),
     passkey(),
+    oneTap({
+      clientId: process.env.GOOGLE_CLIENT_ID || '',
+    }),
     emailOTP({
       otpLength: 6,
       expiresIn: 300,

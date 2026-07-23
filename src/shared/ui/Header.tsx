@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from 'next-themes';
 import { LanguageSwitcher } from '@shared/ui';
 import { authClient } from '@api/client';
 import { useGateContext } from '@features/gate';
@@ -156,23 +157,13 @@ function AvatarDropdown({
   pathname: string;
 }) {
   const [open, setOpen] = useState(false);
-  const [dark, setDark] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const isDark = stored ? stored === 'dark' : prefersDark;
-    setDark(isDark);
-    document.documentElement.classList.toggle('dark', isDark);
+    setMounted(true);
   }, []);
-
-  const toggleTheme = () => {
-    const next = !dark;
-    setDark(next);
-    localStorage.setItem('theme', next ? 'dark' : 'light');
-    document.documentElement.classList.toggle('dark', next);
-  };
 
   const role = session.user.role;
   const workspaceItems = NAV_REGISTRY.filter(
@@ -252,16 +243,16 @@ function AvatarDropdown({
           </Link>
 
           <button
-            onClick={toggleTheme}
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm hover:bg-gray-100 text-gray-700 cursor-pointer"
             type="button"
           >
-            {dark ? (
+            {mounted && theme === 'dark' ? (
               <Sun className="w-4 h-4 text-amber-500" />
             ) : (
               <Moon className="w-4 h-4 text-indigo-600" />
             )}
-            {dark ? t('nav.themeLight') : t('nav.themeDark')}
+            {mounted && theme === 'dark' ? t('nav.themeLight') : t('nav.themeDark')}
           </button>
 
           {flags.dWallet && (

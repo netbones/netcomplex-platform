@@ -1,4 +1,4 @@
-# Day Report — 2026-07-22
+# Day Report — 2026-07-23
 
 ## Project Status Overview
 
@@ -17,7 +17,7 @@
 
 **Outstanding GSD phases:** Phases 41, 42 (M4), then 43+ for M4.5/M5.
 
-## BD Issues: 47 open (3 closed this session)
+## BD Issues: 47 open (4 closed this session)
 
 **P1** (2): Onboarding refactor, ADR-027 engine
 
@@ -44,3 +44,9 @@
 - Completed Phase 2 REST→tRPC migrations with `@deprecated` JSDoc sweep
 - Burger menu fixes: My Space item order (Dashboard → Bookings → Messages → Maintenance), Campaign above Conservation, added `admin.disputes` i18n key
 - Closed 3 stale BD issues (JSDoc deprecation subtasks that were already done)
+- Dark mode: installed `next-themes`, added `darkMode: 'class'` to tailwind config, added `.dark` CSS variable overrides in globals.css, wrapped app in ThemeProvider, replaced manual localStorage toggle with `useTheme` hook
+- Closed `q099` (dark mode implementation)
+- Google One Tap passkeyless sign-in: added `oneTap` server plugin to `auth.ts`, `oneTapClient` to `auth-client.ts`, Google sign-in button UI on sign-in page, env var docs in `.env.schema` and `.env.example`
+- Closed `7td` (One Tap passkey login)
+- Wired up email sending in marketplace notification triggers — checks user's `notificationPreferences` before sending email via Resend
+- Closed `gtm` (M5+ Post-launch: Notification system) — already implemented, email wiring was the gap

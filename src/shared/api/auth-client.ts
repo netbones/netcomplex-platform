@@ -4,6 +4,7 @@ import {
   organizationClient,
   adminClient,
   emailOTPClient,
+  oneTapClient,
   inferAdditionalFields,
 } from 'better-auth/client/plugins';
 
@@ -18,6 +19,9 @@ function createClient() {
       organizationClient(),
       adminClient(),
       emailOTPClient(),
+      oneTapClient({
+        clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '',
+      }),
       inferAdditionalFields({
         user: {
           role: { type: 'string', required: false, defaultValue: 'USER', input: false },

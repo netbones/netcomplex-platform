@@ -72,6 +72,25 @@ body {
   @apply bg-soralia-light text-soralia-dark;
 }
 
+.dark body,
+body.dark {
+  @apply bg-gray-950 text-gray-100;
+}
+
+.dark {
+  --soralia-primary: #818cf8;
+  --soralia-secondary: #34d399;
+  --soralia-accent: #fbbf24;
+  --soralia-dark: #f3f4f6;
+  --soralia-light: #111827;
+  --lapis-deep: #1e3a7a;
+  --lapis-mid: #4a7ab5;
+  --lapis-azure: #7ab0e8;
+  --gold-vein: #e8c84b;
+  --vellum: #1f2937;
+  --vellum-light: #374151;
+}
+
 /* Content body styles for rich text rendering */
 .content-body pre {
   background: #1f2937;

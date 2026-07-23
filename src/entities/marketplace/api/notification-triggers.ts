@@ -1,6 +1,9 @@
-import { db, notifications, supabase } from '@api/server';
+import { db, notifications, supabase, users, tenants } from '@api/server';
+import { sendEmail } from '@shared/api/email/resend';
+import { templates } from '@shared/api/email/templates';
 import { createComponentLogger } from '@shared/lib';
 import { createId } from '@shared/lib/id';
+import { eq } from 'drizzle-orm';
 
 const log = createComponentLogger('marketplace-notifications');
 
@@ -43,6 +46,9 @@ async function createMarketplaceNotification(params: CreateNotificationParams): 
         payload: notification,
       })
       .catch(() => {});
+
+    // Send email notification if user has email enabled for this type
+    sendEmailNotification(params).catch(() => {});
   } catch (error) {
     log.error(
       { operation: 'createMarketplaceNotification' },
@@ -50,6 +56,40 @@ async function createMarketplaceNotification(params: CreateNotificationParams): 
       error
     );
   }
+}
+
+async function sendEmailNotification(params: CreateNotificationParams): Promise<void> {
+  const userPrefs = await db
+    .select({
+      email: users.email,
+      name: users.name,
+      prefs: users.notificationPreferences,
+      tenantName: tenants.name,
+    })
+    .from(users)
+    .innerJoin(tenants, eq(tenants.id, params.tenantId))
+    .where(eq(users.id, params.recipientUserId))
+    .limit(1)
+    .then(rows => rows[0] ?? null);
+
+  if (!userPrefs) return;
+
+  const prefs = userPrefs.prefs as Record<string, { email: boolean; inApp: boolean }> | null;
+  const typePrefs = prefs?.[params.type as string];
+  if (!typePrefs?.email) return;
+
+  const notificationsUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://app.netbones.co.za'}/notifications`;
+
+  await sendEmail({
+    to: userPrefs.email,
+    subject: templates.emailNotification.subject(userPrefs.tenantName),
+    html: templates.emailNotification.getHtml(
+      params.title,
+      params.message,
+      notificationsUrl,
+      userPrefs.tenantName
+    ),
+  });
 }
 
 // ── 8 Lifecycle Trigger Functions ──
