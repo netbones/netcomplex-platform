@@ -201,7 +201,7 @@ The existing `processAchievementEvent` already satisfies this: it uses `onConfli
 5. **Wrap Realtime** in `lib/realtime.ts` with typed, namespaced channels; migrate existing `postgres_changes`/`broadcast` call sites. **(DONE)**
 6. **Replace the `page-flags-updated` CustomEvent** with the Zustand bus (Lane C). **(DONE)**
 7. **Add the CI event-contract check + auto-generated catalog** (§6). **(DONE)**
-8. **Secure the `payload` webhook** (HMAC + replay window + idempotency) so it can safely `emitDomainEvent`.
+8. **Secure the `payload` webhook** (HMAC + replay window + idempotency) so it can safely `emitDomainEvent`. **(DONE)**
 9. **Reserve Lane D** in docs; no implementation.
 
 ## 8. What we are explicitly NOT doing (ADVISORY-033 §12)
