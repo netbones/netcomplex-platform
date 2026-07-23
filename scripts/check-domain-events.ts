@@ -1,7 +1,13 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { execSync } from 'node:child_process';
+import { resolve, relative } from 'node:path';
 
-const emitterPath = new URL('../src/shared/api/events/emitter.ts', import.meta.url).pathname;
+const ROOT = new URL('..', import.meta.url).pathname;
+const SRC = resolve(ROOT, 'src');
+const CATALOG_PATH = resolve(ROOT, 'docs/reports/EVENT_CATALOG.md');
+
+/* ── Parse declared event types from emitter.ts ─────── */
+const emitterPath = resolve(SRC, 'shared/api/events/emitter.ts');
 const source = readFileSync(emitterPath, 'utf-8');
 
 const eventTypes: string[] = [];
@@ -10,39 +16,119 @@ for (const line of source.split('\n')) {
   if (m) eventTypes.push(m[1]);
 }
 
-let exitCode = 0;
-const srcDir = new URL('../src/', import.meta.url).pathname;
+/* ── Parse EVENT_TYPES array from listener.ts (variable-based consumers) ── */
+const listenerPath = resolve(SRC, 'shared/api/achievements/listener.ts');
+const listenerSource = readFileSync(listenerPath, 'utf-8');
 
-const isEmitterFile = (f: string) => f.includes('emitter.ts');
-
-for (const type of eventTypes) {
-  const emitCmd = `rg -l "emitEvent\\('${type}'" ${srcDir} 2>/dev/null || true`;
-  const onCmd = `rg -l "onEvent\\('${type}'" ${srcDir} 2>/dev/null || true`;
-  const emitMatches = execSync(emitCmd, { encoding: 'utf-8' }).trim().split('\n').filter(Boolean);
-  const onMatches = execSync(onCmd, { encoding: 'utf-8' }).trim().split('\n').filter(Boolean);
-
-  const realEmitters = emitMatches.filter(f => !isEmitterFile(f));
-  const realHandlers = onMatches.filter(f => !isEmitterFile(f));
-
-  const ec = realEmitters.length;
-  const hc = realHandlers.length;
-  const status = ec > 0 && hc > 0 ? 'OK' : 'ISSUE';
-  const marker = status === 'OK' ? '✓' : '⚠';
-
-  console.log(` ${marker} ${type}  emitters=${ec}  handlers=${hc}  ${status}`);
-
-  if (ec === 0) {
-    console.log(`     No emitEvent('${type}') call site found`);
-    exitCode = 1;
-  }
-  if (hc === 0) {
-    console.log(`     No onEvent('${type}') listener found`);
-    exitCode = 1;
-  }
-  if (ec > 0 && hc > 0) {
-    for (const f of realEmitters) console.log(`     emit → ${f.replace(srcDir, 'src/')}`);
-    for (const f of realHandlers) console.log(`     on   → ${f.replace(srcDir, 'src/')}`);
+const variableConsumers = new Set<string>();
+let inArray = false;
+for (const line of listenerSource.split('\n')) {
+  if (line.includes('EVENT_TYPES:')) inArray = true;
+  else if (inArray) {
+    const m = line.match(/'([^']+)'/);
+    if (m) variableConsumers.add(m[1]);
+    if (line.includes('];')) inArray = false;
   }
 }
 
+const isSelf = (f: string) => f.includes('emitter.ts');
+
+interface EventInfo {
+  producers: string[];
+  consumers: string[];
+}
+
+const info: Record<string, EventInfo> = {};
+
+for (const type of eventTypes) {
+  const emitCmd = `rg -l "emitEvent\\('${type}'" ${SRC} 2>/dev/null || true`;
+
+  const producers = execSync(emitCmd, { encoding: 'utf-8' })
+    .trim()
+    .split('\n')
+    .filter(Boolean)
+    .filter(f => !isSelf(f))
+    .map(f => f.replace(SRC + '/', 'src/'));
+
+  const consumers: string[] = [];
+  if (variableConsumers.has(type)) consumers.push(`src/shared/api/achievements/listener.ts`);
+
+  /* Also check for string-literal registerHandler/onEvent calls */
+  for (const method of ['registerHandler', 'onEvent']) {
+    const cmd = `rg -l "${method}\\('${type}'" ${SRC} 2>/dev/null || true`;
+    const matches = execSync(cmd, { encoding: 'utf-8' })
+      .trim()
+      .split('\n')
+      .filter(Boolean)
+      .filter(f => !isSelf(f))
+      .map(f => f.replace(SRC + '/', 'src/'));
+    for (const m of matches) {
+      if (!consumers.includes(m)) consumers.push(m);
+    }
+  }
+
+  info[type] = { producers, consumers };
+}
+
+const FUTURE_EVENTS = new Set([
+  'merit.recognized', // declared, never emitted — reserve for Community Merits
+  'maintenance.team_assigned', // emitted but no handler yet — needs userId-based achievement hook
+]);
+
+let exitCode = 0;
+
+console.log('\n── Domain Event Contract ──\n');
+
+for (const type of eventTypes) {
+  const { producers, consumers } = info[type];
+  const isFuture = FUTURE_EVENTS.has(type);
+  const pc = producers.length;
+  const cc = consumers.length;
+  const hasProducer = pc > 0;
+  const hasConsumer = cc > 0 || isFuture;
+  const status = hasProducer && hasConsumer ? 'OK' : isFuture && !hasProducer ? 'FUTURE' : 'ISSUE';
+  const marker = status === 'OK' ? '✓' : status === 'FUTURE' ? '◷' : '⚠';
+
+  console.log(` ${marker} ${type}  producers=${pc}  consumers=${cc}  ${status}`);
+
+  if (!hasProducer && !isFuture) {
+    console.log(`     No emitEvent('${type}') call site found`);
+    exitCode = 1;
+  }
+  if (!hasConsumer) {
+    console.log(`     No handler registered for '${type}'`);
+    if (!isFuture) exitCode = 1;
+  }
+  if (hasProducer && hasConsumer) {
+    for (const f of producers) console.log(`     emit → ${f}`);
+    for (const f of consumers) console.log(`     on   → ${f}`);
+  }
+}
+
+/* ── Generate catalog ───────────────────────────────── */
+const rows = eventTypes.map(type => {
+  const { producers, consumers } = info[type];
+  const isFuture = FUTURE_EVENTS.has(type);
+  const pc = producers.length;
+  const cc = consumers.length;
+  const hasProducer = pc > 0;
+  const hasConsumer = cc > 0 || isFuture;
+  const status =
+    hasProducer && hasConsumer ? 'active' : isFuture && !hasProducer ? 'future' : 'needs handler';
+  return `| \`${type}\` | 1 | ${producers.join(', ') || '—'} | ${consumers.join(', ') || '—'} | ${status} | platform |`;
+});
+
+const catalog = `# Event Catalog
+
+> Auto-generated by \`scripts/check-domain-events.ts\`. Do not edit manually.
+> Generated: ${new Date().toISOString().slice(0, 10)}
+
+| Event | Version | Producers | Consumers (Lane A) | Status | Owner |
+|---|---|---|---|---|---|
+${rows.join('\n')}
+`;
+
+writeFileSync(CATALOG_PATH, catalog, 'utf-8');
+console.log(`\n📄 Catalog written to ${relative(ROOT, CATALOG_PATH)}`);
+console.log(exitCode === 0 ? '✅ All events OK' : '❌ Contract violations found');
 process.exit(exitCode);
