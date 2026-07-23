@@ -1,19 +1,23 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Mock @api/server
+const mockSendEmail = vi.hoisted(() => vi.fn().mockResolvedValue({ success: true }));
+const mockSelect = vi.hoisted(() => vi.fn());
+
 vi.mock('@api/server', () => {
-  const insert = vi
-    .fn()
-    .mockReturnValue({ values: vi.fn().mockReturnValue({ returning: vi.fn() }) });
+  const returning = vi.fn().mockResolvedValue([{ id: 'notif-1' }]);
+  const values = vi.fn().mockReturnValue({ returning });
+  const insert = vi.fn().mockReturnValue({ values });
   return {
     db: {
       insert,
+      select: mockSelect,
     },
     notifications: {},
+    users: {},
+    tenants: {},
     supabase: {
       channel: vi.fn().mockReturnValue({ send: vi.fn().mockResolvedValue(undefined) }),
     },
-    sendEmail: vi.fn().mockResolvedValue({ success: true }),
   };
 });
 
@@ -31,6 +35,23 @@ vi.mock('@shared/lib', () => ({
     warn: vi.fn(),
     debug: vi.fn(),
   }),
+}));
+
+vi.mock('@shared/api/email/resend', () => ({
+  sendEmail: mockSendEmail,
+}));
+
+vi.mock('@shared/api/email/templates', () => ({
+  templates: {
+    emailNotification: {
+      subject: vi.fn().mockReturnValue('Test subject'),
+      getHtml: vi.fn().mockReturnValue('<html>test</html>'),
+    },
+  },
+}));
+
+vi.mock('drizzle-orm', () => ({
+  eq: vi.fn().mockImplementation((a, b) => ({ field: a, value: b })),
 }));
 
 import {
@@ -51,9 +72,41 @@ const baseParams = {
   listingTitle: 'Test Service',
 };
 
+function buildEmailChain(prefs: Record<string, { email: boolean; inApp: boolean }> | null) {
+  mockSelect.mockReturnValue({
+    from: vi.fn().mockReturnValue({
+      innerJoin: vi.fn().mockReturnValue({
+        where: vi.fn().mockReturnValue({
+          limit: vi.fn().mockResolvedValue([
+            {
+              email: 'user@test.com',
+              name: 'Test User',
+              prefs,
+              tenantName: 'Test Tenant',
+            },
+          ]),
+        }),
+      }),
+    }),
+  });
+}
+
+function buildEmptyChain() {
+  mockSelect.mockReturnValue({
+    from: vi.fn().mockReturnValue({
+      innerJoin: vi.fn().mockReturnValue({
+        where: vi.fn().mockReturnValue({
+          limit: vi.fn().mockResolvedValue([]),
+        }),
+      }),
+    }),
+  });
+}
+
 describe('notification-triggers', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockSelect.mockReset();
   });
 
   describe('notifyInquiryReceived', () => {
@@ -180,6 +233,89 @@ describe('notification-triggers', () => {
       expect(typeof notifyListingApproved).toBe('function');
       expect(typeof notifyListingRejected).toBe('function');
       expect(typeof notifyBookingCancelled).toBe('function');
+    });
+  });
+
+  describe('email notification', () => {
+    it('sends email when user has email enabled for the notification type', async () => {
+      const limitMock = vi.fn().mockResolvedValue([
+        {
+          email: 'user@test.com',
+          name: 'Test User',
+          prefs: { info: { email: true, inApp: true } },
+          tenantName: 'Test Tenant',
+        },
+      ]);
+      const whereMock = vi.fn().mockReturnValue({ limit: limitMock });
+      const innerJoinMock = vi.fn().mockReturnValue({ where: whereMock });
+      const fromMock = vi.fn().mockReturnValue({ innerJoin: innerJoinMock });
+      mockSelect.mockReturnValue({ from: fromMock });
+
+      await notifyInquiryReceived({
+        ...baseParams,
+        inquirerName: 'Alice',
+        inquirerId: 'user-1',
+      });
+
+      expect(mockSelect).toHaveBeenCalled();
+      expect(fromMock).toHaveBeenCalled();
+      expect(innerJoinMock).toHaveBeenCalled();
+      expect(whereMock).toHaveBeenCalled();
+      expect(limitMock).toHaveBeenCalled();
+      expect(mockSendEmail).toHaveBeenCalledTimes(1);
+      expect(mockSendEmail).toHaveBeenCalledWith(
+        expect.objectContaining({
+          to: 'user@test.com',
+        })
+      );
+    });
+
+    it('does not send email when user has email disabled for the type', async () => {
+      buildEmailChain({ info: { email: false, inApp: true } });
+
+      await notifyInquiryReceived({
+        ...baseParams,
+        inquirerName: 'Alice',
+        inquirerId: 'user-1',
+      });
+
+      expect(mockSendEmail).not.toHaveBeenCalled();
+    });
+
+    it('does not send email when user has no preferences for the type', async () => {
+      buildEmailChain({ warning: { email: true, inApp: true } });
+
+      await notifyInquiryReceived({
+        ...baseParams,
+        inquirerName: 'Alice',
+        inquirerId: 'user-1',
+      });
+
+      expect(mockSendEmail).not.toHaveBeenCalled();
+    });
+
+    it('does not send email when user has null preferences', async () => {
+      buildEmailChain(null);
+
+      await notifyInquiryReceived({
+        ...baseParams,
+        inquirerName: 'Alice',
+        inquirerId: 'user-1',
+      });
+
+      expect(mockSendEmail).not.toHaveBeenCalled();
+    });
+
+    it('handles missing user gracefully (no email sent)', async () => {
+      buildEmptyChain();
+
+      await notifyInquiryReceived({
+        ...baseParams,
+        inquirerName: 'Alice',
+        inquirerId: 'user-1',
+      });
+
+      expect(mockSendEmail).not.toHaveBeenCalled();
     });
   });
 });
