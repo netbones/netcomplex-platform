@@ -1,5 +1,8 @@
 import { EventEmitter } from 'node:events';
+import { randomUUID } from 'node:crypto';
 import { createComponentLogger } from '@shared/lib';
+import { db } from '../db';
+import { outboxes } from '@schema/outboxes';
 
 const log = createComponentLogger('event-emitter');
 
@@ -90,6 +93,37 @@ class TypedEventEmitter {
       this.emitter.emit(event.type, event);
     } catch (err) {
       log.error({ err, eventType: event.type }, 'Unhandled error in event listener');
+    }
+
+    this.writeOutbox(event).catch(err =>
+      log.error({ err, eventType: event.type }, 'Outbox write failed')
+    );
+  }
+
+  private async writeOutbox<K extends EventType>(
+    event: Extract<DomainEvent, { type: K }>
+  ): Promise<void> {
+    const payload = event.payload as unknown as Record<string, unknown>;
+    const tenantId = payload.tenantId as string | undefined;
+    if (!tenantId) return;
+
+    try {
+      await db.insert(outboxes).values({
+        id: randomUUID(),
+        type: event.type,
+        version: 1,
+        tenantId,
+        correlationId: randomUUID(),
+        causationId: null,
+        actorId: (payload.userId as string) ?? null,
+        payload,
+        createdAt: new Date(),
+        processedAt: null,
+        attempts: 0,
+        error: null,
+      });
+    } catch (err) {
+      log.error({ err, eventType: event.type }, 'Failed to write outbox row');
     }
   }
 }

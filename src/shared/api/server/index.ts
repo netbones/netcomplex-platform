@@ -110,6 +110,8 @@ export {
   disputeMessages,
   disputeNotifications,
   mediaUploads,
+  outboxes,
+  outboxDeadLetters,
   residentDelegations,
   agentTokens,
   delegationActions,
@@ -156,8 +158,21 @@ export {
 } from '../storage';
 export type { UploadResult, MediaItem } from '../storage';
 export { verifyTurnstile } from '../turnstile';
-export { emitEvent, onEvent, offEvent } from '../events';
-export type { DomainEvent, EventType } from '../events';
+export {
+  emitEvent,
+  onEvent,
+  offEvent,
+  emitDomainEvent,
+  dispatchOutbox,
+  registerHandler,
+} from '../events';
+export type {
+  DomainEvent,
+  EventType,
+  DomainEventEnvelope,
+  EventHandler,
+  EmitContext,
+} from '../events';
 export { now, setClock } from '../clock';
 export { getRequestId, createLogContext, withTiming } from '../observability';
 export type { RequestLogContext } from '../observability';

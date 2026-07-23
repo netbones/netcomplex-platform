@@ -149,6 +149,8 @@ import { tenantSetups } from '@schema/tenant-setups';
 import { setupMissions } from '@schema/setup-missions';
 import { setupSettings } from '@schema/setup-settings';
 import { mediaUploads } from '@schema/media-uploads';
+import { outboxes } from '@schema/outboxes';
+import { outboxDeadLetters } from '@schema/outbox-dead-letters';
 
 import { ENV } from 'varlock/env';
 import { dbLogger } from '@shared/lib';
@@ -250,6 +252,8 @@ const dbSchema = {
   disputeMessages,
   disputeNotifications,
   mediaUploads,
+  outboxes,
+  outboxDeadLetters,
   addresses,
   addressesRelations,
   handles,
@@ -496,6 +500,8 @@ export {
   addressEndpoints,
   addressEndpointsRelations,
   mediaUploads,
+  outboxes,
+  outboxDeadLetters,
   tenantSetups,
   setupMissions,
   setupSettings,
