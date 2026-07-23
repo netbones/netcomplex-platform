@@ -1,1 +1,0 @@
-export { bookingWidgets } from './model';
