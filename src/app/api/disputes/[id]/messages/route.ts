@@ -17,7 +17,7 @@ import {
   guardSuspension,
 } from '@api/server';
 
-import { createClient } from '@supabase/supabase-js';
+import { broadcastDisputeMessage } from '@shared/lib';
 import { disputeMessageCreateSchema } from '@entities/dispute';
 import { apiLogger, hasPermission } from '@shared/lib';
 import { sanitizeHtml } from '@/shared/lib/sanitize/server';
@@ -26,12 +26,6 @@ import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
-
-/** Supabase client for real-time mediation message broadcasting */
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 /**
  * Retrieves session and role from the request for API routes.
@@ -192,12 +186,7 @@ export const POST = withErrorHandler(
         })
         .returning();
 
-      // Broadcast via Supabase Realtime
-      await supabase.channel(`dispute:${id}`).send({
-        type: 'broadcast',
-        event: 'new-mediation-message',
-        payload: newMessage,
-      });
+      broadcastDisputeMessage(id, newMessage as unknown as Record<string, unknown>);
 
       return apiCreated(newMessage);
     } catch (error) {

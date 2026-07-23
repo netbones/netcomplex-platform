@@ -19,7 +19,7 @@ import {
   guardSuspension,
 } from '@api/server';
 
-import { createClient } from '@supabase/supabase-js';
+import { broadcastChatMessage } from '@shared/lib';
 import { messageSchema } from '@entities/chat';
 
 import { apiLogger } from '@shared/lib';
@@ -34,12 +34,6 @@ import { hasPermission } from '@shared/lib';
 import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
-
-/** Supabase client for real-time message broadcasting */
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 /**
  * Retrieves session and role from the request for API routes.
@@ -221,12 +215,7 @@ export async function POST(request: Request) {
     // Revalidate conversation caches immediately when new message is sent
     revalidateConversations();
 
-    // Broadcast via Supabase Realtime
-    await supabase.channel(`chat:${conversationId}`).send({
-      type: 'broadcast',
-      event: 'new-message',
-      payload: message,
-    });
+    broadcastChatMessage(conversationId, message as unknown as Record<string, unknown>);
 
     return apiCreated(message);
   } catch (error) {

@@ -1,16 +1,8 @@
 'use client';
 
-import { createClient } from '@supabase/supabase-js';
 import type { Message, MessageType } from '@entities/chat';
 import { apiPost } from '@api/shared';
-import { createComponentLogger } from '@shared/lib';
-
-const log = createComponentLogger('useMessageSend');
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-);
+import { sendTypingIndicator } from '@shared/lib';
 
 interface SendMessageOptions {
   conversationId: string;
@@ -44,21 +36,16 @@ export function useMessageSend({
     }
   };
 
-  const sendTypingIndicator = async (isTyping: boolean) => {
-    try {
-      const channel = supabase.channel(`typing:${conversationId}`);
-      await channel.send({
-        type: 'broadcast',
-        event: 'typing',
-        payload: { userId: currentUserId, userName: currentUserName, isTyping },
-      });
-    } catch (err) {
-      log.error({}, 'Failed to send typing indicator', err);
-    }
+  const sendTyping = async (isTyping: boolean) => {
+    sendTypingIndicator(conversationId, {
+      userId: currentUserId,
+      userName: currentUserName,
+      isTyping,
+    });
   };
 
   return {
     sendMessage,
-    sendTypingIndicator,
+    sendTypingIndicator: sendTyping,
   };
 }

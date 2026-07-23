@@ -1,4 +1,5 @@
-import { db, notifications, supabase, users, tenants } from '@api/server';
+import { db, notifications, users, tenants } from '@api/server';
+import { broadcastNotification } from '@shared/lib';
 import { sendEmail } from '@shared/api/email/resend';
 import { templates } from '@shared/api/email/templates';
 import { createComponentLogger } from '@shared/lib';
@@ -37,15 +38,10 @@ async function createMarketplaceNotification(params: CreateNotificationParams): 
       })
       .returning();
 
-    // Broadcast via Supabase Realtime (non-blocking)
-    supabase
-      .channel(`notifications:${params.recipientUserId}`)
-      .send({
-        type: 'broadcast',
-        event: 'new-notification',
-        payload: notification,
-      })
-      .catch(() => {});
+    broadcastNotification(
+      params.recipientUserId,
+      notification as unknown as Record<string, unknown>
+    );
 
     // Send email notification if user has email enabled for this type
     sendEmailNotification(params).catch(() => {});

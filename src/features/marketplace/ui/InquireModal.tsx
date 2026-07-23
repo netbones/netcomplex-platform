@@ -2,12 +2,12 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
-import { createClient } from '@supabase/supabase-js';
 import type { ServiceListing } from '@entities/service';
 import type { ConversationMessage } from '@entities/chat';
 import { EmojiPickerButton } from '@entities/chat';
 import { trpc, useSession } from '@api/client';
 import { apiGet, apiPost } from '@api/shared';
+import { subscribeChatMessages } from '@shared/lib';
 
 import {
   ArrowLeft,
@@ -19,10 +19,6 @@ import {
   Square,
   X,
 } from 'lucide-react';
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-);
 
 interface InquireModalProps {
   listing: ServiceListing;
@@ -94,25 +90,9 @@ export function InquireModal({ listing, isOpen, onClose }: InquireModalProps) {
   // Realtime messages
   useEffect(() => {
     if (!conversationId) return;
-    const channel = supabase
-      .channel(`chat:${conversationId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'Message',
-          filter: `conversationId=eq.${conversationId}`,
-        },
-        payload => {
-          setMessages(prev => [...prev, payload.new as ConversationMessage]);
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return subscribeChatMessages(conversationId, msg => {
+      setMessages(prev => [...prev, msg as unknown as ConversationMessage]);
+    });
   }, [conversationId]);
 
   // Auto-scroll

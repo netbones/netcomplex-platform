@@ -1,18 +1,13 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { createClient } from '@supabase/supabase-js';
 import { authClient } from '@api/client';
 import type { ConversationMessage } from '@entities/chat';
 import { usePresence } from '@entities/chat';
 import { OnlineIndicator } from '@entities/chat';
 import { EmojiPickerButton } from '@entities/chat';
 import { apiGet, apiPost } from '@api/shared';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-);
+import { subscribeChatMessages } from '@shared/lib';
 
 interface DirectoryChatModalProps {
   recipientId: string;
@@ -80,27 +75,9 @@ export function DirectoryChatModal({
   // Subscribe to realtime messages
   useEffect(() => {
     if (!conversationId) return;
-
-    const channel = supabase
-      .channel(`chat:${conversationId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'Message',
-          filter: `conversationId=eq.${conversationId}`,
-        },
-        payload => {
-          const newMessage = payload.new as ConversationMessage;
-          setMessages(prev => [...prev, newMessage]);
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return subscribeChatMessages(conversationId, msg => {
+      setMessages(prev => [...prev, msg as unknown as ConversationMessage]);
+    });
   }, [conversationId]);
 
   // Auto-scroll to bottom

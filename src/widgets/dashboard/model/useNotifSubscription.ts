@@ -1,11 +1,8 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { createClient } from '@supabase/supabase-js';
 import { toast } from 'sonner';
-import { createComponentLogger } from '@shared/lib';
-
-const log = createComponentLogger('useNotifSubscription');
+import { subscribeNotifications } from '@shared/lib';
 
 interface NotificationPayload {
   id: string;
@@ -21,33 +18,13 @@ export function useNotifSubscription(userId: string | undefined, onNew?: () => v
   useEffect(() => {
     if (!userId) return;
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (!supabaseUrl || !supabaseAnonKey) {
-      log.warn({}, 'Missing Supabase env vars — realtime notifications disabled');
-      return;
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseAnonKey);
-    const channel = supabase.channel(`notifications:${userId}`);
-
-    channel
-      .on(
-        'broadcast',
-        { event: 'new-notification' },
-        ({ payload }: { payload: NotificationPayload }) => {
-          toast(payload.title, {
-            description: payload.message,
-            duration: 5000,
-          });
-          onNewRef.current?.();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return subscribeNotifications(userId, payload => {
+      const n = payload as unknown as NotificationPayload;
+      toast(n.title, {
+        description: n.message,
+        duration: 5000,
+      });
+      onNewRef.current?.();
+    });
   }, [userId]);
 }

@@ -41,6 +41,16 @@ export { tenantConfig, type TenantConfig } from './tenant-config/tenant';
 export { useSafeTranslation } from './hooks/useSafeTranslation';
 export { userProfileSchema, type UserProfileFormData } from './schemas/user-profile';
 export { createId } from './id';
+export {
+  subscribeChatMessages,
+  broadcastChatMessage,
+  sendTypingIndicator,
+  createPresenceChannel,
+  subscribeNotifications,
+  broadcastNotification,
+  subscribeDisputeMessages,
+  broadcastDisputeMessage,
+} from './realtime';
 // NOTE: agent-token utils are server-only (db dependency).
 // Server: import { signAgentToken, hashToken, ... } from '@shared/lib/agent-token'
 // NOTE: Client-only hooks (useApiToast, usePageFlags, usePageLoading) are

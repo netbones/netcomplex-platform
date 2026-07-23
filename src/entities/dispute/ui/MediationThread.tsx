@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import type { DisputeMessageDTO } from '../model/types';
 import { MediationMessageBubble } from './MediationMessageBubble';
-import { supabase } from '@api/shared';
+import { subscribeDisputeMessages } from '@shared/lib';
 import { LoadingSkeleton } from '@shared/ui';
 import { toast } from 'sonner';
 
@@ -53,27 +53,18 @@ export function MediationThread({ disputeId, userRole, userId }: MediationThread
 
   /* ── Supabase Realtime ──────────────────────────────── */
   useEffect(() => {
-    const channel = supabase
-      .channel(`dispute:${disputeId}`)
-      .on('broadcast', { event: 'new-mediation-message' }, payload => {
-        const newMsg = payload.payload as DisputeMessageDTO;
-        if (newMsg && newMsg.disputeId === disputeId) {
-          setMessages(prev => {
-            // Avoid duplicates
-            if (prev.some(m => m.id === newMsg.id)) return prev;
-            return [...prev, newMsg];
-          });
-          // Auto-scroll if at bottom
-          if (!scrolledUpRef.current) {
-            setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
-          }
+    return subscribeDisputeMessages(disputeId, payload => {
+      const newMsg = payload as unknown as DisputeMessageDTO;
+      if (newMsg && newMsg.disputeId === disputeId) {
+        setMessages(prev => {
+          if (prev.some(m => m.id === newMsg.id)) return prev;
+          return [...prev, newMsg];
+        });
+        if (!scrolledUpRef.current) {
+          setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
         }
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+      }
+    });
   }, [disputeId]);
 
   /* ── Scroll handling ────────────────────────────────── */
