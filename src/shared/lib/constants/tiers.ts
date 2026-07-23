@@ -1,10 +1,3 @@
-/**
- * NetComplex Tier and Module Constants
- *
- * Defines the module-based tier system for multi-tenant access control.
- * See docs/TIER_MODEL.md for full documentation.
- */
-
 export type TierLevel = 'core' | 'foundation' | 'pro-max';
 
 export type ModuleKey =
@@ -15,17 +8,21 @@ export type ModuleKey =
   | 'chat'
   | 'resources'
   | 'conservation'
+  | 'education'
   | 'adminBasic'
-  | 'adminIntermediate'
   | 'bookings'
   | 'surveys'
+  | 'surveysAdvanced'
+  | 'maintenance'
+  | 'maintenanceTicketing'
   | 'marketplace'
   | 'externalSurveys'
-  | 'maintenance'
+  | 'merits'
+  | 'dWallet'
   | 'property'
   | 'agentGateway'
   | 'analytics'
-  | 'education'
+  | 'adminIntermediate'
   | 'adminAdvanced';
 
 export interface ModuleDefinition {
@@ -35,21 +32,25 @@ export interface ModuleDefinition {
   tier: TierLevel;
 }
 
+export interface TierLimits {
+  announcements: number;
+  surveys: number;
+  events: number;
+  apiRequestsPerDay: number;
+}
+
 export interface TierDefinition {
   id: TierLevel;
   name: string;
-  maxPages: number;
+  maxUsers: number;
+  storageGB: number;
   description: string;
   color: string;
   modules: ModuleKey[];
+  limits: TierLimits;
 }
 
-// ============================================
-// MODULE DEFINITIONS
-// ============================================
-
 export const MODULES: Record<ModuleKey, ModuleDefinition> = {
-  // Core Modules
   directory: {
     key: 'directory',
     label: 'Directory',
@@ -92,36 +93,52 @@ export const MODULES: Record<ModuleKey, ModuleDefinition> = {
     description: 'Conservation area features',
     tier: 'core',
   },
+  education: {
+    key: 'education',
+    label: 'Education Portal',
+    description: 'Bursaries, scholarships, and free learning resources',
+    tier: 'core',
+  },
   adminBasic: {
     key: 'adminBasic',
     label: 'Admin (Basic)',
     description: 'Basic community administration',
     tier: 'core',
   },
-
-  // Foundation Modules
+  bookings: {
+    key: 'bookings',
+    label: 'Bookings',
+    description: 'Free facility booking — calendar view, reservations',
+    tier: 'core',
+  },
+  surveys: {
+    key: 'surveys',
+    label: 'Surveys',
+    description: 'Basic surveys — create, respond, view results',
+    tier: 'core',
+  },
+  maintenance: {
+    key: 'maintenance',
+    label: 'Maintenance',
+    description: 'Basic maintenance — submit and track requests',
+    tier: 'core',
+  },
   adminIntermediate: {
     key: 'adminIntermediate',
     label: 'Admin (Intermediate)',
     description: 'Expanded admin for growing communities',
     tier: 'foundation',
   },
-  bookings: {
-    key: 'bookings',
-    label: 'Bookings',
-    description: 'Facility booking system',
-    tier: 'foundation',
-  },
-  surveys: {
-    key: 'surveys',
-    label: 'Surveys',
-    description: 'Community polls and surveys',
+  surveysAdvanced: {
+    key: 'surveysAdvanced',
+    label: 'Surveys (Advanced)',
+    description: 'Advanced survey builder — 6 types, sections, images, drag-drop reorder',
     tier: 'foundation',
   },
   marketplace: {
     key: 'marketplace',
     label: 'Marketplace',
-    description: 'Services directory',
+    description: 'Services directory and provider marketplace',
     tier: 'foundation',
   },
   externalSurveys: {
@@ -130,12 +147,22 @@ export const MODULES: Record<ModuleKey, ModuleDefinition> = {
     description: 'Third-party survey integration',
     tier: 'foundation',
   },
-
-  // Enterprise Modules
-  maintenance: {
-    key: 'maintenance',
-    label: 'Maintenance',
-    description: 'Maintenance request tracking',
+  merits: {
+    key: 'merits',
+    label: 'Community Merits',
+    description: 'Community merits, standing tiers, and engagement scoring',
+    tier: 'foundation',
+  },
+  dWallet: {
+    key: 'dWallet',
+    label: 'Data Wallet',
+    description: 'Per-resident data rights, consent, and revenue-share (optional addendum)',
+    tier: 'foundation',
+  },
+  maintenanceTicketing: {
+    key: 'maintenanceTicketing',
+    label: 'Maintenance Ticketing',
+    description: 'Full ticketing — teams, assignments, 7-status workflow, providers',
     tier: 'pro-max',
   },
   property: {
@@ -162,24 +189,15 @@ export const MODULES: Record<ModuleKey, ModuleDefinition> = {
     description: 'Full admin with analytics',
     tier: 'pro-max',
   },
-  education: {
-    key: 'education',
-    label: 'Education Portal',
-    description: 'Bursaries, scholarships, and free learning resources',
-    tier: 'core',
-  },
 };
-
-// ============================================
-// TIER DEFINITIONS
-// ============================================
 
 export const TIERS: Record<TierLevel, TierDefinition> = {
   core: {
     id: 'core',
     name: 'CORE',
-    maxPages: 5,
-    description: 'Entry tier for small communities (up to 50 units)',
+    maxUsers: 50,
+    storageGB: 0.5,
+    description: 'Entry tier for small communities (up to 50 residents)',
     color: '#22C55E',
     modules: [
       'directory',
@@ -189,14 +207,25 @@ export const TIERS: Record<TierLevel, TierDefinition> = {
       'chat',
       'resources',
       'conservation',
+      'education',
       'adminBasic',
+      'bookings',
+      'surveys',
+      'maintenance',
     ],
+    limits: {
+      announcements: 5,
+      surveys: 5,
+      events: 10,
+      apiRequestsPerDay: 1000,
+    },
   },
   foundation: {
     id: 'foundation',
     name: 'FOUNDATION',
-    maxPages: 15,
-    description: 'Growth tier for expanding communities (up to 200 units)',
+    maxUsers: 200,
+    storageGB: 5,
+    description: 'Growth tier for expanding communities (up to 200 residents)',
     color: '#F59E0B',
     modules: [
       'directory',
@@ -206,18 +235,30 @@ export const TIERS: Record<TierLevel, TierDefinition> = {
       'chat',
       'resources',
       'conservation',
+      'education',
       'adminBasic',
-      'adminIntermediate',
       'bookings',
       'surveys',
+      'maintenance',
+      'adminIntermediate',
+      'surveysAdvanced',
       'marketplace',
       'externalSurveys',
+      'merits',
+      'dWallet',
     ],
+    limits: {
+      announcements: 20,
+      surveys: 20,
+      events: 50,
+      apiRequestsPerDay: 5000,
+    },
   },
   'pro-max': {
     id: 'pro-max',
     name: 'ENTERPRISE',
-    maxPages: -1, // unlimited
+    maxUsers: -1,
+    storageGB: 50,
     description: 'Enterprise tier for large HOAs and property management companies',
     color: '#1E293B',
     modules: [
@@ -228,41 +269,40 @@ export const TIERS: Record<TierLevel, TierDefinition> = {
       'chat',
       'resources',
       'conservation',
+      'education',
       'adminBasic',
-      'adminIntermediate',
       'bookings',
       'surveys',
+      'maintenance',
+      'adminIntermediate',
+      'surveysAdvanced',
       'marketplace',
       'externalSurveys',
-      'maintenance',
+      'merits',
+      'maintenanceTicketing',
       'property',
       'agentGateway',
       'analytics',
       'adminAdvanced',
     ],
+    limits: {
+      announcements: -1,
+      surveys: -1,
+      events: -1,
+      apiRequestsPerDay: -1,
+    },
   },
 };
 
-// ============================================
-// HELPER FUNCTIONS
-// ============================================
-
-/**
- * Check if a module is available for a given tier
- */
 export function hasModuleAccess(tier: TierLevel, module: ModuleKey): boolean {
   const tierModules = TIERS[tier].modules;
   return tierModules.includes(module);
 }
 
-/**
- * Get all modules available for a given tier
- */
 export function getTierModules(tier: TierLevel): ModuleKey[] {
   return TIERS[tier].modules;
 }
 
-// Note: Legacy tier names are no longer accepted. DB has no legacy data. See git history for removed cases.
 export function getTierLevel(tier: string): TierLevel {
   switch (tier) {
     case 'core':
@@ -274,34 +314,11 @@ export function getTierLevel(tier: string): TierLevel {
   }
 }
 
-/**
- * Get the default tier for a new tenant
- */
 export function getDefaultTier(): TierLevel {
   return 'core';
 }
 
-/**
- * Check if tenant can access a module based on their tier
- */
 export function canAccessModule(tenantTier: string, moduleKey: ModuleKey): boolean {
   const tier = getTierLevel(tenantTier);
   return hasModuleAccess(tier, moduleKey);
-}
-
-/**
- * Get max pages allowed for a tier
- */
-export function getMaxPages(tier: TierLevel): number {
-  return TIERS[tier].maxPages;
-}
-
-/**
- * Check if page limit would be exceeded
- */
-export function canAddPage(tenantTier: string, currentPageCount: number): boolean {
-  const tier = getTierLevel(tenantTier);
-  const maxPages = getMaxPages(tier);
-  if (maxPages === -1) return true; // unlimited
-  return currentPageCount < maxPages;
 }

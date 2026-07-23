@@ -12,7 +12,7 @@ import type { Role, TenantTier } from '@/shared/lib';
 // TYPES
 // ============================================
 
-/** Canonical 15-key feature namespace. */
+/** Canonical feature namespace. */
 export type FeatureKey =
   | 'maintenance'
   | 'bookings'
@@ -28,7 +28,8 @@ export type FeatureKey =
   | 'resources'
   | 'conservation'
   | 'services'
-  | 'messages';
+  | 'messages'
+  | 'merits';
 
 export type GateReason = 'role' | 'tier' | 'module' | 'flag' | 'feature' | 'allowed';
 
@@ -56,13 +57,14 @@ export const FEATURE_TO_MODULE: Record<FeatureKey, string | null> = {
   chat: 'chat',
   news: 'news',
   dashboard: null,
-  dWallet: null,
+  dWallet: 'dWallet',
   directory: 'directory',
   resources: 'resources',
   conservation: 'conservation',
   services: 'marketplace',
   messages: 'chat',
   competitions: null,
+  merits: 'merits',
 };
 
 type PlatformPageFlagKey = keyof PlatformPageFlags;
@@ -83,6 +85,7 @@ export const FEATURE_TO_FLAG: Record<FeatureKey, PlatformPageFlagKey | null> = {
   services: 'services',
   competitions: 'competitions',
   messages: 'messages',
+  merits: null,
 };
 
 export const FEATURE_TO_REGISTRY: Record<FeatureKey, string | null> = {
@@ -101,6 +104,7 @@ export const FEATURE_TO_REGISTRY: Record<FeatureKey, string | null> = {
   services: 'page.marketplace',
   messages: 'page.chat',
   competitions: null,
+  merits: 'page.merits',
 };
 
 export const GATE_REASON_TO_ERROR: Record<GateReason, string> = {

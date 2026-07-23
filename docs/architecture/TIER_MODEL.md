@@ -1,103 +1,102 @@
 # NetComplex Tier Model
 
-> **Reference:** This document defines the multi-tenant tier system for NetComplex. See [SPEC.md](./SPEC.md) for the full technical specification.
-
 ## Overview
 
-NetComplex uses a **module-based tier system** where subscription levels determine which functional modules a tenant can access. This approach replaces the traditional "page count" model with a more meaningful distinction based on the capabilities required by residential communities.
+NetComplex uses a **capability-based tier system** where subscription levels determine which functional modules a tenant can access, how many residents they can support, what storage and API rate limits apply, and which premium features are available.
 
 ### Principles
 
-1. **Functional modules** determine access - each module represents a distinct functional area (Directory, Bookings, Chat, etc.)
-2. **maxPages** is retained to prevent abuse - but is a secondary constraint
-3. **modules** JSONB array enables future flexibility - tenants can have custom module bundles
-4. **All tenants have custom branding** - this is standard, not a tiered feature
-
----
-
-## Module Definitions
-
-| Module Key          | Display Name         | Description                                 | Default Tier |
-| ------------------- | -------------------- | ------------------------------------------- | ------------ |
-| `directory`         | Directory            | Resident directory with search and profiles | Foundation   |
-| `news`              | News                 | Community news and announcements            | Foundation   |
-| `events`            | Events               | Community events calendar                   | Foundation   |
-| `groups`            | Groups               | Interest groups and memberships             | Foundation   |
-| `chat`              | Chat                 | Real-time community messaging               | Foundation   |
-| `resources`         | Resources            | Community library/bookshelf                 | Foundation   |
-| `campaign`          | Campaign             | Campaigns like Conservation area features   | Foundation   |
-| `adminBasic`        | Admin (Basic)        | Basic community administration              | Foundation   |
-| `adminIntermediate` | Admin (Intermediate) | Expanded admin for growing communities      | Depth        |
-| `bookings`          | Bookings             | Facility booking system                     | Depth        |
-| `surveys`           | Surveys              | Community polls and surveys                 | Depth        |
-| `marketplace`       | Marketplace          | Services directory                          | Depth        |
-| `externalSurveys`   | External Surveys     | Third-party survey integration              | Depth        |
-| `maintenance`       | Maintenance          | Maintenance request tracking                | Core         |
-| `property`          | Property             | Property listings (buy/rent)                | Core         |
-| `agentGateway`      | Agent Gateway        | Real estate agent management                | Core         |
-| `analytics`         | Analytics            | Advanced analytics dashboard                | Core         |
-| `adminAdvanced`     | Admin (Advanced)     | Full admin with analytics                   | Core         |
-| `web3`              | Web3                 | Web3 Identity                               | Core         |
+1. **Functional modules** determine access — each module represents a distinct functional area (Directory, Bookings, Maintenance, etc.)
+2. **User caps** replace page caps — tenants pay for resident capacity, not page count
+3. **Storage and API limits** scale with tier — resource impact drives the pricing, not arbitrary feature count
+4. **Optional addenda** — dWallet is available on Foundation+ as an optional data-rights protocol addendum
+5. **Soft caps for trial adoption** — announcement, survey, and event counts are soft-capped to drive early engagement; hard storage and API limits prevent abuse
 
 ---
 
 ## Tier Definitions
 
-### FOUNDATION
-
-**Description:** Entry tier for small communities (up to 50 units)
-
-| Property | Value                                                                      |
-| -------- | -------------------------------------------------------------------------- |
-| maxPages | 5                                                                          |
-| Modules  | directory, news, events, groups, chat, resources, conservation, adminBasic |
-| Color    | `#22C55E` (green-500)                                                      |
-
-### DEPTH
-
-**Description:** Growth tier for expanding communities (up to 200 units)
-
-| Property | Value                                                                                       |
-| -------- | ------------------------------------------------------------------------------------------- |
-| maxPages | 15                                                                                          |
-| Modules  | All Foundation modules + adminIntermediate, bookings, surveys, marketplace, externalSurveys |
-| Color    | `#F59E0B` (amber-500)                                                                       |
-
 ### CORE
 
-**Description:** Enterprise tier for large HOAs and property management companies
+**Description:** Entry tier for small communities (up to 50 residents, 500 MB storage)
 
-| Property | Value                 |
-| -------- | --------------------- |
-| maxPages | -1 (unlimited)        |
-| Modules  | All 18 modules        |
-| Color    | `#1E293B` (slate-800) |
+| Property  | Value                                                                                                                                        |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| maxUsers  | 50                                                                                                                                           |
+| storageGB | 0.5                                                                                                                                          |
+| Modules   | directory, news, events, groups, chat, resources, conservation, education, adminBasic, bookings (free), surveys (basic), maintenance (basic) |
+| Limits    | 5 announcements, 5 surveys, 10 events, 1,000 API requests/day                                                                                |
+| Color     | `#22C55E`                                                                                                                                    |
+
+### FOUNDATION
+
+**Description:** Growth tier for expanding communities (up to 200 residents, 5 GB storage)
+
+| Property  | Value                                                                                                                              |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| maxUsers  | 200                                                                                                                                |
+| storageGB | 5                                                                                                                                  |
+| Modules   | All CORE modules + adminIntermediate, surveysAdvanced (builder), marketplace, externalSurveys, merits, dWallet (optional addendum) |
+| Limits    | 20 announcements, 20 surveys, 50 events, 5,000 API requests/day                                                                    |
+| Color     | `#F59E0B`                                                                                                                          |
+
+### PRO-MAX (ENTERPRISE)
+
+**Description:** Enterprise tier for large HOAs and property management companies (unlimited users, 50 GB storage)
+
+| Property  | Value                                                                                                           |
+| --------- | --------------------------------------------------------------------------------------------------------------- |
+| maxUsers  | Unlimited                                                                                                       |
+| storageGB | 50                                                                                                              |
+| Modules   | All FOUNDATION modules + maintenanceTicketing (full workflow), property, agentGateway, analytics, adminAdvanced |
+| Limits    | Unlimited announcements, surveys, events, and API requests                                                      |
+| Color     | `#1E293B`                                                                                                       |
 
 ---
 
 ## Module Access Matrix
 
-| Module                  | Foundation | Depth | Core |
-| ----------------------- | ---------- | ----- | ---- |
-| Directory               | ✅         | ✅    | ✅   |
-| News                    | ✅         | ✅    | ✅   |
-| Events                  | ✅         | ✅    | ✅   |
-| Groups                  | ✅         | ✅    | ✅   |
-| Chat                    | ✅         | ✅    | ✅   |
-| Resources               | ✅         | ✅    | ✅   |
-| Campaign (Conservation) | ✅         | ✅    | ✅   |
-| Admin (Basic)           | ✅         | ✅    | ✅   |
-| Maintenance             | ✅         | ✅    | ✅   |
-| Admin (Intermediate)    | ❌         | ✅    | ✅   |
-| Bookings                | ❌         | ✅    | ✅   |
-| Surveys                 | ❌         | ✅    | ✅   |
-| Marketplace             | ❌         | ✅    | ✅   |
-| External Surveys        | ❌         | ✅    | ✅   |
-| Property                | ❌         | ❌    | ✅   |
-| Agent Gateway           | ❌         | ❌    | ✅   |
-| Analytics               | ❌         | ❌    | ✅   |
-| Admin (Advanced)        | ❌         | ❌    | ✅   |
-| Web3                    | ❌         | ❌    | ✅   |
+| Module                | CORE | FOUNDATION  | PRO-MAX |
+| --------------------- | ---- | ----------- | ------- |
+| Directory             | ✅   | ✅          | ✅      |
+| News                  | ✅   | ✅          | ✅      |
+| Events                | ✅   | ✅          | ✅      |
+| Groups                | ✅   | ✅          | ✅      |
+| Chat                  | ✅   | ✅          | ✅      |
+| Resources             | ✅   | ✅          | ✅      |
+| Conservation          | ✅   | ✅          | ✅      |
+| Education Portal      | ✅   | ✅          | ✅      |
+| Admin (Basic)         | ✅   | ✅          | ✅      |
+| Bookings (free)       | ✅   | ✅          | ✅      |
+| Surveys (basic)       | ✅   | ✅          | ✅      |
+| Maintenance (basic)   | ✅   | ✅          | ✅      |
+| Admin (Intermediate)  | ❌   | ✅          | ✅      |
+| Surveys Advanced      | ❌   | ✅          | ✅      |
+| Marketplace           | ❌   | ✅          | ✅      |
+| External Surveys      | ❌   | ✅          | ✅      |
+| Community Merits      | ❌   | ✅          | ✅      |
+| dWallet (addendum)    | ❌   | ✅ (opt-in) | ✅      |
+| Maintenance Ticketing | ❌   | ❌          | ✅      |
+| Property Listings     | ❌   | ❌          | ✅      |
+| Agent Gateway         | ❌   | ❌          | ✅      |
+| Analytics             | ❌   | ❌          | ✅      |
+| Admin (Advanced)      | ❌   | ❌          | ✅      |
+
+---
+
+## Resource Caps
+
+| Resource             | CORE      | FOUNDATION | PRO-MAX   |
+| -------------------- | --------- | ---------- | --------- |
+| Max users            | 50        | 200        | Unlimited |
+| Storage              | 500 MB    | 5 GB       | 50 GB     |
+| Active announcements | 5 (soft)  | 20 (soft)  | Unlimited |
+| Active surveys       | 5 (soft)  | 20 (soft)  | Unlimited |
+| Future events        | 10 (soft) | 50 (soft)  | Unlimited |
+| API requests/day     | 1,000     | 5,000      | Unlimited |
+
+> **Soft caps** trigger a dashboard warning but do not block creation.  
+> **Hard caps** (users, storage, API) return 403 when exceeded.
 
 ---
 
@@ -105,92 +104,54 @@ NetComplex uses a **module-based tier system** where subscription levels determi
 
 ### Constants Location
 
-All tier and module constants are defined in `src/lib/constants/tiers.ts`:
+All tier and module constants are defined in `src/shared/lib/constants/tiers.ts`:
 
 ```typescript
 import { TIERS, MODULES, type TierLevel, type ModuleKey } from '@/lib/constants/tiers';
-
-// Check if a module is available for a tier
-function hasModuleAccess(tier: TierLevel, module: ModuleKey): boolean {
-  const tierModules = TIERS[tier].modules;
-  return tierModules.includes(module);
-}
-
-// Example: Check if bookings is available
-const canAccessBookings = hasModuleAccess(tenantTier, 'bookings');
 ```
 
-### Database Schema
+### Feature Registry
 
-The `Platform` model includes an optional `modules` JSONB field for future flexibility:
-
-```prisma
-model Platform {
-  id              String   @id @default(cuid())
-  name            String
-  slug            String   @unique
-  subscriptionTier String   @default("sprout") // sprout, grove, forest
-  modules         Json?    // Custom module bundle, e.g., ["directory", "bookings", "chat"]
-  // ... other fields
-}
-```
-
-### Checking Module Access
+The feature registry at `src/entities/tenant/api/features/registry.ts` maps pages, features, and widgets to tiers:
 
 ```typescript
-import { TIERS, hasModuleAccess } from '@/lib/constants/tiers';
-
-export function canAccessModule(tenantTier: string, moduleKey: string): boolean {
-  return hasModuleAccess(tenantTier as TierLevel, moduleKey as ModuleKey);
-}
-
-// Usage in components
-const showBookings = canAccessModule(tenant.subscriptionTier, 'bookings');
+import { TIERS, MODULES, type TierLevel } from '@shared/lib';
 ```
+
+### Gate Mappings
+
+The gate layer at `src/entities/tenant/api/gate/mappings.ts` maps `FeatureKey` → module / flag / registry entry for the 5-layer `canAccess()` pipeline.
+
+---
+
+## dWallet: Optional Addendum
+
+dWallet is a Foundation-tier **optional addendum** — tenants on the Foundation plan or above may opt into the data-rights protocol by signing the SaaS agreement addendum. Additional revenue-sharing streams are available on higher tiers.
+
+- **Foundation**: Core dWallet (data consent, basic revenue share)
+- **Pro-Max**: Additional revenue streams and premium data pricing
 
 ---
 
 ## Migration Notes
 
-### Existing Tenants
+### Legacy Fields
 
-- Existing tenants with `subscriptionTier: 'sprout'` → Foundation
-- Existing tenants with `subscriptionTier: 'grove'` → Depth
-- Existing tenants with `subscriptionTier: 'forest'` → Core
+The following DB columns are retained for backward compatibility but are no longer actively enforced:
 
-### PremiumSeat
+- `tenants.maxPages` — replaced by `maxUsers` + `storageGB` + soft caps
+- `tenants.subscriptionTier` — legacy string, replaced by `tenants.tier` enum
 
-The `PremiumSeat.tier` field defaults to `'foundation'`:
+### Seed Data
 
-```prisma
-model PremiumSeat {
-  // ...
-  tier String @default("foundation")
-}
-```
-
----
-
-## Open Questions
-
-### Tier Naming Convention
-
-The current tier names (Foundation, Depth, Core) may be counter-intuitive for sales and marketing purposes. Consider renaming to more intuitive names:
-
-| Current    | Alternative Options           | Notes                              |
-| ---------- | ----------------------------- | ---------------------------------- |
-| Foundation | Starter, Basic, Entry         | Entry-level tier                   |
-| Depth      | Growth, Professional, Plus    | Mid-tier for expanding communities |
-| Core       | Enterprise, Premium, Ultimate | Full-featured tier                 |
-
-**Pending Decision:** Should tier names be changed to be more sales-friendly? The current names are technically descriptive but may not resonate with non-technical stakeholders.
-
-**Default Tier Note:** Currently, new tenants default to `Foundation` tier. The PremiumSeat model uses `foundation` as the default value.
+Seeded billing plans reference `maxUsers` and `storageGB` from the tier definitions. The billing foundation (Phase 46.1) reads tier caps from `TIERS`.
 
 ---
 
 ## Related Documentation
 
-- [SPEC.md](./SPEC.md) - Full technical specification
-- [src/lib/constants/tiers.ts](../src/lib/constants/tiers.ts) - Tier constants implementation
-- [src/lib/features/registry.ts](../src/lib/features/registry.ts) - Feature registry (uses tiers.ts)
+- [SPEC.md](./SPEC.md) — Full technical specification
+- [src/shared/lib/constants/tiers.ts](../src/shared/lib/constants/tiers.ts) — Tier constants implementation
+- [src/entities/tenant/api/features/registry.ts](../src/entities/tenant/api/features/registry.ts) — Feature registry
+- [src/entities/tenant/api/gate/mappings.ts](../src/entities/tenant/api/gate/mappings.ts) — Gate mapping tables (used by canAccess)
+- [docs/architecture/DWALLET_SPEC.md](./DWALLET_SPEC.md) — dWallet specification

@@ -30,7 +30,8 @@ export interface FeatureDefinition {
 export interface TierDefinition {
   id: TierLevel;
   name: string;
-  maxPages: number;
+  maxUsers: number;
+  storageGB: number;
   description: string;
   color: string;
   features: string[];
@@ -186,6 +187,14 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
     description: 'Community administration',
     icon: 'cog',
   },
+  'page.merits': {
+    key: 'page.merits',
+    tier: 'foundation',
+    category: 'page',
+    label: 'Community Merits',
+    description: 'Community merits, standing tiers, and engagement scoring',
+    icon: 'award',
+  },
 
   // ----- FEATURES -----
   'feature.customBranding': {
@@ -291,6 +300,14 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
     label: 'Education Resources',
     description: 'Curated learning resources and Gutenberg shelf',
     icon: 'book-open',
+  },
+  'feature.communityMerits': {
+    key: 'feature.communityMerits',
+    tier: 'foundation',
+    category: 'feature',
+    label: 'Community Merits',
+    description: 'Standing tiers, merit scoring, and engagement tracking',
+    icon: 'award',
   },
   'feature.enable-setup-center': {
     key: 'feature.enable-setup-center',
