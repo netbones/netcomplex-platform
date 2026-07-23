@@ -10,7 +10,7 @@ import { LanguageSwitcher } from '@shared/ui';
 import { authClient } from '@api/client';
 import { useGateContext } from '@features/gate';
 import { usePageFlags } from '@shared/lib/hooks/usePageFlags';
-import { type PlatformPageFlags } from '@shared/lib';
+import { type PlatformPageFlags, useBusEvent } from '@shared/lib';
 import { NAV_REGISTRY, isNavItemVisible } from '@/shared/lib/nav';
 import { Wallet, Sun, Moon, User, CreditCard } from 'lucide-react';
 import { MobileMenu } from './MobileMenu';
@@ -309,11 +309,7 @@ export function Header() {
     setMounted(true);
   }, []);
 
-  useEffect(() => {
-    const handler = () => refetch();
-    window.addEventListener('page-flags-updated', handler);
-    return () => window.removeEventListener('page-flags-updated', handler);
-  }, [refetch]);
+  useBusEvent('page-flags-updated', () => refetch());
 
   useEffect(() => {
     setMobileMenuOpen(false);

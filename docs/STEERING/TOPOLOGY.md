@@ -199,7 +199,7 @@ The existing `processAchievementEvent` already satisfies this: it uses `onConfli
 3. **Build the Outbox Dispatcher** (cron worker) that reads the registry and fans out to `registerHandler` consumers. **(bd-8lus — DONE)**
 4. **Port listeners** from `onEvent` to `registerHandler`. Achievement listener wired to both. **(bd-8lus — DONE)**
 5. **Wrap Realtime** in `lib/realtime.ts` with typed, namespaced channels; migrate existing `postgres_changes`/`broadcast` call sites. **(DONE)**
-6. **Replace the `page-flags-updated` CustomEvent** with the Zustand bus (Lane C).
+6. **Replace the `page-flags-updated` CustomEvent** with the Zustand bus (Lane C). **(DONE)**
 7. **Add the CI event-contract check + auto-generated catalog** (§6).
 8. **Secure the `payload` webhook** (HMAC + replay window + idempotency) so it can safely `emitDomainEvent`.
 9. **Reserve Lane D** in docs; no implementation.

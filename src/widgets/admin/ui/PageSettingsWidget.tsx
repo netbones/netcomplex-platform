@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { ErrorBoundary } from '@shared/ui';
-import { createComponentLogger } from '@shared/lib';
+import { createComponentLogger, emitBusEvent } from '@shared/lib';
 import { type PlatformPageFlags, HEADER_LINK_IDS } from '@shared/lib';
 import { DEFAULT_PAGE_FLAGS } from '@shared/lib/settings/defaults';
 
@@ -53,7 +53,7 @@ export function PageSettingsWidget({ initialFlags }: PageFlagsWidgetProps) {
 
       if (res.ok) {
         setFlags(prev => ({ ...prev, [key]: value }));
-        window.dispatchEvent(new Event('page-flags-updated'));
+        emitBusEvent('page-flags-updated');
         setSaved(true);
         setTimeout(() => setSaved(false), 2000);
       } else {

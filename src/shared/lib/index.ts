@@ -57,6 +57,7 @@ export {
 // in @shared/lib/hooks — import from that sub-barrel to avoid pulling
 // client-side code (sonner, react context) into server bundles:
 //   import { useApiToast } from '@shared/lib/hooks'
+export { emitBusEvent, useBusEvent, type BusEvent } from './bus';
 // NOTE: Do NOT export sanitizeHtml here.
 // Client: import { sanitizeHtml } from '@shared/lib/sanitize'
 // Server: import { sanitizeHtml } from '@shared/lib/sanitize/server'
