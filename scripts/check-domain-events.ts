@@ -31,48 +31,49 @@ for (const line of listenerSource.split('\n')) {
   }
 }
 
-const isSelf = (f: string) => f.includes('emitter.ts');
-
 interface EventInfo {
-  producers: string[];
-  consumers: string[];
+  producers: Set<string>;
+  consumers: Set<string>;
 }
 
 const info: Record<string, EventInfo> = {};
+for (const t of eventTypes) {
+  info[t] = { producers: new Set(), consumers: new Set() };
+}
 
-for (const type of eventTypes) {
-  const emitCmd = `rg -l "emitEvent\\('${type}'" ${SRC} 2>/dev/null || true`;
+/* ── Single ripgrep pass: capture all emitEvent/registerHandler/onEvent calls ── */
+const combinedPattern = `^.*\\b(emitEvent|registerHandler|onEvent)\\s*\\(\\s*'([^']+)'`;
+try {
+  const raw = execSync(
+    `rg -n -H "${combinedPattern}" --glob '!**/emitter.ts' ${SRC} 2>/dev/null || true`,
+    { encoding: 'utf-8', maxBuffer: 16 * 1024 * 1024 }
+  );
 
-  const producers = execSync(emitCmd, { encoding: 'utf-8' })
-    .trim()
-    .split('\n')
-    .filter(Boolean)
-    .filter(f => !isSelf(f))
-    .map(f => f.replace(SRC + '/', 'src/'));
-
-  const consumers: string[] = [];
-  if (variableConsumers.has(type)) consumers.push(`src/shared/api/achievements/listener.ts`);
-
-  /* Also check for string-literal registerHandler/onEvent calls */
-  for (const method of ['registerHandler', 'onEvent']) {
-    const cmd = `rg -l "${method}\\('${type}'" ${SRC} 2>/dev/null || true`;
-    const matches = execSync(cmd, { encoding: 'utf-8' })
-      .trim()
-      .split('\n')
-      .filter(Boolean)
-      .filter(f => !isSelf(f))
-      .map(f => f.replace(SRC + '/', 'src/'));
-    for (const m of matches) {
-      if (!consumers.includes(m)) consumers.push(m);
-    }
+  for (const line of raw.split('\n')) {
+    if (!line) continue;
+    /* Format: file.ts:lineNo:code */
+    const match = line.match(/^([^:]+):(\d+):(.*)$/);
+    if (!match) continue;
+    const [, file, , code] = match;
+    const m = code.match(/\b(emitEvent|registerHandler|onEvent)\s*\(\s*'([^']+)'/);
+    if (!m) continue;
+    const [, fn, type] = m;
+    if (!info[type]) continue;
+    const rel = file.replace(SRC + '/', 'src/');
+    if (fn === 'emitEvent') info[type].producers.add(rel);
+    else info[type].consumers.add(rel);
   }
+} catch {
+  /* rg not found or empty — proceed with empty sets */
+}
 
-  info[type] = { producers, consumers };
+/* Variable-based consumer (EVENT_TYPES array) */
+for (const type of variableConsumers) {
+  if (info[type]) info[type].consumers.add(`src/shared/api/achievements/listener.ts`);
 }
 
 const FUTURE_EVENTS = new Set([
   'merit.recognized', // declared, never emitted — reserve for Community Merits
-  'maintenance.team_assigned', // emitted but no handler yet — needs userId-based achievement hook
 ]);
 
 let exitCode = 0;
@@ -80,14 +81,15 @@ let exitCode = 0;
 console.log('\n── Domain Event Contract ──\n');
 
 for (const type of eventTypes) {
-  const { producers, consumers } = info[type];
+  const producers = Array.from(info[type].producers);
+  const consumers = Array.from(info[type].consumers);
   const isFuture = FUTURE_EVENTS.has(type);
   const pc = producers.length;
   const cc = consumers.length;
   const hasProducer = pc > 0;
-  const hasConsumer = cc > 0 || isFuture;
-  const status = hasProducer && hasConsumer ? 'OK' : isFuture && !hasProducer ? 'FUTURE' : 'ISSUE';
-  const marker = status === 'OK' ? '✓' : status === 'FUTURE' ? '◷' : '⚠';
+  const hasConsumer = cc > 0;
+  const status = hasProducer && hasConsumer ? 'OK' : isFuture && !hasProducer ? 'FUTURE' : isFuture ? 'WAIVED' : 'ISSUE';
+  const marker = status === 'OK' ? '✓' : status === 'FUTURE' ? '◷' : status === 'WAIVED' ? '◦' : '⚠';
 
   console.log(` ${marker} ${type}  producers=${pc}  consumers=${cc}  ${status}`);
 
@@ -107,14 +109,14 @@ for (const type of eventTypes) {
 
 /* ── Generate catalog ───────────────────────────────── */
 const rows = eventTypes.map(type => {
-  const { producers, consumers } = info[type];
+  const producers = Array.from(info[type].producers);
+  const consumers = Array.from(info[type].consumers);
   const isFuture = FUTURE_EVENTS.has(type);
   const pc = producers.length;
   const cc = consumers.length;
   const hasProducer = pc > 0;
-  const hasConsumer = cc > 0 || isFuture;
-  const status =
-    hasProducer && hasConsumer ? 'active' : isFuture && !hasProducer ? 'future' : 'needs handler';
+  const hasConsumer = cc > 0;
+  const status = hasProducer && hasConsumer ? 'active' : isFuture ? 'future' : 'unconsumed';
   return `| \`${type}\` | 1 | ${producers.join(', ') || '—'} | ${consumers.join(', ') || '—'} | ${status} | platform |`;
 });
 

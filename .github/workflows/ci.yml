@@ -25,6 +25,26 @@ jobs:
       - run: pnpm install --frozen-lockfile --ignore-scripts
       - run: pnpm lint
 
+  events-contract:
+    name: Domain Event Contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+      - uses: BurntSushi/ripgrep@master
+        with:
+          version: '14.0.0'
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Verify event contract
+        run: pnpm events:check
+      - name: Verify catalog is up to date
+        run: git diff --exit-code docs/reports/EVENT_CATALOG.md
+
   typecheck:
     name: TypeScript
     runs-on: ubuntu-latest

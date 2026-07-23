@@ -162,6 +162,8 @@ A thin typed wrapper (`lib/realtime.ts`) so channels/types aren't hand-built per
 
 Complex business workflows (marketplace purchase, wallet settlement, proxy vote, community chips, billing, appeals, CSOS disputes) are orchestrated sagas, not single events. Reserve an architecture section for **Lane D: Workflow / Saga Orchestration** to avoid future conflict. Documenting the reservation is sufficient for M5.
 
+**Status:** Reserved (M5). No runtime code in this lane.
+
 ## 4. Registry-driven consumers (ADVISORY-033 §8) & AI readiness (§10)
 
 The platform maintains a typed **consumer registry** — the authoritative ownership map:
@@ -178,19 +180,39 @@ BookingCreated
 - Each handler declares the event `type`(s) it consumes; the dispatcher fans out.
 - **AI is just another consumer** (§10). Future AI capabilities (summaries, fraud detection, community insights) subscribe to the same enveloped events — no AI-specific transport ever. The envelope's `correlationId`/`causationId`/`tenantId` make AI consumption first-class.
 
+### 4.1 Registry lifecycle on serverless (D3)
+
+The registry is an in-process `Map<type, EventHandler[]>` (`src/shared/api/events/registry.ts`). On Vercel serverless, the `EventHandler` registration happens as a side-effect of importing `@shared/api/achievements` (and any future consumer) from `src/instrumentation.ts`. Cold start on **every** lambda invocation (HTTP, cron, edge) re-builds this Map deterministically from the import graph, so the dispatcher always finds the canonical handler set even if a chronologically distinct warm-instance picks up a cron invocation. No cross-instance registry transport is required for M5.
+
 ## 5. Idempotency is a hard requirement (ADVISORY-033 §6)
 
 The topology targets **at-least-once** delivery, so **every handler MUST be idempotent** — safe to run 2, 5, or 20 times. `AwardAchievement()` must produce exactly ONE achievement regardless of replay count.
 
 The existing `processAchievementEvent` already satisfies this: it uses `onConflictDoUpdate` (increment) + an existence check before inserting the unlocked achievement/notification. New handlers MUST follow the same pattern (upsert / unique constraint / existence guard).
 
+### 5.1 Known dual-write period (D2)
+
+Migrating from `EventEmitter` → Outbox happens incrementally. Until the dispatcher is proven in production, `emitEvent()` writes to **both** the in-process bus (`EventEmitter.emit`) and the `outbox` table. Handlers are wired to both paths via `onEvent` + `registerHandler`. Handlers MUST remain idempotent under replay from either path.
+
+**Follow-up:** `bd-q8py` — once production dispatcher runs have zero unhandled rows in an observation window, remove `EventEmitter` from `emitter.ts`, drop `onEvent`/`offEvent` exports, and trim `achievements/listener.ts` to `registerHandler` only.
+
 ## 6. Unifying the contract & CI enforcement
 
 - A single `DomainEvent` set lives in `src/shared/api/events/types.ts` (the existing union in `emitter.ts` is the seed). Events are transport-neutral; the registry owns routing.
-- **Auto-generated Event Catalog (ADVISORY-033 §9):** the build generates an event catalog (Event Name, Version, Producer(s), Consumer(s), Lane, Status, Owner) — prefer generation over manual `docs/`. This keeps architecture docs in sync with code.
-- **CI lint** (or Steiger-style check) enforces:
-  - every event type has ≥1 producer (`emitEvent(...)`) AND, for Lane A, ≥1 registered handler — else fail.
-  - `merit.recognized` (currently declared, never emitted) is either wired or marked `status: 'future'`.
+- **Auto-generated Event Catalog (ADVISORY-033 §9):** the build generates an event catalog (Event Name, Version, Producer(s), Consumer(s), Lane, Status, Owner) — prefer generation over manual `docs/`. This keeps architecture docs in sync with code. The catalog at `docs/reports/EVENT_CATALOG.md` is committed to the repo; CI fails if the file is stale (someone added/changed an event without regenerating).
+- **CI gate** (dedicated job `events-contract` in `.github/workflows/ci.yml`, separate from ESLint) enforces:
+  - every event type has ≥1 producer (`emitEvent(...)`) AND ≥1 registered handler (or be in `FUTURE_EVENTS`) — else fail.
+  - the catalog file `docs/reports/EVENT_CATALOG.md` matches the regenerated output — else fail.
+
+### 6.1 Catalog status taxonomy
+
+| Status | Meaning | CI |
+|---|---|---|
+| `active` | has producer AND consumer | ✓ |
+| `future` | declared in type union but in `FUTURE_EVENTS` waiver set (e.g. `merit.recognized`) | ✓ |
+| `unconsumed` | has producer(s) but no consumer — silent drops in dispatcher | ⚠ fail |
+
+Run `pnpm events:check` to regenerate and validate locally; the CI step `events-contract` enforces it on every PR.
 
 ## 7. Migration steps (ordered)
 
@@ -202,7 +224,7 @@ The existing `processAchievementEvent` already satisfies this: it uses `onConfli
 6. **Replace the `page-flags-updated` CustomEvent** with the Zustand bus (Lane C). **(DONE)**
 7. **Add the CI event-contract check + auto-generated catalog** (§6). **(DONE)**
 8. **Secure the `payload` webhook** (HMAC + replay window + idempotency) so it can safely `emitDomainEvent`. **(DONE)**
-9. **Reserve Lane D** in docs; no implementation.
+9. **Reserve Lane D** in docs; no implementation. **(DONE)**
 
 ## 8. What we are explicitly NOT doing (ADVISORY-033 §12)
 
