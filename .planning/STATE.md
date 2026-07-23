@@ -6,13 +6,13 @@ current_phase: 125
 current_phase_name: proxy-vote-module
 status: planning
 stopped_at: Phase 125 — CONTEXT.md created; ready for planning
-last_updated: '2026-07-14T12:00:00.000Z'
+last_updated: "2026-07-23T14:30:19.014Z"
 progress:
-  total_phases: 71
-  completed_phases: 58
-  total_plans: 202
-  completed_plans: 184
-  percent: 91
+  total_phases: 72
+  completed_phases: 60
+  total_plans: 203
+  completed_plans: 186
+  percent: 83
 ---
 
 # Project State
@@ -24,8 +24,8 @@ Phase: 124 (onboarding-defer-provisioning) — COMPLETE (6/6 plans executed)
 - **Phase:** Phase 125 (proxy-vote-module) — CONTEXT.md created; ready for planning
 - **Phase:** Phase 122 (workspace-context-architecture) — Context gathered, ready for planning
 
-**Last Session:** 2026-07-14T08:00:00.000Z
-**Stopped at:** Phase 125 CONTEXT.md created
+**Last Session:** 2026-07-23T14:30:18.976Z
+**Stopped at:** Phase 125 UI-SPEC approved
 
 ## Active Phase Decisions
 
@@ -437,4 +437,4 @@ Phase: 124 (onboarding-defer-provisioning) — COMPLETE (6/6 plans executed)
 
 **Last session:** 2026-07-09T13:51:42.534Z
 **Stopped at:** Phase 124 Plan 06 complete — cleanup sweep; phase ready for merge
-**Resume file:** .planning/phases/124-onboarding-defer-provisioning/124-UI-SPEC.md
+**Resume file:** .planning/phases/125-proxy-vote-module/125-UI-SPEC.md

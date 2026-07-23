@@ -736,27 +736,15 @@ export function transition(current: ProxyStatus, action: ProxyAction): ProxyStat
 
 **If this table is empty:** N/A — 5 assumptions logged for planner confirmation.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **User directory search API availability for Step 2 (appoint proxy)**
-   - What we know: `src/entities/directory/model/types.ts` defines `Resident` type (id, name, email, phone) and `UseResidentFilterReturn` hook interface with `setSearchQuery`. The directory page has search functionality.
-   - What's unclear: Whether there's a backend API endpoint returning searchable user list for a step-by-step proxy wizard component (vs. the full directory page pattern)
-   - Recommendation: Planner should either (a) reuse the existing directory API if accessible via tRPC, or (b) add a lightweight `GET /api/users/search?q=` endpoint scoped to tenant residents.
+1. **User directory search API availability for Step 2 (appoint proxy)** — **RESOLVED** (2026-07-23): Planner selects option (a): reuse existing directory API. Plan 125-05 tRPC `proxyVoteRouter.getEligibleResidents` procedure delegates to existing directory service via Drizzle. Search hits `db.query.users.findMany()` with tenant scope + name LIKE filter, returns `[{ userId, name, address }]`. Resolved in CONTEXT.md discussion.
 
-2. **QR reference code sequential numbering mechanism**
-   - What we know: Format is PV-YYYY-NNNN. Existing patterns use `createId()` (UUID) for primary keys, not sequential counters.
-   - What's unclear: Whether to use a database-level counter (new Counter table), a `SELECT COUNT(*) + 1` query wrapped in transaction, or a simple application-level counter (acceptable for low-frequency proxy approvals)
-   - Recommendation: For MVP, use `SELECT COUNT(*) FROM MeetingProxy WHERE status = 'Approved' AND EXTRACT(YEAR FROM approvedAt) = currentYear` query inside the approval transaction. Proxy approvals are infrequent enough that race condition risk is negligible. Add a `@@unique([referenceCode])` constraint on the MeetingProxy table as belt-and-suspenders.
+2. **QR reference code sequential numbering mechanism** — **RESOLVED** (2026-07-23): Planner selects RECOMMENDATION. Plan 125-05 `approveProxy()` generates referenceCode inside approval transaction: `SELECT COUNT(*) FROM MeetingProxy WHERE status = 'Approved' AND EXTRACT(YEAR FROM approvedAt) = currentYear` then formats PV-{YYYY}-{NNNN}. Schema has `@@unique([referenceCode])` constraint (blocker 2 risks mitigated at the database level). Resolved in plan 125-05 task 01.
 
-3. **Widget vs Page for proxy workflow UI**
-   - What we know: AGENTS.md §Pages vs Widgets says "prefer widgets that can be imported to dashboards than new pages." The 6-step wizard doesn't fit a traditional small widget.
-   - What's unclear: Whether to use a full-page layout for the multi-step wizard with modal components for each step, or a large widget embeddable in the Community/Services space
-   - Recommendation: Use a dedicated page at `/dashboard/proxy/[meetingId]` for the resident journey (6-step wizard needs full-width focus). Use a widget for the HOA admin dashboard (`AdminProxyWidget` embeddable in admin space). This follows the admin widget pattern used for `GroupModerationWidget` (Phase 24) and `DelegationWidget` (Phase 111).
+3. **Widget vs Page for proxy workflow UI** — **RESOLVED** (2026-07-23): Planner selects RECOMMENDATION. Resident journey: dedicated page at `/dashboard/proxy/[meetingId]` (6-step wizard, full-width). HOA admin approval: widget in admin space (matches `GroupModerationWidget` and `DelegationWidget` patterns). Resolved in plan 125-07 (page) and plan 125-09 (HoaProxyWidget).
 
-4. **Signature evidence verification depth for INTERNAL adapter**
-   - What we know: CONTEXT.md defines `verify()` returning `Promise<boolean>`. INTERNAL adapter's draw mode stores a base64 PNG data URL.
-   - What's unclear: Should `verify()` for INTERNAL adapter check that the base64 data decodes to a valid PNG, or simply check presence of the field? For type mode, should it match the proxy nominee's name?
-   - Recommendation: Phase 125 INTERNAL adapter should do minimal verification (non-null check for draw mode, non-empty check for type mode). Full signature validation (PNG structure, name matching) is a legal compliance concern best deferred to HOA policies. The `verify()` method signature exists for future cryptographic providers that need real verification.
+4. **Signature evidence verification depth for INTERNAL adapter** — **RESOLVED** (2026-07-23): Planner selects RECOMMENDATION. Plan 125-04 `InternalSignatureAdapter.verify()` performs minimal verification (non-null + non-empty for draw mode; non-empty typedName + checkbox confirmation stored as part of evidence for type mode). Full cryptographic verification deferred to future cryptographic providers (Lightning/Nostr/DocuSign external adapters where verification is cryptographically meaningful). Resolved in plan 125-04 task 01.
 
 ## Validation Architecture
 
