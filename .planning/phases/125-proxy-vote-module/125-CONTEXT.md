@@ -1,15 +1,15 @@
 ---
 phase: 125-proxy-vote-module
 type: execute
-status: planning
+status: ready_for_planning
 created: 2026-07-14
-updated: 2026-07-14
+updated: 2026-07-23
 milestone: M5+ Post-Launch
 ---
 
 # Phase 125: Proxy Vote Module
 
-**Source:** `docs/PROXY_SIG_DISCUSSION.md`
+**Source:** `docs/PROXY_SIG_DISCUSSION.md` (Discussions A, B, C)
 
 **Goal:** Design and implement a proxy vote submission module for HOA meetings. Owners who cannot physically attend AGM/SGM/Special Resolution Meetings/Trustee Elections can appoint a proxy nominee, upload a signed form, and have the proxy accept via notification workflow.
 
@@ -117,7 +117,101 @@ MeetingProxy table:
 - `approvedAt` — timestamp
 - `status` — enum (Draft, WaitingForUpload, WaitingForProxy, PendingHoaReview, Approved, Rejected, Withdrawn)
 - `notes` — text
+- `signatureProvider` — enum (`INTERNAL` default; for Phase 125, only INTERNAL is active; enum values reserved: INTERNAL, LIGHTNING, NOSTR, DOCUSIGN, ADOBE_SIGN, PASSKEY, PGP, GOV_EID)
+- `signatureEvidence` — JSON (nullable at DB level; shape depends on provider — see Signature Service evidence schema below)
 - `createdAt`, `updatedAt` — timestamps
+
+**Phase 125 ships only `signatureProvider = INTERNAL`.** The enum reserves all Discussion C provider slots so future phases can add providers (Lightning/LNbits adapter, Nostr key signing, DocuSign, etc.) without a schema migration.
+
+### `signatureEvidence` shape (INTERNAL provider)
+
+```json
+{
+  "mode": "draw" | "type",
+  "signatureDataUrl": "<data:image/png;base64,...>"  // draw mode only
+}
+```
+
+For future providers (Lightning, Nostr, etc.), the evidence shape would be:
+
+```json
+{
+  "provider": "LIGHTNING",
+  "documentHash": "<SHA256 hex>",
+  "pubkey": "<Lightning pubkey hex>",
+  "signature": "<hex signature>",
+  "timestamp": "<ISO 8601>"
+}
+```
+
+This is deferred — Phase 125 does not implement Lightning or any external provider.
+
+## Signature Service Architecture (Provider Abstraction)
+
+Per Discussion C, the signature system is modeled as a **provider abstraction** — not a monolithic draw/type widget. This keeps Netcomplex vendor-neutral and enables future decentralized identity providers.
+
+### `SignatureService` interface
+
+```typescript
+interface SignatureService {
+  sign(provider: SignatureProvider, documentHash: string): Promise<SignatureEvidence>;
+  verify(provider: SignatureProvider, documentHash: string, evidence: SignatureEvidence): Promise<boolean>;
+}
+
+type SignatureProvider = 'INTERNAL' | 'LIGHTNING' | 'NOSTR' | 'DOCUSIGN' | 'ADOBE_SIGN' | 'PASSKEY' | 'PGP' | 'GOV_EID';
+
+interface SignatureEvidence {
+  provider: SignatureProvider;
+  mode?: 'draw' | 'type';                     // INTERNAL only
+  signatureDataUrl?: string;                  // INTERNAL draw mode
+  typedName?: string;                         // INTERNAL type mode
+  documentHash?: string;                      // external providers
+  pubkey?: string;                            // external providers
+  signature?: string;                         // external providers
+  timestamp: string;
+}
+```
+
+### Phase 125 ships ONLY the INTERNAL adapter
+
+```typescript
+// src/features/proxy-vote/server/signature/internal-adapter.ts
+class InternalSignatureAdapter {
+  // Phase 125: draw canvas → PNG data URL stored in signatureEvidence.signatureDataUrl
+  // OR typed full name + checkbox → stored as signatureEvidence.typedName + mode:'type'
+  sign(documentHash: string): Promise<SignatureEvidence> { ... }
+  verify(documentHash: string, evidence: SignatureEvidence): Promise<boolean> { ... }
+}
+```
+
+### Provider adapter interface (deferred — stub for future phases)
+
+```typescript
+// src/features/proxy-vote/server/signature/provider-adapter.ts
+interface SignatureProviderAdapter {
+  provider: SignatureProvider;
+  sign(documentHash: string): Promise<SignatureEvidence>;
+  verify(documentHash: string, evidence: SignatureEvidence): Promise<boolean>;
+}
+```
+
+Phase 125 defines the `SignatureProviderAdapter` interface and the `signatureProviders` registry pattern (Map-based provider dispatch), but `INTERNAL` is the only registered provider. Adding Lightning, Nostr, or DocuSign is a per-provider adapter implementation in a future phase — no schema changes required (the `signatureProvider` enum and `signatureEvidence` JSON column already accommodate them).
+
+### dWallet relationship
+
+The dWallet module (Phase 47) defines the `WalletService` abstraction. Signature and Wallet are **separate services** per Discussion C's four-layer model:
+
+```
+Identity Service (Better Auth)
+    ↓
+Wallet Service (dWallet — Phase 47)
+    ↓
+Signature Service (this phase — Phase 125)
+    ↓
+Settlement Service (future)
+```
+
+The Signature Service does not depend on dWallet. A Lightning adapter in a future phase would use LNbits as both wallet AND signature provider, but the `SignatureService` interface treats it as a signature provider only — the adapter calls LNbits' message-signing extension, not the wallet service.
 
 ## Integration Points
 
@@ -126,6 +220,8 @@ MeetingProxy table:
 3. **Notifications** — Multi-party notification system
 4. **User Directory** — Resident search for proxy nomination
 5. **Admin UI** — Approval widget in admin space
+6. **Signature Service** — Provider-abstraction layer (INTERNAL adapter shipped; external providers deferred)
+7. **dWallet** — No direct dependency; Wallet Service is a separate layer. Future Lightning adapter bridges both.
 
 ## Optional Nice-to-Haves (Future)
 
@@ -134,6 +230,22 @@ MeetingProxy table:
 - Export attendance register including proxy allocations
 - Generate PDF register for chairperson
 - Automatically invalidate outstanding proxies once meeting closes
+
+## Deferred: External Signature Providers (Discussion C)
+
+**All non-INTERNAL signature providers are deferred to future phases.** Phase 125 defines the `SignatureProvider` enum, the `SignatureProviderAdapter` interface, and the `signatureProviders` registry — but ships only the `INTERNAL` adapter. The following providers are explicitly deferred:
+
+| Provider | Adapter | Description |
+|----------|---------|-------------|
+| LIGHTNING | LNbits message-signing extension | Document hash signing via Lightning wallet pubkey |
+| NOSTR | Nostr key signing | Private/public key signing without certificates |
+| DOCUSIGN | DocuSign API | Industry-standard e-signature provider |
+| ADOBE_SIGN | Adobe Sign API | Alternative enterprise e-signature |
+| PASSKEY | WebAuthn / platform authenticator | Device-bound biometric signatures |
+| PGP | OpenPGP key signing | Decentralized key-based signatures |
+| GOV_EID | Government eID integration | National digital identity (e.g., South African Home Affairs) |
+
+Adding a provider requires only: implementing a `SignatureProviderAdapter`, registering it in `signatureProviders`, and adding the UI selector. No schema migration needed — `signatureProvider` enum and `signatureEvidence` JSON column already accommodate all providers.
 
 ## Next Steps
 
