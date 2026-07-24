@@ -21,6 +21,7 @@ const mocks = vi.hoisted(() => ({
   dbMock: {
     select: vi.fn(),
     update: vi.fn(),
+    insert: vi.fn(),
   },
   hasPermission: vi.fn(),
   apiSuccess: vi.fn(
@@ -68,6 +69,8 @@ const mocks = vi.hoisted(() => ({
     }
   ),
   revalidateContent: vi.fn(),
+  snapshotContentVersion: vi.fn(),
+  insertAuditLog: vi.fn(),
 }));
 
 vi.mock('@api/server', () => ({
@@ -128,6 +131,11 @@ vi.mock('@api/server', () => ({
 
 vi.mock('@entities/tenant/server', () => ({
   withTenant: () => Promise.resolve(mocks.tenantResult),
+}));
+
+vi.mock('@entities/content/server', () => ({
+  snapshotContentVersion: (...args: any[]) => mocks.snapshotContentVersion(...args),
+  insertAuditLog: (...args: any[]) => mocks.insertAuditLog(...args),
 }));
 
 vi.mock('@shared/lib', () => ({
@@ -295,6 +303,7 @@ describe('GET /api/content/[id]', () => {
 describe('PATCH /api/content/[id]', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.sessionResult = { user: { id: 'user-1' } };
     mocks.tenantResult = { tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' };
   });
 
@@ -302,7 +311,7 @@ describe('PATCH /api/content/[id]', () => {
     vi.restoreAllMocks();
   });
 
-  it('updates content with string title and returns 200', async () => {
+  it('updates content with string title, snapshots version, and writes audit log', async () => {
     mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([{ deletedAt: null }]));
     mocks.dbMock.update.mockReturnValue(makeUpdateChain([{ id: 'c-1', title: { en: 'Updated' } }]));
 
@@ -312,6 +321,13 @@ describe('PATCH /api/content/[id]', () => {
 
     expect(response.status).toBe(200);
     expect(mocks.revalidateContent).toHaveBeenCalled();
+    expect(mocks.snapshotContentVersion).toHaveBeenCalledWith('c-1', 'user-1', expect.any(String));
+    expect(mocks.insertAuditLog).toHaveBeenCalledWith(
+      'c-1',
+      'UPDATED',
+      'user-1',
+      expect.any(Object)
+    );
   });
 
   it('updates content with JSON (multi-locale) title', async () => {
@@ -440,6 +456,7 @@ describe('PATCH /api/content/[id]', () => {
 describe('DELETE /api/content/[id]', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.sessionResult = { user: { id: 'user-1' } };
     mocks.tenantResult = { tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' };
   });
 
@@ -447,7 +464,7 @@ describe('DELETE /api/content/[id]', () => {
     vi.restoreAllMocks();
   });
 
-  it('soft-deletes content and returns 200', async () => {
+  it('soft-deletes content, writes audit log, and returns 200', async () => {
     mocks.dbMock.update.mockReturnValue(makeUpdateChain([]));
 
     const response = await DELETE(makeReq({ method: 'DELETE' }), {
@@ -456,6 +473,7 @@ describe('DELETE /api/content/[id]', () => {
 
     expect(response.status).toBe(200);
     expect(mocks.revalidateContent).toHaveBeenCalled();
+    expect(mocks.insertAuditLog).toHaveBeenCalledWith('c-1', 'DELETED', 'user-1');
   });
 
   it('returns success with { success: true }', async () => {
