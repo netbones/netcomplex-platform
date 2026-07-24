@@ -1,9 +1,9 @@
-import { and, asc, count, desc, eq, sql } from 'drizzle-orm';
+import { and, asc, count, desc, eq, isNull, sql } from 'drizzle-orm';
 import { events, meetingProxies, notifications, users } from '@api/server';
 import { ALLOWED_EVENT_CATEGORIES, isProxyEligible } from '@/features/proxy-vote/lib/constants';
 import type { ProxyStatus, ProxyStatusEvent } from '@/features/proxy-vote/lib/status-transitions';
 import { transition } from '@/features/proxy-vote/lib/status-transitions';
-import { db, notDeleted, type DbSchema } from '@api/server';
+import { db, type DbSchema } from '@api/server';
 import { createId } from '@shared/lib/id';
 import type {
   CreateProxyInput,
@@ -34,7 +34,7 @@ async function fetchMeeting(
   const [meeting] = await db
     .select({ id: events.id, category: events.category, tenantId: events.tenantId })
     .from(events)
-    .where(and(eq(events.id, meetingId), eq(events.tenantId, tenantId), notDeleted(events)));
+    .where(and(eq(events.id, meetingId), eq(events.tenantId, tenantId), isNull(events.deletedAt)));
   return meeting ?? null;
 }
 
@@ -82,13 +82,7 @@ async function applyTransition(
   const [current] = await db
     .select({ status: meetingProxies.status })
     .from(meetingProxies)
-    .where(
-      and(
-        eq(meetingProxies.id, proxyId),
-        eq(meetingProxies.tenantId, tenantId),
-        notDeleted(meetingProxies)
-      )
-    );
+    .where(and(eq(meetingProxies.id, proxyId), eq(meetingProxies.tenantId, tenantId)));
   if (!current) throw new Error('MeetingProxy not found');
   return transition(current.status as ProxyStatus, eventName);
 }
@@ -105,8 +99,7 @@ async function ownerScopedFetch(
       and(
         eq(meetingProxies.id, proxyId),
         eq(meetingProxies.tenantId, tenantId),
-        eq(meetingProxies.ownerUserId, userId),
-        notDeleted(meetingProxies)
+        eq(meetingProxies.ownerUserId, userId)
       )
     );
   if (!record) {
@@ -128,7 +121,7 @@ async function updateProxy(
     throw new Error(`Cannot update proxy in terminal state (${status})`);
   }
 
-  const updates: Partial<MeetingProxy> = {
+  const updates: Partial<typeof meetingProxies.$inferInsert> = {
     updatedAt: new Date(),
   };
 
@@ -136,14 +129,8 @@ async function updateProxy(
   if (input.proxyEmail !== undefined) updates.proxyEmail = input.proxyEmail;
   if (input.proxyPhone !== undefined) updates.proxyPhone = input.proxyPhone;
   if (input.proxyUserId !== undefined) updates.proxyUserId = input.proxyUserId;
-  if (input.formDocumentId !== undefined) updates.formDocumentId = input.formDocumentId;
   if (input.notes !== undefined) updates.notes = input.notes;
-
-  if (input.uploadComplete) {
-    const next = transition(status, 'uploadComplete');
-    updates.status = next;
-    if (!owner.ownerSignedAt) updates.ownerSignedAt = new Date();
-  }
+  if (input.status !== undefined) updates.status = input.status;
 
   await db.update(meetingProxies).set(updates).where(eq(meetingProxies.id, proxyId));
 
@@ -160,25 +147,19 @@ async function signProxy(
   const [record] = await db
     .select()
     .from(meetingProxies)
-    .where(
-      and(
-        eq(meetingProxies.id, proxyId),
-        eq(meetingProxies.tenantId, tenantId),
-        notDeleted(meetingProxies)
-      )
-    );
+    .where(and(eq(meetingProxies.id, proxyId), eq(meetingProxies.tenantId, tenantId)));
   if (!record) throw new Error('MeetingProxy not found');
   if (record.proxyUserId !== userId) {
     throw new Error('Only the nominated proxy can sign this appointment');
   }
 
-  const nextStatus = applyTransition(proxyId, tenantId, 'proxyAccepted');
+  const nextStatus = await applyTransition(proxyId, tenantId, 'proxyAccepted');
 
   await db
     .update(meetingProxies)
     .set({
       status: nextStatus,
-      signatureProvider: input.signatureProvider,
+      signatureProvider: 'INTERNAL',
       signatureEvidence: input.signatureEvidence,
       proxySignedAt: new Date(),
       updatedAt: new Date(),
@@ -214,7 +195,7 @@ async function approveProxy(
   tenantId: string,
   notes?: string
 ): Promise<MeetingProxy> {
-  const nextStatus = applyTransition(proxyId, tenantId, 'approve');
+  const nextStatus = await applyTransition(proxyId, tenantId, 'approve');
   const referenceCode = await nextReferenceCode(tenantId);
 
   const updates: Partial<MeetingProxy> = {
@@ -241,7 +222,7 @@ async function rejectProxy(
   if (!notes || notes.trim().length === 0) {
     throw new Error('Rejection notes are required');
   }
-  const nextStatus = applyTransition(proxyId, tenantId, 'reject');
+  const nextStatus = await applyTransition(proxyId, tenantId, 'reject');
 
   await db
     .update(meetingProxies)
@@ -279,13 +260,7 @@ async function getProxyById(proxyId: string, tenantId: string): Promise<MeetingP
   const [record] = await db
     .select()
     .from(meetingProxies)
-    .where(
-      and(
-        eq(meetingProxies.id, proxyId),
-        eq(meetingProxies.tenantId, tenantId),
-        notDeleted(meetingProxies)
-      )
-    );
+    .where(and(eq(meetingProxies.id, proxyId), eq(meetingProxies.tenantId, tenantId)));
   return (record as unknown as MeetingProxy) ?? null;
 }
 
@@ -293,13 +268,7 @@ async function getProxiesByMeeting(meetingId: string, tenantId: string): Promise
   const records = await db
     .select()
     .from(meetingProxies)
-    .where(
-      and(
-        eq(meetingProxies.meetingId, meetingId),
-        eq(meetingProxies.tenantId, tenantId),
-        notDeleted(meetingProxies)
-      )
-    )
+    .where(and(eq(meetingProxies.meetingId, meetingId), eq(meetingProxies.tenantId, tenantId)))
     .orderBy(desc(meetingProxies.createdAt));
   return records as unknown as MeetingProxy[];
 }
@@ -308,13 +277,7 @@ async function getProxiesByOwner(ownerUserId: string, tenantId: string): Promise
   const records = await db
     .select()
     .from(meetingProxies)
-    .where(
-      and(
-        eq(meetingProxies.ownerUserId, ownerUserId),
-        eq(meetingProxies.tenantId, tenantId),
-        notDeleted(meetingProxies)
-      )
-    )
+    .where(and(eq(meetingProxies.ownerUserId, ownerUserId), eq(meetingProxies.tenantId, tenantId)))
     .orderBy(desc(meetingProxies.createdAt));
   return records as unknown as MeetingProxy[];
 }

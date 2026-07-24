@@ -106,7 +106,7 @@ export const proxyVoteRouter = router({
 
   approve: privilegedModuleProcedure
     .meta({ requiredModule: 'proxyVote' })
-    .input(IdInput.merge(approveProxySchema.partial().extend({ proxyId: z.string() })))
+    .input(z.object({ proxyId: z.string(), notes: z.string().optional() }))
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.session?.user.id;
       if (!userId) {
