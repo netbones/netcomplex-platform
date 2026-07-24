@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import { z } from 'zod/v4';
 import {
   auth,
   db,
@@ -11,13 +12,28 @@ import {
   apiInternalError,
   apiSuccess,
   apiUnauthorized,
+  apiValidationError,
   now,
+  rateLimitByUser,
 } from '@api/server';
 
 import { eq, sql, and, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
 import { createId } from '@shared/lib/id';
+
+const listingCreateSchema = z.object({
+  propertyId: z.string().min(1, 'Property ID is required'),
+  listingType: z.enum(['SALE', 'RENT', 'LEASE']).optional().default('SALE'),
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().optional(),
+  price: z.number().positive().optional(),
+  bedrooms: z.number().int().nonnegative().optional(),
+  bathrooms: z.number().int().nonnegative().optional(),
+  parkingSpaces: z.number().int().nonnegative().optional(),
+  gardenSize: z.number().nonnegative().optional(),
+  petFriendly: z.boolean().optional().default(false),
+});
 
 export const maxDuration = 8;
 
@@ -109,7 +125,19 @@ export async function POST(request: NextRequest) {
       return apiForbidden('Premium Seat required to create listings');
     }
 
+    const rateLimit = await rateLimitByUser(session.user.id, {
+      windowMs: 60_000,
+      maxRequests: 10,
+    });
+    if (rateLimit) return rateLimit;
+
     const body = await request.json();
+
+    const parsed = listingCreateSchema.safeParse(body);
+    if (!parsed.success) {
+      return apiValidationError(parsed.error.issues);
+    }
+
     const {
       propertyId,
       listingType,
@@ -121,13 +149,8 @@ export async function POST(request: NextRequest) {
       parkingSpaces,
       gardenSize,
       petFriendly,
-    } = body;
+    } = parsed.data;
 
-    if (!propertyId) {
-      return apiError('VALIDATION_ERROR', 'Property ID required', 400);
-    }
-
-    // Use Drizzle insert
     const [newListing] = await db
       .insert(propertyListings)
       .values({
@@ -135,15 +158,15 @@ export async function POST(request: NextRequest) {
         tenantId,
         propertyId,
         ownerId: session.user.id,
-        listingType: listingType || 'SALE',
+        listingType,
         title,
-        description,
-        price: price ? price.toString() : null,
-        bedrooms: bedrooms ? parseInt(bedrooms) : null,
-        bathrooms: bathrooms ? parseInt(bathrooms) : null,
-        parkingSpaces: parkingSpaces ? parseInt(parkingSpaces) : null,
-        gardenSize: gardenSize ? parseFloat(gardenSize) : null,
-        petFriendly: petFriendly || false,
+        description: description ?? (null as string | null),
+        price: price ? String(price) : null,
+        bedrooms: bedrooms ?? null,
+        bathrooms: bathrooms ?? null,
+        parkingSpaces: parkingSpaces ?? null,
+        gardenSize: gardenSize ?? null,
+        petFriendly,
         status: 'DRAFT',
         isPublished: false,
         createdAt: now(),

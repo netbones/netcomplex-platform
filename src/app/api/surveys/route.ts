@@ -1,3 +1,4 @@
+import { z } from 'zod/v4';
 import {
   db,
   surveys,
@@ -7,10 +8,12 @@ import {
   apiForbidden,
   apiSuccess,
   apiUnauthorized,
+  apiValidationError,
   now,
   withErrorHandler,
   getSessionAndRole,
   guardSuspension,
+  rateLimitByUser,
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
@@ -18,6 +21,15 @@ import { hasPermission } from '@shared/lib';
 import { eq, and, desc, sql } from 'drizzle-orm';
 import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { createId } from '@shared/lib/id';
+
+const surveyCreateSchema = z.object({
+  title: z.string().min(1, 'Title is required').max(200).trim(),
+  description: z.string().max(1000).trim().optional(),
+  type: z.enum(['INTERNAL', 'EXTERNAL']).optional().default('INTERNAL'),
+  status: z.enum(['DRAFT', 'ACTIVE', 'CLOSED']).optional().default('DRAFT'),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+});
 
 export const maxDuration = 8;
 /** @deprecated Use `trpc.surveys.listSurveys` instead */
@@ -94,7 +106,20 @@ export const POST = withErrorHandler(async (request: Request) => {
     return apiForbidden();
   }
 
+  const rateLimit = await rateLimitByUser(authData.userId, {
+    windowMs: 60_000,
+    maxRequests: 10,
+  });
+  if (rateLimit) return rateLimit;
+
   const body = await request.json();
+
+  const parsed = surveyCreateSchema.safeParse(body);
+  if (!parsed.success) {
+    return apiValidationError(parsed.error.issues);
+  }
+
+  const { title, description, type, status, startDate, endDate } = parsed.data;
   const ts = now();
 
   // Enforce tenant isolation
@@ -105,12 +130,12 @@ export const POST = withErrorHandler(async (request: Request) => {
     .values({
       id: createId(),
       tenantId,
-      title: body.title,
-      description: body.description ?? null,
-      type: body.type ?? 'INTERNAL',
-      status: body.status ?? 'DRAFT',
-      startDate: body.startDate ? new Date(body.startDate) : null,
-      endDate: body.endDate ? new Date(body.endDate) : null,
+      title,
+      description,
+      type,
+      status,
+      startDate: startDate ? new Date(startDate) : null,
+      endDate: endDate ? new Date(endDate) : null,
       createdAt: ts,
       updatedAt: ts,
     })

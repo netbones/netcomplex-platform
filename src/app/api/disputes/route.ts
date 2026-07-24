@@ -11,6 +11,7 @@ import {
   users,
   getSessionAndRole,
   guardSuspension,
+  rateLimitByUser,
 } from '@api/server';
 
 import { hasPermission, apiLogger } from '@shared/lib';
@@ -124,6 +125,12 @@ export async function POST(request: Request) {
   if (guard) return guard;
   const featureCheck = await assertModuleEnabled('disputes');
   if (featureCheck) return featureCheck;
+
+  const rateLimit = await rateLimitByUser(authData.userId, {
+    windowMs: 60_000,
+    maxRequests: 5,
+  });
+  if (rateLimit) return rateLimit;
 
   try {
     const body = await request.json();

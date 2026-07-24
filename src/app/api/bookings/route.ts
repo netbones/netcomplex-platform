@@ -9,6 +9,7 @@ import {
   now,
   getSessionAndRole,
   guardSuspension,
+  rateLimitByUser,
 } from '@api/server';
 
 import { assertModuleEnabled } from '@entities/tenant/server';
@@ -113,6 +114,12 @@ export async function POST(request: Request) {
   if (!authData) {
     return apiUnauthorized();
   }
+
+  const rateLimit = await rateLimitByUser(authData.userId, {
+    windowMs: 60_000,
+    maxRequests: 10,
+  });
+  if (rateLimit) return rateLimit;
 
   // Feature gate: check bookings module is enabled for tenant
   const featureCheck = await assertModuleEnabled('bookings');

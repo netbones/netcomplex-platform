@@ -14,6 +14,7 @@ import {
   apiConflict,
   apiValidationError,
   now,
+  rateLimitByUser,
 } from '@api/server';
 
 import { eq, desc, and, sql, ne } from 'drizzle-orm';
@@ -158,6 +159,12 @@ export async function POST(request: NextRequest) {
       return apiUnauthorized();
     }
 
+    const rateLimit = await rateLimitByUser(session.user.id, {
+      windowMs: 60_000,
+      maxRequests: 10,
+    });
+    if (rateLimit) return rateLimit;
+
     const body = await request.json();
 
     // Validate body with Zod schema
@@ -294,6 +301,12 @@ export async function PATCH(request: NextRequest) {
     if (!session?.user?.id) {
       return apiUnauthorized();
     }
+
+    const rateLimit = await rateLimitByUser(session.user.id, {
+      windowMs: 60_000,
+      maxRequests: 10,
+    });
+    if (rateLimit) return rateLimit;
 
     const body = await request.json();
     const { bookingId, status } = body;
