@@ -57,6 +57,10 @@ describe('transition() — proxy-vote status machine', () => {
     it('PendingHoaReview + withdraw → Withdrawn', () => {
       expect(transition('PendingHoaReview', 'withdraw')).toBe('Withdrawn');
     });
+
+    it('WaitingForProxy + proxyDeclined → Withdrawn', () => {
+      expect(transition('WaitingForProxy', 'proxyDeclined')).toBe('Withdrawn');
+    });
   });
 
   describe('invalid transitions throw ProxyStatusError', () => {
