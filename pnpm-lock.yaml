@@ -199,6 +199,9 @@ importers:
       next:
         specifier: ^15.5.0
         version: 15.5.18(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(varlock@0.9.1)
+      next-themes:
+        specifier: ^0.4.6
+        version: 0.4.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       openai:
         specifier: ^6.45.0
         version: 6.45.0(@aws-sdk/credential-provider-node@3.972.27)(ws@8.20.0)(zod@3.25.76)
@@ -217,6 +220,9 @@ importers:
       posthog-js:
         specifier: 1.382.0
         version: 1.382.0
+      qrcode.react:
+        specifier: ^4.2.0
+        version: 4.2.0(react@19.2.4)
       react:
         specifier: ^19.2.4
         version: 19.2.4
@@ -235,6 +241,9 @@ importers:
       react-rnd:
         specifier: ^10.5.3
         version: 10.5.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      react-signature-canvas:
+        specifier: 1.1.0-alpha.2
+        version: 1.1.0-alpha.2(@types/react@19.2.14)(prop-types@15.8.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       resend:
         specifier: ^6.12.2
         version: 6.12.2
@@ -3455,6 +3464,9 @@ packages:
   '@types/retry@0.12.0':
     resolution: {integrity: sha512-wWKOClTTiizcZhXnPY4wikVAwmdYHp8q6DmC+EJUzAMsycb7HB32Kh9RN4+0gExjmPmZSAQjgURXIGATPegAvA==}
 
+  '@types/signature_pad@2.3.6':
+    resolution: {integrity: sha512-v3j92gCQJoxomHhd+yaG4Vsf8tRS/XbzWKqDv85UsqjMGy4zhokuwKe4b6vhbgncKkh+thF+gpz6+fypTtnFqQ==}
+
   '@types/statuses@2.0.6':
     resolution: {integrity: sha512-xMAgYwceFhRA2zY+XbEA7mxYbA093wdiW8Vu6gZPGWy9cmOyU9XesH1tNcEWsKFd5Vzrqx5T3D38PWx1FIIXkA==}
 
@@ -3645,12 +3657,12 @@ packages:
       next: '>=14'
       varlock: ^0.9.1
 
-  '@varlock/nextjs-integration@1.1.4':
-    resolution: {integrity: sha512-mARAT7jkAIuSlKeI4JHhVno/0FySTwJHuJsl0nHOxrnmficnHvUhXq7paUONMCoKOc4yrPp67yH4AkUskrpnEw==}
+  '@varlock/nextjs-integration@1.1.6':
+    resolution: {integrity: sha512-nbMyAokJeKovKGoG7vFsELbnp2C8YkPaSRB2BhV3JXBcWlfTXKgIN7uP/EelusPEEvgaJVPr83j4sujHPki8sg==}
     engines: {node: '>=22'}
     peerDependencies:
       next: '>=14'
-      varlock: ^1.10.0
+      varlock: ^1.11.0
 
   '@vercel/cli-config@0.2.0':
     resolution: {integrity: sha512-fJRRRB7734BDuXZ89yBEaA2ncYhH7bWX30mk04W80J6VAfQc+4iB8lyzAdaGpFV3/vNlkt9VZt+/uoQoWX6UsQ==}
@@ -6460,6 +6472,12 @@ packages:
     resolution: {integrity: sha512-md4cGoxuT4T4d/HDOXbrUHkTKrp/vp+m3aOA7XXVYwNsUNMK49g3SQicTSeV5GIz/5QVGAeYRAOlyp9OvlgsYA==}
     engines: {node: '>=10'}
 
+  next-themes@0.4.6:
+    resolution: {integrity: sha512-pZvgD5L0IEvX5/9GWyHMf3m8BKiVQwsCMHfoFosXtXBMnaS0ZnIJ9ST4b4NqLVKDEm8QBxoNNGNaBv2JNF6XNA==}
+    peerDependencies:
+      react: ^16.8 || ^17 || ^18 || ^19 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17 || ^18 || ^19 || ^19.0.0-rc
+
   next@15.5.18:
     resolution: {integrity: sha512-eKL8zUJkX9Y5lE+RX/2YJoItVdGlIscyVyboeD9wSpp0PaGqjoA4tTpT2qPqz9ax+5IzGESyLSeZ/RCwbSZ2uQ==}
     engines: {node: ^18.18.0 || ^19.8.0 || >= 20.0.0}
@@ -7198,6 +7216,11 @@ packages:
     resolution: {integrity: sha512-KTqnxsgGiQ6ZAzZCVlJH5eOjSnvlyEgx1m8bkRJfOhmGRqfo5KLvmAlACQkrjEtOQ4B7wF9TdSLIs9O90MX9xA==}
     engines: {node: '>=16.0.0'}
 
+  qrcode.react@4.2.0:
+    resolution: {integrity: sha512-QpgqWi8rD9DsS9EP3z7BT+5lY5SFhsqGjpgW5DY/i3mK4M9DTBNz3ErMi8BWYEfI3L0d8GIbGmcdFAS1uIRGjA==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
   qs@6.15.1:
     resolution: {integrity: sha512-6YHEFRL9mfgcAvql/XhwTvf5jKcOiiupt2FiJxHkiX1z4j7WL8J/jRHYLluORvc1XxB5rV20KoeK00gVJamspg==}
     engines: {node: '>=0.6'}
@@ -7289,6 +7312,20 @@ packages:
     peerDependencies:
       react: '>=16.3.0'
       react-dom: '>=16.3.0'
+
+  react-signature-canvas@1.1.0-alpha.2:
+    resolution: {integrity: sha512-tKUNk3Gmh04Ug4K8p5g8Is08BFUKvbXxi0PyetQ/f8OgCBzcx4vqNf9+OArY/TdNdfHtswXQNRwZD6tyELjkjQ==}
+    peerDependencies:
+      '@types/prop-types': ^15.7.3
+      '@types/react': 0.14 - 19
+      prop-types: ^15.5.8
+      react: 0.14 - 19
+      react-dom: 0.14 - 19
+    peerDependenciesMeta:
+      '@types/prop-types':
+        optional: true
+      '@types/react':
+        optional: true
 
   react-tabs@6.1.1:
     resolution: {integrity: sha512-CPiuKoMFf89B7QlbFfdBD9XmUWiE3qudQputMVZB8GQvPJZRX/gqjDaDWOPDwGinEfpJKEuBCkGt83Tt4efeyA==}
@@ -7656,6 +7693,9 @@ packages:
   signal-exit@4.1.0:
     resolution: {integrity: sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==}
     engines: {node: '>=14'}
+
+  signature_pad@2.3.2:
+    resolution: {integrity: sha512-peYXLxOsIY6MES2TrRLDiNg2T++8gGbpP2yaC+6Ohtxr+a2dzoaqWosWDY9sWqTAAk6E/TyQO+LJw9zQwyu5kA==}
 
   simple-concat@1.0.1:
     resolution: {integrity: sha512-cSFtAPtRhljv69IK0hTVZQ+OfE9nePi/rtJmw5UjHeVyVroEqJXP1sFztKUy1qU+xvz3u/sfYJLa947b7nAN2Q==}
@@ -8050,6 +8090,9 @@ packages:
   tr46@6.0.0:
     resolution: {integrity: sha512-bLVMLPtstlZ4iMQHpFHTR7GAGj2jxi8Dg0s2h2MafAE4uSWF98FC/3MomU51iQAMf8/qDUbKWf5GxuvvVcXEhw==}
     engines: {node: '>=20'}
+
+  trim-canvas@0.1.2:
+    resolution: {integrity: sha512-nd4Ga3iLFV94mdhW9JFMLpQbHUyCQuhFOD71PEAt1NjtMD5wbZctzhX8c3agHNybMR5zXD1XTGoIEWk995E6pQ==}
 
   ts-algebra@1.2.2:
     resolution: {integrity: sha512-kloPhf1hq3JbCPOTYoOWDKxebWjNb2o/LKnNfkWhxVVisFFmMJPPdJeGoGmM+iRLyoXAR61e08Pb+vUXINg8aA==}
@@ -12109,6 +12152,8 @@ snapshots:
 
   '@types/retry@0.12.0': {}
 
+  '@types/signature_pad@2.3.6': {}
+
   '@types/statuses@2.0.6': {}
 
   '@types/tough-cookie@4.0.5': {}
@@ -12309,7 +12354,7 @@ snapshots:
       next: 15.5.18(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(varlock@0.9.1)
       varlock: 0.9.1
 
-  '@varlock/nextjs-integration@1.1.4(next@15.5.18(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(varlock@0.9.1))(varlock@0.9.1)':
+  '@varlock/nextjs-integration@1.1.6(next@15.5.18(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(varlock@0.9.1))(varlock@0.9.1)':
     dependencies:
       next: 15.5.18(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(varlock@0.9.1)
       varlock: 0.9.1
@@ -15200,9 +15245,14 @@ snapshots:
 
   new-github-issue-url@0.2.1: {}
 
+  next-themes@0.4.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
+    dependencies:
+      react: 19.2.4
+      react-dom: 19.2.4(react@19.2.4)
+
   next@15.5.18(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(varlock@0.9.1):
     dependencies:
-      '@next/env': '@varlock/nextjs-integration@1.1.4(next@15.5.18(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(varlock@0.9.1))(varlock@0.9.1)'
+      '@next/env': '@varlock/nextjs-integration@1.1.6(next@15.5.18(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(varlock@0.9.1))(varlock@0.9.1)'
       '@swc/helpers': 0.5.15
       caniuse-lite: 1.0.30001781
       postcss: 8.4.31
@@ -16029,6 +16079,10 @@ snapshots:
 
   pvutils@1.1.5: {}
 
+  qrcode.react@4.2.0(react@19.2.4):
+    dependencies:
+      react: 19.2.4
+
   qs@6.15.1:
     dependencies:
       side-channel: 1.1.0
@@ -16116,6 +16170,18 @@ snapshots:
       react-dom: 19.2.4(react@19.2.4)
       react-draggable: 4.5.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       tslib: 2.6.2
+
+  react-signature-canvas@1.1.0-alpha.2(@types/react@19.2.14)(prop-types@15.8.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
+    dependencies:
+      '@babel/runtime': 7.29.2
+      '@types/signature_pad': 2.3.6
+      prop-types: 15.8.1
+      react: 19.2.4
+      react-dom: 19.2.4(react@19.2.4)
+      signature_pad: 2.3.2
+      trim-canvas: 0.1.2
+    optionalDependencies:
+      '@types/react': 19.2.14
 
   react-tabs@6.1.1(react@19.2.4):
     dependencies:
@@ -16625,6 +16691,8 @@ snapshots:
 
   signal-exit@4.1.0: {}
 
+  signature_pad@2.3.2: {}
+
   simple-concat@1.0.1: {}
 
   simple-get@4.0.1:
@@ -17094,6 +17162,8 @@ snapshots:
   tr46@6.0.0:
     dependencies:
       punycode: 2.3.1
+
+  trim-canvas@0.1.2: {}
 
   ts-algebra@1.2.2: {}
 
