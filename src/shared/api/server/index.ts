@@ -158,6 +158,9 @@ export {
   uploadTenantImage,
   listTenantImages,
   deleteTenantImage,
+  uploadDocument,
+  ALLOWED_DOCUMENT_TYPES,
+  MAX_DOCUMENT_SIZE,
 } from '../storage';
 export type { UploadResult, MediaItem } from '../storage';
 export { verifyTurnstile } from '../turnstile';

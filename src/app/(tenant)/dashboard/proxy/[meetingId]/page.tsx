@@ -92,7 +92,8 @@ async function ProxyWizardLoader({ meetingId }: { meetingId: string }) {
           ? proxyResponseDTO(existing as unknown as Parameters<typeof proxyResponseDTO>[0])
           : null
       }
-      userId={userId}
+      userId={''}
+      tenantId={tenantId}
     />
   );
 }

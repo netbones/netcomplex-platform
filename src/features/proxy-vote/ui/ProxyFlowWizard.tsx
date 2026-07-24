@@ -1,12 +1,17 @@
 'use client';
 
 import { useState } from 'react';
+
 import type { MeetingProxyDTO } from '@/features/proxy-vote/model/proxy-vote.dto';
 import type { ProxyStatus } from '@/features/proxy-vote/lib/status-transitions';
-import { STATUS_META } from '@/features/proxy-vote/lib/constants';
+import { isProxyEligible } from '@/features/proxy-vote/lib/constants';
 
 import { MeetingAttendancePrompt } from './MeetingAttendancePrompt';
 import { ProxySearchBox } from './ProxySearchBox';
+import { ProxyUploadForm } from './ProxyUploadForm';
+import { ProxyAcceptanceCard } from './ProxyAcceptanceCard';
+import { SignatureCanvas } from './SignatureCanvas';
+import { ProxyStatusCard } from './ProxyStatusCard';
 
 interface MeetingLite {
   id: string;
@@ -19,6 +24,7 @@ interface ProxyFlowWizardProps {
   meeting: MeetingLite;
   existingProxy: MeetingProxyDTO | null;
   userId: string;
+  tenantId: string;
 }
 
 const STEP_LABELS = [
@@ -50,7 +56,8 @@ function deriveStartStep(status: ProxyStatus | undefined): number {
   }
 }
 
-export function ProxyFlowWizard({ meeting, existingProxy, userId }: ProxyFlowWizardProps) {
+export function ProxyFlowWizard({ meeting, existingProxy, tenantId }: ProxyFlowWizardProps) {
+  const isEligible = isProxyEligible(meeting.category);
   const [step, setStep] = useState(() =>
     deriveStartStep(existingProxy?.status as ProxyStatus | undefined)
   );
@@ -63,12 +70,20 @@ export function ProxyFlowWizard({ meeting, existingProxy, userId }: ProxyFlowWiz
     setStep(current => Math.min(STEP_LABELS.length - 1, current + 1));
   }
 
+  if (!isEligible) {
+    return (
+      <div className="mx-auto max-w-xl p-6 text-sm text-amber-700">
+        This meeting does not accept proxy appointments.
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-3xl space-y-8 p-6">
       <header className="space-y-3">
         <h1 className="text-2xl font-semibold text-gray-900">Proxy appointment</h1>
         <p className="text-sm text-gray-500">
-          Step {step + 1} of {STEP_LABELS.length}
+          Step {step + 1} of {STEP_LABELS.length} · {meeting.title}
         </p>
       </header>
 
@@ -108,25 +123,45 @@ export function ProxyFlowWizard({ meeting, existingProxy, userId }: ProxyFlowWiz
         {step === 1 && (
           <ProxySearchBox onSelect={() => undefined} onNonResident={() => undefined} />
         )}
-        {step >= 2 && step <= 4 && (
+        {step === 2 && (
+          <ProxyUploadForm
+            proxyId={existingProxy?.id ?? 'pending'}
+            tenantId={tenantId}
+            onUploadComplete={() => {
+              next();
+            }}
+          />
+        )}
+        {step === 3 && existingProxy && (
           <div className="space-y-3">
-            <p className="text-sm font-medium text-gray-900">
-              Status: {STATUS_META[(existingProxy?.status as ProxyStatus) ?? 'Draft'].label}
+            <p className="text-sm text-gray-700">
+              Notification sent to proxy. Waiting for acceptance.
             </p>
-            <p className="text-sm text-gray-500">
-              {STATUS_META[(existingProxy?.status as ProxyStatus) ?? 'Draft'].description}
-            </p>
-            {step === 5 && (
-              <p className="text-sm font-medium text-emerald-700">
-                Wizard complete. Owner: {userId}
-              </p>
-            )}
+            <ProxyAcceptanceCard
+              proxy={existingProxy}
+              meetingTitle={meeting.title}
+              onAccept={() => {
+                next();
+              }}
+              onDecline={() => {
+                setStep(1);
+              }}
+            />
           </div>
         )}
-        {attendingChoice !== null && step === 1 && (
-          <p className="text-xs text-gray-500">
-            You chose: {attendingChoice ? 'I will attend' : 'I cannot attend'}
-          </p>
+        {step === 4 && existingProxy && (
+          <SignatureCanvas
+            proxyOwnerName={existingProxy.proxyName ?? 'Proxy owner'}
+            onSignatureChange={() => {
+              next();
+            }}
+          />
+        )}
+        {step === 5 && existingProxy && (
+          <ProxyStatusCard proxy={existingProxy} onWithdraw={() => undefined} />
+        )}
+        {!existingProxy && step >= 3 && (
+          <p className="text-sm text-amber-700">Save the proxy appointment to continue.</p>
         )}
       </section>
 
