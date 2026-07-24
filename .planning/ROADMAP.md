@@ -978,13 +978,13 @@ _Features explicitly deferred to post-M5b. The 8 feature items originally in the
 
 **Goal:** Build the platform SaaS billing foundation — the source of truth for tenant subscription plans, payments, and invoicing. Establish BillingPlan → TenantSubscription → Tenant.tier pipeline, create 10 billing domain models with Drizzle schemas, implement checkout & subscription lifecycle (create/upgrade/downgrade/cancel), wire platform admin routes + widgets, and build tenant-facing billing portal at /tenant/billing.
 
-**Status:** 📋 Planned — 4 plans in 3 waves
+**Status:** ✅ Complete — 4/4 plans with summaries
 
 **Requirements:** BILL-01, BILL-02, BILL-03, BILL-04
 
 **Depends on:** Phase 46 (Provider Platform — reuses PaystackService/PayPalService)
 
-**Plans:** 2/4 plans executed
+**Plans:** 4/4 plans executed
 
 | Wave | Plan                | Objective                                                                                                                           |
 | ---- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
@@ -1022,7 +1022,7 @@ Plans:
 
 **Goal:** Build the central Platform Address Registry — the canonical namespace for all addresses within a tenant. Replace the current 5-table address scatter (`StandardSeat`, `SoloSeat`, `PremiumSeat`, `Profile`, `Property`) with a single `Address` table as source of truth, add a `Handle` model for `@mention` resolution, and add `AddressEndpoint` for transport decoupling. This is foundational infrastructure consumed by chat mentions, provider onboarding, dWallet identity, and future federation.
 
-**Status:** 📋 Planned — 3 plans in 3 waves
+**Status:** ✅ Complete — 3/3 plans with summaries
 
 **Requirements:** ADDR-01, ADDR-02, ADDR-03, ADDR-04, ADDR-05, ADDR-06, ADDR-07
 
@@ -1044,7 +1044,7 @@ Plans:
 
 **Acceptance:** `Address` table populated from all 5 existing seat/profile tables. `addressId` FKs added to `StandardSeat`, `SoloSeat`, `PremiumSeat`, `Profile`, `Property`, `ServiceProvider`. `@unique` constraint enforces cross-type uniqueness. `assertAddressUnique()` updated to check Address table. Migration reversible. All existing seat creation/update routes use `AddressService`.
 
-**Plans:** 3 plans
+**Plans:** 3/3 complete
 
 | Wave | Plan                | Objective                                                                                              |
 | ---- | ------------------- | ------------------------------------------------------------------------------------------------------ |
