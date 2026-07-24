@@ -99,3 +99,15 @@ export const ALL_PROXY_STATUS_EVENTS: readonly ProxyStatusEvent[] = [
   'reject',
   'withdraw',
 ] as const;
+
+/**
+ * Read-only adjacency map exposed for diagnostics, UI rendering, and tests.
+ * This is a public, frozen view onto the same data powering `transition()`.
+ * Mutating the returned object is a no-op — TypeScript will reject it via
+ * `Readonly<>` wrappers.
+ */
+export type StatusTransitionMap = Readonly<
+  Record<ProxyStatus, Readonly<Partial<Record<ProxyStatusEvent, ProxyStatus>>>>
+>;
+
+export const statusTransitionMap: StatusTransitionMap = TRANSITIONS;
