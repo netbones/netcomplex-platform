@@ -323,17 +323,48 @@ AchievementDefinition, AddressEndpoint, AiCapabilityCost, ContentAuditLog, Conte
 
 ## 6. Duplication Between Models
 
-| Pair                                       | Overlap                                                                                                                                                                                                                                                                           |
-| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| user vs Profile                            | Both have avatar, isPublic, showEmail, showPhone. There is conceptual overlap between a system-level user and a household profile/occupant.                                                                                                                                       |
-| PremiumSeat / SoloSeat / StandardSeat      | Three nearly identical seat models with shared fields: tenantId, userId, platformAddress, organizationId, status, archivedAt, createdAt, updatedAt, addressId, FK to Address. This is polymorphism via separate models rather than a single Seat model with a type discriminator. |
-| RequestNote / InternalMaintenanceNote      | Both store notes on a MaintenanceRequest with userId, content, createdAt. The only difference is `isInternal` boolean in RequestNote. These could be unified with a single type field.                                                                                            |
-| CommunityServiceListing vs PropertyListing | Both are listings with tenantId, status, isPublished, isFeatured, organizationId, createdAt, updatedAt, deletedAt, price fields, description. Could share a base listing interface/table.                                                                                         |
-| TenantInvoice vs ProviderInvoice           | Nearly identical structure: tenantId, subscriptionId, items (Json), total, currency, status, pdfUrl, paidAt. Related to different subscriptions but same concept.                                                                                                                 |
-| TenantPayment vs PaymentTransaction        | Both track payments with tenantId, amount, currency, platformFee, processorFee, netAmount, gateway, externalRef.                                                                                                                                                                  |
-| Notification vs DisputeNotification        | Both store notifications with userId, read, createdAt.                                                                                                                                                                                                                            |
-| user duplicate relation names              | `profile_profile_landlordIdTouser` and `profile_profile_userIdTouser` reference the same Profile model with two different FK roles, forcing verbose auto-generated relation names.                                                                                                |
-| Outbox / OutboxDeadLetter                  | Nearly identical structure — the dead letter queue is just an outbox entry that failed.                                                                                                                                                                                           |
+| Pair                                       | Overlap                                                                                                                                                                                                                                                                                                                   |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| user vs Profile                            | Both have avatar, isPublic, showEmail, showPhone. There is conceptual overlap between a system-level user and a household profile/occupant.                                                                                                                                                                               |
+| PremiumSeat / SoloSeat / StandardSeat      | Three nearly identical seat models with shared fields: tenantId, userId, platformAddress, organizationId, status, archivedAt, createdAt, updatedAt, addressId, FK to Address. Polymorphism via separate models rather than a single Seat model. ⚠️ **See discussion below** — this is deliberate per `IDENTITY_MODEL.md`. |
+| RequestNote / InternalMaintenanceNote      | Both store notes on a MaintenanceRequest with userId, content, createdAt. The only difference is `isInternal` boolean in RequestNote. These could be unified with a single type field.                                                                                                                                    |
+| CommunityServiceListing vs PropertyListing | Both are listings with tenantId, status, isPublished, isFeatured, organizationId, createdAt, updatedAt, deletedAt, price fields, description. Could share a base listing interface/table.                                                                                                                                 |
+| TenantInvoice vs ProviderInvoice           | Nearly identical structure but domain-correct separation (platform-bills-tenant vs platform-settles-with-provider). ⚠️ **Not true duplication** — see discussion below. Share a Zod schema for `items: Json` instead of consolidating tables.                                                                             |
+| TenantPayment vs PaymentTransaction        | Both track payments with tenantId, amount, currency, platformFee, processorFee, netAmount, gateway, externalRef. ⚠️ **Not true duplication** — they represent billing-in vs billing-out. A shared Zod schema for the common shape is the right fix, not table consolidation.                                              |
+| Notification vs DisputeNotification        | Both store notifications with userId, read, createdAt.                                                                                                                                                                                                                                                                    |
+| user duplicate relation names              | `profile_profile_landlordIdTouser` and `profile_profile_userIdTouser` reference the same Profile model with two different FK roles, forcing verbose auto-generated relation names.                                                                                                                                        |
+| Outbox / OutboxDeadLetter                  | Nearly identical structure — the dead letter queue is just an outbox entry that failed.                                                                                                                                                                                                                                   |
+
+### Clarification: Seat duplication is deliberate
+
+Per `IDENTITY_MODEL.md`, a polymorphic `Seat` model with a `SeatType` discriminator was **deliberately rejected**. The reasoning: seat type is inherently known by which table the record lives in — no cross-table discriminator required. The three models represent different domain concepts:
+
+| Seat         | Semantics                                                                 |
+| ------------ | ------------------------------------------------------------------------- |
+| StandardSeat | Property ownership, required, 1-per-household, tied to a Property         |
+| SoloSeat     | Liberation from household constraints, optional upgrade, tied to Profile  |
+| PremiumSeat  | Portfolio consolidation across multiple properties, investor pricing tier |
+
+These differences are load-bearing in the product model (PRD persona table, Seat Comparison Matrix, upgrade-path diagrams). The cardinality asymmetry flagged in the analysis (`user.premiumSeat` singular vs `user.soloSeat[]`/`user.standardSeat[]` arrays) is intentional — a user can have multiple Standard/Solo Seats but exactly zero or one Premium Seat.
+
+**Options for seat duplication (evaluated in `SCHEMA_DISCUSS.md`):**
+
+| Option                                  | Approach                                                                                                            | Trade-off                                                                                                          |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| A — Leave as-is                         | Accept the overlap as the cost of type-safety-by-table                                                              | Zero migration risk. Ongoing manual sync when adding shared fields (e.g. `archivedAt`/`status` had to be added 3×) |
+| B — Prisma inheritance                  | Ruled out — Prisma has no table inheritance                                                                         | N/A                                                                                                                |
+| C — Extract base `Seat` table           | `Seat { shared fields + kind }` + `StandardSeatDetail` / `SoloSeatDetail` / `PremiumSeatDetail` holding only deltas | Real migration rewiring FKs, but ends drift-on-every-shared-field problem permanently                              |
+| D — Codegen/lint guard (✅ recommended) | Steiger/ESLint rule fails CI if the 3 models' shared-field set diverges                                             | No migration; addresses _future_ drift without touching settled architecture                                       |
+
+**`SCHEMA_DISCUSS.md` recommendation: D.** The settled architecture decision in `IDENTITY_MODEL.md` should not be re-litigated. A lint guard prevents silent divergence without reopening the consolidated table debate.
+
+**Human note (2026-07-24):** Inclined toward **C** (extract base table) — feels like the more structurally sound fix long-term. Not yet decided; this conversation is captured for future reference.
+
+### Clarification: Invoice/Payment duplication is domain-correct
+
+`TenantInvoice`/`TenantPayment` represent **platform billing the tenant** (subtotal, taxAmount, downloadReady — tax-inclusive SaaS billing). `ProviderInvoice`/`PaymentTransaction` represent **platform settling with marketplace providers** (platformFee, processorFee, netAmount — revenue-split accounting). These are billing-out vs billing-in, not accidental duplication.
+
+The overlap (`invoiceNumber`, `items`, `total`, `currency`, `status`, `paidAt`, `pdfUrl`) is exactly what you'd expect from two invoice-shaped tables in different subdomains. **Actionable fix:** extract a shared Zod schema/validator for the `items: Json` field so they can't independently drift in shape, but do not consolidate tables.
 
 ### Shared patterns that could be abstracted:
 
@@ -379,7 +410,20 @@ account, verification, passkey, session, twoFactor, user, Organization, Platform
 | ProviderReputation      | totalScore, responseTimeScore, qualityScore, reviewScore, complianceScore, engagementScore, lastCalculatedAt | Composite scores — expensive to recalculate, prone to staleness.                      |
 | MaintenanceRequest      | ticketNumber (String)                                                                                        | Manually generated ticket number; no uniqueness constraint. Could collide.            |
 
-**Recommendation:** All computed aggregate fields should have periodic reconciliation jobs or be backed by materialized views. Alternatively, computed on-the-fly via `SELECT COUNT(*)` at the cost of performance.
+### Remediation approach (per `SCHEMA_DISCUSS.md`)
+
+The `Outbox`/`OutboxDeadLetter` models already exist for durable domain-event side effects. None of the ~13 denormalized fields currently route through it. The recommended split-by-consequence approach:
+
+| Option                                                        | Approach                                                                                                          | Fits which fields                                                                                                                                              |
+| ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A — Status quo                                                | Direct increment/decrement at write time, no reconciliation                                                       | Current state — accumulating drift risk                                                                                                                        |
+| B — Outbox-driven recompute ✅ (recommended for money/limits) | Every write emits an Outbox event; dispatcher recomputes aggregate from source-of-truth (idempotent, replay-safe) | DWallet.balance/lifetimeEarned/lifetimePaid, Competition.entryCount, Coupon.currentRedemptions, CommunityServiceListing.rating/reviewCount                     |
+| C — Scheduled cron reconciliation                             | Periodic cron recomputes and corrects drift, logs discrepancies                                                   | Content.viewCount, Resource.downloadCount, ProviderReputation composite scores, AgentProfile aggregates — analytics-adjacent, tolerant of eventual consistency |
+| D — On-the-fly `SELECT COUNT`/`SUM`                           | Drop denormalized field, compute at read time                                                                     | Tenant.pageCount — cheap query, low read frequency, no reason to denormalize                                                                                   |
+
+**🚩 Urgent:** `DWallet.balance` drifting from `WalletTransaction` sum is real money (POPIA/audit-log standing requirement applies 5-year retention). Worth its own gate before the others.
+
+_Note: The existing analysis draft recommended a generic "periodic reconciliation" approach. The above refinement from `SCHEMA_DISCUSS.md` splits by consequence and leverages the Outbox infrastructure you already have._
 
 ## 9. Cascade Delete Rules (or Lack Thereof)
 
@@ -481,7 +525,19 @@ File: `/home/ubuntupunk/Projects/soralia-village/drizzle/meta/_journal.json`
 
 ### Remaining open items
 
-- Model duplication [soralia-village-sioz]
-- Denormalized aggregates drift risk [soralia-village-g8c3]
+- Model duplication [soralia-village-sioz] — see §6 for clarification: seat duplication is deliberate per `IDENTITY_MODEL.md`; invoice/payment duplication is domain-correct.
+- Denormalized aggregates drift risk [soralia-village-g8c3] — see §8 for split-by-consequence approach. DWallet.balance flagged as urgent (real money, POPIA).
 - notDeleted() adoption [soralia-village-h9o4]
 - tsc --noEmit hang tracked as [soralia-village-8rve]
+
+### Discussion record: `SCHEMA_DISCUSS.md` (2026-07-24)
+
+The document `SCHEMA_DISCUSS.md` contains a peer-review conversation that refined several findings in this analysis:
+
+| Topic                          | Previous framing                   | Clarification                                                                                                                    |
+| ------------------------------ | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Seat model duplication §6      | "Polymorphism via separate models" | Deliberate design per `IDENTITY_MODEL.md`. Option D (codegen/lint guard) recommended; Option C (base table) under consideration. |
+| Invoice/payment duplication §6 | "Near-duplicate" / "same concept"  | Domain-correct separation (billing-out vs billing-in). Share a Zod schema for `items: Json`; do not consolidate tables.          |
+| Denormalized aggregates §8     | Generic "periodic reconciliation"  | Split by consequence: Outbox-driven recompute for money/limits, cron for display counters, remove `Tenant.pageCount`.            |
+
+**Human note (2026-07-24):** Inclined toward Option C for seat models (extract base `Seat` table). Not yet decided on direction or final recommendation. This conversation is captured here for future reference when these items are revisited.
