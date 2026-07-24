@@ -6,33 +6,4 @@ import { users } from './users';
 import { tenants } from './tenants';
 import { residentDelegations } from './resident-delegations';
 
-export const profilesRelations = relations(profiles, helpers => ({
-  aliasAddress: helpers.one(addresses, {
-    relationName: 'AddressToProfile',
-    fields: [profiles.aliasAddressId],
-    references: [addresses.id],
-  }),
-  household: helpers.one(households, {
-    relationName: 'HouseholdToProfile',
-    fields: [profiles.householdId],
-    references: [households.id],
-  }),
-  user_profile_landlordIdTouser: helpers.one(users, {
-    relationName: 'profile_landlordIdTouser',
-    fields: [profiles.landlordId],
-    references: [users.id],
-  }),
-  Tenant: helpers.one(tenants, {
-    relationName: 'ProfileToTenant',
-    fields: [profiles.tenantId],
-    references: [tenants.id],
-  }),
-  user_profile_userIdTouser: helpers.one(users, {
-    relationName: 'profile_userIdTouser',
-    fields: [profiles.userId],
-    references: [users.id],
-  }),
-  residentDelegations: helpers.many(residentDelegations, {
-    relationName: 'ProfileToResidentDelegation',
-  }),
-}));
+export const profilesRelations = relations(profiles, (helpers) => ({ aliasAddress: helpers.one(addresses, { relationName: 'AddressToProfile', fields: [ profiles.aliasAddressId ], references: [ addresses.id ] }), household: helpers.one(households, { relationName: 'HouseholdToProfile', fields: [ profiles.householdId ], references: [ households.id ] }), user_profile_landlordIdTouser: helpers.one(users, { relationName: 'profile_landlordIdTouser', fields: [ profiles.landlordId ], references: [ users.id ] }), Tenant: helpers.one(tenants, { relationName: 'ProfileToTenant', fields: [ profiles.tenantId ], references: [ tenants.id ] }), user_profile_userIdTouser: helpers.one(users, { relationName: 'profile_userIdTouser', fields: [ profiles.userId ], references: [ users.id ] }), residentDelegations: helpers.many(residentDelegations, { relationName: 'ProfileToResidentDelegation' }) }));

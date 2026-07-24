@@ -5,5 +5,6 @@
 // See ADR-020 and docs/advisories/ADVISORY-008.md for rationale.
 
 export { buildContentConditions, resolveLocale, transformContentForLocale } from './services';
+export { snapshotContentVersion, insertAuditLog } from './services/audit';
 export { listContent, createContent } from './api/route';
 export { toContentDTO, toPublicContentDTO } from '@api/server';

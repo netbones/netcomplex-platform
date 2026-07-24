@@ -151,6 +151,8 @@ import { setupSettings } from '@schema/setup-settings';
 import { mediaUploads } from '@schema/media-uploads';
 import { outboxes } from '@schema/outboxes';
 import { outboxDeadLetters } from '@schema/outbox-dead-letters';
+import { contentVersions } from '@schema/content-versions';
+import { contentAuditLogs } from '@schema/content-audit-logs';
 
 import { ENV } from 'varlock/env';
 import { dbLogger } from '@shared/lib';
@@ -170,6 +172,8 @@ const dbSchema = {
   premiumSeats,
   contentLikes,
   contents,
+  contentVersions,
+  contentAuditLogs,
   dataConsents,
   dataRevenueStreams,
   dataShareBatches,
@@ -409,6 +413,8 @@ export {
   premiumSeats,
   contentLikes,
   contents,
+  contentVersions,
+  contentAuditLogs,
   dataConsents,
   dataRevenueStreams,
   dataShareBatches,

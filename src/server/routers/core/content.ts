@@ -8,6 +8,7 @@ import {
   db,
   contents,
   contentLikes,
+  contentVersions,
   users,
   groups,
   groupMembers,
@@ -45,6 +46,7 @@ import {
   resolveLocale,
   transformContentForLocale,
 } from '@entities/content/server';
+import { snapshotContentVersion, insertAuditLog } from '@entities/content/server';
 import { createId } from '@shared/lib';
 // ──────────────────────────────────────────
 // Input Schemas
@@ -370,6 +372,8 @@ export const contentRouter = router({
 
       revalidateContent();
 
+      insertAuditLog(content.id, 'CREATED', ctx.userId);
+
       emitEvent('content.created', {
         tenantId,
         userId: ctx.userId,
@@ -450,6 +454,9 @@ export const contentRouter = router({
       .where(and(eq(contents.id, input.id), eq(contents.tenantId, tenantId)))
       .returning();
 
+    await snapshotContentVersion(input.id, ctx.userId, 'tRPC updateContent');
+    await insertAuditLog(input.id, 'UPDATED', ctx.userId, { changes: Object.keys(updateData) });
+
     revalidateContent();
 
     return toEnvelope(contentDto.parse(updated));
@@ -468,6 +475,8 @@ export const contentRouter = router({
       .update(contents)
       .set({ deletedAt: now(), updatedAt: now() })
       .where(and(eq(contents.id, input.id), eq(contents.tenantId, tenantId)));
+
+    await insertAuditLog(input.id, 'DELETED', ctx.userId);
 
     revalidateContent();
 
@@ -504,9 +513,93 @@ export const contentRouter = router({
         })
         .where(and(eq(contents.id, input.id), eq(contents.tenantId, tenantId)));
 
+      const auditAction = input.moderationStatus === 'PUBLISHED'
+        ? 'PUBLISHED'
+        : input.moderationStatus === 'UNPUBLISHED'
+          ? 'UNPUBLISHED'
+          : input.moderationStatus === 'FLAGGED'
+            ? 'FLAGGED'
+            : 'UPDATED';
+
+      await insertAuditLog(input.id, auditAction, ctx.userId, { moderationStatus: input.moderationStatus });
+
       revalidateContent();
 
       return toEnvelope({ id: input.id, moderationStatus: input.moderationStatus });
+    }),
+
+  /**
+   * List content versions for a content item — staff only.
+   * @privileged
+   */
+  getVersions: privilegedProcedure.input(IdInput).query(async ({ input, ctx }) => {
+    requireContentPermission(ctx.role);
+
+    const versions = await db
+      .select({
+        id: contentVersions.id,
+        version: contentVersions.version,
+        snapshot: contentVersions.snapshot,
+        userId: contentVersions.userId,
+        changeSummary: contentVersions.changeSummary,
+        createdAt: contentVersions.createdAt,
+      })
+      .from(contentVersions)
+      .where(eq(contentVersions.contentId, input.id))
+      .orderBy(desc(contentVersions.version));
+
+    return toEnvelope(versions);
+  }),
+
+  /**
+   * Restore a content version — staff only.
+   * Takes a snapshot of the current state first, then restores the selected version.
+   * @privileged
+   */
+  restoreVersion: privilegedProcedure
+    .input(z.object({ contentId: z.string(), versionId: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      requireContentPermission(ctx.role);
+
+      const tenantId = ctx.tenantId;
+
+      const [version] = await db
+        .select()
+        .from(contentVersions)
+        .where(
+          and(
+            eq(contentVersions.id, input.versionId),
+            eq(contentVersions.contentId, input.contentId)
+          )
+        )
+        .limit(1);
+
+      if (!version) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Version not found' });
+      }
+
+      await snapshotContentVersion(input.contentId, ctx.userId, 'Pre-restore snapshot');
+
+      const snap = version.snapshot as Record<string, unknown>;
+
+      await db
+        .update(contents)
+        .set(snap as typeof contents.$inferInsert)
+        .where(and(eq(contents.id, input.contentId), eq(contents.tenantId, tenantId)));
+
+      await db
+        .update(contents)
+        .set({ updatedAt: now() } as typeof contents.$inferInsert)
+        .where(and(eq(contents.id, input.contentId), eq(contents.tenantId, tenantId)));
+
+      await insertAuditLog(input.contentId, 'RESTORED', ctx.userId, {
+        restoredFromVersion: version.version,
+        restoredFromVersionId: input.versionId,
+      });
+
+      revalidateContent();
+
+      return toEnvelope({ restored: true, version: version.version });
     }),
 
   /**

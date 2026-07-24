@@ -2,26 +2,4 @@ import { pgTable, text, timestamp, jsonb } from 'drizzle-orm/pg-core';
 import { proxyStatusEnum } from './proxy-status-enum';
 import { signatureProviderEnum } from './signature-provider-enum';
 
-export const meetingProxies = pgTable('meeting_proxies', {
-  id: text('id').primaryKey(),
-  tenantId: text('tenantId').notNull(),
-  meetingId: text('meetingId').notNull(),
-  ownerUserId: text('ownerUserId').notNull(),
-  ownerHouseholdId: text('ownerHouseholdId').notNull(),
-  proxyUserId: text('proxyUserId'),
-  proxyName: text('proxyName'),
-  proxyEmail: text('proxyEmail'),
-  proxyPhone: text('proxyPhone'),
-  formDocumentId: text('formDocumentId'),
-  ownerSignedAt: timestamp('ownerSignedAt', { mode: 'date', precision: 3 }),
-  proxySignedAt: timestamp('proxySignedAt', { mode: 'date', precision: 3 }),
-  approvedBy: text('approvedBy'),
-  approvedAt: timestamp('approvedAt', { mode: 'date', precision: 3 }),
-  status: proxyStatusEnum('status').default('Draft').notNull(),
-  notes: text('notes'),
-  signatureProvider: signatureProviderEnum('signatureProvider').default('INTERNAL').notNull(),
-  signatureEvidence: jsonb('signatureEvidence').default({}).notNull(),
-  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
-  updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull(),
-  referenceCode: text('referenceCode'),
-});
+export const meetingProxies = pgTable('meeting_proxies', { id: text('id').primaryKey(), tenantId: text('tenantId').notNull(), meetingId: text('meetingId').notNull(), ownerUserId: text('ownerUserId').notNull(), ownerHouseholdId: text('ownerHouseholdId').notNull(), proxyUserId: text('proxyUserId'), proxyName: text('proxyName'), proxyEmail: text('proxyEmail'), proxyPhone: text('proxyPhone'), formDocumentId: text('formDocumentId'), ownerSignedAt: timestamp('ownerSignedAt', { mode: 'date', precision: 3 }), proxySignedAt: timestamp('proxySignedAt', { mode: 'date', precision: 3 }), approvedBy: text('approvedBy'), approvedAt: timestamp('approvedAt', { mode: 'date', precision: 3 }), status: proxyStatusEnum('status').default('Draft').notNull(), notes: text('notes'), signatureProvider: signatureProviderEnum('signatureProvider').default('INTERNAL').notNull(), signatureEvidence: jsonb('signatureEvidence').default({}).notNull(), createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull(), referenceCode: text('referenceCode') });

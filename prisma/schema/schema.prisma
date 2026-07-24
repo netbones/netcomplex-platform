@@ -139,6 +139,8 @@ model user {
   CompetitionEntry                                      CompetitionEntry[]
   Content                                               Content[]
   ContentLike                                           ContentLike[]
+  ContentVersion                                        ContentVersion[]
+  ContentAuditLog                                       ContentAuditLog[]
   ConversationParticipant                               ConversationParticipant[]
   dWallet                                               DWallet?
   delegationActionsAsActor                              DelegationAction[]
@@ -772,6 +774,8 @@ model Content {
   Group            Group?           @relation(fields: [groupId], references: [id])
   Tenant           Tenant           @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   likes            ContentLike[]
+  versions         ContentVersion[]
+  auditLogs        ContentAuditLog[]
 
   @@index([authorId])
   @@index([groupId])
@@ -793,6 +797,36 @@ model ContentLike {
   @@index([contentId])
   @@index([userId])
   @@index([tenantId])
+}
+
+model ContentVersion {
+  id            String   @id
+  contentId     String
+  version       Int
+  snapshot      Json
+  userId        String?
+  changeSummary String?
+  createdAt     DateTime @default(now())
+  content       Content  @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  user          user?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([contentId])
+  @@index([contentId, version])
+}
+
+model ContentAuditLog {
+  id        String   @id
+  contentId String
+  userId    String?
+  action    ContentAuditAction
+  metadata  Json?
+  createdAt DateTime @default(now())
+  content   Content  @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  user      user?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([contentId])
+  @@index([contentId, createdAt])
+  @@index([action])
 }
 
 model Support {
@@ -2801,6 +2835,16 @@ enum ModerationStatus {
   PUBLISHED
   UNPUBLISHED
   FLAGGED
+}
+
+enum ContentAuditAction {
+  CREATED
+  UPDATED
+  PUBLISHED
+  UNPUBLISHED
+  FLAGGED
+  DELETED
+  RESTORED
 }
 
 enum GroupAccess {

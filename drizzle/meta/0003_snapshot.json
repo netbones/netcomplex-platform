@@ -1,6 +1,6 @@
 {
-  "id": "3fa8df16-f8fc-4095-8d5e-98166c03cb41",
-  "prevId": "0306484a-f8de-4bda-b9f7-b734d312d9d0",
+  "id": "958d3720-7847-4af3-a74b-52e64f5ff383",
+  "prevId": "3fa8df16-f8fc-4095-8d5e-98166c03cb41",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -2514,6 +2514,57 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.ContentAuditLog": {
+      "name": "ContentAuditLog",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "contentId": {
+          "name": "contentId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "action": {
+          "name": "action",
+          "type": "ContentAuditAction",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.ContentLike": {
       "name": "ContentLike",
       "schema": "",
@@ -2554,6 +2605,62 @@
           "type": "timestamp (3)",
           "primaryKey": false,
           "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ContentVersion": {
+      "name": "ContentVersion",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "contentId": {
+          "name": "contentId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "version": {
+          "name": "version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "snapshot": {
+          "name": "snapshot",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "changeSummary": {
+          "name": "changeSummary",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
         }
       },
       "indexes": {},
@@ -5134,6 +5241,151 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.meeting_proxies": {
+      "name": "meeting_proxies",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "tenantId": {
+          "name": "tenantId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "meetingId": {
+          "name": "meetingId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ownerUserId": {
+          "name": "ownerUserId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ownerHouseholdId": {
+          "name": "ownerHouseholdId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "proxyUserId": {
+          "name": "proxyUserId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "proxyName": {
+          "name": "proxyName",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "proxyEmail": {
+          "name": "proxyEmail",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "proxyPhone": {
+          "name": "proxyPhone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "formDocumentId": {
+          "name": "formDocumentId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ownerSignedAt": {
+          "name": "ownerSignedAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "proxySignedAt": {
+          "name": "proxySignedAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "approvedBy": {
+          "name": "approvedBy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "approvedAt": {
+          "name": "approvedAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "ProxyStatus",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'Draft'"
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "signatureProvider": {
+          "name": "signatureProvider",
+          "type": "SignatureProvider",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'INTERNAL'"
+        },
+        "signatureEvidence": {
+          "name": "signatureEvidence",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::jsonb"
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "referenceCode": {
+          "name": "referenceCode",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
@@ -8385,6 +8637,14 @@
           "primaryKey": false,
           "notNull": true
         },
+        "type": {
+          "name": "type",
+          "type": "SettingValueType",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'STRING'"
+        },
         "createdAt": {
           "name": "createdAt",
           "type": "timestamp (3)",
@@ -9389,44 +9649,7 @@
           "notNull": false
         }
       },
-      "indexes": {
-        "TenantFeatureFlag_tenantId_featureKey_key": {
-          "name": "TenantFeatureFlag_tenantId_featureKey_key",
-          "columns": [
-            {
-              "expression": "tenantId",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "featureKey",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "TenantFeatureFlag_tenantId_idx": {
-          "name": "TenantFeatureFlag_tenantId_idx",
-          "columns": [
-            {
-              "expression": "tenantId",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
+      "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
@@ -10656,12 +10879,23 @@
     "public.AchievementCategory": {
       "name": "AchievementCategory",
       "schema": "public",
-      "values": ["ENGAGEMENT", "CONTRIBUTION", "MILESTONE"]
+      "values": [
+        "ENGAGEMENT",
+        "CONTRIBUTION",
+        "MILESTONE"
+      ]
     },
     "public.AddressKind": {
       "name": "AddressKind",
       "schema": "public",
-      "values": ["STANDARD", "ALIAS", "SOLO", "PREMIUM", "PROVIDER", "SYSTEM"]
+      "values": [
+        "STANDARD",
+        "ALIAS",
+        "SOLO",
+        "PREMIUM",
+        "PROVIDER",
+        "SYSTEM"
+      ]
     },
     "public.AddressOwnerType": {
       "name": "AddressOwnerType",
@@ -10679,27 +10913,50 @@
     "public.AddressStatus": {
       "name": "AddressStatus",
       "schema": "public",
-      "values": ["ACTIVE", "RESERVED", "COOLING_OFF", "ARCHIVED", "DELETED"]
+      "values": [
+        "ACTIVE",
+        "RESERVED",
+        "COOLING_OFF",
+        "ARCHIVED",
+        "DELETED"
+      ]
     },
     "public.AgentAccessLevel": {
       "name": "AgentAccessLevel",
       "schema": "public",
-      "values": ["VIEW_ONLY", "MANAGEMENT", "FULL_ACCESS"]
+      "values": [
+        "VIEW_ONLY",
+        "MANAGEMENT",
+        "FULL_ACCESS"
+      ]
     },
     "public.AiOveragePolicy": {
       "name": "AiOveragePolicy",
       "schema": "public",
-      "values": ["HARD_STOP", "THROTTLE", "SURCHARGE"]
+      "values": [
+        "HARD_STOP",
+        "THROTTLE",
+        "SURCHARGE"
+      ]
     },
     "public.AiUsageStatus": {
       "name": "AiUsageStatus",
       "schema": "public",
-      "values": ["ACTIVE", "SETTLED", "OVERRIDDEN"]
+      "values": [
+        "ACTIVE",
+        "SETTLED",
+        "OVERRIDDEN"
+      ]
     },
     "public.BatchStatus": {
       "name": "BatchStatus",
       "schema": "public",
-      "values": ["PENDING", "PROCESSING", "COMPLETED", "FAILED"]
+      "values": [
+        "PENDING",
+        "PROCESSING",
+        "COMPLETED",
+        "FAILED"
+      ]
     },
     "public.BehaviorCategory": {
       "name": "BehaviorCategory",
@@ -10719,17 +10976,30 @@
     "public.BehaviorRecordStatus": {
       "name": "BehaviorRecordStatus",
       "schema": "public",
-      "values": ["ACTIVE", "DISPUTED", "UPHELD", "OVERTURNED"]
+      "values": [
+        "ACTIVE",
+        "DISPUTED",
+        "UPHELD",
+        "OVERTURNED"
+      ]
     },
     "public.BehaviorType": {
       "name": "BehaviorType",
       "schema": "public",
-      "values": ["MERIT", "WARNING", "INFRACTION"]
+      "values": [
+        "MERIT",
+        "WARNING",
+        "INFRACTION"
+      ]
     },
     "public.BillingAdjustmentType": {
       "name": "BillingAdjustmentType",
       "schema": "public",
-      "values": ["CREDIT", "DEBIT", "DISCOUNT"]
+      "values": [
+        "CREDIT",
+        "DEBIT",
+        "DISCOUNT"
+      ]
     },
     "public.BillingEventType": {
       "name": "BillingEventType",
@@ -10747,32 +11017,69 @@
     "public.BillingPlanInterval": {
       "name": "BillingPlanInterval",
       "schema": "public",
-      "values": ["MONTHLY", "ANNUAL"]
+      "values": [
+        "MONTHLY",
+        "ANNUAL"
+      ]
     },
     "public.BookingPaymentStatus": {
       "name": "BookingPaymentStatus",
       "schema": "public",
-      "values": ["PENDING", "COMPLETED", "REFUNDED"]
+      "values": [
+        "PENDING",
+        "COMPLETED",
+        "REFUNDED"
+      ]
     },
     "public.BookingStatus": {
       "name": "BookingStatus",
       "schema": "public",
-      "values": ["CONFIRMED", "CANCELLED", "COMPLETED"]
+      "values": [
+        "CONFIRMED",
+        "CANCELLED",
+        "COMPLETED"
+      ]
     },
     "public.BursaryStatus": {
       "name": "BursaryStatus",
       "schema": "public",
-      "values": ["DRAFT", "PUBLISHED", "ARCHIVED"]
+      "values": [
+        "DRAFT",
+        "PUBLISHED",
+        "ARCHIVED"
+      ]
     },
     "public.CompetitionStatus": {
       "name": "CompetitionStatus",
       "schema": "public",
-      "values": ["DRAFT", "ACTIVE", "ENDED", "CANCELLED"]
+      "values": [
+        "DRAFT",
+        "ACTIVE",
+        "ENDED",
+        "CANCELLED"
+      ]
     },
     "public.CompetitionType": {
       "name": "CompetitionType",
       "schema": "public",
-      "values": ["RAFFLE", "PHOTO", "SCORE"]
+      "values": [
+        "RAFFLE",
+        "PHOTO",
+        "SCORE"
+      ]
+    },
+    "public.ContentAuditAction": {
+      "name": "ContentAuditAction",
+      "schema": "public",
+      "values": [
+        "CREATED",
+        "UPDATED",
+        "PUBLISHED",
+        "UNPUBLISHED",
+        "FLAGGED",
+        "DELETED",
+        "RESTORED"
+      ]
     },
     "public.ContentCategory": {
       "name": "ContentCategory",
@@ -10791,22 +11098,42 @@
     "public.ContentLicense": {
       "name": "ContentLicense",
       "schema": "public",
-      "values": ["CC0", "CC_BY", "CC_BY_SA", "CC_BY_NC", "ALL_RIGHTS_RESERVED"]
+      "values": [
+        "CC0",
+        "CC_BY",
+        "CC_BY_SA",
+        "CC_BY_NC",
+        "ALL_RIGHTS_RESERVED"
+      ]
     },
     "public.ConversationType": {
       "name": "ConversationType",
       "schema": "public",
-      "values": ["DIRECT", "GROUP", "SECURE_DIRECT", "SECURE_GROUP"]
+      "values": [
+        "DIRECT",
+        "GROUP",
+        "SECURE_DIRECT",
+        "SECURE_GROUP"
+      ]
     },
     "public.CouponDiscountType": {
       "name": "CouponDiscountType",
       "schema": "public",
-      "values": ["PERCENTAGE", "FIXED"]
+      "values": [
+        "PERCENTAGE",
+        "FIXED"
+      ]
     },
     "public.DelegationStatus": {
       "name": "DelegationStatus",
       "schema": "public",
-      "values": ["PENDING", "ACTIVE", "REJECTED", "REVOKED", "EXPIRED"]
+      "values": [
+        "PENDING",
+        "ACTIVE",
+        "REJECTED",
+        "REVOKED",
+        "EXPIRED"
+      ]
     },
     "public.DisputeCategory": {
       "name": "DisputeCategory",
@@ -10849,12 +11176,22 @@
     "public.DisputeRespondent": {
       "name": "DisputeRespondent",
       "schema": "public",
-      "values": ["RESIDENT", "HOA", "BOARD_MEMBER", "TENANT_PROVIDER"]
+      "values": [
+        "RESIDENT",
+        "HOA",
+        "BOARD_MEMBER",
+        "TENANT_PROVIDER"
+      ]
     },
     "public.DisputeSeverity": {
       "name": "DisputeSeverity",
       "schema": "public",
-      "values": ["MINOR", "MODERATE", "SERIOUS", "URGENT"]
+      "values": [
+        "MINOR",
+        "MODERATE",
+        "SERIOUS",
+        "URGENT"
+      ]
     },
     "public.DisputeStatus": {
       "name": "DisputeStatus",
@@ -10876,132 +11213,253 @@
     "public.EndpointType": {
       "name": "EndpointType",
       "schema": "public",
-      "values": ["INTERNAL_CHAT", "EMAIL", "WEBFORM", "API", "SMS", "WHATSAPP", "PUSH"]
+      "values": [
+        "INTERNAL_CHAT",
+        "EMAIL",
+        "WEBFORM",
+        "API",
+        "SMS",
+        "WHATSAPP",
+        "PUSH"
+      ]
     },
     "public.EntryStatus": {
       "name": "EntryStatus",
       "schema": "public",
-      "values": ["JOINED", "WITHDRAWN", "WINNER", "RUNNER_UP"]
+      "values": [
+        "JOINED",
+        "WITHDRAWN",
+        "WINNER",
+        "RUNNER_UP"
+      ]
     },
     "public.ForwardStrategy": {
       "name": "ForwardStrategy",
       "schema": "public",
-      "values": ["DIRECT", "HOUSEHOLD"]
+      "values": [
+        "DIRECT",
+        "HOUSEHOLD"
+      ]
     },
     "public.GroupAccess": {
       "name": "GroupAccess",
       "schema": "public",
-      "values": ["OPEN", "INVITE_ONLY", "APPLICATION"]
+      "values": [
+        "OPEN",
+        "INVITE_ONLY",
+        "APPLICATION"
+      ]
     },
     "public.GroupRole": {
       "name": "GroupRole",
       "schema": "public",
-      "values": ["MEMBER", "MODERATOR", "ADMIN"]
+      "values": [
+        "MEMBER",
+        "MODERATOR",
+        "ADMIN"
+      ]
     },
     "public.HandleStatus": {
       "name": "HandleStatus",
       "schema": "public",
-      "values": ["ACTIVE", "RESERVED", "RELEASED"]
+      "values": [
+        "ACTIVE",
+        "RESERVED",
+        "RELEASED"
+      ]
     },
     "public.HouseholdRole": {
       "name": "HouseholdRole",
       "schema": "public",
-      "values": ["OCCUPANT", "MINOR", "FAMILY"]
+      "values": [
+        "OCCUPANT",
+        "MINOR",
+        "FAMILY"
+      ]
     },
     "public.HouseholdStatus": {
       "name": "HouseholdStatus",
       "schema": "public",
-      "values": ["ACTIVE", "ARCHIVED"]
+      "values": [
+        "ACTIVE",
+        "ARCHIVED"
+      ]
     },
     "public.InquiryStatus": {
       "name": "InquiryStatus",
       "schema": "public",
-      "values": ["PENDING", "RESPONDED", "ACCEPTED", "DECLINED", "COMPLETED", "CANCELLED"]
+      "values": [
+        "PENDING",
+        "RESPONDED",
+        "ACCEPTED",
+        "DECLINED",
+        "COMPLETED",
+        "CANCELLED"
+      ]
     },
     "public.InvitationStatus": {
       "name": "InvitationStatus",
       "schema": "public",
-      "values": ["PENDING", "ACCEPTED", "EXPIRED", "REVOKED"]
+      "values": [
+        "PENDING",
+        "ACCEPTED",
+        "EXPIRED",
+        "REVOKED"
+      ]
     },
     "public.InvoiceStatus": {
       "name": "InvoiceStatus",
       "schema": "public",
-      "values": ["PENDING", "PAID", "VOID"]
+      "values": [
+        "PENDING",
+        "PAID",
+        "VOID"
+      ]
     },
     "public.ListingStatus": {
       "name": "ListingStatus",
       "schema": "public",
-      "values": ["DRAFT", "ACTIVE", "PENDING", "SOLD", "RENTED", "WITHDRAWN"]
+      "values": [
+        "DRAFT",
+        "ACTIVE",
+        "PENDING",
+        "SOLD",
+        "RENTED",
+        "WITHDRAWN"
+      ]
     },
     "public.ListingType": {
       "name": "ListingType",
       "schema": "public",
-      "values": ["SALE", "RENT", "LEASE"]
+      "values": [
+        "SALE",
+        "RENT",
+        "LEASE"
+      ]
     },
     "public.MaintenanceRouting": {
       "name": "MaintenanceRouting",
       "schema": "public",
-      "values": ["HOA", "LANDLORD"]
+      "values": [
+        "HOA",
+        "LANDLORD"
+      ]
     },
     "public.MembershipStatus": {
       "name": "MembershipStatus",
       "schema": "public",
-      "values": ["PENDING", "APPROVED", "REJECTED"]
+      "values": [
+        "PENDING",
+        "APPROVED",
+        "REJECTED"
+      ]
     },
     "public.MessageType": {
       "name": "MessageType",
       "schema": "public",
-      "values": ["TEXT", "IMAGE", "SYSTEM", "VOICE", "FILE"]
+      "values": [
+        "TEXT",
+        "IMAGE",
+        "SYSTEM",
+        "VOICE",
+        "FILE"
+      ]
     },
     "public.ModerationStatus": {
       "name": "ModerationStatus",
       "schema": "public",
-      "values": ["DRAFT", "PUBLISHED", "UNPUBLISHED", "FLAGGED"]
+      "values": [
+        "DRAFT",
+        "PUBLISHED",
+        "UNPUBLISHED",
+        "FLAGGED"
+      ]
     },
     "public.NotificationType": {
       "name": "NotificationType",
       "schema": "public",
-      "values": ["info", "warning", "success", "error"]
+      "values": [
+        "info",
+        "warning",
+        "success",
+        "error"
+      ]
     },
     "public.OccupancyType": {
       "name": "OccupancyType",
       "schema": "public",
-      "values": ["OWNER_OCCUPIED", "RENTAL", "VACANT"]
+      "values": [
+        "OWNER_OCCUPIED",
+        "RENTAL",
+        "VACANT"
+      ]
     },
     "public.PaymentGateway": {
       "name": "PaymentGateway",
       "schema": "public",
-      "values": ["PAYSTACK", "PAYPAL"]
+      "values": [
+        "PAYSTACK",
+        "PAYPAL"
+      ]
     },
     "public.PayoutStatus": {
       "name": "PayoutStatus",
       "schema": "public",
-      "values": ["PENDING", "PROCESSING", "COMPLETED", "REJECTED", "CANCELLED"]
+      "values": [
+        "PENDING",
+        "PROCESSING",
+        "COMPLETED",
+        "REJECTED",
+        "CANCELLED"
+      ]
     },
     "public.PriceType": {
       "name": "PriceType",
       "schema": "public",
-      "values": ["FIXED", "HOURLY", "QUOTE", "FREE"]
+      "values": [
+        "FIXED",
+        "HOURLY",
+        "QUOTE",
+        "FREE"
+      ]
     },
     "public.Priority": {
       "name": "Priority",
       "schema": "public",
-      "values": ["LOW", "MEDIUM", "HIGH", "EMERGENCY"]
+      "values": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "EMERGENCY"
+      ]
     },
     "public.ProfileStatus": {
       "name": "ProfileStatus",
       "schema": "public",
-      "values": ["ACTIVE", "UPGRADED", "REMOVED", "EVICTED", "LEASE_ENDED"]
+      "values": [
+        "ACTIVE",
+        "UPGRADED",
+        "REMOVED",
+        "EVICTED",
+        "LEASE_ENDED"
+      ]
     },
     "public.ProviderChargeStatus": {
       "name": "ProviderChargeStatus",
       "schema": "public",
-      "values": ["PENDING", "PAID", "FAILED"]
+      "values": [
+        "PENDING",
+        "PAID",
+        "FAILED"
+      ]
     },
     "public.ProviderEmploymentType": {
       "name": "ProviderEmploymentType",
       "schema": "public",
-      "values": ["IN_HOUSE", "EXTERNAL"]
+      "values": [
+        "IN_HOUSE",
+        "EXTERNAL"
+      ]
     },
     "public.ProviderMeritType": {
       "name": "ProviderMeritType",
@@ -11018,17 +11476,45 @@
     "public.ProviderType": {
       "name": "ProviderType",
       "schema": "public",
-      "values": ["COMMUNITY", "THIRD_PARTY"]
+      "values": [
+        "COMMUNITY",
+        "THIRD_PARTY"
+      ]
     },
     "public.ProviderVerificationStatus": {
       "name": "ProviderVerificationStatus",
       "schema": "public",
-      "values": ["PENDING", "PROBATION", "VERIFIED", "SUSPENDED"]
+      "values": [
+        "PENDING",
+        "PROBATION",
+        "VERIFIED",
+        "SUSPENDED"
+      ]
+    },
+    "public.ProxyStatus": {
+      "name": "ProxyStatus",
+      "schema": "public",
+      "values": [
+        "Draft",
+        "WaitingForUpload",
+        "WaitingForProxy",
+        "PendingHoaReview",
+        "Approved",
+        "Rejected",
+        "Withdrawn"
+      ]
     },
     "public.QuestionType": {
       "name": "QuestionType",
       "schema": "public",
-      "values": ["SINGLE_CHOICE", "MULTIPLE_CHOICE", "TEXT", "RATING", "YES_NO", "LINEAR_SCALE"]
+      "values": [
+        "SINGLE_CHOICE",
+        "MULTIPLE_CHOICE",
+        "TEXT",
+        "RATING",
+        "YES_NO",
+        "LINEAR_SCALE"
+      ]
     },
     "public.RequestStatus": {
       "name": "RequestStatus",
@@ -11046,12 +11532,20 @@
     "public.ResidencyType": {
       "name": "ResidencyType",
       "schema": "public",
-      "values": ["FAMILY", "RENTER", "OWNER"]
+      "values": [
+        "FAMILY",
+        "RENTER",
+        "OWNER"
+      ]
     },
     "public.ResidentFilter": {
       "name": "ResidentFilter",
       "schema": "public",
-      "values": ["ALL", "OWNERS_ONLY", "RENTERS_ONLY"]
+      "values": [
+        "ALL",
+        "OWNERS_ONLY",
+        "RENTERS_ONLY"
+      ]
     },
     "public.ResourceCategory": {
       "name": "ResourceCategory",
@@ -11071,12 +11565,22 @@
     "public.ResourceMediaType": {
       "name": "ResourceMediaType",
       "schema": "public",
-      "values": ["BOOK", "COURSE", "JOURNAL", "VIDEO"]
+      "values": [
+        "BOOK",
+        "COURSE",
+        "JOURNAL",
+        "VIDEO"
+      ]
     },
     "public.ResourceVisibility": {
       "name": "ResourceVisibility",
       "schema": "public",
-      "values": ["ALL_RESIDENTS", "OWNERS_ONLY", "BOARD_ONLY", "COMMITTEE_ONLY"]
+      "values": [
+        "ALL_RESIDENTS",
+        "OWNERS_ONLY",
+        "BOARD_ONLY",
+        "COMMITTEE_ONLY"
+      ]
     },
     "public.Role": {
       "name": "Role",
@@ -11097,22 +11601,63 @@
     "public.SeatStatus": {
       "name": "SeatStatus",
       "schema": "public",
-      "values": ["ACTIVE", "ARCHIVED", "COOLING_OFF"]
+      "values": [
+        "ACTIVE",
+        "ARCHIVED",
+        "COOLING_OFF"
+      ]
     },
     "public.ServiceBookingStatus": {
       "name": "ServiceBookingStatus",
       "schema": "public",
-      "values": ["PENDING_CONFIRMATION", "CONFIRMED", "COMPLETED", "CANCELLED"]
+      "values": [
+        "PENDING_CONFIRMATION",
+        "CONFIRMED",
+        "COMPLETED",
+        "CANCELLED"
+      ]
+    },
+    "public.SettingValueType": {
+      "name": "SettingValueType",
+      "schema": "public",
+      "values": [
+        "STRING",
+        "NUMBER",
+        "BOOLEAN",
+        "JSON"
+      ]
+    },
+    "public.SignatureProvider": {
+      "name": "SignatureProvider",
+      "schema": "public",
+      "values": [
+        "INTERNAL",
+        "LIGHTNING",
+        "NOSTR",
+        "DOCUSIGN",
+        "ADOBE_SIGN",
+        "PASSKEY",
+        "PGP",
+        "GOV_EID"
+      ]
     },
     "public.SoloSeatType": {
       "name": "SoloSeatType",
       "schema": "public",
-      "values": ["RESIDENT", "MEMBER"]
+      "values": [
+        "RESIDENT",
+        "MEMBER"
+      ]
     },
     "public.SubscriptionStatus": {
       "name": "SubscriptionStatus",
       "schema": "public",
-      "values": ["ACTIVE", "CANCELLED", "EXPIRED", "PENDING"]
+      "values": [
+        "ACTIVE",
+        "CANCELLED",
+        "EXPIRED",
+        "PENDING"
+      ]
     },
     "public.SupportTarget": {
       "name": "SupportTarget",
@@ -11131,27 +11676,52 @@
     "public.SurveyStatus": {
       "name": "SurveyStatus",
       "schema": "public",
-      "values": ["DRAFT", "ACTIVE", "CLOSED"]
+      "values": [
+        "DRAFT",
+        "ACTIVE",
+        "CLOSED"
+      ]
     },
     "public.SurveyType": {
       "name": "SurveyType",
       "schema": "public",
-      "values": ["INTERNAL", "EXTERNAL"]
+      "values": [
+        "INTERNAL",
+        "EXTERNAL"
+      ]
     },
     "public.SuspensionType": {
       "name": "SuspensionType",
       "schema": "public",
-      "values": ["NON_PAYMENT", "VIOLATION", "DISRUPTION", "PROPERTY", "BEHAVIOR", "OTHER"]
+      "values": [
+        "NON_PAYMENT",
+        "VIOLATION",
+        "DISRUPTION",
+        "PROPERTY",
+        "BEHAVIOR",
+        "OTHER"
+      ]
     },
     "public.TenantSubscriptionStatus": {
       "name": "TenantSubscriptionStatus",
       "schema": "public",
-      "values": ["ACTIVE", "PENDING", "CANCELLED", "EXPIRED", "TRIALING", "PAST_DUE"]
+      "values": [
+        "ACTIVE",
+        "PENDING",
+        "CANCELLED",
+        "EXPIRED",
+        "TRIALING",
+        "PAST_DUE"
+      ]
     },
     "public.Tier": {
       "name": "Tier",
       "schema": "public",
-      "values": ["STANDARD", "PREMIUM", "ENTERPRISE"]
+      "values": [
+        "STANDARD",
+        "PREMIUM",
+        "ENTERPRISE"
+      ]
     },
     "public.TransactionSource": {
       "name": "TransactionSource",
@@ -11169,17 +11739,31 @@
     "public.TransactionStatus": {
       "name": "TransactionStatus",
       "schema": "public",
-      "values": ["PENDING", "COMPLETED", "FAILED", "REFUNDED"]
+      "values": [
+        "PENDING",
+        "COMPLETED",
+        "FAILED",
+        "REFUNDED"
+      ]
     },
     "public.TransactionType": {
       "name": "TransactionType",
       "schema": "public",
-      "values": ["CREDIT", "DEBIT", "ROLLOVER", "ADJUSTMENT"]
+      "values": [
+        "CREDIT",
+        "DEBIT",
+        "ROLLOVER",
+        "ADJUSTMENT"
+      ]
     },
     "public.WalletStatus": {
       "name": "WalletStatus",
       "schema": "public",
-      "values": ["ACTIVE", "FROZEN", "CLOSED"]
+      "values": [
+        "ACTIVE",
+        "FROZEN",
+        "CLOSED"
+      ]
     }
   },
   "schemas": {},

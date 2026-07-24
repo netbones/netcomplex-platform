@@ -1,6 +1,6 @@
 # Agent Instructions
 
-This project uses **pnpm** package manager
+This project uses **pnpm** package manager. Never user git -A, only commit your own files.
 
 ## Sub-Agent protocols
 

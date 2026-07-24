@@ -31,6 +31,8 @@ export {
   households,
   premiumSeats,
   contents,
+  contentVersions,
+  contentAuditLogs,
   dataConsents,
   dataRevenueStreams,
   dataShareBatches,

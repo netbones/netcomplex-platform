@@ -1,39 +1,4 @@
 import { pgTable, text, boolean, jsonb, timestamp } from 'drizzle-orm/pg-core';
 import { roleEnum } from './role-enum';
 
-export const users = pgTable('user', {
-  id: text('id').primaryKey(),
-  tenantId: text('tenantId'),
-  email: text('email').notNull(),
-  name: text('name').notNull(),
-  role: roleEnum('role').default('USER').notNull(),
-  isActive: boolean('isActive').default(false).notNull(),
-  phone: text('phone'),
-  interests: text('interests').array().notNull(),
-  avatar: text('avatar'),
-  profileImage: text('profileImage'),
-  books: jsonb('books').default([]).notNull(),
-  dashboardLayout: jsonb('dashboardLayout').default(null).notNull(),
-  isPublic: boolean('isPublic').default(true).notNull(),
-  showEmail: boolean('showEmail').default(true).notNull(),
-  showPhone: boolean('showPhone').default(true).notNull(),
-  profileSlug: text('profileSlug'),
-  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
-  updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
-  emailVerified: boolean('emailVerified').default(false).notNull(),
-  image: text('image'),
-  twoFactorEnabled: boolean('twoFactorEnabled').default(false).notNull(),
-  isPlatformAdmin: boolean('isPlatformAdmin').default(false).notNull(),
-  notificationPreferences: jsonb('notificationPreferences')
-    .default({
-      info: { email: true, inApp: true },
-      error: { email: true, inApp: true },
-      success: { email: true, inApp: true },
-      warning: { email: true, inApp: true },
-    })
-    .notNull(),
-  banExpires: timestamp('banExpires', { mode: 'date', precision: 3 }),
-  banReason: text('banReason'),
-  banned: boolean('banned').default(false).notNull(),
-  profileData: jsonb('profileData').default({}).notNull(),
-});
+export const users = pgTable('user', { id: text('id').primaryKey(), tenantId: text('tenantId'), email: text('email').notNull(), name: text('name').notNull(), role: roleEnum('role').default('USER').notNull(), isActive: boolean('isActive').default(false).notNull(), phone: text('phone'), interests: text('interests').array().notNull(), avatar: text('avatar'), profileImage: text('profileImage'), books: jsonb('books').default([]).notNull(), dashboardLayout: jsonb('dashboardLayout').default(null).notNull(), isPublic: boolean('isPublic').default(true).notNull(), showEmail: boolean('showEmail').default(true).notNull(), showPhone: boolean('showPhone').default(true).notNull(), profileSlug: text('profileSlug'), createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), emailVerified: boolean('emailVerified').default(false).notNull(), image: text('image'), twoFactorEnabled: boolean('twoFactorEnabled').default(false).notNull(), isPlatformAdmin: boolean('isPlatformAdmin').default(false).notNull(), notificationPreferences: jsonb('notificationPreferences').default({"info": {"email": true, "inApp": true}, "error": {"email": true, "inApp": true}, "success": {"email": true, "inApp": true}, "warning": {"email": true, "inApp": true}}).notNull(), banExpires: timestamp('banExpires', { mode: 'date', precision: 3 }), banReason: text('banReason'), banned: boolean('banned').default(false).notNull(), profileData: jsonb('profileData').default({}).notNull() });

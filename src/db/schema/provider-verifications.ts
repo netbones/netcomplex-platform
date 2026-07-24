@@ -1,18 +1,4 @@
 import { pgTable, text, timestamp, integer, jsonb } from 'drizzle-orm/pg-core';
 import { providerVerificationStatusEnum } from './provider-verification-status-enum';
 
-export const providerVerifications = pgTable('ProviderVerification', {
-  id: text('id').primaryKey(),
-  providerId: text('providerId').notNull(),
-  tenantId: text('tenantId').notNull(),
-  status: providerVerificationStatusEnum('status').default('PENDING').notNull(),
-  notes: text('notes'),
-  startDate: timestamp('startDate', { mode: 'date', precision: 3 }).defaultNow().notNull(),
-  endDate: timestamp('endDate', { mode: 'date', precision: 3 }),
-  verificationThreshold: integer('verificationThreshold').default(300).notNull(),
-  probationThreshold: integer('probationThreshold').default(0).notNull(),
-  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
-  updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull(),
-  dueDiligenceItems: jsonb('dueDiligenceItems'),
-  deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }),
-});
+export const providerVerifications = pgTable('ProviderVerification', { id: text('id').primaryKey(), providerId: text('providerId').notNull(), tenantId: text('tenantId').notNull(), status: providerVerificationStatusEnum('status').default('PENDING').notNull(), notes: text('notes'), startDate: timestamp('startDate', { mode: 'date', precision: 3 }).defaultNow().notNull(), endDate: timestamp('endDate', { mode: 'date', precision: 3 }), verificationThreshold: integer('verificationThreshold').default(300).notNull(), probationThreshold: integer('probationThreshold').default(0).notNull(), createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull(), dueDiligenceItems: jsonb('dueDiligenceItems'), deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }) });

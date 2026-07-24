@@ -1,16 +1,3 @@
 import { pgTable, text, decimal, timestamp } from 'drizzle-orm/pg-core';
 
-export const revenueRecords = pgTable('RevenueRecord', {
-  id: text('id').primaryKey(),
-  tenantId: text('tenantId').notNull(),
-  providerId: text('providerId').notNull(),
-  transactionId: text('transactionId').notNull(),
-  grossAmount: decimal('grossAmount', { precision: 65, scale: 30 }).notNull(),
-  platformFee: decimal('platformFee', { precision: 65, scale: 30 }).notNull(),
-  processorFee: decimal('processorFee', { precision: 65, scale: 30 }).notNull(),
-  netAmount: decimal('netAmount', { precision: 65, scale: 30 }).notNull(),
-  currency: text('currency').default('ZAR').notNull(),
-  period: text('period').notNull(),
-  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
-  deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }),
-});
+export const revenueRecords = pgTable('RevenueRecord', { id: text('id').primaryKey(), tenantId: text('tenantId').notNull(), providerId: text('providerId').notNull(), transactionId: text('transactionId').notNull(), grossAmount: decimal('grossAmount', { precision: 65, scale: 30 }).notNull(), platformFee: decimal('platformFee', { precision: 65, scale: 30 }).notNull(), processorFee: decimal('processorFee', { precision: 65, scale: 30 }).notNull(), netAmount: decimal('netAmount', { precision: 65, scale: 30 }).notNull(), currency: text('currency').default('ZAR').notNull(), period: text('period').notNull(), createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }) });

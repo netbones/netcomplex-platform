@@ -1,14 +1,3 @@
 import { pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 
-export const providerLegalAgreements = pgTable('ProviderLegalAgreement', {
-  id: text('id').primaryKey(),
-  providerId: text('providerId').notNull(),
-  tenantId: text('tenantId').notNull(),
-  agreementType: text('agreementType').notNull(),
-  version: text('version').notNull(),
-  acceptedAt: timestamp('acceptedAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
-  ipAddress: text('ipAddress'),
-  userAgent: text('userAgent'),
-  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
-  deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }),
-});
+export const providerLegalAgreements = pgTable('ProviderLegalAgreement', { id: text('id').primaryKey(), providerId: text('providerId').notNull(), tenantId: text('tenantId').notNull(), agreementType: text('agreementType').notNull(), version: text('version').notNull(), acceptedAt: timestamp('acceptedAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), ipAddress: text('ipAddress'), userAgent: text('userAgent'), createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }) });

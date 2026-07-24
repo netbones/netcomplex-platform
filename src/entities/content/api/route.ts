@@ -1,5 +1,6 @@
 import * as contentService from '../services';
 import { createId } from '@shared/lib/id';
+import { insertAuditLog } from '../services/audit';
 
 /**
  * Lists content items with localization.
@@ -43,7 +44,7 @@ export async function createContent(data: {
   license?: string;
   copyrightHolder?: string | null;
 }) {
-  return contentService.createContent({
+  const content = await contentService.createContent({
     id: createId(),
     tenantId: data.tenantId,
     title: data.title,
@@ -63,4 +64,8 @@ export async function createContent(data: {
     license: data.license,
     copyrightHolder: data.copyrightHolder,
   });
+
+  await insertAuditLog(content.id, 'CREATED', data.authorId);
+
+  return content;
 }

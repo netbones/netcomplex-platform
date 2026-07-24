@@ -1,16 +1,3 @@
 import { pgTable, text, integer, jsonb, timestamp } from 'drizzle-orm/pg-core';
 
-export const outboxes = pgTable('Outbox', {
-  id: text('id').primaryKey(),
-  type: text('type').notNull(),
-  version: integer('version').default(1).notNull(),
-  tenantId: text('tenantId').notNull(),
-  correlationId: text('correlationId').notNull(),
-  causationId: text('causationId'),
-  actorId: text('actorId'),
-  payload: jsonb('payload').notNull(),
-  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
-  processedAt: timestamp('processedAt', { mode: 'date', precision: 3 }),
-  attempts: integer('attempts').default(0).notNull(),
-  error: text('error'),
-});
+export const outboxes = pgTable('Outbox', { id: text('id').primaryKey(), type: text('type').notNull(), version: integer('version').default(1).notNull(), tenantId: text('tenantId').notNull(), correlationId: text('correlationId').notNull(), causationId: text('causationId'), actorId: text('actorId'), payload: jsonb('payload').notNull(), createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), processedAt: timestamp('processedAt', { mode: 'date', precision: 3 }), attempts: integer('attempts').default(0).notNull(), error: text('error') });

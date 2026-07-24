@@ -10,24 +10,4 @@ import { serviceProviders } from './service-providers';
 import { soloSeats } from './solo-seats';
 import { standardSeats } from './standard-seats';
 
-export const addressesRelations = relations(addresses, helpers => ({
-  Tenant: helpers.one(tenants, {
-    relationName: 'AddressToTenant',
-    fields: [addresses.tenantId],
-    references: [tenants.id],
-  }),
-  canonicalAddress: helpers.one(addresses, {
-    relationName: 'AddressCanonical',
-    fields: [addresses.canonicalAddressId],
-    references: [addresses.id],
-  }),
-  aliases: helpers.many(addresses, { relationName: 'AddressCanonical' }),
-  endpoints: helpers.many(addressEndpoints, { relationName: 'AddressToAddressEndpoint' }),
-  handles: helpers.many(handles, { relationName: 'AddressToHandle' }),
-  premiumSeats: helpers.many(premiumSeats, { relationName: 'AddressToPremiumSeat' }),
-  profiles: helpers.many(profiles, { relationName: 'AddressToProfile' }),
-  properties: helpers.many(properties, { relationName: 'AddressToProperty' }),
-  serviceProviders: helpers.many(serviceProviders, { relationName: 'AddressToServiceProvider' }),
-  soloSeats: helpers.many(soloSeats, { relationName: 'AddressToSoloSeat' }),
-  standardSeats: helpers.many(standardSeats, { relationName: 'AddressToStandardSeat' }),
-}));
+export const addressesRelations = relations(addresses, (helpers) => ({ Tenant: helpers.one(tenants, { relationName: 'AddressToTenant', fields: [ addresses.tenantId ], references: [ tenants.id ] }), canonicalAddress: helpers.one(addresses, { relationName: 'AddressCanonical', fields: [ addresses.canonicalAddressId ], references: [ addresses.id ] }), aliases: helpers.many(addresses, { relationName: 'AddressCanonical' }), endpoints: helpers.many(addressEndpoints, { relationName: 'AddressToAddressEndpoint' }), handles: helpers.many(handles, { relationName: 'AddressToHandle' }), premiumSeats: helpers.many(premiumSeats, { relationName: 'AddressToPremiumSeat' }), profiles: helpers.many(profiles, { relationName: 'AddressToProfile' }), properties: helpers.many(properties, { relationName: 'AddressToProperty' }), serviceProviders: helpers.many(serviceProviders, { relationName: 'AddressToServiceProvider' }), soloSeats: helpers.many(soloSeats, { relationName: 'AddressToSoloSeat' }), standardSeats: helpers.many(standardSeats, { relationName: 'AddressToStandardSeat' }) }));

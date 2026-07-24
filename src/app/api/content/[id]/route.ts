@@ -22,6 +22,7 @@ import {
 } from '@shared/lib';
 
 import { withTenant } from '@entities/tenant/server';
+import { snapshotContentVersion, insertAuditLog } from '@entities/content/server';
 
 import { hasPermission } from '@shared/lib';
 
@@ -250,11 +251,16 @@ export const PATCH = withErrorHandler(
       return apiGone('This record has been deleted');
     }
 
+    const session = await auth.api.getSession({ headers: request.headers });
+
     const [content] = await db
       .update(contents)
       .set(updateData)
       .where(and(eq(contents.id, id), eq(contents.tenantId, tenantId)))
       .returning();
+
+    await snapshotContentVersion(id, session?.user?.id ?? null, 'REST PATCH update');
+    await insertAuditLog(id, 'UPDATED', session?.user?.id ?? null, { changes: Object.keys(updateData) });
 
     // Revalidate content caches
     revalidateContent();
@@ -273,10 +279,14 @@ export const DELETE = withErrorHandler(
     // Enforce tenant isolation
     const { tenantId } = await withTenant();
 
+    const session = await auth.api.getSession({ headers: request.headers });
+
     await db
       .update(contents)
       .set({ deletedAt: now(), updatedAt: now() })
       .where(and(eq(contents.id, id), eq(contents.tenantId, tenantId)));
+
+    await insertAuditLog(id, 'DELETED', session?.user?.id ?? null);
 
     // Revalidate content caches
     revalidateContent();
