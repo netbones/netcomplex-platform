@@ -249,16 +249,17 @@ _Up from 108 models / 76 enums in the original flat `prisma/schema.prisma` (2955
 
 ## 3. Models Without Proper Indexes
 
-Models with **zero `@@index` declarations** (6 out of 120):
+Models with **zero `@@index` declarations** (5 out of 120):
 
 | Model                 | Notes                                                       |
 | --------------------- | ----------------------------------------------------------- |
 | user                  | Has `@@unique([email])` but no `@@index` for any query path |
-| Tenant                | Has `@@unique([slug])` but no `@@index`                     |
 | PlatformModule        | No indexes at all                                           |
 | AchievementDefinition | No indexes at all                                           |
 | PlatformAiTierQuota   | No indexes at all (queried by tier which is `@unique`)      |
 | AiCapabilityCost      | No indexes at all                                           |
+
+> **Correction (2026-07-24):** The original analysis incorrectly listed Tenant as lacking `@@index`. Tenant has `@@index([ownerId])` in `tenant.prisma`. The scan only checked `schema.prisma`, missing the separate tenant file. 5 models remain truly zero-index.
 
 ### Previously resolved indexes (from S4-2, S5-7):
 
@@ -485,18 +486,18 @@ File: `/home/ubuntupunk/Projects/soralia-village/drizzle/meta/_journal.json`
 
 ## 11. Consolidated Summary of Critical Findings
 
-| Severity | Finding                                                                                                                                                                                                                                                                                                 |
-| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1 HIGH   | ~~drizzle.config.ts pointed to non-existent `./prisma/drizzle/schema.ts`~~ → ✅ RESOLVED: Config now points to `./src/db/schema/*.ts` (ADVISORY-024)                                                                                                                                                    |
-| 2 HIGH   | ~~UserAchievementProgress.definitionId / UserAchievement.definitionId had no `@relation`~~ → FALSE POSITIVE (relations always existed)                                                                                                                                                                  |
-| 3 HIGH   | ~~DelegationAction.actorId no FK relation~~ → ✅ RESOLVED per S4-1                                                                                                                                                                                                                                      |
-| 4 MEDIUM | ~~6 models with zero indexes (Conversation, Survey, ExternalSurvey, Organization, AiCapabilityCost, PlatformAiTierQuota)~~ → 3 resolved (Conversation, Survey, ExternalSurvey). 3 remain: Organization, AiCapabilityCost, PlatformAiTierQuota. user and Tenant also lack `@@index` but have `@@unique`. |
-| 5 MEDIUM | ~~~20 tenant-scoped models had tenantId String with no FK~~ → ✅ FULLY RESOLVED per ADVISORY-024. All ~86 tenant-scoped models have `@relation(fields: [tenantId], references: [id], onDelete: Restrict)`.                                                                                              |
-| 6 MEDIUM | 3 seat models (PremiumSeat, SoloSeat, StandardSeat) share ~10 fields — polymorphism via separate tables adds maintenance burden.                                                                                                                                                                        |
-| 7 MEDIUM | TenantInvoice / ProviderInvoice near-duplicates. TenantPayment / PaymentTransaction near-duplicates.                                                                                                                                                                                                    |
-| 8 MEDIUM | ~13 models have computed/denormalized fields that could drift from source-of-truth.                                                                                                                                                                                                                     |
-| 9 LOW    | user model has ~86 relation back-links. Mitigated by never using `include:` on Tenant queries.                                                                                                                                                                                                          |
-| 10 LOW   | ~~Soft-delete applied inconsistently~~ → ✅ PARTIALLY RESOLVED: Policy defined in `docs/STEERING/SOFT_DELETE.md`. ~66 of 120 models have `deletedAt`. Some new models (ContentVersion, Bursary/BursaryField, MediaUpload) lack it.                                                                      |
+| Severity | Finding                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1 HIGH   | ~~drizzle.config.ts pointed to non-existent `./prisma/drizzle/schema.ts`~~ → ✅ RESOLVED: Config now points to `./src/db/schema/*.ts` (ADVISORY-024)                                                                                                                                                                                                                                                                                               |
+| 2 HIGH   | ~~UserAchievementProgress.definitionId / UserAchievement.definitionId had no `@relation`~~ → FALSE POSITIVE (relations always existed)                                                                                                                                                                                                                                                                                                             |
+| 3 HIGH   | ~~DelegationAction.actorId no FK relation~~ → ✅ RESOLVED per S4-1                                                                                                                                                                                                                                                                                                                                                                                 |
+| 4 MEDIUM | ~~6 models with zero indexes (Conversation, Survey, ExternalSurvey, Organization, AiCapabilityCost, PlatformAiTierQuota)~~ → 3 resolved (Conversation, Survey, ExternalSurvey). **5 models currently zero-index:** Organization, AchievementDefinition, AiCapabilityCost, PlatformAiTierQuota, PlatformModule. Tenant was incorrectly included in earlier versions — it has `@@index([ownerId])` in `tenant.prisma`. user has `@@unique([email])`. |
+| 5 MEDIUM | ~~~20 tenant-scoped models had tenantId String with no FK~~ → ✅ FULLY RESOLVED per ADVISORY-024. All ~86 tenant-scoped models have `@relation(fields: [tenantId], references: [id], onDelete: Restrict)`.                                                                                                                                                                                                                                         |
+| 6 MEDIUM | 3 seat models (PremiumSeat, SoloSeat, StandardSeat) share ~10 fields — polymorphism via separate tables adds maintenance burden.                                                                                                                                                                                                                                                                                                                   |
+| 7 MEDIUM | TenantInvoice / ProviderInvoice near-duplicates. TenantPayment / PaymentTransaction near-duplicates.                                                                                                                                                                                                                                                                                                                                               |
+| 8 MEDIUM | ~13 models have computed/denormalized fields that could drift from source-of-truth.                                                                                                                                                                                                                                                                                                                                                                |
+| 9 LOW    | user model has ~86 relation back-links. Mitigated by never using `include:` on Tenant queries.                                                                                                                                                                                                                                                                                                                                                     |
+| 10 LOW   | ~~Soft-delete applied inconsistently~~ → ✅ PARTIALLY RESOLVED: Policy defined in `docs/STEERING/SOFT_DELETE.md`. ~66 of 120 models have `deletedAt`. Some new models (ContentVersion, Bursary/BursaryField, MediaUpload) lack it.                                                                                                                                                                                                                 |
 
 ## 12. Reconciliation: Post-Audit Changes
 
@@ -513,22 +514,21 @@ File: `/home/ubuntupunk/Projects/soralia-village/drizzle/meta/_journal.json`
 
 ### New in current schema (not in original analysis)
 
-| Change                                   | Detail                                                                                                                                                                      |
-| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `prismaSchemaFolder`                     | Split into `schema.prisma` (120 models) + `tenant.prisma` (Tenant model)                                                                                                    |
-| Schema grew to 3308 lines                | +353 lines from original 2955                                                                                                                                               |
-| 12 new models                            | Bursary, BursaryField, ContentVersion, ContentAuditLog, MaintenanceTeamMember, MediaUpload, MeetingProxy, Outbox, OutboxDeadLetter, Support, TenantFeatureFlag, TenantSetup |
-| 8 new enums                              | Now 84 total (was 76)                                                                                                                                                       |
-| All tenant FKs resolved                  | Zero orphan `tenantId` fields outside Better Auth                                                                                                                           |
-| 6 models without `@@index`               | Down from 19. user, Tenant, PlatformModule, AchievementDefinition, PlatformAiTierQuota, AiCapabilityCost                                                                    |
-| Approximately 66 models with `deletedAt` | Up from 62. New models Bursary/BursaryField have it; ContentVersion, MediaUpload don't.                                                                                     |
+| Change                                   | Detail                                                                                                                                                                                               |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `prismaSchemaFolder`                     | Split into `schema.prisma` (120 models) + `tenant.prisma` (Tenant model)                                                                                                                             |
+| Schema grew to 3308 lines                | +353 lines from original 2955                                                                                                                                                                        |
+| 12 new models                            | Bursary, BursaryField, ContentVersion, ContentAuditLog, MaintenanceTeamMember, MediaUpload, MeetingProxy, Outbox, OutboxDeadLetter, Support, TenantFeatureFlag, TenantSetup                          |
+| 8 new enums                              | Now 84 total (was 76)                                                                                                                                                                                |
+| All tenant FKs resolved                  | Zero orphan `tenantId` fields outside Better Auth                                                                                                                                                    |
+| 5 models without `@@index`               | Down from 19. PlatformModule, AchievementDefinition, PlatformAiTierQuota, AiCapabilityCost, Organization. Tenant was in earlier versions but has `@@index([ownerId])`. user has `@@unique([email])`. |
+| Approximately 66 models with `deletedAt` | Up from 62. New models Bursary/BursaryField have it; ContentVersion, MediaUpload don't.                                                                                                              |
 
 ### Remaining open items
 
 - Model duplication [soralia-village-sioz] — see §6 for clarification: seat duplication is deliberate per `IDENTITY_MODEL.md`; invoice/payment duplication is domain-correct.
 - Denormalized aggregates drift risk [soralia-village-g8c3] — see §8 for split-by-consequence approach. DWallet.balance flagged as urgent (real money, POPIA).
 - notDeleted() adoption [soralia-village-h9o4]
-- tsc --noEmit hang tracked as [soralia-village-8rve]
 
 ### Discussion record: `SCHEMA_DISCUSS.md` (2026-07-24)
 
