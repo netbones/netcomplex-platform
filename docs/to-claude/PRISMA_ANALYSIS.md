@@ -1,13 +1,15 @@
 # Comprehensive Prisma Schema Analysis
 
-File: `/home/ubuntupunk/Projects/soralia-village/prisma/schema.prisma` (2955 lines)
+File: `prisma/schema/schema.prisma` + `prisma/schema/tenant.prisma` (3308 lines across 2 files via `prismaSchemaFolder`)
 
 ## 1. Model and Enum Counts
 
 | Category | Count |
 | -------- | ----- |
-| Models   | 108   |
-| Enums    | 76    |
+| Models   | 120   |
+| Enums    | 84    |
+
+_Up from 108 models / 76 enums in the original flat `prisma/schema.prisma` (2955 lines)._
 
 ## 2. All Models with Their Relations
 
@@ -23,15 +25,15 @@ File: `/home/ubuntupunk/Projects/soralia-village/prisma/schema.prisma` (2955 lin
 
 ### User & Identity (8 models)
 
-| Model        | Relations                                                                     |
-| ------------ | ----------------------------------------------------------------------------- |
-| user         | Central hub: 50+ relation back-links (see full list below)                    |
-| Profile      | Household (Cascade), user (2 named relations), Address?, ResidentDelegation[] |
-| Member       | Organization (Cascade), user (Cascade)                                        |
-| Organization | Invitation[], Member[]                                                        |
-| Notification | user (Cascade)                                                                |
-| UserKey      | user (Cascade)                                                                |
-| UserDevice   | user (Cascade)                                                                |
+| Model        | Relations                                                                   |
+| ------------ | --------------------------------------------------------------------------- |
+| user         | Central hub: ~86 relation back-links (see full list below)                  |
+| Profile      | Household (Cascade), user (2 named), Address?, Tenant, ResidentDelegation[] |
+| Member       | Organization (Cascade), user (Cascade)                                      |
+| Organization | Invitation[], Member[]                                                      |
+| Notification | user (Cascade)                                                              |
+| UserKey      | user (Cascade)                                                              |
+| UserDevice   | user (Cascade)                                                              |
 
 ### Seats (3 models)
 
@@ -41,15 +43,17 @@ File: `/home/ubuntupunk/Projects/soralia-village/prisma/schema.prisma` (2955 lin
 | SoloSeat     | user, Address?, Property?                       |
 | StandardSeat | Property (Cascade), user (Cascade), Address?    |
 
-### Tenant & Platform (5 models)
+### Tenant & Platform (7 models)
 
-| Model            | Relations                                                                   |
-| ---------------- | --------------------------------------------------------------------------- |
-| PlatformModule   | TenantModule[]                                                              |
-| TenantModule     | PlatformModule, Tenant (Cascade)                                            |
-| Tenant           | user? ("TenantOwner"), TenantModule[], TenantAchievement[], AssistSession[] |
-| Setting          | none                                                                        |
-| SubscriptionTier | ProviderSubscription[]                                                      |
+| Model             | Relations                                                                                                     |
+| ----------------- | ------------------------------------------------------------------------------------------------------------- |
+| PlatformModule    | TenantModule[]                                                                                                |
+| TenantModule      | PlatformModule, Tenant (Cascade)                                                                              |
+| Tenant            | user? ("TenantOwner"), TenantModule[], TenantAchievement[], AssistSession[], TenantSetup, TenantFeatureFlag[] |
+| Setting           | none                                                                                                          |
+| SubscriptionTier  | ProviderSubscription[]                                                                                        |
+| TenantFeatureFlag | Tenant (Cascade)                                                                                              |
+| TenantSetup       | Tenant (Cascade), SetupMission[], SetupSetting[]                                                              |
 
 ### Directory & Properties (6 models)
 
@@ -69,12 +73,14 @@ File: `/home/ubuntupunk/Projects/soralia-village/prisma/schema.prisma` (2955 lin
 | ConversationParticipant | Conversation (Cascade), user (Cascade) |
 | Message                 | Conversation (Cascade), user           |
 
-### Content & Community (11 models)
+### Content & Community (13 models)
 
 | Model                  | Relations                                                          |
 | ---------------------- | ------------------------------------------------------------------ |
-| Content                | user?, Group?, ContentLike[]                                       |
+| Content                | user?, Group?, ContentLike[], ContentVersion[], ContentAuditLog[]  |
 | ContentLike            | Content (Cascade), user (Cascade)                                  |
+| ContentVersion         | Content (Cascade), user? (SetNull)                                 |
+| ContentAuditLog        | Content (Cascade), user? (SetNull)                                 |
 | Group                  | user (Cascade), Content[], GroupMembershipRequest[], GroupMember[] |
 | GroupMember            | Group (Cascade), user (Cascade)                                    |
 | GroupMembershipRequest | Group (Cascade), user (Cascade)                                    |
@@ -82,13 +88,16 @@ File: `/home/ubuntupunk/Projects/soralia-village/prisma/schema.prisma` (2955 lin
 | Resource               | user?, ResourceVersion[], Announcement[]                           |
 | ResourceVersion        | Resource (Cascade)                                                 |
 | Announcement           | Resource?                                                          |
+| Support                | user (2 named: ReceivedSupports / SentSupports)                    |
+| MediaUpload            | user (Cascade)                                                     |
 
-### Events (2 models)
+### Events & Voting (3 models)
 
-| Model         | Relations                       |
-| ------------- | ------------------------------- |
-| Event         | EventAttendee[]                 |
-| EventAttendee | Event (Cascade), user (Cascade) |
+| Model         | Relations                                   |
+| ------------- | ------------------------------------------- |
+| Event         | EventAttendee[], MeetingProxy[]             |
+| EventAttendee | Event (Cascade), user (Cascade)             |
+| MeetingProxy  | Event (meetingId), user (3 named relations) |
 
 ### Bookings (1 model)
 
@@ -96,12 +105,13 @@ File: `/home/ubuntupunk/Projects/soralia-village/prisma/schema.prisma` (2955 lin
 | ------- | ------------------------- |
 | Booking | Property?, user (Cascade) |
 
-### Maintenance (8 models)
+### Maintenance (9 models)
 
 | Model                   | Relations                                                                                                                                   |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | MaintenanceRequest      | Property?, user (Cascade), user? (landlord), MaintenanceTeam?, ServiceProvider?, RequestHistory[], RequestNote[], InternalMaintenanceNote[] |
-| MaintenanceTeam         | MaintenanceRequest[]                                                                                                                        |
+| MaintenanceTeam         | MaintenanceRequest[], MaintenanceTeamMember[]                                                                                               |
+| MaintenanceTeamMember   | MaintenanceTeam (Cascade), user (Cascade)                                                                                                   |
 | MaintenanceCategory     | none                                                                                                                                        |
 | RequestNote             | MaintenanceRequest (Cascade), user                                                                                                          |
 | InternalMaintenanceNote | MaintenanceRequest (Cascade), user                                                                                                          |
@@ -123,7 +133,7 @@ File: `/home/ubuntupunk/Projects/soralia-village/prisma/schema.prisma` (2955 lin
 | PaymentTransaction      | ServiceProvider, ProviderSubscription, ProviderCharge[], ProviderInvoice[], RevenueRecord[]                                                                                                                                                         |
 | RevenueRecord           | ServiceProvider, PaymentTransaction                                                                                                                                                                                                                 |
 | ProviderCharge          | ServiceProvider, ProviderSubscription, PaymentTransaction?                                                                                                                                                                                          |
-| ProviderInvoice         | (needs reading past line 1365)                                                                                                                                                                                                                      |
+| ProviderInvoice         | ServiceProvider, ProviderSubscription, PaymentTransaction                                                                                                                                                                                           |
 | ServiceBooking          | CommunityServiceListing (Cascade), ServiceProvider (Cascade), user (Cascade)                                                                                                                                                                        |
 
 ### Billing / Platform SaaS (9 models)
@@ -164,25 +174,32 @@ File: `/home/ubuntupunk/Projects/soralia-village/prisma/schema.prisma` (2955 lin
 | Competition      | CompetitionEntry[]                    |
 | CompetitionEntry | Competition (Cascade), user (Cascade) |
 
-### Admin & Suspensions (5 models)
+### Bursaries (2 models)
+
+| Model        | Relations                |
+| ------------ | ------------------------ |
+| Bursary      | BursaryField[]           |
+| BursaryField | Bursary[] (inverse side) |
+
+### Admin & Suspensions (6 models)
 
 | Model              | Relations                                                            |
 | ------------------ | -------------------------------------------------------------------- |
 | AssistSession      | user, Tenant (Cascade)                                               |
 | AgentAccess        | user (2 named), Property (Cascade), AgentToken[], DelegationAction[] |
 | AgentToken         | user (2 named), AgentAccess?                                         |
-| DelegationAction   | AgentAccess                                                          |
+| DelegationAction   | user, AgentAccess                                                    |
 | ResidentDelegation | Property (Cascade), user, Profile (Cascade)                          |
 | PlatformSuspension | user (Cascade)                                                       |
 
 ### Achievements (4 models)
 
-| Model                   | Relations                                         |
-| ----------------------- | ------------------------------------------------- |
-| AchievementDefinition   | TenantAchievement[]                               |
-| TenantAchievement       | AchievementDefinition (Cascade), Tenant (Cascade) |
-| UserAchievementProgress | user (Cascade)                                    |
-| UserAchievement         | user (Cascade)                                    |
+| Model                   | Relations                                                         |
+| ----------------------- | ----------------------------------------------------------------- |
+| AchievementDefinition   | TenantAchievement[], UserAchievement[], UserAchievementProgress[] |
+| TenantAchievement       | AchievementDefinition (Cascade), Tenant (Cascade)                 |
+| UserAchievementProgress | AchievementDefinition (Cascade), user (Cascade)                   |
+| UserAchievement         | AchievementDefinition (Cascade), user (Cascade)                   |
 
 ### dWallet (7 models)
 
@@ -212,81 +229,69 @@ File: `/home/ubuntupunk/Projects/soralia-village/prisma/schema.prisma` (2955 lin
 | TenantAiUsage       | AiUsageEvent[] |
 | AiUsageEvent        | TenantAiUsage  |
 
+### Infrastructure / Outbox (2 models)
+
+| Model            | Relations                   |
+| ---------------- | --------------------------- |
+| Outbox           | none (transactional outbox) |
+| OutboxDeadLetter | none (dead letter queue)    |
+
 ### Dispute Resolution (6 models)
 
-| Model                 | Relations                                                                                            |
-| --------------------- | ---------------------------------------------------------------------------------------------------- |
-| DisputeCase           | user (4 named relations), DisputeEvidence[], DisputeEvent[], DisputeMessage[], DisputeNotification[] |
-| DisputeEvidence       | DisputeCase (Cascade), user                                                                          |
-| DisputeEvent          | DisputeCase (Cascade), user?                                                                         |
-| DisputeMessage        | DisputeCase (Cascade), user, DisputeMessageVersion[]                                                 |
-| DisputeMessageVersion | DisputeMessage (Cascade)                                                                             |
-| DisputeNotification   | DisputeCase (Cascade), user                                                                          |
+| Model                 | Relations                                                                                  |
+| --------------------- | ------------------------------------------------------------------------------------------ |
+| DisputeCase           | user (4 named), DisputeEvidence[], DisputeEvent[], DisputeMessage[], DisputeNotification[] |
+| DisputeEvidence       | DisputeCase (Cascade), user                                                                |
+| DisputeEvent          | DisputeCase (Cascade), user?                                                               |
+| DisputeMessage        | DisputeCase (Cascade), user, DisputeMessageVersion[]                                       |
+| DisputeMessageVersion | DisputeMessage (Cascade)                                                                   |
+| DisputeNotification   | DisputeCase (Cascade), user                                                                |
 
 ## 3. Models Without Proper Indexes
 
-Models with **no `@@index` at all** (19 out of 108). These models have zero composite indexes:
+Models with **zero `@@index` declarations** (6 out of 120):
 
-| Model                 | Missing indexes likely needed                                                                          |
-| --------------------- | ------------------------------------------------------------------------------------------------------ |
-| AiCapabilityCost      | No indexes at all                                                                                      |
-| BillingAdjustment     | Has `@@index([tenantId])` only; missing on subscriptionId, invoiceId                                   |
-| Competition           | Has `@@index([tenantId])` and `@@index([status])`; missing on startDate/endDate for filtering upcoming |
-| Conversation          | No indexes at all (often queried by tenantId)                                                          |
-| DataRevenueStream     | Has `@@index([tenantId])` and `@@unique([tenantId, key])`                                              |
-| DataShareBatch        | Has `@@index([tenantId])` and `@@index([status])`; missing on periodEnd for date-range queries         |
-| DisputeMessageVersion | Has `@@index([messageId])` only                                                                        |
-| ExternalSurvey        | No indexes at all                                                                                      |
-| MaintenanceCategory   | Only `@@index([tenantId])`                                                                             |
-| Organization          | No indexes at all (query by tenantId likely)                                                           |
-| PlatformAiTierQuota   | No indexes at all                                                                                      |
-| ProviderInvoice       | (needs verification)                                                                                   |
-| Response              | Only `@@index([surveyId])`; missing `@@index([tenantId])`                                              |
-| Setting               | Only has `@@unique([tenantId, key])`                                                                   |
-| SubscriptionTier      | Only `@@index([tenantId])`                                                                             |
-| Survey                | No indexes at all (often queried by tenantId, status, startDate/endDate)                               |
-| TaxJurisdiction       | Only `@@index([country])`; missing tenantId (but no tenantId field)                                    |
-| TaxRate               | Only `@@index([country])`; missing tenantId (but no tenantId field)                                    |
-| TenantPayment         | Has indexes, but missing on couponId                                                                   |
+| Model                 | Notes                                                       |
+| --------------------- | ----------------------------------------------------------- |
+| user                  | Has `@@unique([email])` but no `@@index` for any query path |
+| Tenant                | Has `@@unique([slug])` but no `@@index`                     |
+| PlatformModule        | No indexes at all                                           |
+| AchievementDefinition | No indexes at all                                           |
+| PlatformAiTierQuota   | No indexes at all (queried by tier which is `@unique`)      |
+| AiCapabilityCost      | No indexes at all                                           |
 
-### Key findings about missing indexes:
+### Previously resolved indexes (from S4-2, S5-7):
 
-1. ~~Conversation -- no indexes at all. If conversations are ever queried by tenantId, this will full-scan.~~ → **RESOLVED per S4-2: `@@index([tenantId])` added**
-2. ~~Survey -- no indexes. Queries by tenantId, status, date range will be slow.~~ → **RESOLVED per S4-2: `@@index([tenantId, status])` added**
-3. ~~ExternalSurvey -- no indexes.~~ → **RESOLVED per S4-2: `@@index([tenantId, isActive])` added**
-4. Organization -- queried by slug (unique) but no tenant-scoped index.
-5. AiCapabilityCost -- no indexes at all.
-6. PlatformAiTierQuota -- no indexes at all (queried by tier which is `@unique`).
-7. Response -- missing `@@index([tenantId])`. Survey responses are tenant-scoped.
-8. ~~Event -- missing index on date for chronological queries.~~ → **RESOLVED per S5-7: `@@index([date])` added**
-9. ~~Content -- missing `@@index([tenantId])` even though it is tenant-scoped.~~ → **RESOLVED per S5-7: `@@index([tenantId])` added**
-10. Resource -- indexed on tenantId, category, visibility, authorId but missing on downloadCount or publishedAt if sorting is needed.
+| Model          | Old state                   | Resolution                      |
+| -------------- | --------------------------- | ------------------------------- |
+| Conversation   | No indexes at all           | `@@index([tenantId])` added     |
+| Survey         | No indexes at all           | `@@index([tenantId, status])`   |
+| ExternalSurvey | No indexes at all           | `@@index([tenantId, isActive])` |
+| Event          | Missing chronological index | `@@index([date])` added         |
+| Content        | Missing tenant-scoped index | `@@index([tenantId])` added     |
 
-## 4. Missing Foreign Key Relationships
+## 4. Tenant FK Coverage (Large Improvement)
 
-Where naming is mismatched or missing:
+**Status: All non-Better-Auth tenant-scoped models now have `@relation` to Tenant.**
 
-| Issue                        | Detail                                                                                                                                                                                                                          |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ExternalSurvey               | Has tenantId but no FK to Tenant. This is an orphan string reference.                                                                                                                                                           |
-| Setting                      | Has tenantId but no FK to Tenant. Orphan string reference.                                                                                                                                                                      |
-| MaintenanceCategory          | Has tenantId but no FK to Tenant. Orphan string reference.                                                                                                                                                                      |
-| Event                        | Has tenantId but no FK to Tenant. Orphan string reference.                                                                                                                                                                      |
-| Survey                       | Has tenantId but no FK to Tenant. Orphan string reference.                                                                                                                                                                      |
-| DWallet.transactions         | WalletTransaction has walletId FK to DWallet but DWallet has `transactions WalletTransaction[]` -- this is correct.                                                                                                             |
-| TenantPayment.subscriptionId | FK to TenantSubscription, and TenantSubscription lists `payments TenantPayment[]` -- OK.                                                                                                                                        |
-| UserAchievementProgress      | Has definitionId (FK to AchievementDefinition) but no `@@index([definitionId])` and no explicit relation declared. This is a data-integrity risk -- Prisma will not create a FK constraint at the DB level without `@relation`. |
-| UserAchievement              | Same issue: has definitionId but no `@relation` to AchievementDefinition.                                                                                                                                                       |
-| CommunityMerit               | Has tenantId but no FK to Tenant.                                                                                                                                                                                               |
-| AgentToken                   | Has tenantId but no FK to Tenant.                                                                                                                                                                                               |
-| DelegationAction             | Has tenantId but no FK to Tenant. Has actorId but no `@relation` to user. ~~Has actorId but no @relation to user.~~ → **RESOLVED per S4-1: relation + back-link added**                                                         |
-| PlatformSuspension           | Has tenantId but no FK to Tenant.                                                                                                                                                                                               |
+After ADVISORY-024 (Batches A-D, 86 models), every tenant-scoped model except Better Auth's internal tables has a proper `@relation(fields: [tenantId], references: [id], onDelete: Restrict)`.
 
-### Critical missing FKs (no `@relation` at all):
+### Remaining models with `tenantId` but no `@relation` (intentional):
 
-1. ~~UserAchievementProgress.definitionId -- Contains an FK value with no relation declaration. This will NOT create a DB FK constraint.~~ → **FALSE POSITIVE: `@relation` is present on line 2006 of schema.prisma**
-2. ~~UserAchievement.definitionId -- Same issue.~~ → **FALSE POSITIVE: `@relation` is present on line 2019 of schema.prisma**
-3. ~~DelegationAction.actorId~~ → **RESOLVED per S4-1**
+| Model            | Reason                                                   |
+| ---------------- | -------------------------------------------------------- |
+| account          | Better Auth internal — not tenant-scoped                 |
+| verification     | Better Auth internal — not tenant-scoped                 |
+| passkey          | Better Auth internal — not tenant-scoped                 |
+| session          | Better Auth internal — not tenant-scoped                 |
+| twoFactor        | Better Auth internal — not tenant-scoped                 |
+| user             | Better Auth — cross-tenant identity                      |
+| Outbox           | Transactional outbox — deliberate no FK to avoid locking |
+| OutboxDeadLetter | Dead letter queue — same reasoning as Outbox             |
+
+### Models without `tenantId` at all (non-tenant-scoped):
+
+AchievementDefinition, AddressEndpoint, AiCapabilityCost, ContentAuditLog, ContentVersion, CompetitionEntry, DisputeMessageVersion, Handle, InternalMaintenanceNote, PlatformAiTierQuota, PlatformModule, RequestHistory, RequestNote, ResourceVersion, SetupMission, SetupSetting, TaxJurisdiction, TaxRate, UserDevice, UserKey
 
 ## 5. N+1 Query Risks Based on Relation Patterns
 
@@ -294,8 +299,8 @@ Where naming is mismatched or missing:
 
 | Pattern                                  | Models involved                                                                                                                                                                                          |
 | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| user model with 50+ back-links           | Any query on user that eagerly includes all relations will explode. The user model has ~55 relation fields pointing at it. Typical ORMs that eager-load by default will trigger 55+ joins or subqueries. |
-| Property → many children                 | Booking[], Household[], MaintenanceRequest[], AgentAccess[], PropertyListing[], ResidentDelegation[], SoloSeat[], StandardSeat[], PropertyPremiumSeat[] -- 9 child collections.                          |
+| user model with ~86 back-links           | Any query on user that eagerly includes all relations will explode. The user model has ~86 relation fields pointing at it. Typical ORMs that eager-load by default will trigger 86+ joins or subqueries. |
+| Property → many children                 | Booking[], Household[], MaintenanceRequest[], AgentAccess[], PropertyListing[], ResidentDelegation[], SoloSeat[], StandardSeat[], PropertyPremiumSeat[] — 9 child collections.                           |
 | ServiceProvider → many children          | 13 child collections. Any query eager-loading them all will be catastrophic.                                                                                                                             |
 | MaintenanceRequest → 3 child collections | histories[], notes[], internalNotes[]                                                                                                                                                                    |
 | Conversation → Message[]                 | Classic N+1: fetching a list of conversations then fetching messages per conversation. Mitigated by the `@@index([conversationId, createdAt])` on Message.                                               |
@@ -315,11 +320,8 @@ Where naming is mismatched or missing:
 
 - All child collections should be fetched with `include` explicitly scoped or loaded separately via TanStack Query on the client side (which appears to be the pattern based on the tech stack).
 - The Message model's `@@index([conversationId, createdAt])` mitigates the most common chat N+1.
-- UserAchievementProgress and UserAchievement lack indexes on definitionId, making joins to AchievementDefinition potentially slow.
 
 ## 6. Duplication Between Models
-
-Direct duplication / overlap:
 
 | Pair                                       | Overlap                                                                                                                                                                                                                                                                           |
 | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -331,86 +333,74 @@ Direct duplication / overlap:
 | TenantPayment vs PaymentTransaction        | Both track payments with tenantId, amount, currency, platformFee, processorFee, netAmount, gateway, externalRef.                                                                                                                                                                  |
 | Notification vs DisputeNotification        | Both store notifications with userId, read, createdAt.                                                                                                                                                                                                                            |
 | user duplicate relation names              | `profile_profile_landlordIdTouser` and `profile_profile_userIdTouser` reference the same Profile model with two different FK roles, forcing verbose auto-generated relation names.                                                                                                |
+| Outbox / OutboxDeadLetter                  | Nearly identical structure — the dead letter queue is just an outbox entry that failed.                                                                                                                                                                                           |
 
 ### Shared patterns that could be abstracted:
 
-- `tenantId` + `createdAt` + `updatedAt` + `deletedAt` appears on ~45 models
+- `tenantId` + `createdAt` + `updatedAt` + `deletedAt` appears on ~50 models
 - `platformAddress` appears on PremiumSeat, SoloSeat, StandardSeat, and Property
 - `organizationId` appears on ~15 models
 
-## 7. Soft-Delete Patterns (deletedAt fields)
+## 7. Soft-Delete Patterns (`deletedAt` fields)
 
-**Policy:** See `docs/STEERING/SOFT_DELETE.md` (updated 2026-07-02 by [soralia-village-2pxb]; parent-child orphans resolved by [soralia-village-owuh]).
+**Policy:** See `docs/STEERING/SOFT_DELETE.md`.
 
-Models with deletedAt (62 out of 111):
-AchievementDefinition, AgentAccess, AgentProfile, Album, Announcement, Booking, Bursary, BursaryField, CommunityMerit, CommunityServiceInquiry, CommunityServiceListing, CommunityServiceReview, Competition, CompetitionEntry, Content, ContentLike, Conversation, ConversationParticipant, DisputeCase, DisputeEvent, DisputeEvidence, DisputeMessage, DisputeMessageVersion, DisputeNotification, Event, EventAttendee, ExternalSurvey, Group, GroupMember, GroupMembershipRequest, Household, InternalMaintenanceNote, Invitation, MaintenanceCategory, MaintenanceRequest, MaintenanceTeam, Member, Message, Notification, PaymentTransaction, PlatformSuspension, Profile, Property, PropertyListing, ProviderCharge, ProviderInvoice, ProviderLegalAgreement, ProviderMerit, ProviderReputation, ProviderSubscription, ProviderVerification, Question, RequestNote, Resource, ResourceVersion, Response, RevenueRecord, ServiceBooking, ServiceProvider, Setting, Survey, SurveySection
+Models with `deletedAt` (~66 of 120):
 
-Models WITHOUT deletedAt (hard-deleted):
-account, verification, passkey, session, twoFactor, user, Organization, PlatformModule, TenantModule, Tenant, PropertyPremiumSeat (junction table), ConversationParticipant (junction table), EventAttendee (junction table), MaintenanceRequest, MaintenanceTeam, RequestHistory, ProviderVerification, ProviderLegalAgreement, ProviderReputation, ProviderMerit, ProviderSubscription, PaymentTransaction, RevenueRecord, ProviderCharge, ProviderInvoice, SubscriptionTier, BillingPlan, TenantSubscription, TenantInvoice, TenantPayment, BillingAdjustment, BillingEvent, Coupon, CouponRedemption, TaxRate, TaxJurisdiction, AchievementDefinition, TenantAchievement, UserAchievementProgress, UserAchievement, DWallet, WalletTransaction, DataConsent, PayoutRequest, DataRevenueStream, DataShareBatch, Address, Handle, AddressEndpoint, PlatformAiTierQuota, AiCapabilityCost, TenantAiUsage, AiUsageEvent, DisputeEvent, DisputeMessageVersion, DisputeNotification
+AchievementDefinition, AgentAccess, AgentProfile, Album, Announcement, Booking, Bursary, BursaryField, CommunityMerit, CommunityServiceInquiry, CommunityServiceListing, CommunityServiceReview, Competition, CompetitionEntry, Content, ContentLike, Conversation, ConversationParticipant, DisputeCase, DisputeEvent, DisputeEvidence, DisputeMessage, DisputeMessageVersion, DisputeNotification, Event, EventAttendee, ExternalSurvey, Group, GroupMember, GroupMembershipRequest, Household, InternalMaintenanceNote, Invitation, MaintenanceCategory, MaintenanceRequest, MaintenanceTeam, Member, Message, Notification, PaymentTransaction, PlatformSuspension, Profile, Property, PropertyListing, ProviderCharge, ProviderInvoice, ProviderLegalAgreement, ProviderMerit, ProviderReputation, ProviderSubscription, ProviderVerification, Question, RequestNote, Resource, ResourceVersion, Response, RevenueRecord, ServiceBooking, ServiceProvider, Setting, Survey, SurveySection, TenantPayment, TenantSetup
+
+Models without `deletedAt`:
+
+account, verification, passkey, session, twoFactor, user, Organization, PlatformModule, TenantModule, Tenant, PropertyPremiumSeat (junction), ConversationParticipant (actually has it — listed above), EventAttendee (has it — listed above), MaintenanceTeamMember, RequestHistory, Outbox, OutboxDeadLetter, SubscriptionTier, BillingPlan, TenantSubscription, TenantInvoice, BillingAdjustment, BillingEvent, Coupon, CouponRedemption, TaxRate, TaxJurisdiction, TenantAchievement, UserAchievementProgress, UserAchievement, DWallet, WalletTransaction, DataConsent, PayoutRequest, DataRevenueStream, DataShareBatch, Address, Handle, AddressEndpoint, PlatformAiTierQuota, AiCapabilityCost, TenantAiUsage, AiUsageEvent, ContentVersion, ContentAuditLog, MediaUpload, AgentToken, DelegationAction, ResidentDelegation, MeetingProxy, Support, PremiumSeat, SoloSeat, StandardSeat, SetupMission, SetupSetting, TenantFeatureFlag, DisputeEvent, DisputeMessageVersion, DisputeNotification
 
 ### Inconsistencies in soft-delete:
 
-- Inconsistent application: Some parent models have deletedAt but their children don't. Example: MaintenanceRequest has no deletedAt but its child RequestNote does. If a maintenance request is deleted, notes are orphaned.
-- Group has deletedAt, but GroupMember has deletedAt (consistent) and GroupMembershipRequest has deletedAt (consistent).
-- Property has deletedAt but StandardSeat (which FK references Property with Cascade) does not. However, StandardSeat has status: ARCHIVED which is a semantic soft-delete via status enum.
-- No deletedAt on user -- the central user model cannot be soft-deleted. This is a deliberate choice (users are suspension-managed via banned, banReason, banExpires, PlatformSuspension).
+- Inconsistent application: Some parent models have `deletedAt` but their children don't. Example: MaintenanceRequest has `deletedAt` but RequestHistory does not (though RequestNote and InternalMaintenanceNote do).
+- Property has `deletedAt` but StandardSeat (which FK references Property with Cascade) does not. StandardSeat has `status: ARCHIVED` which is a semantic soft-delete via status enum.
+- No `deletedAt` on user — the central user model cannot be soft-deleted. This is a deliberate choice (users are suspension-managed via banned, banReason, banExpires, PlatformSuspension).
+- New models Bursary/BursaryField, ContentVersion, MediaUpload do not have `deletedAt`.
 
 ## 8. Denormalized Data That Could Cause Inconsistency
 
-| Model                   | Field(s)                                                                         | Risk                                                                                                                                                      |
-| ----------------------- | -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| AgentProfile            | totalListings, activeListings, salesCompleted, avgSalePrice, rating, reviewCount | These are computed aggregates. If they drift from the source-of-truth (PropertyListing count, CommunityServiceReview average), the display will be wrong. |
-| CommunityServiceListing | rating, reviewCount                                                              | Same issue -- cached aggregates that must be recomputed whenever a CommunityServiceReview is added/modified/deleted.                                      |
-| PropertyListing         | isPublished, isFeatured                                                          | Denormalized from status. Overlap between status enum (DRAFT/ACTIVE/PENDING/SOLD/RENTED/WITHDRAWN) and boolean isPublished.                               |
-| TenantSubscription      | status                                                                           | Overlaps with TenantSubscriptionStatus enum; tierManualOverride boolean alongside plan.tier.                                                              |
-| Competition             | entryCount                                                                       | Should equal COUNT(CompetitionEntry WHERE competitionId = X). Risk of drift.                                                                              |
-| Tenant                  | pageCount                                                                        | Should equal COUNT(page) but pages may exist in a CMS external to this schema.                                                                            |
-| DWallet                 | balance, lifetimeEarned, lifetimePaid                                            | Cached wallet state that should equal SUM(WalletTransaction.amount) grouped by wallet. Could drift during system failure.                                 |
-| WalletTransaction       | balanceBefore, balanceAfter                                                      | Snapshot at time of transaction. If replayed out of order, these become inconsistent.                                                                     |
-| UserAchievementProgress | count                                                                            | Tracks progress toward an achievement threshold. Should be derived from event stream.                                                                     |
-| Content                 | viewCount                                                                        | Typically incremented by analytics, prone to drift vs. actual page views in logs.                                                                         |
-| Resource                | downloadCount                                                                    | Similar to viewCount.                                                                                                                                     |
-| MaintenanceRequest      | ticketNumber (String)                                                            | Manually generated ticket number; no uniqueness constraint. Could collide.                                                                                |
+| Model                   | Field(s)                                                                                                     | Risk                                                                                  |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
+| AgentProfile            | totalListings, activeListings, salesCompleted, avgSalePrice, rating, reviewCount                             | Computed aggregates. If they drift from source-of-truth, display is wrong.            |
+| CommunityServiceListing | rating, reviewCount                                                                                          | Cached aggregates — must be recomputed on review add/modify/delete.                   |
+| PropertyListing         | isPublished, isFeatured                                                                                      | Denormalized from status. Overlap between status enum and booleans.                   |
+| TenantSubscription      | status, tierManualOverride                                                                                   | Overlaps with TenantSubscriptionStatus enum; tierManualOverride duplicates plan.tier. |
+| Competition             | entryCount                                                                                                   | Should equal COUNT(CompetitionEntry WHERE competitionId = X).                         |
+| Tenant                  | pageCount                                                                                                    | Should equal COUNT(page) — may exist in external CMS.                                 |
+| Coupon                  | currentRedemptions                                                                                           | Should equal COUNT(CouponRedemption).                                                 |
+| DWallet                 | balance, lifetimeEarned, lifetimePaid                                                                        | Should equal SUM(WalletTransaction.amount). Drift risk on system failure.             |
+| WalletTransaction       | balanceBefore, balanceAfter                                                                                  | Snapshot at transaction time. Inconsistent if replayed out of order.                  |
+| UserAchievementProgress | count                                                                                                        | Should be derived from event stream.                                                  |
+| Content                 | viewCount                                                                                                    | Incremented by analytics — prone to drift vs. actual page views.                      |
+| Resource                | downloadCount                                                                                                | Similar to viewCount.                                                                 |
+| ProviderReputation      | totalScore, responseTimeScore, qualityScore, reviewScore, complianceScore, engagementScore, lastCalculatedAt | Composite scores — expensive to recalculate, prone to staleness.                      |
+| MaintenanceRequest      | ticketNumber (String)                                                                                        | Manually generated ticket number; no uniqueness constraint. Could collide.            |
 
-**Recommendation:** All computed aggregate fields should have periodic reconciliation jobs or be backed by materialized views. Alternatively, these could be computed on-the-fly using `SELECT COUNT(*)` subqueries (at the cost of performance) to guarantee consistency.
+**Recommendation:** All computed aggregate fields should have periodic reconciliation jobs or be backed by materialized views. Alternatively, computed on-the-fly via `SELECT COUNT(*)` at the cost of performance.
 
 ## 9. Cascade Delete Rules (or Lack Thereof)
 
 Summary of onDelete usage:
 
-- **Cascade:** Used on 72 relations (mostly child records FK'd to parent)
-- **SetNull:** Used exactly 1 time (Question.sectionId → SurveySection on delete)
-- **No action / Restrict (default):** All other FKs (well over 30+ FK fields with no explicit onDelete)
+- **Cascade:** Used on ~80 relations (mostly child records FK'd to parent)
+- **SetNull:** Used on ContentVersion.userId, ContentAuditLog.userId (user deletion anonymizes audit trails) and Question.sectionId → SurveySection
+- **Restrict (default):** Most tenant-scoped `@relation` declarations use `onDelete: Restrict` per ADVISORY-024
+- **No action / Restrict (default):** All other FKs (Better Auth models, some legacy relations)
 
-Where CASCADE is missing and could cause orphan rows:
+| Parent                                 | Child                                | Behavior                                             |
+| -------------------------------------- | ------------------------------------ | ---------------------------------------------------- |
+| Tenant                                 | All tenant-scoped models             | Restrict (cannot delete tenant while children exist) |
+| user                                   | account, session, passkey, twoFactor | Cascade (deleting user cleans up auth)               |
+| user                                   | Message (sender)                     | No onDelete — dangling senderId risk                 |
+| user                                   | RequestNote, RequestHistory          | No onDelete — orphaned authorship                    |
+| ServiceProvider → ProviderSubscription | subscriptionId FK                    | Restrict                                             |
+| PaymentTransaction → RevenueRecord     | transactionId FK                     | No onDelete — orphans on transaction delete          |
+| Outbox                                 | none (no FK to any parent)           | Standalone table — never cascade-deleted             |
 
-| Parent                                    | Child                                                           | Current behavior                                                                               |
-| ----------------------------------------- | --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| Tenant                                    | ExternalSurvey                                                  | No FK at all, only tenantId String. Deleting a tenant orphans survey rows.                     |
-| Tenant                                    | Setting                                                         | No FK at all. Orphans.                                                                         |
-| Tenant                                    | MaintenanceCategory                                             | No FK at all. Orphans.                                                                         |
-| Tenant                                    | Event                                                           | No FK at all. Orphans.                                                                         |
-| Tenant                                    | Survey                                                          | No FK at all. Orphans.                                                                         |
-| AchievementDefinition                     | UserAchievementProgress                                         | Has definitionId but no `@relation` -- no FK exists at DB level. Orphans on definition delete. |
-| AchievementDefinition                     | UserAchievement                                                 | Same -- no `@relation` on definitionId. Orphans.                                               |
-| Tenant                                    | CommunityMerit                                                  | No FK at all.                                                                                  |
-| Tenant                                    | AgentToken                                                      | No FK at all.                                                                                  |
-| Tenant                                    | DelegationAction                                                | No FK at all.                                                                                  |
-| Tenant                                    | PlatformSuspension                                              | No FK at all.                                                                                  |
-| MaintenanceRequest                        | RequestHistory                                                  | Cascade set -- OK.                                                                             |
-| Property → AgentAccess                    | AgentAccess                                                     | Set to Cascade -- OK.                                                                          |
-| Message (sender)                          | user                                                            | No onDelete set. Deleting a user leaves messages with a dangling senderId.                     |
-| RequestNote user (author)                 | No onDelete set. Deleting user leaves orphaned note authorship. |
-| PaymentTransaction → ProviderSubscription | subscriptionId FK                                               | No onDelete. Deleting a subscription orphans transactions.                                     |
-| RevenueRecord → PaymentTransaction        | transactionId FK                                                | No onDelete. Deleting a transaction orphans revenue records.                                   |
-
-**Key concern:** Many tenant-scoped models have a tenantId String field with no Prisma `@relation` to the Tenant model. This means:
-
-- No referential integrity enforced at the database level for tenant foreign keys
-- Deleting a tenant leaves orphan records across ~20+ models
-- Multi-tenant data isolation relies entirely on application-layer filtering (the tenantId column)
-
-This is an intentional design choice (soft multi-tenancy via column, not hard via FK), but it carries risk.
+**Key concern:** Tenant deletion is now blocked by `Restrict` on all ~86 tenant-scoped `@relation` declarations. This means tenant cleanup must be a deliberate, multi-step process (remove all children first, then the tenant row). This is safer than the previous state (no FK at all, string-based tenantId), but adds complexity to tenant decommissioning workflows.
 
 ## 10. Drizzle Configuration
 
@@ -422,7 +412,7 @@ import 'dotenv/config';
 
 export default defineConfig({
   dialect: 'postgresql',
-  schema: './prisma/drizzle/schema.ts',
+  schema: './src/db/schema/*.ts',
   out: './drizzle',
   dbCredentials: {
     url: (process.env.DATABASE_URL || '...').replace('sslmode=require', 'sslmode=no-verify'),
@@ -434,15 +424,10 @@ export default defineConfig({
 
 ### Findings:
 
-1. **Schema source**: `./prisma/drizzle/schema.ts` -- this file does not exist. The Prisma schema has a generator drizzle block that outputs to `../src/db/schema`, but drizzle.config.ts points to a different path (`./prisma/drizzle/schema.ts`). This is a misconfiguration -- either:
-   - The Drizzle schema output has not been generated yet, OR
-   - The config is stale and the actual migration tooling uses a different path.
-
-2. **Output directory**: `./drizzle` -- but the actual drizzle directory exists and contains `meta/_journal.json` with zero entries. No migration SQL files exist under `./drizzle/`.
-
-3. **SSL configuration**: The `DATABASE_URL` gets its SSL mode replaced from `require` to `no-verify`. This means the connection will NOT validate the server certificate. This is fine for dev but could be a security issue in production if the production `DATABASE_URL` uses `sslmode=require`.
-
-4. **Strict mode**: Enabled. This ensures Drizzle Kit will error on schema drift.
+1. **Schema source**: `./src/db/schema/*.ts` — this path exists (was previously misconfigured as `./prisma/drizzle/schema.ts` which did not exist). ✅ **RESOLVED per ADVISORY-024.**
+2. **Output directory**: `./drizzle` — exists with `meta/_journal.json` containing zero entries. No migration SQL files exist. Drizzle Kit migration pipeline is configured but unused.
+3. **SSL configuration**: `DATABASE_URL` has `sslmode=require` replaced with `no-verify`. Dev-only concern. Production should validate certificates.
+4. **Strict mode**: Enabled — Drizzle Kit will error on schema drift.
 
 ### Drizzle Journal
 
@@ -452,41 +437,51 @@ File: `/home/ubuntupunk/Projects/soralia-village/drizzle/meta/_journal.json`
 { "version": "7", "dialect": "postgresql", "entries": [] }
 ```
 
-### Findings:
-
-5. **Journal version**: 7 (compatible with drizzle-kit v0.28+)
-6. **Dialect**: PostgreSQL
-7. **Entries**: Empty array -- zero migrations have been applied via Drizzle Kit
-8. **No migration SQL files** exist under `./drizzle/`
-
-**Implication**: The database schema is likely managed entirely through Prisma Migrate (not Drizzle Kit). The Drizzle configuration appears to be set up for future use but is not currently active. The generator drizzle block in the Prisma schema outputs to `../src/db/schema` (i.e., `src/db/schema`), which is where the Drizzle schema types are generated for use in application code. The Drizzle Kit migration pipeline (`drizzle.config.ts` → `./drizzle/` → `_journal.json`) is a separate mechanism that is configured but unused.
+**Implication**: The database schema is managed entirely through Prisma Migrate. Drizzle types (`src/db/schema/*.ts`) are generated from the Prisma schema and used in application queries, but Drizzle Kit's own migration pipeline is not active.
 
 ## 11. Consolidated Summary of Critical Findings
 
-Reconciled against SENIOR_REPORT.md (2026-06-25):
+| Severity | Finding                                                                                                                                                                                                                                                                                                 |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1 HIGH   | ~~drizzle.config.ts pointed to non-existent `./prisma/drizzle/schema.ts`~~ → ✅ RESOLVED: Config now points to `./src/db/schema/*.ts` (ADVISORY-024)                                                                                                                                                    |
+| 2 HIGH   | ~~UserAchievementProgress.definitionId / UserAchievement.definitionId had no `@relation`~~ → FALSE POSITIVE (relations always existed)                                                                                                                                                                  |
+| 3 HIGH   | ~~DelegationAction.actorId no FK relation~~ → ✅ RESOLVED per S4-1                                                                                                                                                                                                                                      |
+| 4 MEDIUM | ~~6 models with zero indexes (Conversation, Survey, ExternalSurvey, Organization, AiCapabilityCost, PlatformAiTierQuota)~~ → 3 resolved (Conversation, Survey, ExternalSurvey). 3 remain: Organization, AiCapabilityCost, PlatformAiTierQuota. user and Tenant also lack `@@index` but have `@@unique`. |
+| 5 MEDIUM | ~~~20 tenant-scoped models had tenantId String with no FK~~ → ✅ FULLY RESOLVED per ADVISORY-024. All ~86 tenant-scoped models have `@relation(fields: [tenantId], references: [id], onDelete: Restrict)`.                                                                                              |
+| 6 MEDIUM | 3 seat models (PremiumSeat, SoloSeat, StandardSeat) share ~10 fields — polymorphism via separate tables adds maintenance burden.                                                                                                                                                                        |
+| 7 MEDIUM | TenantInvoice / ProviderInvoice near-duplicates. TenantPayment / PaymentTransaction near-duplicates.                                                                                                                                                                                                    |
+| 8 MEDIUM | ~13 models have computed/denormalized fields that could drift from source-of-truth.                                                                                                                                                                                                                     |
+| 9 LOW    | user model has ~86 relation back-links. Mitigated by never using `include:` on Tenant queries.                                                                                                                                                                                                          |
+| 10 LOW   | ~~Soft-delete applied inconsistently~~ → ✅ PARTIALLY RESOLVED: Policy defined in `docs/STEERING/SOFT_DELETE.md`. ~66 of 120 models have `deletedAt`. Some new models (ContentVersion, Bursary/BursaryField, MediaUpload) lack it.                                                                      |
 
-| Severity | Finding                                                                                                                                                                                                                                                                                                                           |
-| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1 HIGH   | ~~drizzle.config.ts points to `./prisma/drizzle/schema.ts` which does not exist. The Prisma generator outputs to `../src/db/schema` instead.~~ → ✅ RESOLVED: Config now points to `./src/db/schema/*.ts` (post ADVISORY-024)                                                                                                     |
-| 2 HIGH   | ~~UserAchievementProgress.definitionId and UserAchievement.definitionId have no `@relation` declared.~~ → FALSE POSITIVE -- both have valid `@relation` declarations (schema.prisma:2006, :2019)                                                                                                                                  |
-| 3 HIGH   | ~~DelegationAction.actorId has no `@relation` declared. Dangling foreign key with no integrity constraint.~~ → ✅ RESOLVED per S4-1                                                                                                                                                                                               |
-| 4 MEDIUM | ~~19 models have zero composite indexes. Conversation, Survey, ExternalSurvey~~ → **All 3 resolved per S4-2 + S5-7. Organization, AiCapabilityCost, PlatformAiTierQuota remain.**                                                                                                                                                 |
-| 5 MEDIUM | ~~~20 tenant-scoped models have a tenantId String field but no FK relation to Tenant. Tenant deletion will leave orphans across the database.~~ → ✅ RESOLVED per ADVISORY-024 (Batches A-D, 86 models). All non-Better-Auth tenant-scoped models now have `@relation(fields: [tenantId], references: [id], onDelete: Restrict)`. |
-| 6 MEDIUM | 3 seat models (PremiumSeat, SoloSeat, StandardSeat) share ~10 fields. Polymorphism via separate tables adds maintenance burden.                                                                                                                                                                                                   |
-| 7 MEDIUM | TenantInvoice and ProviderInvoice are near-duplicates. TenantPayment and PaymentTransaction are also near-duplicates.                                                                                                                                                                                                             |
-| 8 MEDIUM | 8 models have computed/denormalized fields (rating, reviewCount, entryCount, balance, viewCount, downloadCount, totalListings, activeListings, salesCompleted) that could drift from source-of-truth.                                                                                                                             |
-| 9 LOW    | ~~user model has 55 relation back-links. This is a god-model anti-pattern and creates N+1 risk for any eager-loading query.~~ → Now has 86+ back-links. Still high risk -- mitigated by never using `include:` on Tenant queries.                                                                                                 |
-| 10 LOW   | ~~Soft-delete (deletedAt) is applied inconsistently: 38 models have it, 70 do not. No clear policy on when to soft-delete vs hard-delete.~~ → ✅ RESOLVED: Policy defined in `docs/STEERING/SOFT_DELETE.md`; 15 orphan child models received `deletedAt`; now 62/111 models have deletedAt.                                       |
+## 12. Reconciliation: Post-Audit Changes
 
-## 12. Reconciliation: Post-Audit Fixes (SENIOR_REPORT.md)
+### Resolved since original analysis
 
-This analysis was snapshotted before the Senior Engineer Audit (2026-06-25). The following items were subsequently resolved:
+| Ref          | Issue                                                 | Fix                                                                                                       |
+| ------------ | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| S4-1         | `DelegationAction.actorId` no FK relation             | Added `@relation` + back-link                                                                             |
+| S4-2         | Missing indexes: Conversation, Survey, ExternalSurvey | Added `@@index` declarations                                                                              |
+| S4-3         | Missing `SurveySection` back-link on Survey           | Added `sections SurveySection[]` relation                                                                 |
+| S5-7         | Missing indexes: Content, Event                       | Added `@@index` declarations                                                                              |
+| ADVISORY-024 | ~86 tenant-scoped models with orphan `tenantId`       | All non-Better-Auth models now have `@relation(fields: [tenantId], references: [id], onDelete: Restrict)` |
+| 2pxb / owuh  | Soft-delete policy + parent-child orphans             | Policy in `SOFT_DELETE.md`; 15 orphans received `deletedAt`                                               |
 
-| SENIOR_REPORT Ref | Issue                                                                                                       | Fix                                       |
-| ----------------- | ----------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
-| S4-1 (Sprint 4)   | `DelegationAction.actorId` no FK relation                                                                   | Added `@relation` + back-link             |
-| S4-2 (Sprint 4)   | Missing indexes: `Conversation(tenantId)`, `Survey(tenantId, status)`, `ExternalSurvey(tenantId, isActive)` | Added `@@index` declarations              |
-| S4-3 (Sprint 4)   | Missing `SurveySection` back-link on Survey                                                                 | Added `sections SurveySection[]` relation |
-| S5-7 (Sprint 5)   | Missing indexes: `Content(tenantId)`, `Event(date)`                                                         | Added `@@index` declarations              |
+### New in current schema (not in original analysis)
 
-Resolved: soft-delete policy + parent-child orphan alignment [soralia-village-2pxb, soralia-village-owuh]. Remaining open: model duplication [soralia-village-sioz], denormalized aggregates drift risk [soralia-village-g8c3], notDeleted() adoption [soralia-village-h9o4]. tsc --noEmit hang tracked as [soralia-village-8rve].
+| Change                                   | Detail                                                                                                                                                                      |
+| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `prismaSchemaFolder`                     | Split into `schema.prisma` (120 models) + `tenant.prisma` (Tenant model)                                                                                                    |
+| Schema grew to 3308 lines                | +353 lines from original 2955                                                                                                                                               |
+| 12 new models                            | Bursary, BursaryField, ContentVersion, ContentAuditLog, MaintenanceTeamMember, MediaUpload, MeetingProxy, Outbox, OutboxDeadLetter, Support, TenantFeatureFlag, TenantSetup |
+| 8 new enums                              | Now 84 total (was 76)                                                                                                                                                       |
+| All tenant FKs resolved                  | Zero orphan `tenantId` fields outside Better Auth                                                                                                                           |
+| 6 models without `@@index`               | Down from 19. user, Tenant, PlatformModule, AchievementDefinition, PlatformAiTierQuota, AiCapabilityCost                                                                    |
+| Approximately 66 models with `deletedAt` | Up from 62. New models Bursary/BursaryField have it; ContentVersion, MediaUpload don't.                                                                                     |
+
+### Remaining open items
+
+- Model duplication [soralia-village-sioz]
+- Denormalized aggregates drift risk [soralia-village-g8c3]
+- notDeleted() adoption [soralia-village-h9o4]
+- tsc --noEmit hang tracked as [soralia-village-8rve]
