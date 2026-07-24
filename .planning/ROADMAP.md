@@ -366,7 +366,7 @@ _Focus Spaces architecture, single-source navigation, widget system, tenant conf
 
 **Requirements:** PROXY-01, PROXY-02
 
-**Plans:** 1 plan
+**Plans:** 1/1 complete
 
 - [x] 28-01-PLAN.md — Merge proxy logic into src/middleware.ts, delete root proxy.ts, correct DOMAINS-PROXY.md ✅
 
@@ -395,7 +395,7 @@ _Focus Spaces architecture, single-source navigation, widget system, tenant conf
 
 **Requirements:** FOCUS-01, FOCUS-02, FOCUS-03, FOCUS-04, FOCUS-05, FOCUS-06, FOCUS-07, FOCUS-08, FOCUS-09, FOCUS-10, FOCUS-11, FOCUS-12, FOCUS-13, FOCUS-14
 
-**Plans:** 5 plans
+**Plans:** 5/5 complete
 
 - [x] 30-01-PLAN.md — Space definitions, routing scaffold, SpaceLauncher sidebar (Wave 1) ✅
 - [x] 30-02-PLAN.md — HomeLayer three-zone component, feature flag wiring, default layout remapping (Wave 2) ✅
@@ -468,7 +468,7 @@ _Admin command surface, user suspension, surveys, competitions, maintenance tick
 
 **Requirements:** REFACTOR-01, REFACTOR-02, REFACTOR-03
 
-**Plans:** 1 plan
+**Plans:** 1/1 complete
 
 - [x] 32-01-PLAN.md — Extract types/helpers/hook/ModalOverlay, then extract modals + table components + slim orchestrator (Wave 1) ✅
 
@@ -497,7 +497,7 @@ _Admin command surface, user suspension, surveys, competitions, maintenance tick
 
 **Requirements:** ADMIN-01, ADMIN-02, ADMIN-03, ADMIN-04
 
-**Plans:** 1 plan
+**Plans:** 1/1 complete
 
 - [x] 34-01-PLAN.md — AdminLayer command panel: urgency + activity APIs, AdminCommandBar, AdminActivityStream, AdminLayer component, admin space routing, widget cleanup (Wave 1) ✅
 
@@ -530,7 +530,7 @@ _Admin command surface, user suspension, surveys, competitions, maintenance tick
 
 **Requirements:** None (cleanup/housekeeping)
 
-**Plans:** 1 plan
+**Plans:** 1/1 complete
 
 - [x] 37-01-PLAN.md — Move AdminLayer to /admin + remove redirect + normalize all widget links + update navigation (Wave 1) ✅
 
@@ -544,7 +544,7 @@ _Admin command surface, user suspension, surveys, competitions, maintenance tick
 
 **Requirements:** LAYER-01, LAYER-02, LAYER-03, LAYER-04
 
-**Plans:** 4 plans
+**Plans:** 4/4 complete
 
 | Wave | Plan              | Objective                                                     |
 | ---- | ----------------- | ------------------------------------------------------------- |
@@ -638,7 +638,7 @@ Plans:
 
 **Goal:** Consolidate the three overlapping feature gating systems (TierGuard/FeatureRegistry, Module Gate, PlatformPageFlags) into a single `canAccess()` entry point with explicit 5-layer precedence. Adds server `canAccess()`, client `canAccessClient()` (skips tier/module — server is source of truth) + `useGateContext()` + `GateGuard` component, CI test for mapping completeness, `revalidateGate()` cache invalidation helper, and removal of all 8 legacy tier string occurrences. **Phase 1 is purely additive — no existing callsites change.**
 
-**Status:** Planning Complete — 3 plans in 1 wave (narrow scope, post-advisory audit)
+**Status:** Complete — 3/3 plans with summaries (2026-06-03)
 
 **Requirements:** GATE-01, GATE-02, GATE-03, GATE-04, GATE-05, GATE-06, GATE-07, GATE-08, GATE-09, GATE-10, GATE-11
 
@@ -673,9 +673,9 @@ Plans:
 
 | Wave | Plan              | Objective                                                                                                                                  |
 | ---- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| 1    | [ ] 41-01-PLAN.md | Server `canAccess()` + 3 mapping tables (FEATURE_TO_MODULE/FLAG/REGISTRY) + GATE_REASON_TO_ERROR + 8 legacy tier string removals           |
-| 1    | [ ] 41-02-PLAN.md | Client `canAccessClient()` (skips tier/module) + `useGateContext()` hook + `GateGuard` component (3 render patterns)                       |
-| 1    | [ ] 41-03-PLAN.md | CI test for mapping completeness (Vitest) + `revalidateGate(tenantId)` using `revalidatePath()` (matches existing revalidation.ts pattern) |
+| 1    | [x] 41-01-PLAN.md | Server `canAccess()` + 3 mapping tables (FEATURE_TO_MODULE/FLAG/REGISTRY) + GATE_REASON_TO_ERROR + 8 legacy tier string removals           |
+| 1    | [x] 41-02-PLAN.md | Client `canAccessClient()` (skips tier/module) + `useGateContext()` hook + `GateGuard` component (3 render patterns)                       |
+| 1    | [x] 41-03-PLAN.md | CI test for mapping completeness (Vitest) + `revalidateGate(tenantId)` using `revalidatePath()` (matches existing revalidation.ts pattern) |
 
 **References:** `docs/GATE_DISCUSSION.md`, `docs/GATE_ADDENDUM.md`, `docs/GATE_PLAN.md`
 
@@ -763,7 +763,7 @@ Plans:
 
 _Make the platform self-sufficient — any admin can sign up at `/platform/signup`, onboard a tenant, and get a working community with features matching their tier. No dependency on any specific tenant sign-off. See `.planning/MILESTONES.md` §2 for the 9 verifiable exit criteria. dWallet, Provider Platform, Service Marketplace, Dispute Resolution are optional addenda — NOT launch-blocking._
 
-**Core scope:** Phase 44 (M5a hardening) → Phase 45 (M5b launch features: OTP, Merits, i18n) → Phase 110 (access control) → Phase 120 (API governance). Addenda are self-contained tenant-opt-in phases (46, 47, 50, 104–108).
+**Core scope:** Phase 44 (M5a hardening) → Phase 45 (M5b launch features: OTP, Merits, i18n) → Phase 110 (access control) → Phase 120 (API governance). ✅ All core phases complete. Addenda are self-contained tenant-opt-in phases (46, 47, 50, 104–108). ✅ All addenda complete.
 
 **Activates when:** M4.5 is green (Phase 43 5/5 shipped). ✅
 
@@ -773,7 +773,7 @@ _Make the platform self-sufficient — any admin can sign up at `/platform/signu
 
 **Goal:** Close all known critical bugs, enforce FSD architecture boundaries, resolve security advisories, plan monitoring infrastructure, and complete the audit-closure/conflict-register work so the platform is stable for any tenant onboarding. After Phase 44, the codebase should be "quiet" — no known P0/P1 bugs, no architectural debt to freeze around, no FSD violations, no security advisories that would block production traffic.
 
-**Status:** Planning (renamed from "M5a Audit Closure" to "M5a Hardening & Launch Readiness" on 2026-06-07; expanded scope to include pre-soak hardening)
+**Status:** Complete — 6/6 plans executed (6 summaries, 2 verifications)
 
 **BD sources (initial 9 audit/conflict + 5 M4.5 follow-ups + 1 FSD debt + 1 advisories = 16 total):**
 
@@ -798,16 +798,16 @@ _Make the platform self-sufficient — any admin can sign up at `/platform/signu
 
 **Acceptance:** All initial 9 audit/conflict BD issues closed + all 4 M4.5 follow-ups closed + Steiger FSD linter integrated and running in CI + Steiger baseline findings filed as BD issues + pnpm advisory nn39 closed (or runtime-impact subset) + monitoring infra plan documented + 4+ `usePageFlags` callsites migrated to `useGateContext()` + legacy exports restricted to `@internal` + `Profile.occupantType` renamed to `householdRole` + `Profile.residencyType` and `Invitation.residentType` aligned + zero new FSD violations on dev (Steiger clean).
 
-**Plans:** 1/1 shipped (Plan 44-01 complete). Run `/gsd-plan-phase 44-m5a-hardening` for the next plan. Suggested plan structure (subject to Steiger triage):
+**Plans:** 6/6 shipped (6 plans with summaries, 2 with verifications). See phase directory for details. Suggested plan structure (subject to Steiger triage):
 
 - [x] **Plan 44-01:** Steiger FSD linter integration (install, config, baseline scan, CI, pre-commit, AGENTS.md docs) — 11 files, +3972/-7, 8 BD issues filed, baseline 582 violations surfaced ✅
-- [ ] **Plan 44-02:** Observability decision document + OPS runbook for the 7-day M5b soak — produces `.planning/observability-soak-M5.md` (200+ lines, 11 sections) and `docs/STEERING/OBSERVABILITY.md` (100+ lines, 10 sections). Ratifies Pino + Sentry + `@vercel/otel` stack from 44-RESEARCH.md §3; defines 7-row soak signal set, PII scrubbing rules, start/stop/abort criteria, on-call escalation. **Documentation-only** (no `pnpm add`, no code changes) — the Sentry install + OTel wiring is a separate 44-02b code plan gated on the 5 strategic decisions ratified in Task 3 (Sentry org, Vercel plan tier, abort criteria, on-call rotation, PII scrubbing scope). Autonomous: false (human-verify checkpoint at Task 3).
-- **Plan 44-03 (TBD):** Audit closure wave A — `qig` + `9xr` + `2z4` + `r13u` (foundation + conflict C1)
-- **Plan 44-04 (TBD):** Audit closure wave B — `fpc` + `1eh` (gating migration + restrict legacy exports)
-- **Plan 44-05:** Audit closure wave C — `1ei` + `5u2` + `brp` + `huo` (cleanup + conflicts C5/C6) — **FSD remediation goal achieved** (znjo/nf5r zero violations, schemas.ts deleted, tenantConfig moved, shims removed). Residual 3 @api/client sidesteps tracked as BD `29c7`. READY TO PLAN (audit-closure wave C scope).
-- **Plan 44-06 (TBD):** M4.5 follow-up closeouts — `tc4` + `mls9` + `n0rh` + `cs5` (seed regression + MyHomeSpace)
-- **Plan 44-07 (TBD):** pnpm advisory resolution — `nn39` (filter to runtime-impact subset)
-- **Plan 44-08+ (TBD):** FSD debt cluster remediation — one plan per cluster from Steiger baseline (`qjpa` + `08st` + `nf5r` + `znjo` + `3qio` + `ohj8` + `s50y` + `3a3v`)
+- [x] **Plan 44-02:** Observability decision document + OPS runbook for the 7-day M5b soak — produces `.planning/observability-soak-M5.md` (200+ lines, 11 sections) and `docs/STEERING/OBSERVABILITY.md` (100+ lines, 10 sections). Ratifies Pino + Sentry + `@vercel/otel` stack from 44-RESEARCH.md §3; defines 7-row soak signal set, PII scrubbing rules, start/stop/abort criteria, on-call escalation. **Documentation-only** (no `pnpm add`, no code changes) — the Sentry install + OTel wiring is a separate 44-02b code plan gated on the 5 strategic decisions ratified in Task 3 (Sentry org, Vercel plan tier, abort criteria, on-call rotation, PII scrubbing scope). Autonomous: false (human-verify checkpoint at Task 3).
+- [x] **Plan 44-03 (TBD):** Audit closure wave A — `qig` + `9xr` + `2z4` + `r13u` (foundation + conflict C1)
+- [x] **Plan 44-04 (TBD):** Audit closure wave B — `fpc` + `1eh` (gating migration + restrict legacy exports)
+- [x] **Plan 44-05:** Audit closure wave C — `1ei` + `5u2` + `brp` + `huo` (cleanup + conflicts C5/C6) — **FSD remediation goal achieved** (znjo/nf5r zero violations, schemas.ts deleted, tenantConfig moved, shims removed). Residual 3 @api/client sidesteps tracked as BD `29c7`. READY TO PLAN (audit-closure wave C scope).
+- [x] **Plan 44-06 (TBD):** M4.5 follow-up closeouts — `tc4` + `mls9` + `n0rh` + `cs5` (seed regression + MyHomeSpace)
+- [x] **Plan 44-07 (TBD):** pnpm advisory resolution — `nn39` (filter to runtime-impact subset)
+- [x] **Plan 44-08+ (TBD):** FSD debt cluster remediation — one plan per cluster from Steiger baseline (`qjpa` + `08st` + `nf5r` + `znjo` + `3qio` + `ohj8` + `s50y` + `3a3v`)
 
 **Out of scope:** M4.5 fixes (phase 43, all done), M5b launch features (phase 45, 47), M5+ post-launch (phase 46), C3 (already resolved). C4 (Tier Naming) re-elevated — see phase 47. dWallet sub-phases (phase 47).
 
@@ -817,7 +817,7 @@ _Make the platform self-sufficient — any admin can sign up at `/platform/signu
 
 **Goal:** Ship the 4 platform-launch features: OTP password reset, Community Merits, i18n batch for visible widgets, Tiptap content localization. These are the core launch-blocking items — the platform cannot go live without them, but they are not tenant-specific.
 
-**Status:** Planned — 5 plans in 5 waves
+**Status:** Complete — 5/5 plans with summaries
 
 **BD sources (4 features = 4 total):**
 
@@ -832,13 +832,13 @@ _Make the platform self-sufficient — any admin can sign up at `/platform/signu
 
 **Dependencies:** cs5 (MyHomeSpace) ideally resolved in Phase 44. Remaining i18n structural work tracked in `7qkl`.
 
-**Plans:** 5 plans
+**Plans:** 5/5 complete
 
 | Wave | Plan                                                   | Objective                                                                                                                             | Requirements |
 | ---- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
-| 1    | [ ] 45-01-PLAN.md — OTP password reset                 | Wire Better Auth emailOTP plugin + OTP verify page + Resend email template                                                            | 0tb          |
-| 2    | [ ] 45-02-PLAN.md — Community Merits schema + API      | CommunityMerit model, Drizzle table, merits helpers, CRUD API with standing calc + auto-escalation                                    | 2at          |
-| 3    | [ ] 45-03-PLAN.md — Community Merits admin UI + badges | Admin CRUD pages at /admin/merits, StandingBadge on UnifiedResidentCard + profile, ADMIN_ITEMS/ADMIN_DOMAINS registration             | 2at          |
+| 1    | [x] 45-01-PLAN.md — OTP password reset                 | Wire Better Auth emailOTP plugin + OTP verify page + Resend email template                                                            | 0tb          |
+| 2    | [x] 45-02-PLAN.md — Community Merits schema + API      | CommunityMerit model, Drizzle table, merits helpers, CRUD API with standing calc + auto-escalation                                    | 2at          |
+| 3    | [x] 45-03-PLAN.md — Community Merits admin UI + badges | Admin CRUD pages at /admin/merits, StandingBadge on UnifiedResidentCard + profile, ADMIN_ITEMS/ADMIN_DOMAINS registration             | 2at          |
 | 4    | [x] 45-04-PLAN.md — i18n batch for visible widgets     | ✅ 23 widget files migrated — HomeLayer, AdminLayer, SpaceLauncher, MobileSpaceBar, ServicesLayer, MessagesLayer, marketing, platform | l23          |
 | 5    | [x] 45-05-PLAN.md — Tiptap content localization        | ✅ Unsaved-changes warning, LocaleAwareEditor, per-locale save/load hardening                                                         | 0f7          |
 
@@ -856,7 +856,7 @@ _Features shipping after the anchor tenant launch. Includes platform improvement
 
 **Goal:** Replace the mandatory 7-step onboarding wizard (Phase 20, expanded Phase 27) with a persistent Setup Center — a permanent administrative workspace that guides tenant owners from first login through long-term platform adoption, aligned with ADVISORY-028.
 
-**Status:** In Progress — 6/7 plans executed
+**Status:** Complete — 8/8 plans with summaries
 
 **Source:** ADVISORY-028 — Replace Immediate Onboarding Wizard with a Persistent Setup Center
 **BD issue:** soralia-village-0jh1
@@ -883,13 +883,13 @@ _Features shipping after the anchor tenant launch. Includes platform improvement
 
 8/8 plans complete
 | ---- | ------------------ | ----------------------------------------------------------------------------------------- |
-| 1 | [ ] 123-01-PLAN.md | Schema + Entity: 3 Prisma models, migration, Drizzle, Zod schemas, constants |
-| 2 | [ ] 123-02-PLAN.md | API: progress GET, mission PATCH, init on tenant create, SetupSetting CRUD |
-| 3 | [ ] 123-03-PLAN.md | Setup Center page shell: `/setup` route, SetupCenter + SetupSection components, nav entry |
-| 4 | [ ] 123-04-PLAN.md | Launch + Populate sections: identity config, branding, invites, roles, member import |
+| 1 | [x] 123-01-PLAN.md | Schema + Entity: 3 Prisma models, migration, Drizzle, Zod schemas, constants |
+| 2 | [x] 123-02-PLAN.md | API: progress GET, mission PATCH, init on tenant create, SetupSetting CRUD |
+| 3 | [x] 123-03-PLAN.md | Setup Center page shell: `/setup` route, SetupCenter + SetupSection components, nav entry |
+| 4 | [x] 123-04-PLAN.md | Launch + Populate sections: identity config, branding, invites, roles, member import |
 | 5 | [x] 123-05-PLAN.md | Configure + Grow sections: module toggles, progressive disclosure, recommendation engine |
-| 6 | [ ] 123-06-PLAN.md | Dashboard integration: HomeLayer setup card, redirect change, community health dashboard |
-| 7 | [ ] 123-07-PLAN.md | Migration + Cleanup: data migration script, remove old wizard, redirect `/onboarding/*` |
+| 6 | [x] 123-06-PLAN.md | Dashboard integration: HomeLayer setup card, redirect change, community health dashboard |
+| 7 | [x] 123-07-PLAN.md | Migration + Cleanup: data migration script, remove old wizard, redirect `/onboarding/*` |
 
 **Out of scope:** AI-assisted onboarding, platform maturity scoring, white-label deployment checks, usage analytics, guided migration wizards for existing tenants.
 
@@ -988,10 +988,10 @@ _Features explicitly deferred to post-M5b. The 8 feature items originally in the
 
 | Wave | Plan                | Objective                                                                                                                           |
 | ---- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| 1    | [ ] 46.1-01-PLAN.md | Domain Models: 10 Prisma models + 4 enums, Drizzle schema files, migration, seed default STANDARD/PREMIUM/ENTERPRISE plans          |
-| 2    | [ ] 46.1-02-PLAN.md | Subscription Lifecycle: tenant-billing.ts (checkout, upgrade/downgrade, cancel, tier sync, webhook), billing helpers + tests, types |
-| 3    | [ ] 46.1-03-PLAN.md | Platform Admin: 4 admin API routes + 3 admin billing widgets (overview, subscriptions, revenue)                                     |
-| 3    | [ ] 46.1-04-PLAN.md | Tenant Portal: 3 pages at /tenant/billing (overview, invoices, payment-methods) + 5 UI components + checkout flow                   |
+| 1    | [x] 46.1-01-PLAN.md | Domain Models: 10 Prisma models + 4 enums, Drizzle schema files, migration, seed default STANDARD/PREMIUM/ENTERPRISE plans          |
+| 2    | [x] 46.1-02-PLAN.md | Subscription Lifecycle: tenant-billing.ts (checkout, upgrade/downgrade, cancel, tier sync, webhook), billing helpers + tests, types |
+| 3    | [x] 46.1-03-PLAN.md | Platform Admin: 4 admin API routes + 3 admin billing widgets (overview, subscriptions, revenue)                                     |
+| 3    | [x] 46.1-04-PLAN.md | Tenant Portal: 3 pages at /tenant/billing (overview, invoices, payment-methods) + 5 UI components + checkout flow                   |
 
 Plans:
 
@@ -1013,8 +1013,8 @@ Plans:
 
 - [x] 46.1-01-PLAN.md — Billing domain models (schema, migration, seed, Drizzle schemas)
 - [x] 46.1-02-PLAN.md — Checkout & subscription lifecycle + tier sync + billing helpers + tests
-- [ ] 46.1-03-PLAN.md — Platform admin billing routes + admin billing widgets
-- [ ] 46.1-04-PLAN.md — Tenant billing portal pages + billing feature UI components
+- [x] 46.1-03-PLAN.md — Platform admin billing routes + admin billing widgets
+- [x] 46.1-04-PLAN.md — Tenant billing portal pages + billing feature UI components
 
 ---
 
@@ -1048,15 +1048,15 @@ Plans:
 
 | Wave | Plan                | Objective                                                                                              |
 | ---- | ------------------- | ------------------------------------------------------------------------------------------------------ |
-| 1    | [ ] 46.2-01-PLAN.md | Schema Foundation: 3 Prisma models + 6 enums + migration with backfill + Drizzle wiring + registration |
-| 2    | [ ] 46.2-02-PLAN.md | Service Layer: AddressService (9 methods) + HandleService (4 methods) + Vitest tests                   |
-| 3    | [ ] 46.2-03-PLAN.md | Route Integration + Seed: Update 3 route files + seed system addresses + tRPC premium route            |
+| 1    | [x] 46.2-01-PLAN.md | Schema Foundation: 3 Prisma models + 6 enums + migration with backfill + Drizzle wiring + registration |
+| 2    | [x] 46.2-02-PLAN.md | Service Layer: AddressService (9 methods) + HandleService (4 methods) + Vitest tests                   |
+| 3    | [x] 46.2-03-PLAN.md | Route Integration + Seed: Update 3 route files + seed system addresses + tRPC premium route            |
 
 Plans:
 
-- [ ] 46.2-01-PLAN.md — Schema + migration + Drizzle wiring
-- [ ] 46.2-02-PLAN.md — Service layer (AddressService + HandleService) + tests
-- [ ] 46.2-03-PLAN.md — Route integration (seats, premium, users) + seed
+- [x] 46.2-01-PLAN.md — Schema + migration + Drizzle wiring
+- [x] 46.2-02-PLAN.md — Service layer (AddressService + HandleService) + tests
+- [x] 46.2-03-PLAN.md — Route integration (seats, premium, users) + seed
 
 **Out of scope:** Chat routing refactor (enabled, not implemented). External email gateway. Federation. Admin UI for address management. Phase 2/3 legacy column removal.
 
@@ -1066,7 +1066,7 @@ Plans:
 
 **Goal:** Implement the dWallet module — per-resident data rights, granular consent, and revenue-share rewards — as defined in `docs/architecture/DWALLET_SPEC.md` (Schedule G of the SaaS agreement). **An optional Foundation-tier addendum:** tenants opt into the data-rights programme by signing the addendum. After opt-in: "You own your data, you grant consent per use, you earn revenue share."
 
-**Status:** Planning (elevated from M6+ to M5b on 2026-06-06 — see `.planning/phases/47-dwallet-planning-build/47-CONTEXT.md` for the full sub-phase breakdown)
+**Status:** Complete — 7/7 plans with summaries
 
 **BD sources (3):**
 
@@ -1094,10 +1094,10 @@ Plans:
 
 | Wave | Plans                           | Objective                                |
 | ---- | ------------------------------- | ---------------------------------------- |
-| 1    | [ ] 47-01, [ ] 47-02            | Schema + Entity FSD                      |
-| 2    | [ ] 47-03, [ ] 47-04, [ ] 47-05 | Resident API + Admin API + Feature Gates |
-| 3    | [ ] 47-06                       | Widgets                                  |
-| 4    | [ ] 47-07                       | Full Page + Navigation                   |
+| 1    | [x] 47-01, [x] 47-02            | Schema + Entity FSD                      |
+| 2    | [x] 47-03, [x] 47-04, [x] 47-05 | Resident API + Admin API + Feature Gates |
+| 3    | [x] 47-06                       | Widgets                                  |
+| 4    | [x] 47-07                       | Full Page + Navigation                   |
 
 **Out of scope (deferred to phase 2):** actual EFT / PayFast disbursement integration; Community Benefit Fund as separate ledger model (counter in `Tenant.featureFlags` for now); push notifications on reward receipt; multi-currency (ZAR only).
 
@@ -1135,7 +1135,7 @@ Plans:
 
 **Goal:** Ship the Service Marketplace cluster — notification system, payment processing, booking calendar integration, and mobile optimization. These 4 features enable the core marketplace experience. Optional addendum — tenant opts in post-launch.
 
-**Status:** Planning Complete — 4 plans in 3 waves
+**Status:** Complete — 4/4 plans with summaries
 
 **BD sources (4):**
 
@@ -1178,7 +1178,7 @@ _Items explicitly deferred to post-launch. These have PLAN.md but no SUMMARY.md 
 
 **Goal:** Validate the multi-tenant onboarding + adoption system with a real second tenant — exercise tenant resolution, RLS, and isolation under live production conditions
 
-**Status:** Planning Complete (deferred — post-deployment validation test)
+**Status:** Complete — 4/4 plans with summaries (deferred — post-deployment validation test)
 
 **Blocker (2026-06-03):** Requires production deployment + a willing second tenant to onboard. Cannot run against a synthetic tenant — the test is specifically about validating the onboarding flow under real adoption conditions. Tracked under M6+ for post-launch execution.
 
@@ -1194,7 +1194,7 @@ _Items explicitly deferred to post-launch. These have PLAN.md but no SUMMARY.md 
 
 **Goal:** Content-displaying routes and pages respect the user's active locale — all content fetches pass `&locale=${i18n.language}`, and redundant client-side locale helpers are removed.
 
-**Status:** Planned — 2 plans in 1 wave (wiring-only phase)
+**Status:** Complete — 2/2 plans with summaries
 
 **Note:** The API layer, middleware locale detection, and i18next infrastructure were all delivered in prior work (Phases 42/45, BD `7qkl`). This phase is exclusively frontend wiring — adding locale query params to 9 content-fetching sites and removing 2 redundant client-side helpers. No new UI, no schema changes, no new packages.
 
@@ -1214,6 +1214,7 @@ _Out-of-band maintenance phases that don't fit the milestone structure. Moved ou
 
 ### Phase 100: plan 45
 
+**Status:** Not started (stub)
 **Goal:** [To be planned]
 **Requirements**: TBD
 **Depends on:** Phase 99
@@ -1223,11 +1224,13 @@ Plans:
 
 - [x] 04-01-PLAN.md
 
-- [ ] TBD (run /gsd-plan-phase 100 to break down)
+- [x] TBD (run /gsd-plan-phase 100 to break down)
 
 ---
 
 ## Phase 101: Soft Deletes
+
+**Status:** Planned — 3 plans, 0 executed
 
 **Goal:** Add `deletedAt` timestamp columns across all domain entities for systematic soft-delete support, with `notDeleted()` query wrapper that excludes soft-deleted records by default, and a 90-day auto-purge background job. Migrate `Message.isDeleted` → `deletedAt`, replace 5 `@unique` constraints with partial unique indexes (`WHERE deletedAt IS NULL`), fix Group hard-delete bug, and remove maintenance conditional soft-delete branching.
 
@@ -1251,6 +1254,8 @@ Plans:
 
 ## Phase 102: Achievements System
 
+**Status:** Complete — 4/4 plans with summaries
+
 **Goal:** Cross-cutting achievements engine — event bus infrastructure, achievement definitions, progress tracking, unlock logic, resident widget, and admin configuration. Scoped from ADVISORY-013 (Phases B–D; Phase A already shipped, Phase E deferred per G4=forward-only).
 
 **Depends on:** Phase 101 (soft deletes — schema stability)
@@ -1264,18 +1269,20 @@ Plans:
 | Wave | Plan               | Objective                                                                      |
 | ---- | ------------------ | ------------------------------------------------------------------------------ |
 | 1    | [x] 102-01-PLAN.md | Schema + Drizzle + achievement event listener service + seed 12 definitions    |
-| 2    | [ ] 102-02-PLAN.md | Resident API (list + progress) + Admin API (toggle, thresholds, config)        |
-| 3    | [ ] 102-03-PLAN.md | Dashboard badge grid widget + admin catalog widget + directory profile section |
+| 2    | [x] 102-02-PLAN.md | Resident API (list + progress) + Admin API (toggle, thresholds, config)        |
+| 3    | [x] 102-03-PLAN.md | Dashboard badge grid widget + admin catalog widget + directory profile section |
 
 ---
 
 ## Phase 103: Tenant Gallery & Album Sharing
 
+**Status:** Complete — 1/1 plan with summary
+
 **Goal:** Tenant-level system gallery for dashboard header images and system banners + public album sharing across the community.
 
 **Depends on:** None
 **Depends on:** None
-**Plans:** 1 plan in 3 waves
+**Plans:** 1/1 complete in 3 waves
 **Context:** Issue soralia-village-j29z
 
 **Requirements:**
@@ -1296,7 +1303,7 @@ Plans:
 **Goal:** Platform AI pool architecture — Anthropic + OpenAI via platform-managed keys with per-tenant token quotas (STANDARD 50k / PREMIUM 200k / ENTERPRISE 500k tokens/month), tier-based overage policies, usage tracking and audit events, platform admin pool management, tenant admin usage widget, and translate route migration.
 
 **Source:** ADVISORY-017-SUPPLEMENTAL-2 (primary) + ADVISORY-017-SUPPLEMENTAL (retained: interface, NullProvider, capability flags, FSD rules, translate migration)
-**Status:** Planned — 4 plans in 4 waves (replanned 2026-06-25 after SUPPLEMENTAL-2 scope change)
+**Status:** Complete — 4/4 plans with summaries
 **Requirements:** AI-PROV-01, AI-PROV-02, AI-PROV-03
 
 | Requirement | Plan   | Description                                                                                       |
@@ -1306,16 +1313,16 @@ Plans:
 | AI-PROV-02  | 104-03 | Platform admin routes (6) + cron rollover + admin-ai-usage widget + registration                  |
 | AI-PROV-03  | 104-04 | Translate route migration to pool pattern + LocaleAwareEditor degraded state + env vars           |
 
-**Plans:** 4 plans
+**Plans:** 4/4 complete
 
 Plans:
 
 | Wave | Plan               | Objective                                                                                                        |
 | ---- | ------------------ | ---------------------------------------------------------------------------------------------------------------- |
-| 1    | [ ] 104-01-PLAN.md | Schema + Seed + Entity: 4 models, 2 enums, migration, seed tier quotas + capability costs, getTenantModule       |
-| 2    | [ ] 104-02-PLAN.md | Pool + Providers + Factory: checkQuota/recordUsage, AnthropicProvider, OpenAiProvider, NullProvider, SDK install |
-| 3    | [ ] 104-03-PLAN.md | Admin Routes + Widgets: 6 platform admin API routes, cron rollover, admin-ai-usage widget, registration          |
-| 4    | [ ] 104-04-PLAN.md | Migration: translate route to pool pattern, LocaleAwareEditor degraded state, env vars, quality gates            |
+| 1    | [x] 104-01-PLAN.md | Schema + Seed + Entity: 4 models, 2 enums, migration, seed tier quotas + capability costs, getTenantModule       |
+| 2    | [x] 104-02-PLAN.md | Pool + Providers + Factory: checkQuota/recordUsage, AnthropicProvider, OpenAiProvider, NullProvider, SDK install |
+| 3    | [x] 104-03-PLAN.md | Admin Routes + Widgets: 6 platform admin API routes, cron rollover, admin-ai-usage widget, registration          |
+| 4    | [x] 104-04-PLAN.md | Migration: translate route to pool pattern, LocaleAwareEditor degraded state, env vars, quality gates            |
 
 **Scope removed (SUPPLEMENTAL-2 §1):** encryption.ts, tenant key storage, POST /api/admin/ai-provider/key, AiProviderSettingsWidget key management UI, AI_SETTINGS_ENCRYPTION_KEY env var.
 
@@ -1326,7 +1333,7 @@ Plans:
 **Goal:** DisputeCase, DisputeEvidence, DisputeEvent, DisputeMessage, DisputeMessageVersion, DisputeNotification models + enums + Drizzle generation + entity layer per FSD layout.
 
 **Source:** ADVISORY-017 — Phases 1 + 2
-**Status:** Planned — 2 plans in 2 waves
+**Status:** Complete — 2/2 plans with summaries
 **Depends on:** Phase 104 (soft dep — schema work can start in parallel)
 **Requirements:** DISPUTE-01, DISPUTE-02
 
@@ -1339,8 +1346,8 @@ Plans:
 
 | Wave | Plan               | Objective                                                                                   |
 | ---- | ------------------ | ------------------------------------------------------------------------------------------- |
-| 1    | [ ] 105-01-PLAN.md | Schema + Seed + DB Push: 6 models, 5 enums, migration, Drizzle gen, disputes PlatformModule |
-| 2    | [ ] 105-02-PLAN.md | Entity Layer: types, constants, lifecycle, reference generator, 3 UI badges, Drizzle wiring |
+| 1    | [x] 105-01-PLAN.md | Schema + Seed + DB Push: 6 models, 5 enums, migration, Drizzle gen, disputes PlatformModule |
+| 2    | [x] 105-02-PLAN.md | Entity Layer: types, constants, lifecycle, reference generator, 3 UI badges, Drizzle wiring |
 
 Plans:
 
@@ -1354,7 +1361,7 @@ Plans:
 **Goal:** All CRUD routes, submit with cooling-off enforcement, intake screen with AI frivolity check, mediation thread, evidence upload, CSOS export route.
 
 **Source:** ADVISORY-017 Phase 3 + SUPPLEMENTAL Phase C
-**Status:** Not planned
+**Status:** Complete — 4/4 plans with summaries
 **Depends on:** Phase 104, Phase 105
 **Requirements:** DISPUTE-03, DISPUTE-04, DISPUTE-05
 
@@ -1370,7 +1377,7 @@ Plans:
 **Goal:** Intake wizard (emotion check-in, self-resolution, frivolity screen, conflict tips), dispute form, mediation thread UI, evidence uploader, dashboard widgets, navigation registration.
 
 **Source:** ADVISORY-017 — Phases 4 + 5
-**Status:** Planning Complete
+**Status:** Complete — 4/4 plans with summaries
 **Depends on:** Phase 106
 **Requirements:** DISPUTE-06, DISPUTE-07
 
@@ -1378,10 +1385,10 @@ Plans:
 
 | Wave | Plan               | Objective                                                                                   | Requirements |
 | ---- | ------------------ | ------------------------------------------------------------------------------------------- | ------------ |
-| 1    | [ ] 107-01-PLAN.md | Workflow engine, useAutoSave hook, platform page flags + defaults                           | DISPUTE-06   |
-| 2    | [ ] 107-02-PLAN.md | Intake wizard: 5 stage components, DisputeForm, DisputeIntakeWizard, useDisputeIntake       | DISPUTE-06   |
-| 3    | [ ] 107-03-PLAN.md | Dashboard widgets: MyDisputesWidget, AdminDisputesWidget, widget registration               | DISPUTE-07   |
-| 3    | [ ] 107-04-PLAN.md | Dispute detail page: /disputes/[id] route, responsive layout composing 10 entity components | DISPUTE-07   |
+| 1    | [x] 107-01-PLAN.md | Workflow engine, useAutoSave hook, platform page flags + defaults                           | DISPUTE-06   |
+| 2    | [x] 107-02-PLAN.md | Intake wizard: 5 stage components, DisputeForm, DisputeIntakeWizard, useDisputeIntake       | DISPUTE-06   |
+| 3    | [x] 107-03-PLAN.md | Dashboard widgets: MyDisputesWidget, AdminDisputesWidget, widget registration               | DISPUTE-07   |
+| 3    | [x] 107-04-PLAN.md | Dispute detail page: /disputes/[id] route, responsive layout composing 10 entity components | DISPUTE-07   |
 
 Plans:
 **Wave 1**
@@ -1404,7 +1411,7 @@ Plans:
 **Goal:** PDF generation for CSOS Form 2 — certified dispute history with all sections A–F, rate-limited, audit-logged. Ruling issuance flow.
 
 **Source:** ADVISORY-017 — Phase 6
-**Status:** Planning Complete
+**Status:** Complete — 4/4 plans with summaries
 **Depends on:** Phase 106
 **Requirements:** DISPUTE-08
 
@@ -1426,7 +1433,7 @@ Plans:
 
 **Goal:** Wire the ENTERPRISE SURCHARGE overage policy (from Phase 104 AI pool) into the billing pipeline (from Phase 46.1 billing foundation), generating surcharge invoice PDFs using the pdf-lib pattern from Phase 108 (build-csos-pdf.ts). When an ENTERPRISE tenant exceeds their monthly AI pool quota, the cron rollover generates a surcharge invoice record, records a billing event, and provides a downloadable PDF via a platform admin route.
 
-**Status:** Planned — 1 plan in 1 wave
+**Status:** Complete — 1/1 plan with summary
 
 **Source:** BD soralia-village-fjyw
 
@@ -1434,15 +1441,15 @@ Plans:
 
 **Depends on:** Phase 104 (AI pool models, SURCHARGE policy, cron rollover), Phase 46.1 (billing foundation, TenantInvoice, BillingEvent), Phase 108 (pdf-lib PDF generation pattern)
 
-**Plans:** 1 plan
+**Plans:** 1/1 complete
 
 | Wave | Plan               | Objective                                                                                         |
 | ---- | ------------------ | ------------------------------------------------------------------------------------------------- |
-| 1    | [ ] 109-01-PLAN.md | PDF generator + cron integration: buildOverageInvoicePdf(), enhanced rollover, PDF download route |
+| 1    | [x] 109-01-PLAN.md | PDF generator + cron integration: buildOverageInvoicePdf(), enhanced rollover, PDF download route |
 
 Plans:
 
-- [ ] 109-01-PLAN.md — buildOverageInvoicePdf() pure function + cron surcharge detection + billing event recording + PDF download route
+- [x] 109-01-PLAN.md — buildOverageInvoicePdf() pure function + cron surcharge detection + billing event recording + PDF download route
 
 **Out of scope:** Non-ENTERPRISE overage billing (THROTTLE/HARD_STOP), real-time overage alerts, custom surcharge rates per tenant, multi-currency support.
 
@@ -1452,7 +1459,7 @@ Plans:
 
 **Goal:** Build centralized page & navigation access control. Single `/api/access` endpoint returning `PageAccess` per caller (spaces, pages, features). `usePageAccess()` hook for all nav components. Resolution pipeline: Role → Record existence → Suspension → Feature flags → Agent token. Provider access gating (BD soralia-village-b51v) is the first consumer — replaces `normalizedRole === 'PROVIDER'` with `hasProviderRecord === true`.
 
-**Status:** Planning Complete — 2 plans in 2 waves
+**Status:** Complete — 2/2 plans with summaries
 
 **Requirements:** ACCESS-01, ACCESS-02, ACCESS-03, ACCESS-04, ACCESS-05, ACCESS-06
 
@@ -1464,8 +1471,8 @@ Plans:
 
 2/2 plans complete
 | ---- | ------------------ | -------------------------------------------------------------------------------------------- |
-| 1 | [ ] 110-01-PLAN.md | `/api/access` endpoint + PageAccess types + 5-layer resolution pipeline + agent extension |
-| 2 | [ ] 110-02-PLAN.md | `usePageAccess()` hook + nav refactor (SpaceChrome, MobileSpaceBar) + `filterSpaces` pure fn |
+| 1 | [x] 110-01-PLAN.md | `/api/access` endpoint + PageAccess types + 5-layer resolution pipeline + agent extension |
+| 2 | [x] 110-02-PLAN.md | `usePageAccess()` hook + nav refactor (SpaceChrome, MobileSpaceBar) + `filterSpaces` pure fn |
 
 **Out of scope:** Full agent gateway (token issuance, scope management, audit log), widget-level access, access-based redirects, rate limiting on access endpoint.
 
@@ -1483,7 +1490,7 @@ Plans:
 
 **Source:** Platform architecture — enables Phase 110 extension point D-08/D-09
 
-**Plans:** 5 plans in 5 waves
+**Plans:** 5/5 complete in 5 waves
 
 | Wave | Plan               | Objective                                                                                                                |
 | ---- | ------------------ | ------------------------------------------------------------------------------------------------------------------------ |
@@ -1499,7 +1506,7 @@ Plans:
 
 **Goal:** Close 3 systemic gaps between tRPC router implementations and the Netcomplex API Governance Standard: response envelope, canonical error codes, and DTO mapping. Wire existing `tenantProcedure`/`privilegedProcedure` tiers and add suspension checks.
 
-**Status:** Planning Complete — 6 plans in 3 waves
+**Status:** Complete — 6/6 plans with summaries
 
 **Milestone:** M5 — Platform Launch (hardening)
 
@@ -1507,23 +1514,23 @@ Plans:
 
 **Requirements:** GOV-01, GOV-02, GOV-03, GOV-04, GOV-05, GOV-06, GOV-07, GOV-08
 
-**Plans:** 5/6 plans executed
+**Plans:** 6/6 plans executed
 
 - [x] 120-01-PLAN.md
 - [x] 120-02-PLAN.md
 - [x] 120-03-PLAN.md
 - [x] 120-04-PLAN.md
-- [ ] 120-05-PLAN.md
+- [x] 120-05-PLAN.md
 - [x] 120-06-PLAN.md
 
 | Wave | Plan                                            | Objective                                                                                                                       | Reqs                                   |
 | ---- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
-| 1    | [ ] 120-01-PLAN.md — Foundation Wiring          | Wire errorFormatter + suspension middleware + create missing DTOs (disputes, resources)                                         | GOV-02, GOV-03, GOV-04, GOV-05, GOV-06 |
+| 1    | [x] 120-01-PLAN.md — Foundation Wiring          | Wire errorFormatter + suspension middleware + create missing DTOs (disputes, resources)                                         | GOV-02, GOV-03, GOV-04, GOV-05, GOV-06 |
 | 2    | [x] 120-02-PLAN.md — Identity Router            | Replace inline schemas with DTOs, adopt tenantProcedure/privilegedProcedure                                                     | GOV-01, GOV-03, GOV-04, GOV-05         |
-| 2    | [ ] 120-03-PLAN.md — Core Router Migration      | Migrate 10 flat routers (content, achievements, events, bookings, groups, merits, notifications, invitations, settings, agents) | GOV-01, GOV-03                         |
-| 2    | [ ] 120-04-PLAN.md — Remaining Router Migration | Migrate dwallet, competitions, disputes, resources routers                                                                      | GOV-01, GOV-03                         |
-| 2    | [ ] 120-05-PLAN.md — Sub-Router Migration       | Migrate chat/, maintenance/, marketplace/, surveys/ (22 files)                                                                  | GOV-01, GOV-03                         |
-| 3    | [ ] 120-06-PLAN.md — Classification & Docs      | JSDoc @public/@tenant/@privileged tags + governance docs update                                                                 | GOV-07, GOV-08                         |
+| 2    | [x] 120-03-PLAN.md — Core Router Migration      | Migrate 10 flat routers (content, achievements, events, bookings, groups, merits, notifications, invitations, settings, agents) | GOV-01, GOV-03                         |
+| 2    | [x] 120-04-PLAN.md — Remaining Router Migration | Migrate dwallet, competitions, disputes, resources routers                                                                      | GOV-01, GOV-03                         |
+| 2    | [x] 120-05-PLAN.md — Sub-Router Migration       | Migrate chat/, maintenance/, marketplace/, surveys/ (22 files)                                                                  | GOV-01, GOV-03                         |
+| 3    | [x] 120-06-PLAN.md — Classification & Docs      | JSDoc @public/@tenant/@privileged tags + governance docs update                                                                 | GOV-07, GOV-08                         |
 
 **Scope:** 20 tRPC router files (42 source files total), 2 new DTO files, 1 middleware file modified, 2 doc files updated. REST routes and Prisma schema unchanged.
 
@@ -1531,7 +1538,7 @@ Plans:
 
 **Goal:** Merge the 5 settings definition files into a single source of truth, add integration tests for mutation→cache-invalidation lifecycle, and assess the dual REST/tRPC surface for consolidation.
 
-**Status:** Planning Complete — 3 plans
+**Status:** Complete — 3/3 plans with summaries
 
 **Milestone:** M5 — Platform Launch (hardening)
 
@@ -1541,15 +1548,15 @@ Plans:
 
 **Plans:**
 
-- [ ] 121-01-PLAN.md — Single Source of Truth (SSOT)
-- [ ] 121-02-PLAN.md — Integration Test Suite
-- [ ] 121-03-PLAN.md — REST/tRPC Surface Assessment
+- [x] 121-01-PLAN.md — Single Source of Truth (SSOT)
+- [x] 121-02-PLAN.md — Integration Test Suite
+- [x] 121-03-PLAN.md — REST/tRPC Surface Assessment
 
 | Wave | Plan                                    | Objective                                                                                                                                                          | Reqs        |
 | ---- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------- |
-| 1    | [ ] 121-01-PLAN.md — SSOT               | Merge 5 files into one data-driven definition. Generate SETTINGS_KEYS, SettingValueMap, SETTINGS_VALUE_SCHEMAS, FLAG_DEFS, DEFAULT_PAGE_FLAGS from a single array. | SETTINGS-14 |
-| 2    | [ ] 121-02-PLAN.md — Integration Tests  | Add 13 integration tests covering 6 write + 2 read endpoints. Verify mutation → audit log → revalidation lifecycle.                                                | SETTINGS-15 |
-| 3    | [ ] 121-03-PLAN.md — Surface Assessment | Audit dual REST/tRPC surface. Produce migration roadmap with 3 phases (feature parity → consolidation → cleanup). Decision doc on canonical surface.               | SETTINGS-10 |
+| 1    | [x] 121-01-PLAN.md — SSOT               | Merge 5 files into one data-driven definition. Generate SETTINGS_KEYS, SettingValueMap, SETTINGS_VALUE_SCHEMAS, FLAG_DEFS, DEFAULT_PAGE_FLAGS from a single array. | SETTINGS-14 |
+| 2    | [x] 121-02-PLAN.md — Integration Tests  | Add 13 integration tests covering 6 write + 2 read endpoints. Verify mutation → audit log → revalidation lifecycle.                                                | SETTINGS-15 |
+| 3    | [x] 121-03-PLAN.md — Surface Assessment | Audit dual REST/tRPC surface. Produce migration roadmap with 3 phases (feature parity → consolidation → cleanup). Decision doc on canonical surface.               | SETTINGS-10 |
 
 **Scope:** 1 new SSOT file, 5 existing files updated to re-export, 2 new integration test files, 1 assessment doc. Total ~400 lines new code, ~200 lines removed (dead code consolidation).
 
@@ -1557,7 +1564,7 @@ Plans:
 
 **Goal:** Establish the `WorkspaceContext` frontend abstraction as the runtime lens for rendering the entire platform — decoupling UI behaviour from `Role` and identity details. Ships the frontend precondition for the `Principal` backend refactor (Phase 1d).
 
-**Status:** Planning Complete — 9 plans in 7 waves (6 core + 3 gap closure from UAT: WS-01..WS-06 covered)
+**Status:** In Progress (worktree: phase-122-workspace-context-architecture) — 1/9 plans complete (122-04)
 
 **Milestone:** M5+ — Post-Launch Architecture Evolution
 
@@ -1619,7 +1626,7 @@ _Turborepo + pnpm workspaces monorepo for web (Next.js) + mobile (Expo) code sha
 
 **Goal:** Running monorepo skeleton — Turborepo CLI + `turbo.json`, `pnpm-workspace.yaml`, `tooling/typescript/eslint/prettier` presets, empty `apps/web` + `apps/expo` + `packages/*` stubs. All `pnpm install/build/lint/typecheck` pass.
 
-**Status:** Planning complete — 2 plans in 2 waves
+**Status:** Complete — 2/2 plans with summaries complete — 2 plans in 2 waves
 
 **Depends on:** Phase 112 (CONTEXT.md provides cross-cutting decisions)
 
@@ -1684,7 +1691,7 @@ _Turborepo + pnpm workspaces monorepo for web (Next.js) + mobile (Expo) code sha
 
 **Goal:** Close out deferred and incomplete items from Phase 111 (agent-gateway) — register DelegationWidget in widget registry, apply formal Prisma migration for MaintenanceRouting fields, write ResidentDelegation integration tests, add Phase 111 entry to ROADMAP, and map Phase 111 requirements to REQUIREMENTS.md.
 
-**Status:** Planning
+**Status:** Complete — 2/2 plans with summaries
 
 **Milestone:** M5 — Platform Launch (hardening)
 
@@ -1694,8 +1701,8 @@ _Turborepo + pnpm workspaces monorepo for web (Next.js) + mobile (Expo) code sha
 
 | Wave | Plan               | Objective                                                                                                   |
 | ---- | ------------------ | ----------------------------------------------------------------------------------------------------------- |
-| 1    | [ ] 118-01-PLAN.md | Register DelegationWidget in widget registry + add Phase 111 to ROADMAP.md + create REQUIREMENTS.md mapping |
-| 1    | [ ] 118-02-PLAN.md | Create formal Prisma migration for MaintenanceRouting + rewrite ResidentDelegation integration tests        |
+| 1    | [x] 118-01-PLAN.md | Register DelegationWidget in widget registry + add Phase 111 to ROADMAP.md + create REQUIREMENTS.md mapping |
+| 1    | [x] 118-02-PLAN.md | Create formal Prisma migration for MaintenanceRouting + rewrite ResidentDelegation integration tests        |
 
 ---
 
@@ -1717,7 +1724,7 @@ _Turborepo + pnpm workspaces monorepo for web (Next.js) + mobile (Expo) code sha
 
 **Goal:** Implement proxy voting workflow for HOA meetings — attach to AGM/SGM/Trustee Election events, 6-step resident journey (cannot attend → appoint proxy → upload form → proxy acceptance → digital signature → complete), HOA admin approval, and notification system.
 
-**Status:** Planning — CONTEXT.md created
+**Status:** In Progress — 5/9 plans with summaries
 
 **Source:** `docs/PROXY_SIG_DISCUSSION.md`
 

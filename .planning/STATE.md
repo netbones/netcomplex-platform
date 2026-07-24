@@ -4,8 +4,8 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 125
 current_phase_name: proxy-vote-module
-status: planning
-stopped_at: Phase 125 — CONTEXT.md created; ready for planning
+status: in_progress
+stopped_at: Phase 125 — 5/9 plans with summaries (ongoing on dev)
 last_updated: '2026-07-23T20:35:17.681Z'
 progress:
   total_phases: 72
