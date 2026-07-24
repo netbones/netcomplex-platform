@@ -42,6 +42,9 @@ const BUCKET_NAME = process.env.STORAGE_BUCKET || 'content-image';
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
+export const ALLOWED_DOCUMENT_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
+export const MAX_DOCUMENT_SIZE = 10 * 1024 * 1024; // 10MB — Phase 125 proxy vote document upload
+
 const MAGIC_BYTES: Record<string, number[]> = {
   'image/jpeg': [0xff, 0xd8, 0xff],
   'image/png': [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a],
@@ -409,4 +412,75 @@ export function validateImage(file: File): string | null {
     return `File too large. Maximum size is ${MAX_FILE_SIZE / 1024 / 1024}MB.`;
   }
   return null;
+}
+
+export async function uploadDocument(
+  file: File,
+  tenantId: string,
+  subfolder?: string
+): Promise<UploadResult> {
+  if (!ALLOWED_DOCUMENT_TYPES.includes(file.type)) {
+    return {
+      url: '',
+      key: '',
+      error: `Invalid file type: ${file.type}. Accepted: PDF, JPG, PNG`,
+    };
+  }
+
+  if (file.size > MAX_DOCUMENT_SIZE) {
+    return {
+      url: '',
+      key: '',
+      error: `File too large: ${file.size} bytes. Maximum: 10MB`,
+    };
+  }
+
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    const folder = subfolder ?? 'proxy-forms';
+    const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const key = `tenants/${tenantId}/documents/${folder}/${crypto.randomUUID()}-${sanitizedFileName}`;
+
+    const command = new PutObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: key,
+      Body: buffer,
+      ContentType: file.type,
+      ACL: 'public-read' as const,
+    });
+
+    await s3Client.send(command);
+
+    const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${BUCKET_NAME}/${key}`;
+
+    db.insert(mediaUploads)
+      .values({
+        id: createId(),
+        userId: '',
+        tenantId,
+        key,
+        url: publicUrl,
+        fileName: file.name,
+        fileSize: file.size,
+        mimeType: file.type,
+      })
+      .catch(err =>
+        logError(
+          { component: 'storage', operation: 'uploadDocument' },
+          'Failed to write media record',
+          err
+        )
+      );
+
+    return { url: publicUrl, key };
+  } catch (error) {
+    logError(
+      { component: 'storage', operation: 'uploadDocument' },
+      'Failed to upload document',
+      error
+    );
+    return { url: '', key: '', error: 'Failed to upload document. Please try again.' };
+  }
 }
