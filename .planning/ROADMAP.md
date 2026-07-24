@@ -36,7 +36,7 @@ _Multi-tenant substrate + base modules. Nothing user-facing. Verifiable: `pnpm t
 
 **Goal:** Establish core multi-tenant infrastructure — tenant resolution, enforcement helpers, seed data
 
-**Status:** Complete
+**Status:** ✅ Complete
 
 **Requirements:** MULTI-01, MULTI-02, MULTI-03
 
@@ -50,7 +50,7 @@ _Multi-tenant substrate + base modules. Nothing user-facing. Verifiable: `pnpm t
 
 **Goal:** Apply tenant enforcement to API routes, wire dynamic theming, integrate FeatureGate, consolidate locales
 
-**Status:** Complete
+**Status:** ✅ Complete
 
 **Requirements:** MULTI-04
 
@@ -64,7 +64,7 @@ _Multi-tenant substrate + base modules. Nothing user-facing. Verifiable: `pnpm t
 
 **Goal:** Admin UI for tenant management — tenant list, branding edit page, per-tenant feature toggle overrides, backfill migration script
 
-**Status:** Complete
+**Status:** ✅ Complete
 
 **Requirements:** MULTI-05, MULTI-06
 
@@ -78,7 +78,7 @@ _Multi-tenant substrate + base modules. Nothing user-facing. Verifiable: `pnpm t
 
 **Goal:** Platform-level i18n — `/[lng]/platform/` route group, language switcher, 4 locale files (en, af, xh, zu), translated platform landing sections
 
-**Status:** Complete
+**Status:** ✅ Complete
 
 **Requirements:** (none specified at planning time)
 
@@ -92,7 +92,7 @@ _Multi-tenant substrate + base modules. Nothing user-facing. Verifiable: `pnpm t
 
 **Goal:** Align widget registry with NetComplex architecture — convert from plain object to WidgetRegistry class
 
-**Status:** Complete
+**Status:** ✅ Complete
 
 **Requirements:** WIDGET-01, WIDGET-02, WIDGET-03, WIDGET-04
 
@@ -106,7 +106,7 @@ _Multi-tenant substrate + base modules. Nothing user-facing. Verifiable: `pnpm t
 
 **Goal:** Implement maintenance request system — submit requests with category, priority, description, photo upload, status tracking
 
-**Status:** Complete
+**Status:** ✅ Complete
 
 **Requirements:** MAINT-01, MAINT-02, MAINT-03
 
@@ -120,7 +120,7 @@ _Multi-tenant substrate + base modules. Nothing user-facing. Verifiable: `pnpm t
 
 **Goal:** Implement facility booking as NetComplex module — feature flag gated, tenant-configurable
 
-**Status:** Complete
+**Status:** ✅ Complete
 
 **Requirements:** BOOKING-01, BOOKING-02, BOOKING-03
 
@@ -134,7 +134,7 @@ _Multi-tenant substrate + base modules. Nothing user-facing. Verifiable: `pnpm t
 
 **Goal:** Establish module architecture — platform_modules + tenant_modules tables, tier on tenants, enforcement helpers, FeatureGate update. Foundation for all future module work.
 
-**Status:** Complete
+**Status:** ✅ Complete
 
 **Requirements:** MOD-01, MOD-02, MOD-03, MOD-04
 
@@ -181,7 +181,7 @@ tenant_modules           → What each tenant has
 
 **Goal:** Implement governed announcements layer — role-gated priority taxonomy, audience targeting with fanout, document attachment, admin CRUD UI, stream widget + /news embed (no new nav items)
 
-**Status:** Complete
+**Status:** ✅ Complete
 
 **Requirements:** ANN-01, ANN-02, ANN-03, R1, R2, R3, R6, R7, R8
 
@@ -204,7 +204,7 @@ _Real-time chat, transactional email, schema hardening, self-service onboarding.
 
 **Goal:** Wire Supabase Realtime for chat — real-time message delivery, typing indicators, online presence
 
-**Status:** Complete
+**Status:** ✅ Complete
 
 **Requirements:** CHAT-01, CHAT-02
 
@@ -218,7 +218,7 @@ _Real-time chat, transactional email, schema hardening, self-service onboarding.
 
 **Goal:** Wire MailerSend for transactional emails — signup welcome, password reset, user-enabled notifications
 
-**Status:** Complete
+**Status:** ✅ Complete
 
 **Requirements:** EMAIL-01, EMAIL-02
 
@@ -232,7 +232,7 @@ _Real-time chat, transactional email, schema hardening, self-service onboarding.
 
 **Goal:** Critical schema fixes and Platform Admin API wiring — Setting uniqueness, Tenant ownerId, user isPlatformAdmin, Header role bug, tenant CRUD routes
 
-**Status:** Complete
+**Status:** ✅ Complete
 
 **Requirements:** SCHEMA-01, SCHEMA-02, SCHEMA-03, SCHEMA-04, SCHEMA-05
 
@@ -248,7 +248,7 @@ _Real-time chat, transactional email, schema hardening, self-service onboarding.
 
 **Goal:** Self-service tenant signup + onboarding wizard — atomic user+tenant creation, 5-step guided setup, assisted provisioning
 
-**Status:** Complete (4/4 plans)
+**Status:** ✅ Complete (4/4 plans)
 
 **Requirements:** INCEPT-01, INCEPT-02, INCEPT-03, INCEPT-04, INCEPT-05
 
@@ -265,7 +265,7 @@ _Real-time chat, transactional email, schema hardening, self-service onboarding.
 
 **Goal:** Unify on Sonner as the single toast notification system, remove Zustand Toast
 
-**Status:** Complete
+**Status:** ✅ Complete
 
 **Plans:**
 
@@ -283,7 +283,7 @@ _Focus Spaces architecture, single-source navigation, widget system, tenant conf
 
 **Goal:** Expand page visibility flags for Groups, Services, Resources, Maintenance, Surveys, and Competitions.
 
-**Status:** Complete (3/3 plans)
+**Status:** ✅ Complete (3/3 plans)
 
 **Requirements:** FLAG-EXP-01, FLAG-EXP-02, FLAG-EXP-03, FLAG-EXP-04, FLAG-EXP-05
 
@@ -299,7 +299,7 @@ _Focus Spaces architecture, single-source navigation, widget system, tenant conf
 
 **Goal:** Add surveys tab with results visualisation, group moderation queue widget, fix widget state persistence
 
-**Status:** Complete (3/3 plans)
+**Status:** ✅ Complete (3/3 plans)
 
 **Requirements:** DASH-01, DASH-02, DASH-03, DASH-04
 
@@ -315,7 +315,7 @@ _Focus Spaces architecture, single-source navigation, widget system, tenant conf
 
 **Goal:** Close remaining gaps from GAPS.md — platform admin auth guards, MobileMenu role fix, onboarding transaction, widget deduplication, test coverage
 
-**Status:** Complete (3/3 plans)
+**Status:** ✅ Complete (3/3 plans)
 
 **Requirements:** SCHEMA-04, INCEPT-01, GAP-03, GAP-04, GAP-09, GAP-12, GAP-14
 
@@ -331,7 +331,7 @@ _Focus Spaces architecture, single-source navigation, widget system, tenant conf
 
 **Goal:** Align all navigation surfaces with NAVIGATION_GOVERNANCE.md — single source of truth, More dropdown, 4-section burger, Conservation/Campaign mutual exclusion, role-aware admin isolation
 
-**Status:** Complete (3/3 plans)
+**Status:** ✅ Complete (3/3 plans)
 
 **Requirements:** NAV-01, NAV-02, NAV-03, NAV-04, NAV-05, NAV-06, NAV-07, NAV-08, NAV-09
 
@@ -347,7 +347,7 @@ _Focus Spaces architecture, single-source navigation, widget system, tenant conf
 
 **Goal:** Make booking facilities and maintenance categories tenant-configurable via onboarding + settings API; close remaining GAPS.md items (GAP-05, GAP-10, GAP-13, GAP-15, GAP-16)
 
-**Status:** Complete
+**Status:** ✅ Complete
 
 **Requirements:** CFG-01, CFG-02, CFG-03, GAP-05, GAP-10, GAP-13, GAP-15, GAP-16
 
@@ -362,7 +362,7 @@ _Focus Spaces architecture, single-source navigation, widget system, tenant conf
 
 **Goal:** Consolidate split proxy.ts + middleware.ts into single src/middleware.ts aligned with Next.js 15.5 (current Vercel deployment); correct architecture docs
 
-**Status:** Complete
+**Status:** ✅ Complete
 
 **Requirements:** PROXY-01, PROXY-02
 
@@ -376,7 +376,7 @@ _Focus Spaces architecture, single-source navigation, widget system, tenant conf
 
 **Goal:** Register missing maintenance + admin widgets, implement role-seeded default dashboard layouts per tab, integrate defaults into loading path, add reset-to-default action
 
-**Status:** Complete
+**Status:** ✅ Complete
 
 **Requirements:** DASH-DEFAULT-00, DASH-DEFAULT-01, DASH-DEFAULT-02, DASH-DEFAULT-03
 
@@ -391,7 +391,7 @@ _Focus Spaces architecture, single-source navigation, widget system, tenant conf
 
 **Goal:** Replace tab-based dashboard with Focus Space architecture — 5 spaces (Home, Services, Community, Messages, Admin), HomeLayer landing screen, widget-to-space migration, admin sub-launcher, My Home consolidation, mobile bottom bar, feature-flag controlled rollout
 
-**Status:** Complete
+**Status:** ✅ Complete
 
 **Requirements:** FOCUS-01, FOCUS-02, FOCUS-03, FOCUS-04, FOCUS-05, FOCUS-06, FOCUS-07, FOCUS-08, FOCUS-09, FOCUS-10, FOCUS-11, FOCUS-12, FOCUS-13, FOCUS-14
 
@@ -409,7 +409,7 @@ _Focus Spaces architecture, single-source navigation, widget system, tenant conf
 
 **Goal:** Remove all tab-mode dashboard code after Phase 30 Focus Space architecture is proven — delete old DashboardPage/DashboardTabs, strip tab-keyed defaults, remove feature flag. /admin route is NOT in scope (consolidated in Phase 37).
 
-**Status:** Complete
+**Status:** ✅ Complete
 
 **Requirements:** TAB-REM-01, TAB-REM-02, TAB-REM-03, TAB-REM-04, TAB-REM-05, TAB-REM-06
 
@@ -431,7 +431,7 @@ _Admin command surface, user suspension, surveys, competitions, maintenance tick
 
 **Goal:** Content scheduling UI, Events CRUD admin pages, Events dashboard tab
 
-**Status:** Complete (3/3 plans)
+**Status:** ✅ Complete (3/3 plans)
 
 **Requirements:** CONTENT-01, CONTENT-02, EVENTS-01, EVENTS-02, EVENTS-03
 
@@ -447,7 +447,7 @@ _Admin command surface, user suspension, surveys, competitions, maintenance tick
 
 **Goal:** Competitions model + admin CRUD + dynamic public page, Resources standalone model with file uploads/visibility/migration
 
-**Status:** Complete (4/4 plans)
+**Status:** ✅ Complete (4/4 plans)
 
 **Requirements:** COMP-01, COMP-02, RES-01, RES-02, RES-03, RES-04, RES-05
 
@@ -464,7 +464,7 @@ _Admin command surface, user suspension, surveys, competitions, maintenance tick
 
 **Goal:** Break the 1,431-line UsersListSection.tsx into maintainable sub-components each under 500 lines — extract types to entity layer, pure helpers to lib/, data fetch to custom hook, 5 modal dialogs to separate components using shared ModalOverlay, table into row/edit-row/table components, slim orchestrator under 300 lines
 
-**Status:** Complete
+**Status:** ✅ Complete
 
 **Requirements:** REFACTOR-01, REFACTOR-02, REFACTOR-03
 
@@ -478,7 +478,7 @@ _Admin command surface, user suspension, surveys, competitions, maintenance tick
 
 **Goal:** Implement a proper admin suspension mechanism — admin can issue timed suspensions (2 days, 1 week, 30 days, permanent) with type (violation, disruption, behavior, property, non-payment, other), reason, and description. Suspended users are deactivated and blocked at the API level. Users can be unsuspended early. Suspension history is tracked in the existing platformSuspension table.
 
-**Status:** Complete (verified 14/14 must-haves, 2026-05-28)
+**Status:** ✅ Complete (verified 14/14 must-haves, 2026-05-28)
 
 **Requirements:** SUSP-01, SUSP-02, SUSP-03
 
@@ -493,7 +493,7 @@ _Admin command surface, user suspension, surveys, competitions, maintenance tick
 
 **Goal:** Replace the admin space widget-grid+sub-launcher hybrid with a purpose-built AdminLayer command panel that mirrors the HomeLayer architecture — command bar → domains grid → lazy activity stream → collapsible widget area, driven by urgency + activity APIs
 
-**Status:** Complete
+**Status:** ✅ Complete
 
 **Requirements:** ADMIN-01, ADMIN-02, ADMIN-03, ADMIN-04
 
@@ -507,7 +507,7 @@ _Admin command surface, user suspension, surveys, competitions, maintenance tick
 
 **Goal:** Build a Google Forms-like survey/question builder in the admin panel — dedicated builder page, 6 question types, accordion sections, image support, drag-and-drop reordering, metadata tags
 
-**Status:** Complete
+**Status:** ✅ Complete
 
 **Requirements:** SURVEY-BUILD-01, SURVEY-BUILD-02, SURVEY-BUILD-03, SURVEY-BUILD-04, SURVEY-BUILD-05, SURVEY-BUILD-06
 
@@ -526,7 +526,7 @@ _Admin command surface, user suspension, surveys, competitions, maintenance tick
 
 **Goal:** Consolidate dual admin routes (`/admin` + `/dashboard/admin`) into a single canonical `/admin` route — remove broken redirect, install AdminLayer as the `/admin` landing page, normalize all links
 
-**Status:** Complete (2026-05-29)
+**Status:** ✅ Complete (2026-05-29)
 
 **Requirements:** None (cleanup/housekeeping)
 
@@ -540,7 +540,7 @@ _Admin command surface, user suspension, surveys, competitions, maintenance tick
 
 **Goal:** Convert /dashboard/services and /dashboard/messages from SpaceLayout widget grids into purpose-built zoned layers (urgency zone + domain grid) following the AdminLayer/HomeLayer architecture. /dashboard/community remains the only true DnD widget space.
 
-**Status:** Complete (verified, 2026-05-30)
+**Status:** ✅ Complete (verified, 2026-05-30)
 
 **Requirements:** LAYER-01, LAYER-02, LAYER-03, LAYER-04
 
@@ -559,7 +559,7 @@ _Admin command surface, user suspension, surveys, competitions, maintenance tick
 
 **Goal:** Complete the competition system with user entry management, three winner selection mechanics (raffle, photo contest, score-based), public cards-based listing/detail pages with winners gallery, and winner notifications via the existing Notification system.
 
-**Status:** Complete (2026-05-31)
+**Status:** ✅ Complete (2026-05-31)
 
 **Requirements:** COMP-ENTRY-01, COMP-ENTRY-02, COMP-ENTRY-03, COMP-ENTRY-04, COMP-ENTRY-05, COMP-ENTRY-06
 
@@ -578,7 +578,7 @@ _Admin command surface, user suspension, surveys, competitions, maintenance tick
 
 **Goal:** Transform maintenance requests into a proper ticketing system — admin-configurable categories, in-house maintenance teams and third-party service providers with assignment/reassignment, 7-status workflow, ticket numbering, progress timeline, user tracking with activity zone integration, and seed data.
 
-**Status:** Complete (4/4 plans, 2026-05-31 → 2026-06-01)
+**Status:** ✅ Complete (4/4 plans, 2026-05-31 → 2026-06-01)
 
 **Requirements:** MAINT-TICKET-01, MAINT-TICKET-02, MAINT-TICKET-03, MAINT-TICKET-04, MAINT-TICKET-05, MAINT-TICKET-06, MAINT-TICKET-07, MAINT-TICKET-08, MAINT-TICKET-09, MAINT-TICKET-10, MAINT-TICKET-11, MAINT-TICKET-12
 
@@ -603,7 +603,7 @@ _API governance, feature gate consolidation, i18n hydration fix. Verifiable: Ope
 
 **Goal:** Audit current API infrastructure against adopted governance standards (API.md, tRPC.md, API_ARCHITECTURE.md) and implement phased remediation across response envelopes, tRPC adoption, route structure, DTO layer, observability, rate limiting, module ownership, and compliance sweep
 
-**Status:** Complete (10/10 plans complete)
+**Status:** ✅ Complete (10/10 plans complete)
 
 **Requirements:** API-AUDIT-01, API-AUDIT-02, API-RESP-01, API-TRPC-01, API-TRPC-02, API-ROUTE-01, API-DTO-01, API-OBS-01, API-OBS-02, API-RATE-01, API-MOD-01, API-TEST-01, API-CI-01, API-SWEEP-01
 
@@ -638,7 +638,7 @@ Plans:
 
 **Goal:** Consolidate the three overlapping feature gating systems (TierGuard/FeatureRegistry, Module Gate, PlatformPageFlags) into a single `canAccess()` entry point with explicit 5-layer precedence. Adds server `canAccess()`, client `canAccessClient()` (skips tier/module — server is source of truth) + `useGateContext()` + `GateGuard` component, CI test for mapping completeness, `revalidateGate()` cache invalidation helper, and removal of all 8 legacy tier string occurrences. **Phase 1 is purely additive — no existing callsites change.**
 
-**Status:** Complete — 3/3 plans with summaries (2026-06-03)
+**Status:** ✅ Complete — 3/3 plans with summaries (2026-06-03)
 
 **Requirements:** GATE-01, GATE-02, GATE-03, GATE-04, GATE-05, GATE-06, GATE-07, GATE-08, GATE-09, GATE-10, GATE-11
 
@@ -687,7 +687,7 @@ Plans:
 
 **Goal:** Execute systemic i18n hydration fix across tenant routes — add I18nextProvider to tenant layout, create shared `useSafeTranslation` hook with `tx(key, fallback)`, migrate high-risk pages (messages, admin domains) and medium-risk shared UI (Bookshelf, TagCloud, LocaleSelector, CreateListingForm, UnifiedResidentCard), consolidate services domain page's local tx() helper into shared hook.
 
-**Status:** Complete — 3/3 plans shipped (M4 Production-Ready now 3/3 done)
+**Status:** ✅ Complete — 3/3 plans shipped (M4 Production-Ready now 3/3 done)
 
 **Requirements:** I18N-01, I18N-02, I18N-03, I18N-04, I18N-05, I18N-06, I18N-07, I18N-08 (all 8 complete)
 
@@ -735,7 +735,7 @@ _Buffer between M4 (code-complete) and M5 (launch). M4.5 ships the BLOCKER fixes
 
 **Goal:** Resolve the 5 BD issues that would surface as P0/P1 incidents during the 7-day soak. Each must be closed (or have a documented deferral) before soak begins.
 
-**Status:** 5/5 plans shipped — COMPLETE
+**Status:** ✅ 5/5 plans shipped — COMPLETE
 
 **BD sources (5):** `cs5` (MyHomeSpace), `tc4` (prisma/seed), `e0w` (80-route audit), `oqw` (RLS), `ltn` (request validation)
 
@@ -773,7 +773,7 @@ _Make the platform self-sufficient — any admin can sign up at `/platform/signu
 
 **Goal:** Close all known critical bugs, enforce FSD architecture boundaries, resolve security advisories, plan monitoring infrastructure, and complete the audit-closure/conflict-register work so the platform is stable for any tenant onboarding. After Phase 44, the codebase should be "quiet" — no known P0/P1 bugs, no architectural debt to freeze around, no FSD violations, no security advisories that would block production traffic.
 
-**Status:** Complete — 6/6 plans executed (6 summaries, 2 verifications)
+**Status:** ✅ Complete — 6/6 plans executed (6 summaries, 2 verifications)
 
 **BD sources (initial 9 audit/conflict + 5 M4.5 follow-ups + 1 FSD debt + 1 advisories = 16 total):**
 
@@ -817,7 +817,7 @@ _Make the platform self-sufficient — any admin can sign up at `/platform/signu
 
 **Goal:** Ship the 4 platform-launch features: OTP password reset, Community Merits, i18n batch for visible widgets, Tiptap content localization. These are the core launch-blocking items — the platform cannot go live without them, but they are not tenant-specific.
 
-**Status:** Complete — 5/5 plans with summaries
+**Status:** ✅ Complete — 5/5 plans with summaries
 
 **BD sources (4 features = 4 total):**
 
@@ -856,7 +856,7 @@ _Features shipping after the anchor tenant launch. Includes platform improvement
 
 **Goal:** Replace the mandatory 7-step onboarding wizard (Phase 20, expanded Phase 27) with a persistent Setup Center — a permanent administrative workspace that guides tenant owners from first login through long-term platform adoption, aligned with ADVISORY-028.
 
-**Status:** Complete — 8/8 plans with summaries
+**Status:** ✅ Complete — 8/8 plans with summaries
 
 **Source:** ADVISORY-028 — Replace Immediate Onboarding Wizard with a Persistent Setup Center
 **BD issue:** soralia-village-0jh1
@@ -899,7 +899,7 @@ _Features shipping after the anchor tenant launch. Includes platform improvement
 
 **Goal:** Refactor the sign-up flow so no tenant, subdomain, or slug reservation exists until a verified identity is established. Relocate the community-naming wizard behind auth as an authenticated, re-invocable mutation. Eliminate the six failure modes (F1–F6) identified in discovery.
 
-**Status:** Complete — 6/6 plans executed
+**Status:** ✅ Complete — 6/6 plans executed
 
 **Source:** ADVISORY-031 — Defer Tenant Provisioning Until Post-Verification (Option C, "defer, don't reserve")
 **BD issue:** soralia-village-bawf (P1, GSD-escalated)
@@ -944,7 +944,7 @@ _Features explicitly deferred to post-M5b. The 8 feature items originally in the
 
 **Goal:** Ship the Provider Platform cluster — provider analytics, provider dashboard, third-party provider registration, and provider billing & subscription. These 4 features enable the provider economy. Optional addendum — tenant opts in post-launch.
 
-**Status:** Complete — 4 plans delivered, plus 3 post-completion MITIGATION fixes
+**Status:** ✅ Complete — 4 plans delivered, plus 3 post-completion MITIGATION fixes
 
 **BD sources (4):**
 
@@ -978,7 +978,7 @@ _Features explicitly deferred to post-M5b. The 8 feature items originally in the
 
 **Goal:** Build the platform SaaS billing foundation — the source of truth for tenant subscription plans, payments, and invoicing. Establish BillingPlan → TenantSubscription → Tenant.tier pipeline, create 10 billing domain models with Drizzle schemas, implement checkout & subscription lifecycle (create/upgrade/downgrade/cancel), wire platform admin routes + widgets, and build tenant-facing billing portal at /tenant/billing.
 
-**Status:** Planned — 4 plans in 3 waves
+**Status:** 📋 Planned — 4 plans in 3 waves
 
 **Requirements:** BILL-01, BILL-02, BILL-03, BILL-04
 
@@ -1022,7 +1022,7 @@ Plans:
 
 **Goal:** Build the central Platform Address Registry — the canonical namespace for all addresses within a tenant. Replace the current 5-table address scatter (`StandardSeat`, `SoloSeat`, `PremiumSeat`, `Profile`, `Property`) with a single `Address` table as source of truth, add a `Handle` model for `@mention` resolution, and add `AddressEndpoint` for transport decoupling. This is foundational infrastructure consumed by chat mentions, provider onboarding, dWallet identity, and future federation.
 
-**Status:** Planned — 3 plans in 3 waves
+**Status:** 📋 Planned — 3 plans in 3 waves
 
 **Requirements:** ADDR-01, ADDR-02, ADDR-03, ADDR-04, ADDR-05, ADDR-06, ADDR-07
 
@@ -1066,7 +1066,7 @@ Plans:
 
 **Goal:** Implement the dWallet module — per-resident data rights, granular consent, and revenue-share rewards — as defined in `docs/architecture/DWALLET_SPEC.md` (Schedule G of the SaaS agreement). **An optional Foundation-tier addendum:** tenants opt into the data-rights programme by signing the addendum. After opt-in: "You own your data, you grant consent per use, you earn revenue share."
 
-**Status:** Complete — 7/7 plans with summaries
+**Status:** ✅ Complete — 7/7 plans with summaries
 
 **BD sources (3):**
 
@@ -1109,7 +1109,7 @@ Plans:
 
 **Goal:** Extend SpaceLauncher (desktop sidebar) and MobileSpaceBar (bottom bar) — currently only mounted under `/dashboard/*` via `(tenant)/dashboard/layout.tsx` — to all admin routes under `/admin/*`, so ADMIN users retain space-level navigation when traversing admin sub-pages (requests, surveys, events, content, households, groups, categories, resources, competitions, announcements, users, external-surveys). Research the cleanest mount approach (shared layout component, route group restructure, or middleware-driven chrome) before planning.
 
-**Status:** Complete (verified 2026-06-05; visual gate passed on 15 routes)
+**Status:** ✅ Complete (verified 2026-06-05; visual gate passed on 15 routes)
 
 **Requirements:** ADMIN-CHROME-01 (SpaceLauncher visible on all `/admin/*` routes for ADMIN users), ADMIN-CHROME-02 (MobileSpaceBar visible on mobile breakpoint for `/admin/*`), ADMIN-CHROME-03 (active-space derivation works from `/admin/*` pathnames — admin space stays highlighted), ADMIN-CHROME-04 (no duplicate chrome when nested admin pages already render layer components like AdminLayer), ADMIN-CHROME-05 (no breakage of existing `/dashboard/*` chrome) — **all 5 complete**
 
@@ -1135,7 +1135,7 @@ Plans:
 
 **Goal:** Ship the Service Marketplace cluster — notification system, payment processing, booking calendar integration, and mobile optimization. These 4 features enable the core marketplace experience. Optional addendum — tenant opts in post-launch.
 
-**Status:** Complete — 4/4 plans with summaries
+**Status:** ✅ Complete — 4/4 plans with summaries
 
 **BD sources (4):**
 
@@ -1178,7 +1178,7 @@ _Items explicitly deferred to post-launch. These have PLAN.md but no SUMMARY.md 
 
 **Goal:** Validate the multi-tenant onboarding + adoption system with a real second tenant — exercise tenant resolution, RLS, and isolation under live production conditions
 
-**Status:** Complete — 4/4 plans with summaries (deferred — post-deployment validation test)
+**Status:** ⏭️ Complete — 4/4 plans with summaries (deferred — post-deployment validation test)
 
 **Blocker (2026-06-03):** Requires production deployment + a willing second tenant to onboard. Cannot run against a synthetic tenant — the test is specifically about validating the onboarding flow under real adoption conditions. Tracked under M6+ for post-launch execution.
 
@@ -1194,7 +1194,7 @@ _Items explicitly deferred to post-launch. These have PLAN.md but no SUMMARY.md 
 
 **Goal:** Content-displaying routes and pages respect the user's active locale — all content fetches pass `&locale=${i18n.language}`, and redundant client-side locale helpers are removed.
 
-**Status:** Complete — 2/2 plans with summaries
+**Status:** ✅ Complete — 2/2 plans with summaries
 
 **Note:** The API layer, middleware locale detection, and i18next infrastructure were all delivered in prior work (Phases 42/45, BD `7qkl`). This phase is exclusively frontend wiring — adding locale query params to 9 content-fetching sites and removing 2 redundant client-side helpers. No new UI, no schema changes, no new packages.
 
@@ -1214,7 +1214,7 @@ _Out-of-band maintenance phases that don't fit the milestone structure. Moved ou
 
 ### Phase 100: plan 45
 
-**Status:** Not started (stub)
+**Status:** ⏳ Not started (stub)
 **Goal:** [To be planned]
 **Requirements**: TBD
 **Depends on:** Phase 99
@@ -1230,7 +1230,7 @@ Plans:
 
 ## Phase 101: Soft Deletes
 
-**Status:** Planned — 3 plans, 0 executed
+**Status:** 📋 Planned — 3 plans, 0 executed
 
 **Goal:** Add `deletedAt` timestamp columns across all domain entities for systematic soft-delete support, with `notDeleted()` query wrapper that excludes soft-deleted records by default, and a 90-day auto-purge background job. Migrate `Message.isDeleted` → `deletedAt`, replace 5 `@unique` constraints with partial unique indexes (`WHERE deletedAt IS NULL`), fix Group hard-delete bug, and remove maintenance conditional soft-delete branching.
 
@@ -1254,7 +1254,7 @@ Plans:
 
 ## Phase 102: Achievements System
 
-**Status:** Complete — 4/4 plans with summaries
+**Status:** ✅ Complete — 4/4 plans with summaries
 
 **Goal:** Cross-cutting achievements engine — event bus infrastructure, achievement definitions, progress tracking, unlock logic, resident widget, and admin configuration. Scoped from ADVISORY-013 (Phases B–D; Phase A already shipped, Phase E deferred per G4=forward-only).
 
@@ -1276,7 +1276,7 @@ Plans:
 
 ## Phase 103: Tenant Gallery & Album Sharing
 
-**Status:** Complete — 1/1 plan with summary
+**Status:** ✅ Complete — 1/1 plan with summary
 
 **Goal:** Tenant-level system gallery for dashboard header images and system banners + public album sharing across the community.
 
@@ -1303,7 +1303,7 @@ Plans:
 **Goal:** Platform AI pool architecture — Anthropic + OpenAI via platform-managed keys with per-tenant token quotas (STANDARD 50k / PREMIUM 200k / ENTERPRISE 500k tokens/month), tier-based overage policies, usage tracking and audit events, platform admin pool management, tenant admin usage widget, and translate route migration.
 
 **Source:** ADVISORY-017-SUPPLEMENTAL-2 (primary) + ADVISORY-017-SUPPLEMENTAL (retained: interface, NullProvider, capability flags, FSD rules, translate migration)
-**Status:** Complete — 4/4 plans with summaries
+**Status:** ✅ Complete — 4/4 plans with summaries
 **Requirements:** AI-PROV-01, AI-PROV-02, AI-PROV-03
 
 | Requirement | Plan   | Description                                                                                       |
@@ -1333,7 +1333,7 @@ Plans:
 **Goal:** DisputeCase, DisputeEvidence, DisputeEvent, DisputeMessage, DisputeMessageVersion, DisputeNotification models + enums + Drizzle generation + entity layer per FSD layout.
 
 **Source:** ADVISORY-017 — Phases 1 + 2
-**Status:** Complete — 2/2 plans with summaries
+**Status:** ✅ Complete — 2/2 plans with summaries
 **Depends on:** Phase 104 (soft dep — schema work can start in parallel)
 **Requirements:** DISPUTE-01, DISPUTE-02
 
@@ -1361,7 +1361,7 @@ Plans:
 **Goal:** All CRUD routes, submit with cooling-off enforcement, intake screen with AI frivolity check, mediation thread, evidence upload, CSOS export route.
 
 **Source:** ADVISORY-017 Phase 3 + SUPPLEMENTAL Phase C
-**Status:** Complete — 4/4 plans with summaries
+**Status:** ✅ Complete — 4/4 plans with summaries
 **Depends on:** Phase 104, Phase 105
 **Requirements:** DISPUTE-03, DISPUTE-04, DISPUTE-05
 
@@ -1377,7 +1377,7 @@ Plans:
 **Goal:** Intake wizard (emotion check-in, self-resolution, frivolity screen, conflict tips), dispute form, mediation thread UI, evidence uploader, dashboard widgets, navigation registration.
 
 **Source:** ADVISORY-017 — Phases 4 + 5
-**Status:** Complete — 4/4 plans with summaries
+**Status:** ✅ Complete — 4/4 plans with summaries
 **Depends on:** Phase 106
 **Requirements:** DISPUTE-06, DISPUTE-07
 
@@ -1411,7 +1411,7 @@ Plans:
 **Goal:** PDF generation for CSOS Form 2 — certified dispute history with all sections A–F, rate-limited, audit-logged. Ruling issuance flow.
 
 **Source:** ADVISORY-017 — Phase 6
-**Status:** Complete — 4/4 plans with summaries
+**Status:** ✅ Complete — 4/4 plans with summaries
 **Depends on:** Phase 106
 **Requirements:** DISPUTE-08
 
@@ -1433,7 +1433,7 @@ Plans:
 
 **Goal:** Wire the ENTERPRISE SURCHARGE overage policy (from Phase 104 AI pool) into the billing pipeline (from Phase 46.1 billing foundation), generating surcharge invoice PDFs using the pdf-lib pattern from Phase 108 (build-csos-pdf.ts). When an ENTERPRISE tenant exceeds their monthly AI pool quota, the cron rollover generates a surcharge invoice record, records a billing event, and provides a downloadable PDF via a platform admin route.
 
-**Status:** Complete — 1/1 plan with summary
+**Status:** ✅ Complete — 1/1 plan with summary
 
 **Source:** BD soralia-village-fjyw
 
@@ -1459,7 +1459,7 @@ Plans:
 
 **Goal:** Build centralized page & navigation access control. Single `/api/access` endpoint returning `PageAccess` per caller (spaces, pages, features). `usePageAccess()` hook for all nav components. Resolution pipeline: Role → Record existence → Suspension → Feature flags → Agent token. Provider access gating (BD soralia-village-b51v) is the first consumer — replaces `normalizedRole === 'PROVIDER'` with `hasProviderRecord === true`.
 
-**Status:** Complete — 2/2 plans with summaries
+**Status:** ✅ Complete — 2/2 plans with summaries
 
 **Requirements:** ACCESS-01, ACCESS-02, ACCESS-03, ACCESS-04, ACCESS-05, ACCESS-06
 
@@ -1482,7 +1482,7 @@ Plans:
 
 **Goal:** Build the Agent Gateway — a unified access and delegation layer that mediates ALL caller types (human users, non-human AI agents, cron/webhook processes, and delegated third-party providers) through a single authorization pipeline.
 
-**Status:** Complete
+**Status:** ✅ Complete
 
 **Milestone:** M5 — Platform Launch
 
@@ -1506,7 +1506,7 @@ Plans:
 
 **Goal:** Close 3 systemic gaps between tRPC router implementations and the Netcomplex API Governance Standard: response envelope, canonical error codes, and DTO mapping. Wire existing `tenantProcedure`/`privilegedProcedure` tiers and add suspension checks.
 
-**Status:** Complete — 6/6 plans with summaries
+**Status:** ✅ Complete — 6/6 plans with summaries
 
 **Milestone:** M5 — Platform Launch (hardening)
 
@@ -1538,7 +1538,7 @@ Plans:
 
 **Goal:** Merge the 5 settings definition files into a single source of truth, add integration tests for mutation→cache-invalidation lifecycle, and assess the dual REST/tRPC surface for consolidation.
 
-**Status:** Complete — 3/3 plans with summaries
+**Status:** ✅ Complete — 3/3 plans with summaries
 
 **Milestone:** M5 — Platform Launch (hardening)
 
@@ -1564,7 +1564,7 @@ Plans:
 
 **Goal:** Establish the `WorkspaceContext` frontend abstraction as the runtime lens for rendering the entire platform — decoupling UI behaviour from `Role` and identity details. Ships the frontend precondition for the `Principal` backend refactor (Phase 1d).
 
-**Status:** In Progress (worktree: phase-122-workspace-context-architecture) — 1/9 plans complete (122-04)
+**Status:** 🚧 In Progress (worktree: phase-122-workspace-context-architecture) — 1/9 plans complete (122-04)
 
 **Milestone:** M5+ — Post-Launch Architecture Evolution
 
@@ -1608,7 +1608,7 @@ Plans checklist (execution order; wave in parens):
 
 **Goal:** Tracking/umbrella phase for the full monorepo migration (M7 milestone). Cross-cutting architecture decisions captured in 112-CONTEXT.md. Sub-phases 113–117+ defined.
 
-**Status:** Complete — CONTEXT.md written (2026-06-28), sub-phases added to roadmap
+**Status:** ✅ Complete — CONTEXT.md written (2026-06-28), sub-phases added to roadmap
 
 **Depends on:** Phase 111
 
@@ -1626,7 +1626,7 @@ _Turborepo + pnpm workspaces monorepo for web (Next.js) + mobile (Expo) code sha
 
 **Goal:** Running monorepo skeleton — Turborepo CLI + `turbo.json`, `pnpm-workspace.yaml`, `tooling/typescript/eslint/prettier` presets, empty `apps/web` + `apps/expo` + `packages/*` stubs. All `pnpm install/build/lint/typecheck` pass.
 
-**Status:** Complete — 2/2 plans with summaries complete — 2 plans in 2 waves
+**Status:** 📋 Planning complete — 2 plans in 2 waves (not executed)
 
 **Depends on:** Phase 112 (CONTEXT.md provides cross-cutting decisions)
 
@@ -1643,7 +1643,7 @@ _Turborepo + pnpm workspaces monorepo for web (Next.js) + mobile (Expo) code sha
 
 **Goal:** All shared code lives in `packages/` — `@soralia/shared` (types, schemas, constants, utils, i18n), `@soralia/db` (Drizzle schema files), `@soralia/api` (tRPC router definitions), `@soralia/auth` (Better Auth config). Web app still works as before. Web dev coordinates to avoid editing files being extracted.
 
-**Status:** Not started
+**Status:** ⏳ Not started
 
 **Depends on:** Phase 113
 
@@ -1655,7 +1655,7 @@ _Turborepo + pnpm workspaces monorepo for web (Next.js) + mobile (Expo) code sha
 
 **Goal:** Current Next.js app moves to `apps/web/`. 48h freeze window for web dev (bug fixes only). All imports resolve to workspace packages. Pre-schedule around low-traffic days.
 
-**Status:** Not started
+**Status:** ⏳ Not started
 
 **Depends on:** Phase 114
 
@@ -1667,7 +1667,7 @@ _Turborepo + pnpm workspaces monorepo for web (Next.js) + mobile (Expo) code sha
 
 **Goal:** Running `apps/expo` with Expo SDK 53 + Expo Router + NativeWind v5 + tRPC client connected to `apps/web`. Empty shell with navigation skeleton.
 
-**Status:** Not started
+**Status:** ⏳ Not started
 
 **Depends on:** Phase 115
 
@@ -1679,7 +1679,7 @@ _Turborepo + pnpm workspaces monorepo for web (Next.js) + mobile (Expo) code sha
 
 **Goal:** Port all 24 features to mobile app. Full feature parity with responsive mobile UI.
 
-**Status:** Not started
+**Status:** ⏳ Not started
 
 **Depends on:** Phase 116
 
@@ -1691,7 +1691,7 @@ _Turborepo + pnpm workspaces monorepo for web (Next.js) + mobile (Expo) code sha
 
 **Goal:** Close out deferred and incomplete items from Phase 111 (agent-gateway) — register DelegationWidget in widget registry, apply formal Prisma migration for MaintenanceRouting fields, write ResidentDelegation integration tests, add Phase 111 entry to ROADMAP, and map Phase 111 requirements to REQUIREMENTS.md.
 
-**Status:** Complete — 2/2 plans with summaries
+**Status:** ✅ Complete — 2/2 plans with summaries
 
 **Milestone:** M5 — Platform Launch (hardening)
 
@@ -1710,7 +1710,7 @@ _Turborepo + pnpm workspaces monorepo for web (Next.js) + mobile (Expo) code sha
 
 **Goal:** Fix build errors caused by the multi-tenant refactor — broken import paths in 6 API routes, centralize imports via `@/lib/db`, inline Drizzle table definitions for non-generated tables
 
-**Status:** Complete (housekeeping; out-of-band maintenance phase)
+**Status:** ✅ Complete (housekeeping; out-of-band maintenance phase)
 
 **Requirements:** BUILD-01
 
@@ -1724,7 +1724,7 @@ _Turborepo + pnpm workspaces monorepo for web (Next.js) + mobile (Expo) code sha
 
 **Goal:** Implement proxy voting workflow for HOA meetings — attach to AGM/SGM/Trustee Election events, 6-step resident journey (cannot attend → appoint proxy → upload form → proxy acceptance → digital signature → complete), HOA admin approval, and notification system.
 
-**Status:** In Progress — 5/9 plans with summaries
+**Status:** 🚧 In Progress — 5/9 plans with summaries
 
 **Source:** `docs/PROXY_SIG_DISCUSSION.md`
 
