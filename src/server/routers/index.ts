@@ -18,6 +18,7 @@ import { meritsRouter } from './community/merits';
 import { achievementsRouter } from './community/achievements';
 import { notificationsRouter } from './community/notifications';
 import { chatRouter } from './community/chat';
+import { proxyVoteRouter } from './community/proxy-vote';
 
 import { maintenanceRouter } from './operations/maintenance';
 import { bookingsRouter } from './operations/bookings';
@@ -50,6 +51,7 @@ export const appRouter = router({
   achievements: achievementsRouter,
   notifications: notificationsRouter,
   chat: chatRouter,
+  proxyVote: proxyVoteRouter,
   maintenance: maintenanceRouter,
   bookings: bookingsRouter,
   surveys: surveysRouter,
