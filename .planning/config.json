@@ -11,7 +11,7 @@
     "nyquist_validation": true,
     "_auto_chain_active": false,
     "skip_discuss": false,
-    "use_worktrees": true,
+    "use_worktrees": false,
     "auto_advance": false,
     "research_before_questions": true,
     "pattern_mapper": true,

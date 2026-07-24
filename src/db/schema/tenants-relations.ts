@@ -94,6 +94,7 @@ import { tenantAchievements } from './tenant-achievements';
 import { tenantModules } from './tenant-modules';
 import { tenantSetups } from './tenant-setups';
 import { tenantFeatureFlags } from './tenant-feature-flags';
+import { meetingProxies } from './meeting-proxies';
 
 export const tenantsRelations = relations(tenants, helpers => ({
   owner: helpers.one(users, {
@@ -242,4 +243,5 @@ export const tenantsRelations = relations(tenants, helpers => ({
   tenantFeatureFlags: helpers.many(tenantFeatureFlags, {
     relationName: 'TenantToTenantFeatureFlag',
   }),
+  meetingProxies: helpers.many(meetingProxies, { relationName: 'MeetingProxyToTenant' }),
 }));

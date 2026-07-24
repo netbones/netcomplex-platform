@@ -1,6 +1,6 @@
 {
-  "id": "0306484a-f8de-4bda-b9f7-b734d312d9d0",
-  "prevId": "ce187857-284e-41d8-96e2-327482c1cf04",
+  "id": "967b2547-a9fb-4b37-8c9e-5cdf31b9dfe3",
+  "prevId": "3fa8df16-f8fc-4095-8d5e-98166c03cb41",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -8385,6 +8385,14 @@
           "primaryKey": false,
           "notNull": true
         },
+        "type": {
+          "name": "type",
+          "type": "SettingValueType",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'STRING'"
+        },
         "createdAt": {
           "name": "createdAt",
           "type": "timestamp (3)",
@@ -11066,6 +11074,11 @@
       "name": "ServiceBookingStatus",
       "schema": "public",
       "values": ["PENDING_CONFIRMATION", "CONFIRMED", "COMPLETED", "CANCELLED"]
+    },
+    "public.SettingValueType": {
+      "name": "SettingValueType",
+      "schema": "public",
+      "values": ["STRING", "NUMBER", "BOOLEAN", "JSON"]
     },
     "public.SoloSeatType": {
       "name": "SoloSeatType",

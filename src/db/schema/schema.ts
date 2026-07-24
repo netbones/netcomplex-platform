@@ -115,6 +115,7 @@ import * as bursaries from './bursaries';
 import * as outboxes from './outboxes';
 import * as outboxDeadLetters from './outbox-dead-letters';
 import * as mediaUploads from './media-uploads';
+import * as meetingProxies from './meeting-proxies';
 import * as tenants from './tenants';
 import * as tenantFeatureFlags from './tenant-feature-flags';
 import * as accountsRelations from './accounts-relations';
@@ -229,6 +230,7 @@ import * as disputeMessageVersionsRelations from './dispute-message-versions-rel
 import * as disputeNotificationsRelations from './dispute-notifications-relations';
 import * as bursariesRelations from './bursaries-relations';
 import * as mediaUploadsRelations from './media-uploads-relations';
+import * as meetingProxiesRelations from './meeting-proxies-relations';
 import * as tenantsRelations from './tenants-relations';
 import * as tenantFeatureFlagsRelations from './tenant-feature-flags-relations';
 
@@ -350,6 +352,7 @@ export const schema = {
   ...outboxes,
   ...outboxDeadLetters,
   ...mediaUploads,
+  ...meetingProxies,
   ...tenants,
   ...tenantFeatureFlags,
   ...accountsRelations,
@@ -464,6 +467,7 @@ export const schema = {
   ...disputeNotificationsRelations,
   ...bursariesRelations,
   ...mediaUploadsRelations,
+  ...meetingProxiesRelations,
   ...tenantsRelations,
   ...tenantFeatureFlagsRelations,
 };

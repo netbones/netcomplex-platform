@@ -334,7 +334,7 @@ These are not required for the initial implementation:
 
 This design deliberately follows the platform's modular philosophy: a focused workflow, minimal UI, and reuse of existing capabilities such as Events, Notifications, User Directory, and Media uploads rather than introducing a separate document or approval framework. The result is a low-friction process that satisfies the typical HOA requirement of collecting a signed owner proxy, obtaining the nominee's acceptance, and giving administrators a straightforward approval queue before the AGM.
 
-DISCUSSION B:
+# DISCUSSION B:
 
 Q: How do we future proof digital signatures?
 
@@ -669,3 +669,362 @@ These are not required for the initial implementation:
 ## Why this fits Netcomplex
 
 This design deliberately follows the platform's modular philosophy: a focused workflow, minimal UI, and reuse of existing capabilities such as Events, Notifications, User Directory, and Media uploads rather than introducing a separate document or approval framework. The result is a low-friction process that satisfies the typical HOA requirement of collecting a signed owner proxy, obtaining the nominee's acceptance, and giving administrators a straightforward approval queue before the AGM.
+
+# DISCUSSION C:
+
+Q: how would we integrate lightening network for example, as a signature authority, I notice lotus project mentions LNbits
+
+I actually think you're onto something much bigger than just signatures.
+
+The mistake would be thinking of the **Lightning Network as a signature provider**. It's better thought of as an **attestation and settlement provider**.
+
+Lotus (and projects like LNbits) are interesting because they treat a Lightning wallet as a cryptographic identity rather than merely a payment account.
+
+## Separate Identity, Signature and Payment
+
+I'd split them into three distinct layers:
+
+```
+Identity
+    │
+    ▼
+Authentication
+    │
+    ▼
+Signature
+    │
+    ▼
+Settlement
+```
+
+Today these may all be the same user.
+
+Tomorrow they may not.
+
+---
+
+## Signature Providers
+
+Instead of only supporting DocuSign:
+
+```
+Internal
+
+Adobe Sign
+
+DocuSign
+
+Government eID
+
+Lightning
+
+Passkey
+
+PGP
+
+...
+```
+
+Lightning simply becomes another provider.
+
+---
+
+## How Lightning could work
+
+Suppose David submits a proxy.
+
+Instead of drawing a signature...
+
+He chooses
+
+```
+Sign with Lightning Wallet
+```
+
+The server generates
+
+```
+Document Hash
+
+SHA256
+
+E8A79F...
+```
+
+Instead of signing a PDF...
+
+The wallet signs the hash.
+
+```
+Wallet
+
+signMessage(hash)
+
+↓
+
+signature
+```
+
+Netcomplex stores
+
+```
+Document Hash
+
+Lightning Pubkey
+
+Signature
+
+Timestamp
+```
+
+Verification is trivial.
+
+No PDF signature image required.
+
+---
+
+## LNbits
+
+LNbits already has a useful architecture.
+
+```
+Wallet
+
+↓
+
+Auth
+
+↓
+
+Extensions
+
+↓
+
+Invoices
+
+↓
+
+LNURL
+
+↓
+
+Nostr
+
+↓
+
+Message signing
+```
+
+Several extensions already expose signed authentication.
+
+You could reuse that.
+
+---
+
+## Nostr is even more interesting
+
+I think Lightning by itself isn't the destination.
+
+Nostr is.
+
+Every Nostr user owns
+
+```
+Private Key
+
+Public Key
+
+```
+
+That key can
+
+- authenticate
+- sign documents
+- encrypt messages
+- verify identity
+
+without needing Netcomplex to issue certificates.
+
+---
+
+Imagine this flow.
+
+```
+Netcomplex
+
+↓
+
+Generate Proxy Document
+
+↓
+
+Hash Document
+
+↓
+
+Request Signature
+
+↓
+
+Wallet receives request
+
+↓
+
+User approves
+
+↓
+
+Signed hash returned
+
+↓
+
+Proxy complete
+```
+
+Exactly the same interface as DocuSign.
+
+---
+
+## Why Lightning is attractive
+
+No passwords.
+
+No OTP.
+
+No certificates.
+
+No signature images.
+
+Just
+
+```
+Public Key
+
++
+
+Signature
+
++
+
+Hash
+```
+
+That's all.
+
+---
+
+## Where LNbits shines
+
+LNbits isn't just payments.
+
+It gives you
+
+- wallets
+- users
+- invoices
+- LNURL-auth
+- APIs
+- extension framework
+
+Imagine a resident already has
+
+```
+dWallet
+
+↓
+
+LNbits Wallet
+```
+
+Then later
+
+```
+Support Creator
+
+Donate HOA
+
+Pay Levy
+
+Buy Marketplace Item
+
+Vote Deposit
+
+Security Deposit
+
+Digital Signature
+
+Identity Verification
+```
+
+All from one wallet.
+
+---
+
+## Even better...
+
+You already have a planned **dWallet** module in Netcomplex, with future capabilities such as community giving, marketplace spending, volunteer credits, referrals, and AI credits. Rather than treating Lightning as a separate feature, you could define the dWallet as an abstraction with multiple interchangeable backends. The project already anticipates the dWallet becoming a core platform service rather than a single-purpose payment feature.
+
+For example:
+
+```
+dWallet
+
+Backend
+
+------------------------
+
+Internal Ledger
+
+LNbits
+
+Cashu
+
+Fedimint
+
+Bank API
+
+Future CBDC
+
+Future Stablecoin
+```
+
+The application never talks directly to LNbits. It talks to the **Wallet Service**.
+
+Likewise, your new **Signature Service** doesn't know about Lightning. It asks a provider:
+
+```
+SignatureService.sign(
+    provider = "lnbits",
+    documentHash = ...
+)
+```
+
+The LNbits adapter performs the Lightning or Nostr-based cryptographic operation and returns standardized evidence.
+
+## My recommendation
+
+I would **not** position Lightning as the "signature authority."
+
+Instead, I would define four independent platform services:
+
+```
+Identity Service
+    (Users, Nostr, Passkeys, OAuth)
+
+↓
+
+Wallet Service
+    (Internal, LNbits, Fedimint, Cashu)
+
+↓
+
+Signature Service
+    (Internal, Lightning, DocuSign, Adobe, eID)
+
+↓
+
+Settlement Service
+    (Lightning, Stripe, Bank, Stablecoin)
+```
+
+That architecture keeps Netcomplex vendor-neutral while making it easy to adopt emerging decentralized identity and payment technologies. If LNbits evolves or you later prefer another Lightning implementation, only the adapter changes; the rest of the platform—including proxy voting, contracts, governance workflows, and the dWallet—continues to operate against stable service interfaces.

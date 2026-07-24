@@ -56,6 +56,7 @@ import { accounts } from './accounts';
 import { passkeys } from './passkeys';
 import { sessions } from './sessions';
 import { twoFactors } from './two-factors';
+import { meetingProxies } from './meeting-proxies';
 
 export const usersRelations = relations(users, helpers => ({
   agentAccess_agentAccess_agentIdTouser: helpers.many(agentAccesses, {
@@ -169,4 +170,7 @@ export const usersRelations = relations(users, helpers => ({
   passkey: helpers.many(passkeys, { relationName: 'passkeyTouser' }),
   session: helpers.many(sessions, { relationName: 'sessionTouser' }),
   twoFactor: helpers.many(twoFactors, { relationName: 'twoFactorTouser' }),
+  meetingProxiesOwner: helpers.many(meetingProxies, { relationName: 'MeetingProxyOwner' }),
+  meetingProxiesProxy: helpers.many(meetingProxies, { relationName: 'MeetingProxyProxy' }),
+  meetingProxiesApprover: helpers.many(meetingProxies, { relationName: 'MeetingProxyApprover' }),
 }));
