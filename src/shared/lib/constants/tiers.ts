@@ -23,7 +23,8 @@ export type ModuleKey =
   | 'agentGateway'
   | 'analytics'
   | 'adminIntermediate'
-  | 'adminAdvanced';
+  | 'adminAdvanced'
+  | 'proxyVote';
 
 export interface ModuleDefinition {
   key: ModuleKey;
@@ -189,6 +190,12 @@ export const MODULES: Record<ModuleKey, ModuleDefinition> = {
     description: 'Full admin with analytics',
     tier: 'pro-max',
   },
+  proxyVote: {
+    key: 'proxyVote',
+    label: 'Proxy Vote',
+    description: 'HOA governance proxy appointments and resident nominations',
+    tier: 'pro-max',
+  },
 };
 
 export const TIERS: Record<TierLevel, TierDefinition> = {
@@ -285,6 +292,7 @@ export const TIERS: Record<TierLevel, TierDefinition> = {
       'agentGateway',
       'analytics',
       'adminAdvanced',
+      'proxyVote',
     ],
     limits: {
       announcements: -1,
