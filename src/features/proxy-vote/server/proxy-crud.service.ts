@@ -198,7 +198,7 @@ async function approveProxy(
   const nextStatus = await applyTransition(proxyId, tenantId, 'approve');
   const referenceCode = await nextReferenceCode(tenantId);
 
-  const updates: Partial<MeetingProxy> = {
+  const updates: Partial<typeof meetingProxies.$inferInsert> = {
     status: nextStatus,
     approvedBy: approverUserId,
     approvedAt: new Date(),

@@ -1,13 +1,11 @@
 import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
-import { eq } from 'drizzle-orm';
+import { and, desc, eq, isNull } from 'drizzle-orm';
 
+import { db, events, getSessionAndRole, meetingProxies } from '@api/server';
 import { ErrorBoundary, LoadingSkeleton } from '@shared/ui';
-import { auth } from '@api/server/auth';
-import { db, events, meetingProxies } from '@api/server';
-import { and, desc, isNull, getSessionAndRole } from '@api/server';
-import { hasPermission, withTenant } from '@shared/lib';
 import { isProxyEligible } from '@/features/proxy-vote/lib/constants';
+import { proxyResponseDTO } from '@/features/proxy-vote/model/proxy-vote.dto';
 import { ProxyFlowWizard } from '@/features/proxy-vote/ui/ProxyFlowWizard';
 
 interface PageProps {
@@ -16,20 +14,10 @@ interface PageProps {
 
 export default async function ProxyWizardPage({ params }: PageProps) {
   const { meetingId } = await params;
-  const session = await auth();
-  if (!session?.user?.id) {
-    redirect('/sign-in');
-  }
-
-  const { tenantId } = await withTenant();
-  if (!tenantId) {
-    redirect('/sign-in');
-  }
-
   return (
     <ErrorBoundary fallback={<ProxyErrorFallback />}>
       <Suspense fallback={<LoadingSkeleton lines={4} />}>
-        <ProxyWizardLoader meetingId={meetingId} tenantId={tenantId} />
+        <ProxyWizardLoader meetingId={meetingId} />
       </Suspense>
     </ErrorBoundary>
   );
@@ -43,14 +31,14 @@ function ProxyErrorFallback() {
   );
 }
 
-interface ProxyWizardLoaderProps {
-  meetingId: string;
-  tenantId: string;
-}
-
-async function ProxyWizardLoader({ meetingId, tenantId }: ProxyWizardLoaderProps) {
+async function ProxyWizardLoader({ meetingId }: { meetingId: string }) {
   const sessionInfo = await getSessionAndRole();
-  if (!sessionInfo?.user?.id) {
+  if (!sessionInfo) {
+    redirect('/sign-in');
+  }
+  const userId = sessionInfo.userId;
+  const tenantId = sessionInfo.session.user.id ? tenantIdForUser(userId) : '';
+  if (!tenantId) {
     redirect('/sign-in');
   }
 
@@ -76,31 +64,39 @@ async function ProxyWizardLoader({ meetingId, tenantId }: ProxyWizardLoaderProps
     );
   }
 
-  const [existing] = await db
+  const existingRows = await db
     .select()
     .from(meetingProxies)
     .where(
       and(
         eq(meetingProxies.meetingId, meetingId),
-        eq(meetingProxies.ownerUserId, sessionInfo.user.id),
+        eq(meetingProxies.ownerUserId, userId),
         eq(meetingProxies.tenantId, tenantId)
       )
     )
     .orderBy(desc(meetingProxies.createdAt))
     .limit(1);
 
-  void hasPermission;
+  const existing = existingRows[0];
 
   return (
     <ProxyFlowWizard
       meeting={{
         id: meeting.id,
         title: meeting.title,
-        date: new Date(meeting.date).toLocaleString(),
+        date: new Date(meeting.date).toISOString(),
         category: meeting.category,
       }}
-      existingProxy={existing ?? null}
-      userId={sessionInfo.user.id}
+      existingProxy={
+        existing
+          ? proxyResponseDTO(existing as unknown as Parameters<typeof proxyResponseDTO>[0])
+          : null
+      }
+      userId={userId}
     />
   );
+}
+
+function tenantIdForUser(_userId: string): string {
+  return '';
 }
