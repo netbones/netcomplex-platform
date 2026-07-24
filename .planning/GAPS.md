@@ -150,18 +150,14 @@ Prefix your commit message with the gap ID (e.g. `fix(GAP-01): enforce tenantId 
 
 ### GAP-08 · Verify Resource visibility scoping in the public `/resources` page
 
-> ⚠️ **MOSTLY DONE** (2026-05-16 audit) — API has full role-based visibility filtering via `buildVisibilityFilter()` (lines 53-71 of resources/route.ts). **REMAINING:** Instruction #3 — resource cards in `src/app/resources/page.tsx` do NOT render a visibility badge/label (e.g. "Board Only"). This is a minor UI enhancement for admin awareness.
+> ✅ **COMPLETE** (2026-07-24) — API has full role-based visibility filtering via `buildVisibilityFilter()`. Resource cards now render an amber visibility badge when `visibility !== 'ALL_RESIDENTS'` (e.g. "BOARD", "OWNERS"). Both the API filtering and UI badge are verified.
 
-**What:** ~~The `Resource` model has a `visibility` field.~~ API filtering is complete. **Missing: visibility badge on resource cards.**
-
-**Remaining fix needed:**
-
-- `src/app/resources/page.tsx` — `ResourceCard` component (line 248): add a small badge showing visibility level (e.g. "Board Only") for users who can see restricted resources
+**What:** ~~The `Resource` model has a `visibility` field. API filtering and UI badge both implemented.~~ [VERIFIED DONE]
 
 **Files verified:**
 
 - `src/app/api/resources/route.ts` — `buildVisibilityFilter()` handles all role levels: unauthenticated→ALL_RESIDENTS, RESIDENT+owner→+OWNERS_ONLY, COMMITTEE→+COMMITTEE_ONLY, ADMIN/MANAGER/BOARD→all ✅
-- `src/app/resources/page.tsx` — fetches from `/api/resources`, renders cards, but no visibility indicator on cards ❌
+- `src/app/resources/page.tsx` — lines 430-434: visibility badge rendered on `ResourceCard` when visibility is not ALL_RESIDENTS ✅
 
 ---
 
