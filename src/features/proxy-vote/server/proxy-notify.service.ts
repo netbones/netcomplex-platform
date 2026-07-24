@@ -1,5 +1,5 @@
-import { createId, db, type DbSchema } from '@api/server';
-import { notifications } from '@/db/schema';
+import { db, notifications, type DbSchema } from '@api/server';
+import { createId } from '@shared/lib/id';
 import type { MeetingProxy } from '@/features/proxy-vote/model/types';
 
 type DrizzleDB = DbSchema | typeof db;

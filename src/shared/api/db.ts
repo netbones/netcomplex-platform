@@ -148,6 +148,7 @@ import { addressEndpointsRelations } from '@schema/address-endpoints-relations';
 import { tenantSetups } from '@schema/tenant-setups';
 import { setupMissions } from '@schema/setup-missions';
 import { setupSettings } from '@schema/setup-settings';
+import { meetingProxies } from '@schema/meeting-proxies';
 import { mediaUploads } from '@schema/media-uploads';
 import { outboxes } from '@schema/outboxes';
 import { outboxDeadLetters } from '@schema/outbox-dead-letters';
@@ -267,6 +268,7 @@ const dbSchema = {
   tenantSetups,
   setupMissions,
   setupSettings,
+  meetingProxies,
 } as const;
 
 export type DbSchema = typeof dbSchema;
@@ -511,4 +513,5 @@ export {
   tenantSetups,
   setupMissions,
   setupSettings,
+  meetingProxies,
 };

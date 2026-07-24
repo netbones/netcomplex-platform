@@ -1,14 +1,15 @@
 import { and, asc, count, desc, eq, sql } from 'drizzle-orm';
-import { events, meetingProxies, notifications, users } from '@/db/schema';
+import { events, meetingProxies, notifications, users } from '@api/server';
 import { ALLOWED_EVENT_CATEGORIES, isProxyEligible } from '@/features/proxy-vote/lib/constants';
 import type { ProxyStatus, ProxyStatusEvent } from '@/features/proxy-vote/lib/status-transitions';
 import { transition } from '@/features/proxy-vote/lib/status-transitions';
-import { createId, db, notDeleted, type DbSchema } from '@api/server';
+import { db, notDeleted, type DbSchema } from '@api/server';
+import { createId } from '@shared/lib/id';
 import type {
   CreateProxyInput,
   SignProxyInput,
   UpdateProxyInput,
-} from '@/features/proxy-vote/model/proxy-vote.dto';
+} from '@/features/proxy-vote/model/proxy-vote.zod';
 import type { MeetingProxy } from '@/features/proxy-vote/model/types';
 
 export type DrizzleDB = DbSchema | typeof db;

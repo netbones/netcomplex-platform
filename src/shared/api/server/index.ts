@@ -123,6 +123,7 @@ export {
   tenantSetups,
   setupMissions,
   setupSettings,
+  meetingProxies,
 } from '../db';
 export { auth } from '../auth';
 export {
