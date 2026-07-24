@@ -2,7 +2,7 @@
 
 > **Purpose:** Actionable instructions for the coding agent. Each gap is self-contained with exact files, acceptance criteria, and constraints. Work through items in priority order. Do not invent new architecture — follow the patterns already established in the codebase.
 
-> **Last reviewed:** 2026-05-16 v3 (full code audit — 9/16 gaps confirmed done, 5 partial, 3 open)
+> **Last reviewed:** 2026-07-24 v4 (code audit — 15/16 gaps confirmed done, 0 partial, 1 open)
 
 > **Agent note:** This project uses `opencode.json` at the root for AI-assisted development. Ensure this file references GAPS.md as the primary instruction source if it does not already.
 
@@ -73,18 +73,14 @@ Prefix your commit message with the gap ID (e.g. `fix(GAP-01): enforce tenantId 
 
 ### GAP-04 · Verify the `Header.tsx` role case-sensitivity bug
 
-> ⚠️ **PARTIAL** (2026-05-16 audit) — `Header.tsx` is FIXED: uses `isAdmin()` helper from permissions.ts (line 9). **REMAINING:** `MobileMenu.tsx` line 28 has `const isBoard = session?.user?.role === 'board'` — should be `'BOARD'` (uppercase). This is a minor leftover bug.
+> ✅ **COMPLETE** (2026-07-24) — `Header.tsx` uses `isAdmin()` helper. `MobileMenu.tsx` no longer has inline `role === 'board'` check — refactored to use `isNavItemVisible()` from the nav registry. No lowercase role comparisons remain.
 
-**What:** ~~`Header.tsx` was noted to check for lowercase `'admin'`.~~ Header fixed. **MobileMenu still has lowercase `'board'` check.**
-
-**Remaining fix needed:**
-
-- `src/shared/ui/MobileMenu.tsx` line 28: change `role === 'board'` to `role === 'BOARD'` (or use `hasPermission(role, 'admin')` helper)
+**What:** ~~`Header.tsx` was noted to check for lowercase `'admin'`.~~ Both Header and MobileMenu now use proper role helpers. [VERIFIED DONE]
 
 **Files verified:**
 
-- `src/shared/ui/Header.tsx` — line 9: `import { isAdmin } from '@entities/tenant/api/permissions'`, line 86: `const isAdminUser = isAdmin(session?.user?.role)` ✅
-- `src/shared/ui/MobileMenu.tsx` — line 28: `const isBoard = session?.user?.role === 'board'` ❌ (lowercase bug)
+- `src/shared/ui/Header.tsx` — uses `isAdmin()` helper from permissions.ts ✅
+- `src/shared/ui/MobileMenu.tsx` — no inline `role === 'board'` check; uses `isNavItemVisible()` from nav registry ✅
 
 ---
 
