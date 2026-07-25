@@ -1,10 +1,11 @@
 ---
 phase: 125
 slug: proxy-vote-module
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: complete
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-07-23
+completed: 2026-07-24
 ---
 
 # Phase 125 — Validation Strategy
@@ -15,13 +16,13 @@ created: 2026-07-23
 
 ## Test Infrastructure
 
-| Property | Value |
-|----------|-------|
-| **Framework** | vitest (configured at repo root — `vitest.config.ts`, `vitest.shared.ts`) |
-| **Config file** | `vitest.shared.ts` (shared setup) + per-slice vitest config pattern |
-| **Quick run command** | `npx vitest run --config vitest.shared.ts src/features/proxy-vote/` |
-| **Full suite command** | `pnpm test` |
-| **Estimated runtime** | ~15 seconds (new proxy-vote tests only) |
+| Property               | Value                                                                     |
+| ---------------------- | ------------------------------------------------------------------------- |
+| **Framework**          | vitest (configured at repo root — `vitest.config.ts`, `vitest.shared.ts`) |
+| **Config file**        | `vitest.shared.ts` (shared setup) + per-slice vitest config pattern       |
+| **Quick run command**  | `npx vitest run --config vitest.shared.ts src/features/proxy-vote/`       |
+| **Full suite command** | `pnpm test`                                                               |
+| **Estimated runtime**  | ~15 seconds (new proxy-vote tests only)                                   |
 
 ---
 
@@ -36,15 +37,15 @@ created: 2026-07-23
 
 ## Per-Task Verification Map
 
-| Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
-|---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 125-W0-01 | all | 0 | Schema | — | MeetingProxy model compiles with Drizzle | unit | `npx vitest run --config vitest.shared.ts src/features/proxy-vote/` | ❌ W0 | ⬜ pending |
-| 125-W0-02 | all | 0 | Signature | — | InternalSignatureAdapter sign/verify contracts | unit | same | ❌ W0 | ⬜ pending |
-| 125-W0-03 | all | 0 | Notifications | — | Notification insert via db.insert(notifications) | unit | same | ❌ W0 | ⬜ pending |
-| 125-W0-04 | all | 0 | Document upload | — | uploadDocument() accepts PDF/JPG/PNG, rejects others | unit | same | ❌ W0 | ⬜ pending |
-| 125-W0-05 | all | 0 | QR generation | — | qrcode.react renders with correct value | component | same | ❌ W0 | ⬜ pending |
+| Task ID   | Plan | Wave | Requirement     | Threat Ref | Secure Behavior                                      | Test Type | Automated Command                                                   | File Exists | Status     |
+| --------- | ---- | ---- | --------------- | ---------- | ---------------------------------------------------- | --------- | ------------------------------------------------------------------- | ----------- | ---------- |
+| 125-W0-01 | all  | 0    | Schema          | —          | MeetingProxy model compiles with Drizzle             | unit      | `npx vitest run --config vitest.shared.ts src/features/proxy-vote/` | ❌ W0       | ⬜ pending |
+| 125-W0-02 | all  | 0    | Signature       | —          | InternalSignatureAdapter sign/verify contracts       | unit      | same                                                                | ❌ W0       | ⬜ pending |
+| 125-W0-03 | all  | 0    | Notifications   | —          | Notification insert via db.insert(notifications)     | unit      | same                                                                | ❌ W0       | ⬜ pending |
+| 125-W0-04 | all  | 0    | Document upload | —          | uploadDocument() accepts PDF/JPG/PNG, rejects others | unit      | same                                                                | ❌ W0       | ⬜ pending |
+| 125-W0-05 | all  | 0    | QR generation   | —          | qrcode.react renders with correct value              | component | same                                                                | ❌ W0       | ⬜ pending |
 
-*Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
+_Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky_
 
 ---
 
@@ -62,11 +63,11 @@ created: 2026-07-23
 
 ## Manual-Only Verifications
 
-| Behavior | Requirement | Why Manual | Test Instructions |
-|----------|-------------|------------|-------------------|
-| Canvas signature → PNG export | Proxy Step 5 (draw) | Canvas rendering requires browser; jsdom cannot simulate drawing | Open proxy flow in browser, draw signature on canvas, confirm PNG stored in signatureEvidence.signatureDataUrl |
-| QR code scannability at 44×44px | HOA Dashboard | Requires physical QR scanner or camera; automated QR decode validates value not real-world scan | Verify PV-YYYY-NNNN format in generated QR, scan with phone camera |
-| react-signature-canvas component render | Proxy Step 5 | Third-party component render behavior in browser | Confirm SignaturePad renders with `border border-gray-300 rounded-lg` at minimum 44px height |
+| Behavior                                | Requirement         | Why Manual                                                                                      | Test Instructions                                                                                              |
+| --------------------------------------- | ------------------- | ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Canvas signature → PNG export           | Proxy Step 5 (draw) | Canvas rendering requires browser; jsdom cannot simulate drawing                                | Open proxy flow in browser, draw signature on canvas, confirm PNG stored in signatureEvidence.signatureDataUrl |
+| QR code scannability at 44×44px         | HOA Dashboard       | Requires physical QR scanner or camera; automated QR decode validates value not real-world scan | Verify PV-YYYY-NNNN format in generated QR, scan with phone camera                                             |
+| react-signature-canvas component render | Proxy Step 5        | Third-party component render behavior in browser                                                | Confirm SignaturePad renders with `border border-gray-300 rounded-lg` at minimum 44px height                   |
 
 ---
 
