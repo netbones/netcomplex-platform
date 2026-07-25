@@ -41,7 +41,9 @@ Add `deletedAt` timestamp columns across all domain entities for systematic soft
 - **D-12:** Replace existing unique constraints with Postgres partial unique indexes: `UNIQUE (field) WHERE deletedAt IS NULL`. This allows reusing unique values after soft-delete.
 - **D-13:** Entities with unique constraints that need this treatment include: group slug, event slug (if exists), and any other unique field on entities receiving soft-delete.
 
-### Restore & Admin
+### the agent's Discretion
+
+The following scope exclusions are intentional and not tracked as plan requirements:
 
 - **D-14:** No restore endpoints in this phase. Deleted records stay soft-deleted.
 - **D-15:** No admin list/view of deleted records. Build if needed later.
