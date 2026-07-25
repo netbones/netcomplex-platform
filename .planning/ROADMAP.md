@@ -1743,3 +1743,24 @@ _Turborepo + pnpm workspaces monorepo for web (Next.js) + mobile (Expo) code sha
 - [x] 125-07-PLAN.md
 - [x] 125-08-PLAN.md
 - [x] 125-09-PLAN.md
+
+---
+
+## Phase 126: Platform Identity Layer + MeetingProxy Remediation
+
+**Goal:** Introduce additive `Identity` + `Credential` models decoupling "same human" from "per-tenant profile" (ADVISORY-034 Phase 0–1). Remediate two Phase 125 schema defects: narrow `SignatureProvider` to 5 values, add `credentialId` FK, and add `deletedAt` (ADVISORY-034-SUPPLEMENTAL-1 Gate S1).
+
+**Status:** 📋 Ready for execution — gates G0/G1/S1 resolved; G2 blocks plan 126-03.
+
+**Source:** `docs/advisories/ADVISORY-034-platform-identity-layer.md`, `docs/advisories/ADVISORY-034-SUPPLEMENTAL-1.md`
+
+**Milestone:** M5+ Post-Launch Features
+
+**Depends on:** Phase 125 (MeetingProxy in production, 0 rows), ADVISORY-032 (blocks 126-03 backfill)
+
+**Plans:**
+
+- [ ] 126-01-PLAN.md — Identity + Credential schema migration + discovery
+- [ ] 126-02-PLAN.md — MeetingProxy remediation: SignatureProvider, credentialId, deletedAt
+- [ ] 126-03-PLAN.md — Backfill user.identityId (gated on ADVISORY-032 resolution)
+- [ ] 126-04-PLAN.md — Blocker resolutions, BD filing, cleanup
