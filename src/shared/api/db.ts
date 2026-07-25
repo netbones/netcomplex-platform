@@ -107,6 +107,10 @@ import { requestNotes } from '@schema/request-notes';
 import { internalMaintenanceNotes } from '@schema/internal-maintenance-notes';
 import { requestHistories } from '@schema/request-histories';
 import { providerVerifications } from '@schema/provider-verifications';
+import { providerDueDiligenceWorkflows } from '@schema/provider-due-diligence-workflows';
+import { providerDueDiligenceItems } from '@schema/provider-due-diligence-items';
+import { providerDueDiligenceDocuments } from '@schema/provider-due-diligence-documents';
+import { providerDueDiligenceEvents } from '@schema/provider-due-diligence-events';
 import { providerLegalAgreements } from '@schema/provider-legal-agreements';
 import { providerReputations } from '@schema/provider-reputations';
 import { providerMerits } from '@schema/provider-merits';
@@ -232,6 +236,10 @@ const dbSchema = {
   internalMaintenanceNotes,
   requestHistories,
   providerVerifications,
+  providerDueDiligenceWorkflows,
+  providerDueDiligenceItems,
+  providerDueDiligenceDocuments,
+  providerDueDiligenceEvents,
   providerLegalAgreements,
   providerReputations,
   providerMerits,
@@ -472,6 +480,10 @@ export {
   internalMaintenanceNotes,
   requestHistories,
   providerVerifications,
+  providerDueDiligenceWorkflows,
+  providerDueDiligenceItems,
+  providerDueDiligenceDocuments,
+  providerDueDiligenceEvents,
   providerLegalAgreements,
   providerReputations,
   providerMerits,

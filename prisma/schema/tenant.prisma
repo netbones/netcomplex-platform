@@ -122,6 +122,7 @@ model Tenant {
   ProviderReputation      ProviderReputation[]
   ProviderSubscription    ProviderSubscription[]
   ProviderVerification    ProviderVerification[]
+  ProviderDueDiligenceWorkflow ProviderDueDiligenceWorkflow[]
   RevenueRecord           RevenueRecord[]
   ServiceProvider         ServiceProvider[]
   Support                 Support[]

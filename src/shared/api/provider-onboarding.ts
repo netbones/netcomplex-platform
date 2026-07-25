@@ -8,6 +8,8 @@ import {
   now,
   providerLegalAgreements,
   providerVerifications,
+  providerDueDiligenceWorkflows,
+  providerDueDiligenceItems,
   serviceProviders,
 } from '@api/server';
 import {
@@ -173,6 +175,73 @@ export async function getProviderDueDiligenceSnapshot(
   let resolvedStatus = verificationStatus ?? null;
   let persistedItems: Array<{ key: string; status: string; notes?: string }> = [];
 
+  // Try new workflow table first
+  if (providerId) {
+    const [workflow] = await db
+      .select({
+        id: providerDueDiligenceWorkflows.id,
+        status: providerDueDiligenceWorkflows.status,
+        assignedTo: providerDueDiligenceWorkflows.assignedTo,
+        notes: providerDueDiligenceWorkflows.notes,
+        submittedAt: providerDueDiligenceWorkflows.submittedAt,
+        startedAt: providerDueDiligenceWorkflows.startedAt,
+        completedAt: providerDueDiligenceWorkflows.completedAt,
+      })
+      .from(providerDueDiligenceWorkflows)
+      .where(
+        and(
+          eq(providerDueDiligenceWorkflows.tenantId, tenantId),
+          eq(providerDueDiligenceWorkflows.providerId, providerId)
+        )
+      )
+      .limit(1);
+
+    if (workflow) {
+      const items = await db
+        .select({
+          itemKey: providerDueDiligenceItems.itemKey,
+          status: providerDueDiligenceItems.status,
+          notes: providerDueDiligenceItems.notes,
+          reviewedBy: providerDueDiligenceItems.reviewedBy,
+          reviewedAt: providerDueDiligenceItems.reviewedAt,
+        })
+        .from(providerDueDiligenceItems)
+        .where(eq(providerDueDiligenceItems.workflowId, workflow.id));
+
+      const workflowStatus = workflow.status;
+      const checklist = buildDueDiligenceChecklist(
+        workflowStatus === 'APPROVED'
+          ? 'APPROVED'
+          : workflowStatus === 'REJECTED'
+            ? 'REJECTED'
+            : 'PENDING'
+      );
+
+      return {
+        workflowStatus: workflow.status,
+        assignedTo: workflow.assignedTo,
+        workflowNotes: workflow.notes,
+        submittedAt: workflow.submittedAt?.toISOString() ?? null,
+        startedAt: workflow.startedAt?.toISOString() ?? null,
+        completedAt: workflow.completedAt?.toISOString() ?? null,
+        items: checklist.map(item => {
+          const persisted = items.find(p => p.itemKey === item.key);
+          if (persisted) {
+            return {
+              ...item,
+              status: persisted.status,
+              notes: persisted.notes ?? undefined,
+              reviewedBy: persisted.reviewedBy,
+              reviewedAt: persisted.reviewedAt?.toISOString() ?? null,
+            };
+          }
+          return item;
+        }),
+      };
+    }
+  }
+
+  // Fallback to old JSON field
   if (!resolvedStatus && providerId) {
     const [verification] = await db
       .select({
@@ -208,6 +277,11 @@ export async function getProviderDueDiligenceSnapshot(
 
   return {
     workflowStatus,
+    assignedTo: null,
+    workflowNotes: null,
+    submittedAt: null,
+    startedAt: null,
+    completedAt: null,
     items,
   };
 }

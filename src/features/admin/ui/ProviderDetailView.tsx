@@ -230,18 +230,48 @@ export function ProviderDetailView({ providerId }: { providerId: string }) {
 
       {activeTab === 'profile' ? (
         <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-          <h2 className="text-base font-semibold text-gray-900">Due diligence summary</h2>
-          <p className="mt-1 text-sm text-gray-500">
-            Use the{' '}
-            <button
-              type="button"
-              onClick={() => setActiveTab('verification')}
-              className="font-medium text-indigo-600 underline"
-            >
-              verification
-            </button>{' '}
-            tab to review and update each item.
-          </p>
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h2 className="text-base font-semibold text-gray-900">Due diligence summary</h2>
+              <p className="mt-1 text-sm text-gray-500">
+                Use the{' '}
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('verification')}
+                  className="font-medium text-indigo-600 underline"
+                >
+                  verification
+                </button>{' '}
+                tab to review and update each item.
+              </p>
+            </div>
+            <div className="flex shrink-0 items-center gap-3">
+              {(data.dueDiligence as { assignedTo?: string | null }).assignedTo ? (
+                <span className="text-xs text-gray-500">
+                  Assigned to{' '}
+                  <span className="font-medium text-gray-700">
+                    {(data.dueDiligence as { assignedTo?: string | null }).assignedTo}
+                  </span>
+                </span>
+              ) : null}
+              <span
+                className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
+                  (data.dueDiligence as { workflowStatus?: string }).workflowStatus === 'APPROVED'
+                    ? 'bg-emerald-100 text-emerald-700'
+                    : (data.dueDiligence as { workflowStatus?: string }).workflowStatus ===
+                        'REJECTED'
+                      ? 'bg-rose-100 text-rose-700'
+                      : (data.dueDiligence as { workflowStatus?: string }).workflowStatus ===
+                          'UNDER_REVIEW'
+                        ? 'bg-blue-100 text-blue-700'
+                        : 'bg-amber-100 text-amber-700'
+                }`}
+              >
+                {(data.dueDiligence as { workflowStatus?: string }).workflowStatus ||
+                  'PENDING_REVIEW'}
+              </span>
+            </div>
+          </div>
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
             {data.dueDiligence.items.map(item => {
               const c = ddStepColor(item.key);
@@ -261,6 +291,14 @@ export function ProviderDetailView({ providerId }: { providerId: string }) {
                   </div>
                   {item.notes ? (
                     <div className="mt-2 text-xs text-gray-600 line-clamp-2">{item.notes}</div>
+                  ) : null}
+                  {(item as { reviewedBy?: string | null }).reviewedBy ? (
+                    <div className="mt-1 text-xs text-gray-400">
+                      Reviewed by {(item as { reviewedBy?: string | null }).reviewedBy}
+                      {(item as { reviewedAt?: string | null }).reviewedAt
+                        ? ` · ${formatDate((item as { reviewedAt?: string | null }).reviewedAt)}`
+                        : ''}
+                    </div>
                   ) : null}
                 </div>
               );
@@ -356,6 +394,7 @@ export function ProviderDetailView({ providerId }: { providerId: string }) {
               onClick={async () => {
                 setDdSaving(true);
                 try {
+                  const allApproved = ddItems.every(i => i.status === 'APPROVED');
                   await actionMutation.mutateAsync({
                     url: `/api/admin/providers/${providerId}/due-diligence`,
                     method: 'PATCH',
@@ -366,6 +405,7 @@ export function ProviderDetailView({ providerId }: { providerId: string }) {
                         notes: i.notes,
                       })),
                       verificationNotes: vrNotes.trim() || undefined,
+                      workflowStatus: allApproved ? 'APPROVED' : 'UNDER_REVIEW',
                     },
                   });
                 } finally {
@@ -566,18 +606,50 @@ export function ProviderDetailView({ providerId }: { providerId: string }) {
               to complete the due diligence checklist — tick each item, add admin notes, and save.
               The provider status updates automatically when all items are approved.
             </p>
-            <div className="rounded-lg bg-gray-50 p-4 text-sm">
-              <div className="font-medium text-gray-900">Current status</div>
-              <div className="mt-2 flex items-center gap-2">
-                <span
-                  className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${statusBadgeClass(data.provider.verificationStatus)}`}
-                >
-                  {data.provider.verificationStatus.toLowerCase()}
-                </span>
-                <span className="text-gray-500">
-                  {data.dueDiligence.items.filter(i => i.status === 'APPROVED').length}/
-                  {data.dueDiligence.items.length} items approved
-                </span>
+            <div className="rounded-lg bg-gray-50 p-4 text-sm space-y-3">
+              <div>
+                <div className="font-medium text-gray-900">Verification status</div>
+                <div className="mt-2 flex items-center gap-2">
+                  <span
+                    className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${statusBadgeClass(data.provider.verificationStatus)}`}
+                  >
+                    {data.provider.verificationStatus.toLowerCase()}
+                  </span>
+                  <span className="text-gray-500">
+                    {data.dueDiligence.items.filter(i => i.status === 'APPROVED').length}/
+                    {data.dueDiligence.items.length} items approved
+                  </span>
+                </div>
+              </div>
+              <div>
+                <div className="font-medium text-gray-900">Workflow status</div>
+                <div className="mt-2 flex items-center gap-2">
+                  <span
+                    className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
+                      (data.dueDiligence as { workflowStatus?: string }).workflowStatus ===
+                      'APPROVED'
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : (data.dueDiligence as { workflowStatus?: string }).workflowStatus ===
+                            'REJECTED'
+                          ? 'bg-rose-100 text-rose-700'
+                          : (data.dueDiligence as { workflowStatus?: string }).workflowStatus ===
+                              'UNDER_REVIEW'
+                            ? 'bg-blue-100 text-blue-700'
+                            : 'bg-amber-100 text-amber-700'
+                    }`}
+                  >
+                    {(data.dueDiligence as { workflowStatus?: string }).workflowStatus ||
+                      'PENDING_REVIEW'}
+                  </span>
+                  {(data.dueDiligence as { assignedTo?: string | null }).assignedTo ? (
+                    <span className="text-gray-500">
+                      Assigned to{' '}
+                      <span className="font-medium text-gray-700">
+                        {(data.dueDiligence as { assignedTo?: string | null }).assignedTo}
+                      </span>
+                    </span>
+                  ) : null}
+                </div>
               </div>
             </div>
           </div>

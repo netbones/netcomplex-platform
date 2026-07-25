@@ -1248,6 +1248,7 @@ model ServiceProvider {
   reputation      ProviderReputation?
   subscriptions   ProviderSubscription[]
   verifications   ProviderVerification?
+  dueDiligence    ProviderDueDiligenceWorkflow?
   revenue         RevenueRecord[]
   serviceBooking  ServiceBooking[]         @relation("ServiceBookingToProvider")
   address         Address?                 @relation(fields: [addressId], references: [id])
@@ -1381,6 +1382,84 @@ model ProviderVerification {
 
   @@index([tenantId])
   @@index([providerId])
+}
+
+model ProviderDueDiligenceWorkflow {
+  id         String                       @id @default(uuid())
+  providerId String                       @unique
+  tenantId   String
+  Tenant     Tenant                       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  status     ProviderDueDiligenceStatus   @default(PENDING_REVIEW)
+  assignedTo String?
+  submittedAt DateTime?
+  startedAt  DateTime?
+  completedAt DateTime?
+  notes      String?
+  createdAt  DateTime                     @default(now())
+  updatedAt  DateTime                     @updatedAt
+  deletedAt  DateTime?
+
+  provider   ServiceProvider              @relation(fields: [providerId], references: [id])
+  items      ProviderDueDiligenceItem[]
+  documents  ProviderDueDiligenceDocument[]
+  events     ProviderDueDiligenceEvent[]
+
+  @@index([tenantId])
+  @@index([providerId])
+  @@index([status])
+}
+
+model ProviderDueDiligenceItem {
+  id         String                       @id @default(uuid())
+  workflowId String
+  itemKey    String
+  status     DueDiligenceItemStatus       @default(PENDING)
+  notes      String?
+  reviewedBy String?
+  reviewedAt DateTime?
+  createdAt  DateTime                     @default(now())
+  updatedAt  DateTime                     @updatedAt
+
+  workflow   ProviderDueDiligenceWorkflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  documents  ProviderDueDiligenceDocument[]
+
+  @@index([workflowId])
+  @@index([itemKey])
+}
+
+model ProviderDueDiligenceDocument {
+  id         String                       @id @default(uuid())
+  workflowId String
+  itemId     String?
+  fileName   String
+  fileType   String
+  storageKey String
+  category   DueDiligenceDocumentCategory @default(OTHER)
+  uploadedBy String
+  fileSize   Int?
+  createdAt  DateTime                     @default(now())
+  deletedAt  DateTime?
+
+  workflow   ProviderDueDiligenceWorkflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  item       ProviderDueDiligenceItem?    @relation(fields: [itemId], references: [id])
+
+  @@index([workflowId])
+  @@index([itemId])
+}
+
+model ProviderDueDiligenceEvent {
+  id          String                       @id @default(uuid())
+  workflowId  String
+  action      String
+  actorId     String
+  oldValue    String?
+  newValue    String?
+  description String?
+  createdAt   DateTime                     @default(now())
+
+  workflow    ProviderDueDiligenceWorkflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  @@index([workflowId])
 }
 
 model ProviderLegalAgreement {
@@ -2965,6 +3044,27 @@ enum ProviderVerificationStatus {
   PROBATION
   VERIFIED
   SUSPENDED
+}
+
+enum ProviderDueDiligenceStatus {
+  PENDING_REVIEW
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+}
+
+enum DueDiligenceItemStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum DueDiligenceDocumentCategory {
+  IDENTITY_DOC
+  BUSINESS_LICENSE
+  INSURANCE
+  REFERENCE
+  OTHER
 }
 
 enum SubscriptionStatus {
