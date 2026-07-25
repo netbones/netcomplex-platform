@@ -3,10 +3,10 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
-import { fetchApi, formatCurrency, formatPercent } from './adminApi';
+import { fetchApi, formatCurrency, formatPercent } from '../api/adminApi';
 import { RevenueChart } from './RevenueChart';
 import Image from 'next/image';
-import type { ProviderAnalyticsResponse } from './types';
+import type { ProviderAnalyticsResponse } from '../api/types';
 
 function MetricCard({ title, value, hint }: { title: string; value: string; hint?: string }) {
   return (

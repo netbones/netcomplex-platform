@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 
-import type { TransactionItem } from './types';
-import { formatCurrency } from './adminApi';
+import type { TransactionItem } from '../api/types';
+import { formatCurrency } from '../api/adminApi';
 
 interface RefundModalProps {
   transaction: TransactionItem | null;

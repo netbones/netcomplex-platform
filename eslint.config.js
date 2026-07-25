@@ -75,14 +75,6 @@ export default tseslint.config(
     },
   },
 
-  // Admin providers: disable restricted-imports (needs free module access)
-  {
-    files: ['src/app/(tenant)/admin/providers/**'],
-    rules: {
-      'no-restricted-imports': 'off',
-    },
-  },
-
   // @features/gate: allow deep import of @entities/tenant/api/gate/mappings
   // This is the canonical clean module (zero server deps) — importing from the
   // @entities/tenant/server barrel would pull ioredis → dns into client builds.

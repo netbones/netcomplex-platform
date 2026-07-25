@@ -1,6 +1,6 @@
 'use client';
 
-import { formatCurrency } from './adminApi';
+import { formatCurrency } from '../api/adminApi';
 
 interface RevenueChartProps {
   title: string;

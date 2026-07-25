@@ -4,14 +4,14 @@ import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
-import { fetchApi, formatCurrency, formatDate, statusBadgeClass } from './adminApi';
+import { fetchApi, formatCurrency, formatDate, statusBadgeClass } from '../api/adminApi';
 import { VerificationQueue } from './VerificationQueue';
 import Image from 'next/image';
 import type {
   PendingProvidersResponse,
   ProviderListResponse,
   RegistrationModeResponse,
-} from './types';
+} from '../api/types';
 
 function StatCard({ title, value, hint }: { title: string; value: string; hint?: string }) {
   return (

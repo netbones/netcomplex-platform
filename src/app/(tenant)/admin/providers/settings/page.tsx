@@ -3,8 +3,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import Image from 'next/image';
-import { fetchApi, sendJson, statusBadgeClass } from '@/components/admin/adminApi';
-import type { RegistrationModeResponse } from '@/components/admin/types';
+import { fetchApi, sendJson, statusBadgeClass } from '@features/admin';
+import type { RegistrationModeResponse } from '@features/admin';
 
 export default function AdminProviderSettingsPage() {
   const queryClient = useQueryClient();

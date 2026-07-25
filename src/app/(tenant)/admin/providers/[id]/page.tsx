@@ -1,4 +1,4 @@
-import { ProviderDetailView } from '@/components/admin/ProviderDetailView';
+import { ProviderDetailView } from '@features/admin';
 
 export default async function AdminProviderDetailPage({
   params,

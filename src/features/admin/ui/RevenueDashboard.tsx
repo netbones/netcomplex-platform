@@ -3,10 +3,10 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
-import { fetchApi, formatCurrency, statusBadgeClass } from './adminApi';
+import { fetchApi, formatCurrency, statusBadgeClass } from '../api/adminApi';
 import { RevenueChart } from './RevenueChart';
 import Image from 'next/image';
-import type { RevenueDetailsResponse, RevenueSummaryResponse } from './types';
+import type { RevenueDetailsResponse, RevenueSummaryResponse } from '../api/types';
 
 function KpiCard({ title, value }: { title: string; value: string }) {
   return (

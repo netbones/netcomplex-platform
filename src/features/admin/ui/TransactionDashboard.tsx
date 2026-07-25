@@ -3,10 +3,10 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { fetchApi, formatCurrency, formatDate, sendJson, statusBadgeClass } from './adminApi';
+import { fetchApi, formatCurrency, formatDate, sendJson, statusBadgeClass } from '../api/adminApi';
 import { RefundModal } from './RefundModal';
 import Image from 'next/image';
-import type { RefundResponse, TransactionItem, TransactionsResponse } from './types';
+import type { RefundResponse, TransactionItem, TransactionsResponse } from '../api/types';
 
 function SummaryCard({ title, value }: { title: string; value: string }) {
   return (

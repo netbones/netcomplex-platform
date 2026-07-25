@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 
-import type { PendingProviderItem } from './types';
-import { formatDate, statusBadgeClass, ddStepColor } from './adminApi';
+import type { PendingProviderItem } from '../api/types';
+import { formatDate, statusBadgeClass, ddStepColor } from '../api/adminApi';
 
 export function VerificationQueue({ providers }: { providers: PendingProviderItem[] }) {
   return (

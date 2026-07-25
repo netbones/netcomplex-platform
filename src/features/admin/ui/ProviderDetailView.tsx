@@ -11,8 +11,8 @@ import {
   sendJson,
   statusBadgeClass,
   ddStepColor,
-} from './adminApi';
-import type { ProviderDetailResponse } from './types';
+} from '../api/adminApi';
+import type { ProviderDetailResponse } from '../api/types';
 
 function LegalDocumentCard({
   document,

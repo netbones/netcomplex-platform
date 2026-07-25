@@ -1,4 +1,4 @@
-import { TransactionDashboard } from '@/components/admin/TransactionDashboard';
+import { TransactionDashboard } from '@features/admin';
 
 export default function AdminTransactionsPage() {
   return <TransactionDashboard />;
