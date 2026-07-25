@@ -12,7 +12,6 @@
 import type { LucideIcon } from 'lucide-react';
 import { Home, Briefcase, Users, MessageSquare, Shield, Tractor } from 'lucide-react';
 import type { PlatformPageFlags } from '@shared/lib';
-import { logger } from '@/shared/lib/logger';
 
 // ═══════════════════════════════════════════════════════════════
 // SPACE ID TYPE
@@ -214,36 +213,6 @@ export function filterSpaces(
       }
       return true;
     });
-}
-
-/**
- * @deprecated Use filterSpaces(accessibleSpaceIds, flags) — auth logic moved to /api/access.
- *
- * Provides minimal backward compatibility for callers not yet migrated to
- * useVisibleSpaces() or filterSpaces(). Constructs a SpaceId[] from role
- * and passes it through filterSpaces as a pure filter.
- */
-export function getVisibleSpaces(role: string, flags: PlatformPageFlags): SpaceDefinition[] {
-  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-    logger.warn(
-      { component: 'spaces' },
-      '[DEPRECATED] getVisibleSpaces() is deprecated. Use useVisibleSpaces() or filterSpaces() + /api/access instead.'
-    );
-  }
-  // Minimal compat: role-based space resolution for callers not yet migrated
-  const normalizedRole = role?.toUpperCase() || 'RESIDENT';
-  const isAdmin = ADMIN_ROLES.includes(normalizedRole);
-  const spaces: SpaceId[] = ['home', 'messages'];
-  if (isAdmin) spaces.push('admin');
-  if (normalizedRole === 'PROVIDER') spaces.push('providers');
-  if (flags.services !== false) spaces.push('services');
-  if (
-    ['events', 'groups', 'surveys', 'competitions', 'news'].some(
-      f => flags[f as keyof PlatformPageFlags] !== false
-    )
-  )
-    spaces.push('community');
-  return filterSpaces(spaces, flags);
 }
 
 /**

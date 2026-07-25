@@ -107,7 +107,6 @@ export async function resolvePageAccess(
   // ──── Layer 0: Role — determine base spaces ────
 
   // PROVIDER role gets limited core: messages only (no home, no optional spaces).
-  // This mirrors the existing getVisibleSpaces() pattern in spaces.ts.
   const isProvider = normalizedRole === 'PROVIDER';
 
   const spaces = new Set<SpaceId>();
