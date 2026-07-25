@@ -56,7 +56,7 @@ import { GET, PATCH, DELETE } from '@/app/api/admin/platform/tenants/[id]/route'
 
 const MOCK_TENANT = {
   id: 'tenant-1',
-  name: 'Soralia Village',
+  name: 'Demo Tenant',
   slug: 'soralia',
   customDomain: null,
   logoUrl: 'https://example.com/logo.png',
@@ -78,7 +78,7 @@ const MOCK_TENANT = {
 
 const MOCK_UPDATED_TENANT = {
   ...MOCK_TENANT,
-  name: 'Soralia Village Renamed',
+  name: 'Demo Tenant Renamed',
   primaryColor: '#22C55E',
   updatedAt: '2026-06-21T00:00:00.000Z',
 };
@@ -172,7 +172,7 @@ describe('Admin Platform Tenants [id] API', () => {
   });
 
   describe('PATCH /api/admin/platform/tenants/[id]', () => {
-    const updateBody = { name: 'Soralia Village Renamed', primaryColor: '#22C55E' };
+    const updateBody = { name: 'Demo Tenant Renamed', primaryColor: '#22C55E' };
 
     it('returns 403 when platform admin guard rejects', async () => {
       mocks.requirePlatformAdmin.mockResolvedValueOnce(
@@ -213,7 +213,7 @@ describe('Admin Platform Tenants [id] API', () => {
       expect(mocks.updateTenant).toHaveBeenCalledWith(
         'tenant-1',
         expect.objectContaining({
-          name: 'Soralia Village Renamed',
+          name: 'Demo Tenant Renamed',
           primaryColor: '#22C55E',
         })
       );

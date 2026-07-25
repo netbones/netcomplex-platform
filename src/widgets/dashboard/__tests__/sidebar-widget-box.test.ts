@@ -38,7 +38,7 @@ vi.mock('@entities/tenant', () => ({
     location: {
       latitude: 26.6619,
       longitude: -80.6128,
-      name: 'Soralia Village',
+      name: 'Netcomplex Demo Village',
     },
   },
 }));

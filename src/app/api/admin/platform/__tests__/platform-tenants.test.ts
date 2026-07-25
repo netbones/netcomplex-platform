@@ -52,7 +52,7 @@ import { GET, POST } from '@/app/api/admin/platform/tenants/route';
 const MOCK_TENANTS = [
   {
     id: 'tenant-1',
-    name: 'Soralia Village',
+    name: 'Demo Village',
     slug: 'soralia',
     active: true,
     subscriptionTier: 'core',

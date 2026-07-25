@@ -24,7 +24,7 @@ describe('GET /api/openapi.json', () => {
   it('returns the OpenAPI spec as JSON', async () => {
     const expectedSpec = {
       openapi: '3.0.0',
-      info: { title: 'Soralia Village API', version: '1.0.0' },
+      info: { title: 'Netcomplex API', version: '1.0.0' },
       paths: {},
     };
     mocks.generateOpenApiSpec.mockResolvedValue(expectedSpec);

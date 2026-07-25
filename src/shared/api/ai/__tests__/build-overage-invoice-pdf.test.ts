@@ -21,8 +21,8 @@ async function parsePdfText(pdfBytes: Uint8Array): Promise<{ text: string; numpa
 // ── Minimal valid input data ──
 function makeMinimalData(overrides: Partial<OverageInvoiceData> = {}): OverageInvoiceData {
   return {
-    tenantName: 'Soralia Village',
-    tenantLegalName: 'Soralia Village HOA',
+    tenantName: 'Demo Village',
+    tenantLegalName: 'Demo Village HOA',
     billingMonth: '2026-05',
     quota: 100000,
     tokensUsed: 125000,
@@ -50,7 +50,7 @@ describe('buildOverageInvoicePdf', () => {
     const pdfBytes = await buildOverageInvoicePdf(data);
     const { text } = await parsePdfText(pdfBytes);
 
-    expect(text).toContain('Soralia Village');
+    expect(text).toContain('Demo Village');
   });
 
   // ── Test 3: Generated PDF text contains the billing month ──

@@ -87,8 +87,8 @@ function makeMinimalData(overrides: Partial<CsosExportData> = {}): CsosExportDat
       exportedBy: 'user-alice',
     },
     tenant: {
-      name: 'Soralia Village',
-      legalName: 'Soralia Village HOA',
+      name: 'Demo Village',
+      legalName: 'Demo Village HOA',
       csosRegNo: 'CSOS-REG-12345',
     },
     ...overrides,
