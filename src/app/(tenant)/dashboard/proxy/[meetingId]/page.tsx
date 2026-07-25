@@ -4,9 +4,7 @@ import { and, desc, eq, isNull } from 'drizzle-orm';
 
 import { db, events, getSessionAndRole, meetingProxies } from '@api/server';
 import { ErrorBoundary, LoadingSkeleton } from '@shared/ui';
-import { isProxyEligible } from '@/features/proxy-vote/lib/constants';
-import { proxyResponseDTO } from '@/features/proxy-vote/model/proxy-vote.dto';
-import { ProxyFlowWizard } from '@/features/proxy-vote/ui/ProxyFlowWizard';
+import { isProxyEligible, ProxyFlowWizard, proxyResponseDTO } from '@/features/proxy-vote';
 
 interface PageProps {
   params: Promise<{ meetingId: string }>;

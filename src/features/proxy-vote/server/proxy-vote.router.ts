@@ -4,7 +4,6 @@ import { TRPCError } from '@trpc/server';
 import { moduleProcedure, router, tenantProcedure, privilegedModuleProcedure } from '@api/server';
 
 import {
-  approveProxySchema,
   createProxySchema,
   rejectProxySchema,
   signProxySchema,
