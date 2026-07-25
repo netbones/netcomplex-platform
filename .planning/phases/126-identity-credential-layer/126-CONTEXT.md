@@ -37,7 +37,8 @@ record.
 
 - **ADVISORY-034 Phase 2** — backfill `user.identityId`, RLS addendum, is gated on ADVISORY-032 resolution (G2). This is a separate plan in _this_ phase (126-03), not deferred to a future phase.
 - **ADVISORY-034 Phase 3+4** — multi-tenant providers/agents, DWallet portability — stay deferred behind their original gates (G3, G4) per the advisory. Dropping `DWallet` portability from immediate scope avoids the data-loss-adjacent financial ledger work.
-- **Open-supplemental questions Q2 (GOV_EID scope), Q4 (enum-vs-lookup-table general pattern)** — filed as BD follow-up issues. They neither block schema creation nor migration.
+- **Question Q2 (GOV_EID scope)** — resolved BD-2v8t (2026-07-25): kept as generic government-issued digital identity category, not jurisdiction-specific. Documented in UBIQUITOUS_LANGUAGE.md.
+- **Question Q4 (enum-vs-lookup-table general pattern)** — filed as BD follow-up issue `bn2q`. Does not block schema creation or migration.
 
 ## Why Remediation, Not Prevention
 

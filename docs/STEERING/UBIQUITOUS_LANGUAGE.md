@@ -317,6 +317,23 @@ A user who offers services through the marketplace. Links a User account to a pr
 - **Status:** `PENDING` → `PROBATION` → `VERIFIED`; can be `SUSPENDED`
 - **Not to be confused with:** `User` (auth identity — a User may or may not be a ServiceProvider), `Provider` as an internal module concept
 
+### SignatureProvider
+
+An enumeration of signing attestation methods for proxy votes and other legally-significant documents. Each value represents a category of signature technology, not a specific API or vendor.
+
+- **Code:** `SignatureProvider` (Prisma enum)
+- **Canonical values (post-Phase 126):** `INTERNAL`, `DOCUSIGN`, `ADOBE_SIGN`, `PGP`, `GOV_EID`
+- **Removed (Phase 126):** `LIGHTNING`, `NOSTR`, `PASSKEY` — these are now represented via the `Credential` model (see Identity terms)
+- **Not to be confused with:** `CredentialType` (platform login credentials, not signing attestations)
+
+### GOV_EID
+
+A `SignatureProvider` value representing government-issued digital identity used as a signing attestation. Generic cross-jurisdiction — not locked to a specific country or API. Specific adapters are registered per-deployment.
+
+- **Scope resolution (BD-2v8t, 2026-07-25):** Kept generic rather than jurisdiction-specific (e.g., `ZA_HOME_AFFAIRS`) to support multi-tenant deployments across countries. Renaming to a country-specific value would create parallel enum values when a second tenant needs their own government eID.
+- **Anchor tenant context (Soralia Village):** Would target South African Smart ID + Home Affairs eChannel verification.
+- **Not to be confused with:** OIDC (a protocol layer; GOV_EID attestation may or may not use OIDC underneath).
+
 ### Provider (User-Facing Term)
 
 A resident who also offers services through the marketplace. Has a dual identity: a User with a ServiceProvider profile. Displayed in the directory context with provider-specific badges and verification indicators.
@@ -501,3 +518,4 @@ The model is `MaintenanceRequest`; users see "Ticket Number" in the UI. This is 
 | 2026-06-30 | Consolidated PlatformPageFlags backing store to Setting SSOT (Phase 121, 5 def files → 1)                                  | Settings system now uses a single `settings-defs.ts` source of truth. `PlatformPageFlags` remains as a typed read interface mapped from Setting rows. Added 9 non-flag community-config setting keys                                                                                                                           |
 | 2026-07-07 | Closed C4: Tier naming mismatch resolved — PRD aligned to 3-tier code system                                               | PRD's 4 tenant types were aspirational marketing; codebase never referenced them. dWallet (Phase 47) shipped without needing a 4-tier system. Marketing labels (Foundation/Growth/Enterprise) now map 1:1 to technical tiers. Soralia Village is an anchor tenant (Enterprise-tier reference deployment), not a separate tier. |
 | 2026-06-30 | Defined Platform Address Registry terms (Phase 46.2)                                                                       | New Address, Handle, AddressEndpoint models with 6 enums (AddressKind, AddressStatus, AddressOwnerType, HandleStatus, ForwardStrategy, EndpointType). Consolidates platformAddress/profileAddress from 5 source tables into one model with lifecycle management                                                                |
+| 2026-07-25 | GOV_EID scope clarified — kept generic, not jurisdiction-specific                                                          | ADVISORY-034-SUPPLEMENTAL-1 §6 Q2 resolved. GOV_EID represents government-issued digital identity as a category (not a specific API). Specific adapters registered per-deployment. Renaming to country-specific value would create parallel enum values per-jurisdiction                                                       |
