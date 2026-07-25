@@ -1,47 +1,39 @@
 'use client';
 
-import { AnimatePresence, motion } from 'motion/react';
-import { cn } from '@shared/lib/utils';
+import * as React from 'react';
+import { motion } from 'motion/react';
 import {
-  Pagination as ShadcnPagination,
+  Pagination,
   PaginationContent,
   PaginationItem,
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
 } from '@shared/ui/pagination-primitives';
+import { cn } from '@shared/lib/utils';
 
-interface PaginationProps {
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
-  className?: string;
-}
-
-export function Pagination({ currentPage, totalPages, onPageChange, className }: PaginationProps) {
-  if (totalPages <= 1) return null;
-
-  const handlePrev = () => onPageChange(Math.max(1, currentPage - 1));
-  const handleNext = () => onPageChange(Math.min(totalPages, currentPage + 1));
+export default function FloatingPill() {
+  const [activePage, setActivePage] = React.useState(2);
+  const totalPages = 5;
 
   return (
-    <ShadcnPagination className={cn('transition-all', className)}>
-      <PaginationContent className="bg-background/80 border p-1 rounded-full">
+    <Pagination>
+      <PaginationContent className="bg-background/80 border p-1 rounded-full transition-all">
         <PaginationItem>
           <PaginationPrevious
             href="#"
             onClick={e => {
               e.preventDefault();
-              handlePrev();
+              setActivePage(prev => Math.max(1, prev - 1));
             }}
-            className="rounded-full hover:bg-muted [&>span]:hidden"
+            className="rounded-full hover:bg-muted"
           />
         </PaginationItem>
 
         <div className="relative flex items-center mx-1">
-          {Array.from({ length: totalPages }, (_, i) => {
+          {Array.from({ length: totalPages }).map((_, i) => {
             const page = i + 1;
-            const isActive = currentPage === page;
+            const isActive = activePage === page;
             return (
               <PaginationItem key={page} className="relative">
                 <PaginationLink
@@ -49,7 +41,7 @@ export function Pagination({ currentPage, totalPages, onPageChange, className }:
                   isActive={isActive}
                   onClick={e => {
                     e.preventDefault();
-                    onPageChange(page);
+                    setActivePage(page);
                   }}
                   className={cn(
                     'relative z-10 w-9 h-9 rounded-full border-0 transition-colors uppercase text-xs font-bold tracking-tighter',
@@ -60,15 +52,13 @@ export function Pagination({ currentPage, totalPages, onPageChange, className }:
                 >
                   {page}
                 </PaginationLink>
-                <AnimatePresence>
-                  {isActive && (
-                    <motion.div
-                      layoutId="pill-active"
-                      className="absolute inset-0 bg-primary rounded-full shadow-md"
-                      transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
-                    />
-                  )}
-                </AnimatePresence>
+                {isActive && (
+                  <motion.div
+                    layoutId="pill-active"
+                    className="absolute inset-0 bg-primary rounded-full shadow-md"
+                    transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+                  />
+                )}
               </PaginationItem>
             );
           })}
@@ -79,12 +69,12 @@ export function Pagination({ currentPage, totalPages, onPageChange, className }:
             href="#"
             onClick={e => {
               e.preventDefault();
-              handleNext();
+              setActivePage(prev => Math.min(totalPages, prev + 1));
             }}
-            className="rounded-full hover:bg-muted transition-transform active:scale-95 [&>span]:hidden"
+            className="rounded-full hover:bg-muted transition-transform active:scale-95"
           />
         </PaginationItem>
       </PaginationContent>
-    </ShadcnPagination>
+    </Pagination>
   );
 }

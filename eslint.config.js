@@ -36,7 +36,7 @@ export default tseslint.config(
           patterns: [
             {
               regex:
-                '^@shared/(?!lib/hooks|lib/agent-token|lib/sanitize|lib/i18n|lib/id|lib/format-date|lib/providers|lib/webhook)[^/]+/[^/]+$',
+                '^@shared/(?!lib/hooks|lib/agent-token|lib/sanitize|lib/i18n|lib/id|lib/format-date|lib/providers|lib/webhook|lib/utils|ui/)[^/]+/[^/]+$',
               message: 'Use public API from @shared instead of deep imports.',
             },
             {
@@ -95,7 +95,8 @@ export default tseslint.config(
           paths: [],
           patterns: [
             {
-              regex: '^@shared/(?!lib/hooks|lib/format-date|lib/providers)[^/]+/[^/]+$',
+              regex:
+                '^@shared/(?!lib/hooks|lib/format-date|lib/providers|lib/utils|ui/)[^/]+/[^/]+$',
               message: 'Use public API from @shared instead of deep imports.',
             },
             {
