@@ -36,7 +36,7 @@ const defaultStats = [
 const testimonials = [
   {
     name: 'The Williams Family',
-    text: 'We have lived in Soralia Village for 8 years and it still feels like a vacation every day. The community is wonderful!',
+    text: 'We have lived here for 8 years and it still feels like a vacation every day. The community is wonderful!',
     icon: 'fa-user',
   },
   {
@@ -84,7 +84,7 @@ export default function ProudlySoraliaPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="bg-gradient-to-r from-indigo-600 to-green-600 rounded-lg shadow-lg p-8 mb-8 text-white text-center">
-        <h1 className="text-5xl font-bold mb-4">Proudly Soralia!</h1>
+        <h1 className="text-5xl font-bold mb-4">Proudly Our Community!</h1>
         <p className="text-xl opacity-90 max-w-3xl mx-auto">
           Celebrating our vibrant community, shared values, and the beautiful place we call home.
         </p>

@@ -1,4 +1,5 @@
 import { headers } from 'next/headers';
+import { APP_NAME } from '@shared/lib';
 import { PlatformFooter, PlatformHeader } from '@features/platform';
 
 async function PlatformPrivacy() {
@@ -103,10 +104,9 @@ function TenantPrivacy() {
         <section className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Introduction</h2>
           <p className="text-gray-700">
-            Soralia Village Homeowners Association (&quot;we,&quot; &quot;our,&quot; or
-            &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy explains
-            how we collect, use, disclose, and safeguard your information when you use our community
-            portal.
+            {APP_NAME} Homeowners Association (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;)
+            is committed to protecting your privacy. This Privacy Policy explains how we collect,
+            use, disclose, and safeguard your information when you use our community portal.
           </p>
         </section>
 
@@ -163,9 +163,9 @@ function TenantPrivacy() {
         <section className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Contact Us</h2>
           <p className="text-gray-700">
-            For questions about this Privacy Policy, please contact the Soralia Village HOA at{' '}
-            <a href="mailto:info@soralia.co.za" className="text-soralia-primary hover:underline">
-              info@soralia.co.za
+            For questions about this Privacy Policy, please contact the {APP_NAME} HOA at{' '}
+            <a href="mailto:privacy@example.com" className="text-soralia-primary hover:underline">
+              privacy@example.com
             </a>
           </p>
         </section>

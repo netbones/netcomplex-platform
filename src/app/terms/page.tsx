@@ -1,4 +1,5 @@
 import { headers } from 'next/headers';
+import { APP_NAME } from '@shared/lib';
 import { PlatformFooter, PlatformHeader } from '@features/platform';
 
 async function PlatformTerms() {
@@ -99,15 +100,15 @@ function TenantTerms() {
         <section className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Acceptance of Terms</h2>
           <p className="text-gray-700">
-            By accessing and using the Soralia Village Community Portal, you accept and agree to be
-            bound by the terms and provision of this agreement.
+            By accessing and using the {APP_NAME} Community Portal, you accept and agree to be bound
+            by the terms and provision of this agreement.
           </p>
         </section>
 
         <section className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Use License</h2>
           <p className="text-gray-700 mb-4">
-            Permission is granted to temporarily use the Soralia Village portal for personal,
+            Permission is granted to temporarily use the {APP_NAME} portal for personal,
             non-commercial use only. This is the grant of a license, not a transfer of title.
           </p>
           <p className="text-gray-700">
@@ -146,8 +147,8 @@ function TenantTerms() {
         <section className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Disclaimer</h2>
           <p className="text-gray-700">
-            The materials on the Soralia Village portal are provided on an &quot;as is&quot; basis.
-            We make no warranties, express or implied, regarding the accuracy, reliability, or
+            The materials on the {APP_NAME} portal are provided on an &quot;as is&quot; basis. We
+            make no warranties, express or implied, regarding the accuracy, reliability, or
             availability of the portal.
           </p>
         </section>
@@ -155,8 +156,8 @@ function TenantTerms() {
         <section className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Limitation of Liability</h2>
           <p className="text-gray-700">
-            In no event shall Soralia Village HOA be liable for any damages arising out of the use
-            or inability to use the portal.
+            In no event shall {APP_NAME} HOA be liable for any damages arising out of the use or
+            inability to use the portal.
           </p>
         </section>
 
@@ -164,8 +165,8 @@ function TenantTerms() {
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Contact Information</h2>
           <p className="text-gray-700">
             Questions about these Terms should be sent to{' '}
-            <a href="mailto:info@soralia.co.za" className="text-soralia-primary hover:underline">
-              info@soralia.co.za
+            <a href="mailto:info@example.com" className="text-soralia-primary hover:underline">
+              info@example.com
             </a>
           </p>
         </section>

@@ -217,7 +217,7 @@ export default function ConservationPage() {
         <div className="relative rounded-lg shadow-lg mb-8 overflow-hidden h-64">
           <Image
             src="/conservation.webp"
-            alt="Soralia Village Conservation Area"
+            alt="Community Conservation Area"
             fill
             className="object-cover"
             priority

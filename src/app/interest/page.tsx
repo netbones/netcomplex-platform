@@ -61,7 +61,7 @@ const interestGroups: Record<
   gardening: {
     title: 'Gardening Club',
     tagline: 'Connect with fellow green thumbs!',
-    about: `Welcome to the Soralia Village Gardening Club! Whether you're a seasoned horticulturist or just starting your green journey,
+    about: `Welcome to the Gardening Club! Whether you're a seasoned horticulturist or just starting your green journey,
       this is the place to share tips, exchange plants, and grow together. We focus on sustainable practices,
       indigenous plants, and creating beautiful, thriving gardens in our community.`,
     color: 'green',
@@ -142,7 +142,7 @@ const interestGroups: Record<
   photography: {
     title: 'Photography Club',
     tagline: 'Capture beautiful moments!',
-    about: `Capture the beauty of Soralia Village and beyond with our photography club. We organize photo walks,
+    about: `Capture the beauty of our community and beyond with our photography club. We organize photo walks,
       exhibitions, and skill-sharing sessions. Bring your camera or smartphone!`,
     color: 'purple',
     icon: 'fa-camera',
@@ -159,7 +159,7 @@ const interestGroups: Record<
     title: 'Volunteering Group',
     tagline: 'Make a difference together!',
     about: `Our volunteer group coordinates community service projects, from environmental conservation to supporting
-      local charities. Join us in making Soralia Village and the surrounding area a better place.`,
+      local charities. Join us in making our community and the surrounding area a better place.`,
     color: 'red',
     icon: 'fa-hands-helping',
     events: [

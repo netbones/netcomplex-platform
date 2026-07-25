@@ -5,7 +5,7 @@ export default function GuidelinesPage() {
 
       <div className="prose prose-lg max-w-none">
         <p className="text-lg text-gray-600 mb-8">
-          These guidelines ensure Soralia Village remains a welcoming, harmonious community for all
+          These guidelines ensure our community remains a welcoming, harmonious place for all
           residents.
         </p>
 
@@ -119,7 +119,7 @@ export default function GuidelinesPage() {
               <strong>Maintenance:</strong> +27 21 555-FIXIT
             </li>
             <li>
-              <strong>Email:</strong> info@soralia.co.za
+              <strong>Email:</strong> info@example.com
             </li>
           </ul>
         </section>
