@@ -502,6 +502,29 @@ if (!isProvider || !isNotSuspended) redirect('/dashboard');
 | Provider `@soralia.org` addresses          | Providers are not community members; use `ServiceProvider.email` for now | Revisit if provider messaging within the platform becomes a requirement               |
 | Profile alias management UI                | `Profile` table exists; no frontend CRUD                                 | Separate feature advisory when alias management is scoped                             |
 
+### 9.1 — Provider Platform Hardening BD Issues (G4-Deferred)
+
+The following BD issues were logged at the ADVISORY-026 G4 scope boundary (2026-07-03) as hardening follow-ups from Phase 46 Provider Platform work. They surface gaps noted but not resolved within ADVISORY-015's execution.
+
+| BD Issue | P   | Title                                                             | Advisory §         | Assessment                                                                     |
+| -------- | --- | ----------------------------------------------------------------- | ------------------ | ------------------------------------------------------------------------------ |
+| `hh1t`   | P2  | Paystack/PayPal gateway — remote subscription lifecycle           | §3C (billing)      | Gateway API integration; webhooks, sandbox testing. Not low-hanging.           |
+| `vlfd`   | P3  | Remote recurring subscription identifiers                         | §3C (billing)      | Child of `hh1t`. Blocked until gateway integration lands.                      |
+| `woqt`   | P3  | Backward-compatible PayPal refund handling                        | §3C (billing)      | Child of `hh1t`. Blocked.                                                      |
+| `rkns`   | P3  | Active gateway health probes                                      | §3C (billing)      | Related to `hh1t`. Requires gateway API integration.                           |
+| `he4l`   | P3  | Dedicated due-diligence workflow table                            | §3C (verification) | New table + migration. Straightforward CRUD — moderate effort.                 |
+| `a5a5`   | P3  | Immutable provider audit/moderation history table                 | §9 (audit trail)   | New table, append-only pattern — moderate effort.                              |
+| `zuju`   | P3  | Harden provider identity bridge                                   | §1C / §2C / §3B    | Core identity architecture (User ↔ ServiceProvider linkage). Not low-hanging.  |
+| `b51v`   | P3  | Centralize nav-level provider access gating                       | §5 (gate)          | Utility refactor — **low-hanging**: no schema change, pure code consolidation. |
+| `h3wr`   | P3  | Listing view/impression telemetry model                           | _(tangential)_     | New analytics table — moderate effort, independent of advisory scope.          |
+| `27ft`   | P3  | Migrate admin components from `@/components/admin/` to FSD layers | _(tangential)_     | File moves + import updates — **low-hanging**: no logic or schema change.      |
+
+**Low-hanging fruit (recommended order):**
+
+1. **`b51v`** — centralize nav gating (refactor only, no schema, unblocks consistent provider UX)
+2. **`27ft`** — FSD migration (file moves, removes ESLint override, pure tech debt)
+3. **`he4l`** — due-diligence table (small migration, directly extends §3C verification pipeline)
+
 ---
 
 ## 10. Done Criteria
