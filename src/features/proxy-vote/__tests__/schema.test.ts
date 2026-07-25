@@ -1,21 +1,20 @@
 import { describe, it, expect } from 'vitest';
+import { meetingProxies } from '@/db/schema/proxy-vote';
 
-/**
- * Wave 0 schema compilation test stub.
- *
- * Verifies that the MeetingProxy Drizzle schema (entity layer re-export)
- * is reachable from the proxy-vote feature slice. This import path is the
- * canonical entity-layer entry point that plan 125-03 will create.
- *
- * Note: This test is INTENTIONALLY set up to fail in plan 125-01. The
- * `src/db/schema/proxy-vote.ts` re-export barrel is created in plan 125-03
- * as part of the entity layer build. Until then, this import will fail —
- * which is the expected Wave 0 state.
- */
+describe('proxy-vote entity schema (Wave 0)', () => {
+  it('exposes meetingProxies from the entity-layer barrel', () => {
+    expect(meetingProxies).toBeDefined();
+  });
 
-describe('proxy-vote schema (Wave 0 stub)', () => {
-  it('exposes meetingProxies from the entity-layer barrel', async () => {
-    const entityModule = await import('@/db/schema/proxy-vote');
-    expect(entityModule.meetingProxies).toBeDefined();
+  it('meetingProxies provides named columns for each MeetingProxy field', () => {
+    const table = meetingProxies as unknown as Record<string, { name: string }>;
+    const names = Object.values(table).map(c => c.name);
+    expect(names).toContain('id');
+    expect(names).toContain('tenantId');
+    expect(names).toContain('meetingId');
+    expect(names).toContain('ownerUserId');
+    expect(names).toContain('status');
+    expect(names).toContain('signatureProvider');
+    expect(names).toContain('signatureEvidence');
   });
 });

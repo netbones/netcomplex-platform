@@ -1167,4 +1167,46 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     dragHandleClassName: 'widget-drag-handle',
     spaces: ['admin'],
   });
+
+  // ═══════════════════════════════════════════════════════════════
+  // PROXY VOTE WIDGETS (Phase 125)
+  // ═══════════════════════════════════════════════════════════════
+
+  registry.register({
+    id: 'hoa-proxy-votes',
+    version: '1.0.0',
+    name: 'Proxy Votes',
+    description: 'Admin approval queue for proxy vote submissions',
+    author: 'internal',
+    category: 'core',
+    icon: Scale,
+    featureFlag: 'proxyVote',
+    permissions: ['admin', 'board'],
+    component: lazy(() =>
+      import('@widgets/proxy-vote/ui/HoaProxyWidget').then(m => ({ default: m.HoaProxyWidget }))
+    ),
+    defaultSize: { width: 4, height: 4 },
+    minSize: { width: 3, height: 2 },
+    dragHandleClassName: 'widget-drag-handle',
+    spaces: ['admin'],
+  });
+
+  registry.register({
+    id: 'my-proxy-votes',
+    version: '1.0.0',
+    name: 'My Proxy Votes',
+    description: 'Resident-facing list of active proxy appointments',
+    author: 'internal',
+    category: 'core',
+    icon: UserCheck,
+    featureFlag: 'proxyVote',
+    permissions: ['resident', 'board'],
+    component: lazy(() =>
+      import('@widgets/proxy-vote/ui/ProxyWidget').then(m => ({ default: m.ProxyWidget }))
+    ),
+    defaultSize: { width: 3, height: 2 },
+    minSize: { width: 2, height: 2 },
+    dragHandleClassName: 'widget-drag-handle',
+    spaces: ['home'],
+  });
 }
