@@ -50,7 +50,8 @@ export const GET = withErrorHandler(async (request: Request) => {
     .where(
       and(
         eq(conversationParticipants.userId, session.user.id),
-        eq(conversations.tenantId, tenantId)
+        eq(conversations.tenantId, tenantId),
+        notDeleted(conversations)
       )
     )
     .orderBy(desc(conversations.updatedAt));
