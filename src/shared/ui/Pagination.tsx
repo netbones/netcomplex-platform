@@ -1,6 +1,5 @@
 'use client';
 
-import { AnimatePresence, motion } from 'motion/react';
 import { cn } from '@shared/lib/utils';
 import {
   Pagination as ShadcnPagination,
@@ -60,15 +59,7 @@ export function Pagination({ currentPage, totalPages, onPageChange, className }:
                 >
                   {page}
                 </PaginationLink>
-                <AnimatePresence>
-                  {isActive && (
-                    <motion.div
-                      layoutId="pill-active"
-                      className="absolute inset-0 bg-primary rounded-full shadow-md"
-                      transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
-                    />
-                  )}
-                </AnimatePresence>
+                {isActive && <div className="absolute inset-0 bg-primary rounded-full shadow-md" />}
               </PaginationItem>
             );
           })}
