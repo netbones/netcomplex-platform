@@ -1235,12 +1235,16 @@ Plans:
 **Goal:** Add `deletedAt` timestamp columns across all domain entities for systematic soft-delete support, with `notDeleted()` query wrapper that excludes soft-deleted records by default, and a 90-day auto-purge background job. Migrate `Message.isDeleted` → `deletedAt`, replace 5 `@unique` constraints with partial unique indexes (`WHERE deletedAt IS NULL`), fix Group hard-delete bug, and remove maintenance conditional soft-delete branching.
 
 **Depends on:** Phase 99
-**Plans:** 3 plans in 2 waves
+**Plans:** 3/3 plans complete
 **Context:** Gathered 2026-06-17. 18 decisions captured in 101-CONTEXT.md.
 
 **Requirements:** (none — all 18 CONTEXT.md decisions serve as requirements)
 
 Plans:
+
+- [x] 101-01-PLAN.md
+- [x] 101-02-PLAN.md
+- [x] 101-03-PLAN.md
 
 | Wave | Plan               | Objective                                                                                                                                                                                                                 |
 | ---- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
