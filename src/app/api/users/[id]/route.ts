@@ -250,6 +250,7 @@ export const GET = withErrorHandler(
         category: contents.category,
         tags: contents.tags,
         publishedAt: contents.publishedAt,
+        commentsEnabled: contents.commentsEnabled,
       })
       .from(contents)
       .where(and(eq(contents.authorId, userId), eq(contents.published, true)))

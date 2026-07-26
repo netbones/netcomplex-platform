@@ -171,6 +171,7 @@ vi.mock('@api/server', () => ({
     category: 'contents.category',
     tags: 'contents.tags',
     publishedAt: 'contents.publishedAt',
+    commentsEnabled: true,
     authorId: 'contents.authorId',
     published: 'contents.published',
   },

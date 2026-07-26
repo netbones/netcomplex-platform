@@ -202,6 +202,8 @@ interface ResidentUser {
     category: string;
     tags: string[];
     publishedAt: string | null;
+    commentsEnabled?: boolean;
+    authorId?: string;
   }>;
 }
 
@@ -422,7 +424,16 @@ function ProfileContent() {
                           content={content.content}
                           className="prose prose-sm max-w-none content-body mb-3"
                         />
-                        <ContentEngagementBar contentId={content.id} className="mb-2" />
+                        <ContentEngagementBar
+                          contentId={content.id}
+                          commentsEnabled={content.commentsEnabled}
+                          chipsConfig={{
+                            targetType: 'CONTENT',
+                            targetId: content.id,
+                            recipientUserId: user.id,
+                          }}
+                          className="mb-2"
+                        />
                         <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
                           <div className="flex items-center gap-3">
                             <span className="text-xs text-gray-500">
