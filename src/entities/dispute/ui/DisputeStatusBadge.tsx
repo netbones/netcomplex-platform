@@ -1,5 +1,6 @@
 'use client';
 
+import { Badge } from '@shared/ui/badge';
 import type { DisputeStatus } from '../model/types';
 import { STATUS_LABELS } from '../model/constants';
 
@@ -26,11 +27,5 @@ export function DisputeStatusBadge({ status, className = '' }: DisputeStatusBadg
   const colorClasses = statusColorMap[status] ?? 'bg-gray-100 text-gray-700';
   const label = STATUS_LABELS[status];
 
-  return (
-    <span
-      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${colorClasses} ${className}`}
-    >
-      {label}
-    </span>
-  );
+  return <Badge className={`border-0 font-medium ${colorClasses} ${className}`}>{label}</Badge>;
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import { Badge } from '@shared/ui/badge';
 import { Building2, Shield, User } from 'lucide-react';
 
 const ICON_MAP: Record<string, React.ReactNode> = {
@@ -34,11 +35,9 @@ export function ServiceTypeBadge({ type }: ServiceTypeBadgeProps) {
   const config = configs[type];
 
   return (
-    <div
-      className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${config.bgColor} ${config.textColor}`}
-    >
+    <Badge className={`border-0 font-medium gap-1.5 ${config.bgColor} ${config.textColor}`}>
       {ICON_MAP[type]}
       <span>{config.label}</span>
-    </div>
+    </Badge>
   );
 }

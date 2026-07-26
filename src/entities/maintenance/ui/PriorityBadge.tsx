@@ -1,5 +1,6 @@
 'use client';
 
+import { Badge } from '@shared/ui/badge';
 import { MaintenancePriority } from '../model/types';
 
 interface PriorityBadgeProps {
@@ -19,10 +20,6 @@ export function PriorityBadge({ priority, size = 'sm' }: PriorityBadgeProps) {
   const sizeClasses = size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-3 py-1 text-sm';
 
   return (
-    <span
-      className={`inline-flex items-center rounded-full font-medium ${sizeClasses} ${config.color}`}
-    >
-      {config.label}
-    </span>
+    <Badge className={`border-0 font-medium ${sizeClasses} ${config.color}`}>{config.label}</Badge>
   );
 }

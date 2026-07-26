@@ -38,6 +38,14 @@
   --input: 214.3 31.8% 91.4%;
   --ring: 239 84% 59%;
   --radius: 0.5rem;
+  --color-amber-200: #fde68a;
+  --color-amber-900: #78350f;
+  --color-teal-200: #99f6e4;
+  --color-teal-900: #134e4a;
+  --color-blue-200: #bfdbfe;
+  --color-blue-900: #1e3a8a;
+  --color-orange-200: #fed7aa;
+  --color-orange-900: #7c2d12;
 }
 
 @layer utilities {
@@ -132,6 +140,14 @@ body.dark {
   --border: 217.2 32.6% 17.5%;
   --input: 217.2 32.6% 17.5%;
   --ring: 239 84% 59%;
+  --color-amber-200: #451a03;
+  --color-amber-900: #fef3c7;
+  --color-teal-200: #042f2e;
+  --color-teal-900: #ccfbf1;
+  --color-blue-200: #172554;
+  --color-blue-900: #dbeafe;
+  --color-orange-200: #431407;
+  --color-orange-900: #fed7aa;
 }
 
 /* Content body styles for rich text rendering */

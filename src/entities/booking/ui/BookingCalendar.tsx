@@ -1,10 +1,9 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { Calendar } from '@shared/ui/calendar';
 import type { Booking } from '@entities/booking';
 import { FacilityBadge, StatusBadge } from '@entities/booking';
-
-const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 interface BookingCalendarProps {
   bookings: Booking[];
@@ -12,7 +11,6 @@ interface BookingCalendarProps {
 }
 
 export function BookingCalendar({ bookings, onSelectDate }: BookingCalendarProps) {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   const bookingDates = useMemo(() => {
@@ -27,104 +25,55 @@ export function BookingCalendar({ bookings, onSelectDate }: BookingCalendarProps
     return map;
   }, [bookings]);
 
-  const days = useMemo(() => {
-    const year = currentMonth.getFullYear();
-    const month = currentMonth.getMonth();
-    const firstDay = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const today = new Date().toISOString().split('T')[0];
-    const result: { date: string; isPast: boolean; isToday: boolean; count: number }[] = [];
+  const bookedDays = useMemo(
+    () =>
+      Array.from(bookingDates.keys()).map(d => {
+        const [y, m, day] = d.split('-').map(Number);
+        return new Date(y, m - 1, day);
+      }),
+    [bookingDates]
+  );
 
-    for (let i = 0; i < firstDay; i++) {
-      result.push({ date: '', isPast: true, isToday: false, count: 0 });
-    }
-
-    for (let d = 1; d <= daysInMonth; d++) {
-      const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-      const count = bookingDates.get(dateStr)?.length ?? 0;
-      result.push({ date: dateStr, isPast: dateStr < today, isToday: dateStr === today, count });
-    }
-    return result;
-  }, [currentMonth, bookingDates]);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
   const selectedBookings = selectedDate ? bookingDates.get(selectedDate) || [] : [];
 
-  const handleSelect = (date: string) => {
-    setSelectedDate(date);
-    onSelectDate?.(date);
+  const handleSelect = (date: Date | undefined) => {
+    if (!date) return;
+    const dateStr = date.toISOString().split('T')[0];
+    if (!bookingDates.has(dateStr)) return;
+    setSelectedDate(dateStr);
+    onSelectDate?.(dateStr);
   };
+
+  const selectedDateObj = selectedDate
+    ? new Date(
+        Number(selectedDate.split('-')[0]),
+        Number(selectedDate.split('-')[1]) - 1,
+        Number(selectedDate.split('-')[2])
+      )
+    : undefined;
 
   return (
     <div className="space-y-4">
       <div className="bg-white rounded-lg shadow p-4">
-        <div className="flex justify-between items-center mb-4">
-          <button
-            type="button"
-            onClick={() =>
-              setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))
-            }
-            className="p-2 min-w-[44px] min-h-[44px] rounded-lg hover:bg-gray-100"
-            aria-label="Previous month"
-          >
-            ←
-          </button>
-          <h3 className="font-semibold text-lg">
-            {currentMonth.toLocaleString('default', { month: 'long', year: 'numeric' })}
-          </h3>
-          <button
-            type="button"
-            onClick={() =>
-              setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))
-            }
-            className="p-2 min-w-[44px] min-h-[44px] rounded-lg hover:bg-gray-100"
-            aria-label="Next month"
-          >
-            →
-          </button>
-        </div>
-
-        <div className="grid grid-cols-7 gap-1">
-          {DAY_NAMES.map(d => (
-            <div key={d} className="text-center text-xs text-gray-500 py-1">
-              {d}
-            </div>
-          ))}
-
-          {days.map((d, i) => (
-            <button
-              key={i}
-              type="button"
-              disabled={d.isPast || !d.date}
-              onClick={() => d.date && d.count > 0 && handleSelect(d.date)}
-              className={`relative min-w-[44px] min-h-[44px] rounded-lg text-sm transition
-                ${!d.date ? 'invisible' : ''}
-                ${
-                  d.isPast
-                    ? 'text-gray-300 cursor-not-allowed'
-                    : d.isToday
-                      ? 'bg-soralia-primary/10 font-bold text-soralia-primary'
-                      : d.count > 0
-                        ? 'hover:bg-soralia-primary/10 cursor-pointer'
-                        : 'text-gray-400'
-                }
-                ${selectedDate === d.date ? 'ring-2 ring-soralia-primary' : ''}
-              `}
-            >
-              <span>{d.date ? parseInt(d.date.split('-')[2]) : ''}</span>
-              {d.count > 0 && (
-                <span className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
-                  {d.count <= 3 ? (
-                    Array.from({ length: d.count }).map((_, j) => (
-                      <span key={j} className="w-1 h-1 rounded-full bg-soralia-primary" />
-                    ))
-                  ) : (
-                    <span className="text-[10px] text-soralia-primary font-bold">{d.count}</span>
-                  )}
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
+        <Calendar
+          mode="single"
+          selected={selectedDateObj}
+          onSelect={handleSelect}
+          disabled={{ before: today }}
+          modifiers={{ booked: bookedDays }}
+          modifiersStyles={{
+            booked: {
+              backgroundColor: 'var(--color-blue-200)',
+              color: 'var(--color-blue-900)',
+              fontWeight: 'bold',
+              borderRadius: '9999px',
+            },
+          }}
+          className="rounded-md border-0"
+        />
       </div>
 
       {selectedDate && (

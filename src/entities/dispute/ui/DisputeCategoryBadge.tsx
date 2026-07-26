@@ -1,5 +1,6 @@
 'use client';
 
+import { Badge } from '@shared/ui/badge';
 import type { DisputeCategory } from '../model/types';
 import { CATEGORY_LABELS } from '../model/constants';
 
@@ -12,10 +13,11 @@ export function DisputeCategoryBadge({ category, className = '' }: DisputeCatego
   const label = CATEGORY_LABELS[category];
 
   return (
-    <span
-      className={`inline-flex items-center rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs text-slate-600 ${className}`}
+    <Badge
+      variant="outline"
+      className={`rounded-md border-slate-200 bg-slate-50 px-2 py-0.5 text-xs font-medium text-slate-600 ${className}`}
     >
       {label}
-    </span>
+    </Badge>
   );
 }

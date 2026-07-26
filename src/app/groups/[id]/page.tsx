@@ -2,9 +2,20 @@
 
 import { useParams } from 'next/navigation';
 import { authClient, trpc } from '@api/client';
-import Image from 'next/image';
 
-import { Loader2, Plus, User, Users } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@shared/ui/avatar';
+import { AvatarGroup, AvatarGroupCount } from '@shared/ui/avatar-group';
+import { Loader2, Plus, User } from 'lucide-react';
+
+function getInitials(name: string) {
+  return name
+    .trim()
+    .split(/\s+/)
+    .map(n => n[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+}
 
 interface Member {
   role: string;
@@ -101,13 +112,25 @@ export default function GroupDetailPage() {
         <h1 className="text-3xl font-bold text-gray-900 mb-4">{group.name}</h1>
         <p className="text-gray-600 mb-6">{group.description || 'No description'}</p>
 
-        <div className="flex items-center space-x-6 text-sm text-gray-500">
-          <span>
-            <Users className="mr-2" />
-            {group.members?.length ?? 0} members
-          </span>
-          <span>
-            <User className="mr-2" />
+        <div className="flex items-center gap-4 text-sm text-gray-500">
+          <div className="flex items-center gap-2">
+            <AvatarGroup>
+              {group.members?.slice(0, 5).map(m => (
+                <Avatar key={m.user.id} className="w-8 h-8">
+                  <AvatarImage src={m.user.image ?? undefined} alt={m.user.name} />
+                  <AvatarFallback>{getInitials(m.user.name)}</AvatarFallback>
+                </Avatar>
+              ))}
+              {(group.members?.length ?? 0) > 5 && (
+                <AvatarGroupCount className="w-8 h-8 text-[10px]">
+                  +{group.members!.length - 5}
+                </AvatarGroupCount>
+              )}
+            </AvatarGroup>
+            <span className="text-gray-500">{group.members?.length ?? 0} members</span>
+          </div>
+          <span className="flex items-center gap-1">
+            <User className="w-4 h-4" />
             Led by {group.owner.name}
           </span>
         </div>
@@ -149,13 +172,12 @@ export default function GroupDetailPage() {
             <div className="space-y-3">
               {group.members?.map(m => (
                 <div key={m.user.id} className="flex items-center">
-                  <div className="relative w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 text-sm font-medium mr-3 overflow-hidden flex-shrink-0">
-                    {m.user.image ? (
-                      <Image src={m.user.image} alt="" fill className="object-cover" unoptimized />
-                    ) : (
-                      m.user.name?.charAt(0)
-                    )}
-                  </div>
+                  <Avatar className="w-8 h-8 mr-3">
+                    <AvatarImage src={m.user.image ?? undefined} alt={m.user.name} />
+                    <AvatarFallback className="text-xs font-medium text-indigo-600 bg-indigo-100">
+                      {getInitials(m.user.name)}
+                    </AvatarFallback>
+                  </Avatar>
                   <div>
                     <p className="text-sm font-medium text-gray-900">{m.user.name}</p>
                     <p className="text-xs text-gray-500 capitalize">{m.role.toLowerCase()}</p>
