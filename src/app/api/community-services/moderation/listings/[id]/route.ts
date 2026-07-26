@@ -9,9 +9,8 @@ import {
   apiUnauthorized,
   apiForbidden,
   now,
+  notDeleted,
 } from '@api/server';
-
-// Drizzle imports
 
 import { eq, desc, and, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
@@ -53,8 +52,11 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20');
     const offset = parseInt(searchParams.get('offset') || '0');
 
-    // Build conditions (with tenant filter)
-    const conditions = [eq(communityServiceListings.tenantId, tenantId)];
+    // Build conditions (with tenant filter + soft-delete exclusion)
+    const conditions = [
+      eq(communityServiceListings.tenantId, tenantId),
+      notDeleted(communityServiceListings),
+    ];
 
     if (status !== 'ALL') {
       conditions.push(eq(communityServiceListings.status, status as ListingStatus));
@@ -219,7 +221,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     const { reason, notes } = await request.json();
 
-    // Update listing with Drizzle (with tenant filter)
+    // Update listing with Drizzle (soft delete with tenant filter)
     await db
       .update(communityServiceListings)
       .set({
@@ -227,11 +229,16 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         isPublished: false,
         moderatedBy: session.user.id,
         moderatedAt: now(),
-        moderationNotes: `${reason}: ${notes}`,
+        moderationNotes: `REMOVED: ${reason}`,
+        deletedAt: now(),
         updatedAt: now(),
       })
       .where(
-        and(eq(communityServiceListings.id, id), eq(communityServiceListings.tenantId, tenantId))
+        and(
+          eq(communityServiceListings.id, id),
+          eq(communityServiceListings.tenantId, tenantId),
+          notDeleted(communityServiceListings)
+        )
       );
 
     // Fetch updated listing

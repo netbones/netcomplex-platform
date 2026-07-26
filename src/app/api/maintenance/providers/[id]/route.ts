@@ -4,6 +4,7 @@ import {
   requireAnyPermission,
   apiSuccess,
   apiNotFound,
+  apiGone,
   now,
   notDeleted,
   withErrorHandler,
@@ -48,6 +49,10 @@ export const PATCH = withErrorHandler(
 
     if (!existing) {
       return apiNotFound('Provider not found');
+    }
+
+    if (existing.deletedAt) {
+      return apiGone('Provider has been deleted');
     }
 
     const body = await request.json();

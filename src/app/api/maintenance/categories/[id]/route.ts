@@ -4,6 +4,7 @@ import {
   requireAnyPermission,
   apiSuccess,
   apiNotFound,
+  apiGone,
   apiError,
   now,
   notDeleted,
@@ -46,6 +47,10 @@ export const PATCH = withErrorHandler(
 
     if (!existing) {
       return apiNotFound('Category not found');
+    }
+
+    if (existing.deletedAt) {
+      return apiGone('Category has been deleted');
     }
 
     const body = await request.json();

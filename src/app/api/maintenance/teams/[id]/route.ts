@@ -4,6 +4,7 @@ import {
   requireAnyPermission,
   apiSuccess,
   apiNotFound,
+  apiGone,
   now,
   notDeleted,
   withErrorHandler,
@@ -46,6 +47,10 @@ export const PATCH = withErrorHandler(
 
     if (!existing) {
       return apiNotFound('Team not found');
+    }
+
+    if (existing.deletedAt) {
+      return apiGone('Team has been deleted');
     }
 
     const body = await request.json();

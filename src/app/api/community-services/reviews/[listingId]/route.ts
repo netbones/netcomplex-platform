@@ -11,6 +11,7 @@ import {
   apiUnauthorized,
   apiNotFound,
   now,
+  notDeleted,
 } from '@api/server';
 
 // Drizzle imports
@@ -62,7 +63,8 @@ export async function GET(
         and(
           eq(communityServiceReviews.listingId, listingId),
           eq(communityServiceReviews.isPublished, true),
-          eq(communityServiceReviews.tenantId, tenantId)
+          eq(communityServiceReviews.tenantId, tenantId),
+          notDeleted(communityServiceReviews)
         )
       )
       .orderBy(desc(communityServiceReviews.createdAt))
@@ -77,7 +79,8 @@ export async function GET(
         and(
           eq(communityServiceReviews.listingId, listingId),
           eq(communityServiceReviews.isPublished, true),
-          eq(communityServiceReviews.tenantId, tenantId)
+          eq(communityServiceReviews.tenantId, tenantId),
+          notDeleted(communityServiceReviews)
         )
       );
 
@@ -95,7 +98,8 @@ export async function GET(
         and(
           eq(communityServiceReviews.listingId, listingId),
           eq(communityServiceReviews.isPublished, true),
-          eq(communityServiceReviews.tenantId, tenantId)
+          eq(communityServiceReviews.tenantId, tenantId),
+          notDeleted(communityServiceReviews)
         )
       );
 
@@ -162,7 +166,8 @@ export async function POST(
       .where(
         and(
           eq(communityServiceListings.id, listingId),
-          eq(communityServiceListings.tenantId, tenantId)
+          eq(communityServiceListings.tenantId, tenantId),
+          notDeleted(communityServiceListings)
         )
       )
       .limit(1);

@@ -14,6 +14,7 @@ import {
   apiUnauthorized,
   apiNotFound,
   now,
+  notDeleted,
 } from '@api/server';
 
 // Drizzle imports
@@ -52,6 +53,7 @@ export async function GET(request: NextRequest) {
     const conditions = [
       eq(communityServiceInquiries.tenantId, tenantId),
       eq(communityServiceInquiries.inquirerId, session.user.id),
+      notDeleted(communityServiceInquiries),
     ];
 
     if (status && status !== 'ALL') {
@@ -110,7 +112,12 @@ export async function GET(request: NextRequest) {
           providerId: communityServiceListings.providerId,
         })
         .from(communityServiceListings)
-        .where(inArray(communityServiceListings.id, listingIds));
+        .where(
+          and(
+            inArray(communityServiceListings.id, listingIds),
+            notDeleted(communityServiceListings)
+          )
+        );
       for (const l of listings) {
         listingMap.set(l.id, l);
         if (l.providerId) providerIds.add(l.providerId);
