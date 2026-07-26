@@ -488,6 +488,44 @@ enum SettingValueType {
   JSON
 }
 
+enum CredentialType {
+  EMAIL
+  PASSKEY
+  NOSTR
+  LNURL
+  OIDC
+}
+
+model Identity {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  credentials Credential[]
+
+  @@map("identities")
+}
+
+model Credential {
+  id           String         @id @default(uuid())
+  identityId   String
+  identity     Identity       @relation(fields: [identityId], references: [id])
+  type         CredentialType
+  email        String?
+  publicKey    String?
+  fingerprint  String?
+  metadata     Json?          @db.JsonB
+  revokedAt    DateTime?
+  lastUsedAt   DateTime?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  deletedAt    DateTime?
+
+  @@index([identityId])
+  @@map("credentials")
+}
+
 model Setting {
   id            String           @id
   tenantId      String
