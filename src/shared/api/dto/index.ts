@@ -5,6 +5,7 @@ export * from './agent-profile';
 export * from './album';
 export * from './announcement';
 export * from './booking';
+export * from './comment';
 export * from './competition';
 export * from './consent';
 export * from './content';

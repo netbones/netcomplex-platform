@@ -25,6 +25,7 @@ import { bookingsRouter } from './operations/bookings';
 import { surveysRouter } from './operations/surveys';
 import { disputesRouter } from './operations/disputes';
 import { providersRouter } from './operations/providers';
+import { commentsRouter } from './operations/comments';
 
 import { marketplaceRouter as marketplaceRouterNested } from './marketplace/marketplace';
 import { dwalletRouter } from './marketplace/dwallet';
@@ -57,6 +58,7 @@ export const appRouter = router({
   surveys: surveysRouter,
   disputes: disputesRouter,
   providers: providersRouter,
+  comments: commentsRouter,
   marketplace: marketplaceRouterNested,
   dwallet: dwalletRouter,
   agents: agentsRouter,

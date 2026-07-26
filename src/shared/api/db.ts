@@ -54,6 +54,9 @@ import { properties } from '@schema/properties';
 import { households } from '@schema/households';
 import { premiumSeats } from '@schema/premium-seats';
 import { contentLikes } from '@schema/content-likes';
+import { comments } from '@schema/comments';
+import { commentVotes } from '@schema/comment-votes';
+import { commentReports } from '@schema/comment-reports';
 import { contents } from '@schema/contents';
 import { propertyListings } from '@schema/property-listings';
 import { communityServiceListings } from '@schema/community-service-listings';
@@ -176,6 +179,9 @@ const dbSchema = {
   households,
   premiumSeats,
   contentLikes,
+  comments,
+  commentVotes,
+  commentReports,
   contents,
   contentVersions,
   contentAuditLogs,
@@ -422,6 +428,9 @@ export {
   households,
   premiumSeats,
   contentLikes,
+  comments,
+  commentVotes,
+  commentReports,
   contents,
   contentVersions,
   contentAuditLogs,
