@@ -5,6 +5,13 @@ import { Heart, Loader2, MessageCircle, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/shared/lib/utils';
 import { useContentLike } from '../model/useContentLike';
+import { SupportChipsButton, type SupportTarget } from '@features/support';
+
+export interface ChipsConfig {
+  targetType: SupportTarget;
+  targetId: string;
+  recipientUserId: string;
+}
 
 export interface ContentEngagementBarProps {
   /** Content.id this bar belongs to. */
@@ -30,6 +37,8 @@ export interface ContentEngagementBarProps {
   className?: string;
   /** Comments list/form, rendered only while expanded. */
   children?: ReactNode;
+  /** When provided, renders a chips/tip button alongside the action bar. */
+  chipsConfig?: ChipsConfig;
 }
 
 export function ContentEngagementBar({
@@ -44,6 +53,7 @@ export function ContentEngagementBar({
   onCommentsToggle,
   className,
   children,
+  chipsConfig,
 }: ContentEngagementBarProps) {
   const { liked, count, isPending, toggleLike } = useContentLike({
     contentId,
@@ -127,6 +137,14 @@ export function ContentEngagementBar({
           )}
           <span>Share</span>
         </button>
+
+        {chipsConfig && (
+          <SupportChipsButton
+            targetType={chipsConfig.targetType}
+            targetId={chipsConfig.targetId}
+            recipientUserId={chipsConfig.recipientUserId}
+          />
+        )}
 
         {commentsEnabled && (
           <button
