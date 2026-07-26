@@ -1,4 +1,12 @@
 /**
+ * Client-safe file upload constraints.
+ * Kept in sync with src/shared/api/storage.ts (server-side validation).
+ */
+export const ALLOWED_DOCUMENT_TYPES = ['application/pdf', 'image/jpeg', 'image/png'] as const;
+
+export const MAX_DOCUMENT_SIZE = 10 * 1024 * 1024; // 10MB
+
+/**
  * Constants module for proxy-vote feature.
  *
  * Encodes:
