@@ -41,15 +41,21 @@ export const commentDto = createSelectSchema(comments, {
   deletedAt: true,
 });
 
-export const commentDetailDto = commentDto.extend({
+export type CommentDto = z.infer<typeof commentDto>;
+export type CommentAuthorDto = z.infer<typeof commentAuthorDto>;
+
+export type CommentDetailDto = Omit<CommentDto, 'body'> & {
+  body: string;
+  author: CommentAuthorDto | null;
+  replies: CommentDetailDto[];
+  userVote: 'UPVOTE' | 'DOWNVOTE' | null;
+};
+
+export const commentDetailDto: z.ZodType<CommentDetailDto> = commentDto.extend({
   author: commentAuthorDto.nullable(),
-  replies: z.array(commentDto).default([]),
+  replies: z.lazy((): z.ZodType<CommentDetailDto[]> => commentDetailDto.array()).default([]),
   userVote: z.enum(['UPVOTE', 'DOWNVOTE']).nullable().default(null),
 });
-
-export type CommentDto = z.infer<typeof commentDto>;
-export type CommentDetailDto = z.infer<typeof commentDetailDto>;
-export type CommentAuthorDto = z.infer<typeof commentAuthorDto>;
 
 export type CommentDTO = CommentDto;
 export type CommentDetailDTO = CommentDetailDto;

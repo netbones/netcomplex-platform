@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Breadcrumbs, ErrorBoundary, RichTextRenderer } from '@shared/ui';
 import { ContentEngagementBar } from '@features/content';
+import { CommentThread } from '@features/comments';
 import { createComponentLogger } from '@shared/lib';
 import Image from 'next/image';
 import { usePageLoading } from '@shared/ui';
@@ -212,8 +213,11 @@ export default function NewsPostPage() {
             contentId={post.id}
             initialLiked={liked}
             likeCount={likeCount}
+            commentsEnabled={true}
             className="mb-6"
-          />
+          >
+            <CommentThread contentId={post.id} />
+          </ContentEngagementBar>
 
           {/* Tags */}
           {post.tags && post.tags.length > 0 && (

@@ -46,3 +46,16 @@ export type VoteInput = z.infer<typeof voteSchema>;
 export type ReportInput = z.infer<typeof reportSchema>;
 export type ModerateInput = z.infer<typeof moderateSchema>;
 export type ListCommentsInput = z.infer<typeof listCommentsSchema>;
+
+export type CommentVoteType = 'UPVOTE' | 'DOWNVOTE';
+export type CommentStatusValue = 'PUBLISHED' | 'HIDDEN' | 'FLAGGED' | 'REMOVED';
+
+export type ReportReason =
+  | 'SPAM'
+  | 'HARASSMENT'
+  | 'MISINFORMATION'
+  | 'HATE_SPEECH'
+  | 'VIOLENCE'
+  | 'NSFW'
+  | 'IMPERSONATION'
+  | 'OTHER';
