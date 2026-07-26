@@ -3,4 +3,31 @@ import { contentCategoryEnum } from './content-category-enum';
 import { contentLicenseEnum } from './content-license-enum';
 import { moderationStatusEnum } from './moderation-status-enum';
 
-export const contents = pgTable('Content', { id: text('id').primaryKey(), tenantId: text('tenantId').notNull(), title: jsonb('title').notNull(), content: jsonb('content').notNull(), excerpt: jsonb('excerpt'), image: text('image'), category: contentCategoryEnum('category').notNull(), tags: text('tags').array().notNull(), authorId: text('authorId'), groupId: text('groupId'), published: boolean('published').default(false).notNull(), featured: boolean('featured').default(false).notNull(), priority: text('priority').default('normal').notNull(), defaultLocale: text('defaultLocale').default('en').notNull(), contentType: text('contentType').default('article').notNull(), license: contentLicenseEnum('license').default('ALL_RIGHTS_RESERVED').notNull(), copyrightHolder: text('copyrightHolder'), moderationStatus: moderationStatusEnum('moderationStatus').default('DRAFT').notNull(), viewCount: integer('viewCount').default(0).notNull(), commentsEnabled: boolean('commentsEnabled').default(false).notNull(), createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), publishedAt: timestamp('publishedAt', { mode: 'date', precision: 3 }), expiresAt: timestamp('expiresAt', { mode: 'date', precision: 3 }), deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }) });
+export const contents = pgTable('Content', {
+  id: text('id').primaryKey(),
+  tenantId: text('tenantId').notNull(),
+  title: jsonb('title').notNull(),
+  content: jsonb('content').notNull(),
+  excerpt: jsonb('excerpt'),
+  image: text('image'),
+  category: contentCategoryEnum('category').notNull(),
+  tags: text('tags').array().notNull(),
+  authorId: text('authorId'),
+  groupId: text('groupId'),
+  published: boolean('published').default(false).notNull(),
+  featured: boolean('featured').default(false).notNull(),
+  priority: text('priority').default('normal').notNull(),
+  defaultLocale: text('defaultLocale').default('en').notNull(),
+  contentType: text('contentType').default('article').notNull(),
+  license: contentLicenseEnum('license').default('ALL_RIGHTS_RESERVED').notNull(),
+  copyrightHolder: text('copyrightHolder'),
+  moderationStatus: moderationStatusEnum('moderationStatus').default('DRAFT').notNull(),
+  viewCount: integer('viewCount').default(0).notNull(),
+  commentsEnabled: boolean('commentsEnabled').default(false).notNull(),
+  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+  updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+  publishedAt: timestamp('publishedAt', { mode: 'date', precision: 3 }),
+  expiresAt: timestamp('expiresAt', { mode: 'date', precision: 3 }),
+  deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }),
+  commentCount: integer('commentCount').default(0).notNull(),
+});

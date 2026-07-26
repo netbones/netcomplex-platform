@@ -31,6 +31,9 @@ import * as conversationParticipants from './conversation-participants';
 import * as messages from './messages';
 import * as contents from './contents';
 import * as contentLikes from './content-likes';
+import * as comments from './comments';
+import * as commentVotes from './comment-votes';
+import * as commentReports from './comment-reports';
 import * as contentVersions from './content-versions';
 import * as contentAuditLogs from './content-audit-logs';
 import * as supports from './supports';
@@ -156,6 +159,9 @@ import * as conversationParticipantsRelations from './conversation-participants-
 import * as messagesRelations from './messages-relations';
 import * as contentsRelations from './contents-relations';
 import * as contentLikesRelations from './content-likes-relations';
+import * as commentsRelations from './comments-relations';
+import * as commentVotesRelations from './comment-votes-relations';
+import * as commentReportsRelations from './comment-reports-relations';
 import * as contentVersionsRelations from './content-versions-relations';
 import * as contentAuditLogsRelations from './content-audit-logs-relations';
 import * as supportsRelations from './supports-relations';
@@ -280,6 +286,9 @@ export const schema = {
   ...messages,
   ...contents,
   ...contentLikes,
+  ...comments,
+  ...commentVotes,
+  ...commentReports,
   ...contentVersions,
   ...contentAuditLogs,
   ...supports,
@@ -405,6 +414,9 @@ export const schema = {
   ...messagesRelations,
   ...contentsRelations,
   ...contentLikesRelations,
+  ...commentsRelations,
+  ...commentVotesRelations,
+  ...commentReportsRelations,
   ...contentVersionsRelations,
   ...contentAuditLogsRelations,
   ...supportsRelations,

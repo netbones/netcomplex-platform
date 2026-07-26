@@ -6,6 +6,9 @@ import { announcements } from './announcements';
 import { bookings } from './bookings';
 import { contents } from './contents';
 import { contentLikes } from './content-likes';
+import { comments } from './comments';
+import { commentReports } from './comment-reports';
+import { commentVotes } from './comment-votes';
 import { conversations } from './conversations';
 import { conversationParticipants } from './conversation-participants';
 import { events } from './events';
@@ -108,6 +111,9 @@ export const tenantsRelations = relations(tenants, helpers => ({
   Booking: helpers.many(bookings, { relationName: 'BookingToTenant' }),
   Content: helpers.many(contents, { relationName: 'ContentToTenant' }),
   ContentLike: helpers.many(contentLikes, { relationName: 'ContentLikeToTenant' }),
+  Comment: helpers.many(comments, { relationName: 'CommentToTenant' }),
+  CommentReport: helpers.many(commentReports, { relationName: 'CommentReportToTenant' }),
+  CommentVote: helpers.many(commentVotes, { relationName: 'CommentVoteToTenant' }),
   Conversation: helpers.many(conversations, { relationName: 'ConversationToTenant' }),
   ConversationParticipant: helpers.many(conversationParticipants, {
     relationName: 'ConversationParticipantToTenant',
