@@ -52,6 +52,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         logoUrl: raw.logoUrl ?? '',
         faviconUrl: raw.faviconUrl ?? '',
         fontFamily: raw.fontFamily ?? 'Inter',
+        subscriptionTier: raw.subscriptionTier ?? 'core',
+        featureFlags: raw.featureFlags ?? {},
+        tier: raw.tier ?? 'STANDARD',
+        active: raw.active ?? true,
       }
     : {
         id: '',
@@ -70,11 +74,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         logoUrl: '',
         faviconUrl: '',
         fontFamily: 'Inter',
+        subscriptionTier: 'core' as const,
+        featureFlags: {},
+        tier: 'STANDARD' as const,
+        active: true,
       };
   return (
-    <html lang={locale}>
+    <html lang={locale} suppressHydrationWarning>
       <head></head>
-      <body className="bg-soralia-light min-h-screen">
+      <body className="bg-soralia-light min-h-screen" suppressHydrationWarning>
         <PostHogProvider
           apiKey={process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN!}
           clientOptions={{ api_host: '/ingest' }}

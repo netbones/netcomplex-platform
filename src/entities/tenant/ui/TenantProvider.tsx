@@ -3,7 +3,8 @@
 import { useEffect } from 'react';
 import { TenantStyles } from './TenantStyles';
 import { useTenantStore } from '../api/context';
-import type { Tenant } from '@shared/lib';
+import type { Tenant, TierLevel } from '@shared/lib';
+import type { TenantTier } from '@shared/lib/types/tenant';
 
 const FALLBACK_NAME = 'Netcomplex';
 
@@ -23,6 +24,10 @@ interface TenantInfo {
   logoUrl: string;
   faviconUrl: string;
   fontFamily: string;
+  subscriptionTier: TierLevel;
+  featureFlags: Record<string, boolean>;
+  tier: TenantTier;
+  active: boolean;
 }
 
 interface TenantProviderProps {
@@ -51,7 +56,17 @@ export function TenantProvider({ tenant, children }: TenantProviderProps) {
       logoUrl: tenant.logoUrl || '',
       faviconUrl: tenant.faviconUrl || '',
       fontFamily: tenant.fontFamily || 'Inter',
-    } as Tenant);
+      subscriptionTier: tenant.subscriptionTier || 'core',
+      featureFlags: tenant.featureFlags || {},
+      tier: tenant.tier || 'STANDARD',
+      active: tenant.active,
+      customDomain: null,
+      customCss: null,
+      maxPages: 0,
+      pageCount: 0,
+      createdAt: new Date(),
+      updatedAt: null,
+    });
     setLoading(false);
   }, [tenant, setTenant, setLoading]);
 
