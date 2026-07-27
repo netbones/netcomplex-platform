@@ -1,6 +1,6 @@
 # ADVISORY-35: Comment System — Threaded Comments, Voting & Moderation
 
-**Status:** Phase 1 (server layer) complete — ready for Phase 2 (UI)
+**Status:** Phase 3 (moderation) complete — all 4 phases done (G3 verified)
 **Date:** 2026-07-26
 **Author:** Claude (architectural advisor)
 **Related:** ADR-003 (Dual-ORM), ADR-017 (Property-First / soft-delete conventions), ADR-019 (RLS + tenant-leak audit), ADR-020 (server-only barrels), UBIQUITOUS_LANGUAGE.md C2 (triple-gating conflict)

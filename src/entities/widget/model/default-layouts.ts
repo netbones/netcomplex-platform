@@ -186,11 +186,12 @@ const ADMIN_USER_WIDGETS: UserWidgets = {
     'admin-events',
     'admin-surveys',
     'admin-competitions',
+    'admin-comments',
     'admin-system',
     'page-settings',
   ],
   messages: ['messages', 'notifications'],
-  admin: ['admin-stats', 'admin-user'],
+  admin: ['admin-stats', 'admin-user', 'admin-comments'],
 };
 
 const ADMIN_LAYOUTS: WidgetLayouts = {
@@ -219,6 +220,7 @@ const ADMIN_LAYOUTS: WidgetLayouts = {
     'admin-events': { x: 2, y: 0, width: 2, height: 2, isCollapsed: false },
     'admin-surveys': { x: 0, y: 2, width: 2, height: 2, isCollapsed: false },
     'admin-competitions': { x: 2, y: 2, width: 2, height: 2, isCollapsed: false },
+    'admin-comments': { x: 0, y: 4, width: 4, height: 3, isCollapsed: false },
     'admin-system': { x: 0, y: 0, width: 4, height: 3, isCollapsed: false },
     'page-settings': { x: 0, y: 3, width: 4, height: 3, isCollapsed: false },
   },
@@ -226,6 +228,7 @@ const ADMIN_LAYOUTS: WidgetLayouts = {
   admin: {
     'admin-stats': { x: 0, y: 0, width: 4, height: 2, isCollapsed: false },
     'admin-user': { x: 0, y: 2, width: 4, height: 3, isCollapsed: false },
+    'admin-comments': { x: 0, y: 5, width: 4, height: 3, isCollapsed: false },
   },
 };
 

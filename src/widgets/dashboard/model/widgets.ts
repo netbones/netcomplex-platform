@@ -1168,6 +1168,26 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     spaces: ['admin'],
   });
 
+  registry.register({
+    id: 'admin-comments',
+    version: '1.0.0',
+    name: 'Comments Moderation',
+    description: 'Flagged, hidden, and removed comment queue (ADMIN only)',
+    author: 'internal',
+    category: 'core',
+    icon: MessageSquare,
+    permissions: ['admin'],
+    component: lazy(() =>
+      import('../ui/AdminCommentsWidget').then(m => ({
+        default: m.AdminCommentsWidgetWithErrorBoundary,
+      }))
+    ),
+    defaultSize: { width: 4, height: 3 },
+    minSize: { width: 3, height: 2 },
+    dragHandleClassName: 'widget-drag-handle',
+    spaces: ['community', 'admin'],
+  });
+
   // ═══════════════════════════════════════════════════════════════
   // PROXY VOTE WIDGETS (Phase 125)
   // ═══════════════════════════════════════════════════════════════

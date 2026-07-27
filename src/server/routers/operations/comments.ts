@@ -19,6 +19,7 @@ import {
   reportSchema,
   moderateSchema,
   listCommentsSchema,
+  listFlaggedSchema,
 } from '@entities/comment';
 
 import {
@@ -28,6 +29,7 @@ import {
   voteOnComment,
   reportCommentService,
   moderateCommentService,
+  listFlaggedComments,
 } from '@entities/comment/server';
 
 import { canModerateComments, canVote } from '@entities/comment';
@@ -188,4 +190,28 @@ export const commentsRouter = router({
 
       return toEnvelope({ success: true });
     }),
+
+  listFlagged: privilegedProcedure.input(listFlaggedSchema).query(async ({ input, ctx }) => {
+    if (!canModerateComments(ctx.role)) {
+      throw new TRPCError({ code: 'FORBIDDEN', message: 'Moderation not allowed' });
+    }
+
+    const offset = (input.page - 1) * input.limit;
+    const { items, total } = await listFlaggedComments(ctx.tenantId, {
+      status: input.status,
+      contentId: input.contentId,
+      limit: input.limit,
+      offset,
+    });
+
+    return toEnvelope({
+      items,
+      pagination: {
+        page: input.page,
+        limit: input.limit,
+        total,
+        hasMore: offset + items.length < total,
+      },
+    });
+  }),
 });

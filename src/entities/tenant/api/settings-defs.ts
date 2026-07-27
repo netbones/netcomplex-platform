@@ -155,6 +155,7 @@ const SETTING_DEFS = [
   { dbKey: 'stats_years', type: 'string', defaultValue: '30' },
   { dbKey: 'stats_bird_species', type: 'string', defaultValue: '0' },
   { dbKey: 'stats_native_plants', type: 'string', defaultValue: '0' },
+  { dbKey: 'comments.autoFlagThreshold', type: 'string', defaultValue: '3' },
 ] as const satisfies readonly SettingDef[];
 
 // ── SETTINGS_KEYS — key constants (preserving original names) ──
@@ -196,6 +197,7 @@ export const SETTINGS_KEYS = {
   MERIT_EXPIRY_DAYS: 'merit_expiry_days',
   TRANSLATION_PROVIDER: 'translation_provider',
   TRANSLATION_API_KEY: 'translation_api_key',
+  COMMENTS_AUTO_FLAG_THRESHOLD: 'comments.autoFlagThreshold',
 } as const;
 
 export type SettingsKey = (typeof SETTINGS_KEYS)[keyof typeof SETTINGS_KEYS];

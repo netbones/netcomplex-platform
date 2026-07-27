@@ -4,6 +4,7 @@ export {
   reportSchema,
   moderateSchema,
   listCommentsSchema,
+  listFlaggedSchema,
 } from './schema';
 export type {
   CreateCommentInput,
@@ -11,6 +12,7 @@ export type {
   ReportInput,
   ModerateInput,
   ListCommentsInput,
+  ListFlaggedInput,
   CommentVoteType,
   CommentStatusValue,
   ReportReason,

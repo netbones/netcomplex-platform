@@ -7,5 +7,6 @@ export {
   reportCommentService,
   moderateCommentService,
   getUserVotes,
+  listFlaggedComments,
 } from './services';
-export type { CommentTreeItem } from './services';
+export type { CommentTreeItem, FlaggedCommentRow } from './services';

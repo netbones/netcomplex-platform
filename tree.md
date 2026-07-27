@@ -743,6 +743,11 @@
 │   │   ├── ADVISORY-031.md
 │   │   ├── ADVISORY-032-tenant-resolution-rls-fallback.md
 │   │   ├── ADVISORY-033.md
+│   │   ├── ADVISORY-034-platform-identity-layer.md
+│   │   ├── ADVISORY-034-SUPPLEMENTAL-1.md
+│   │   ├── ADVISORY-036.md
+│   │   ├── ADVISORY-34.md
+│   │   ├── ADVISORY-35.md
 │   │   ├── ADVISORY-SPECIAL-TIME-TRACKING.md
 │   │   └── ADVISORY_SUPPLEMENTAL-015.md
 │   ├── ARCHITECT_REVIEW.md
@@ -825,6 +830,25 @@
 │   │   ├── tenant.md
 │   │   ├── user.md
 │   │   └── widget.md
+│   ├── design
+│   │   ├── 2026-06-19_13-01.png
+│   │   ├── 2026-07-02_10-32.png
+│   │   ├── 2026-07-02_10-34.png
+│   │   ├── 2026-07-22_10-34_1.png
+│   │   ├── 2026-07-22_10-34.png
+│   │   ├── 2026-07-22_10-35.png
+│   │   ├── 2026-07-22_10-36.png
+│   │   ├── 2026-07-22_10-40_1.png
+│   │   ├── 2026-07-22_10-40.png
+│   │   ├── 2026-07-22_11-06.png
+│   │   ├── 2026-07-22_11-07_1.png
+│   │   ├── 2026-07-22_11-07.png
+│   │   ├── 2026-07-22_11-08.png
+│   │   ├── 2026-07-22_13-06_1.png
+│   │   ├── 2026-07-22_13-06.png
+│   │   ├── 2026-07-22_13-53.png
+│   │   ├── 2026-07-22_14-22.png
+│   │   └── 2026-07-22_14-23.png
 │   ├── discussions
 │   │   ├── AGENT_DISCUSSION.md
 │   │   ├── AGENT_DISCUSSION_SEQUEL.md
@@ -836,10 +860,13 @@
 │   │   ├── chips.png
 │   │   ├── COMMINIQUE-01_RESPONSE.md
 │   │   ├── COMMUNITY_TOPICS_DISCUSSION.md
+│   │   ├── CREDENTIALS_DISCUSSION.md
 │   │   ├── DISCUSSION-response.md
 │   │   ├── DISCUSSION-server-only-barrel.md
 │   │   ├── GATE_ADDENDUM.md
 │   │   ├── GATE_DISCUSSION.md
+│   │   ├── GROUPS_CHAT_DISCUSSION.md
+│   │   ├── IRIS_DISCUSSION.md
 │   │   ├── ONBOARDING_DISCUSSION.md
 │   │   ├── RESOURCES_DISCUSSION.md
 │   │   ├── SERVICES_DISCUSSION.md
@@ -948,6 +975,7 @@
 │   │   ├── CMS_REPORT.md
 │   │   ├── CONSERVATION_PAGE_REVIEW.md
 │   │   ├── DEDUP.md
+│   │   ├── EVENT_CATALOG.md
 │   │   ├── GATING_AUDIT_GLM.md
 │   │   ├── MERITS_REVIEW.md
 │   │   ├── NOTIFICATIONS_REVIEW.md
@@ -960,6 +988,7 @@
 │   │   ├── SETTINGS_REPORT.md
 │   │   ├── SITE_REPORT.md
 │   │   ├── TICKETING_REPORT.md
+│   │   ├── TIER_REPORT.md
 │   │   ├── TIME_SUMMARY.md
 │   │   ├── TOAST_TOOLTIPS_REVIEW.md
 │   │   └── TRPC_SECURITY_REPORT.md
@@ -996,6 +1025,7 @@
 │   │   ├── SOFT_DELETE.md
 │   │   ├── SPEC.md
 │   │   ├── TDD.md
+│   │   ├── TOPOLOGY.md
 │   │   ├── tRPC.md
 │   │   ├── tRPC_MIGRATION.md
 │   │   └── UBIQUITOUS_LANGUAGE.md
@@ -1014,8 +1044,13 @@
 │   └── 46-qx7-UAT.md
 ├── drizzle
 │   ├── 0000_dusty_cassandra_nova.sql
+│   ├── 0002_cool_susan_delgado.sql
+│   ├── 0002_rare_revanche.sql
+│   ├── 0003_wonderful_abomination.sql
 │   └── meta
 │   ├── 0000_snapshot.json
+│   ├── 0002_snapshot.json
+│   ├── 0003_snapshot.json
 │   └── \_journal.json
 ├── drizzle.config.ts
 ├── e2e
@@ -1154,6 +1189,17 @@
 │   │   │   └── migration.sql
 │   │   ├── 20260716000000_add_event_category_and_max_attendees
 │   │   │   └── migration.sql
+│   │   ├── 20260724000000_add_content_versioning_and_audit
+│   │   │   └── migration.sql
+│   │   ├── 20260725000000_add_due_diligence_workflow
+│   │   │   └── migration.sql
+│   │   ├── 20260726000000_add_comments
+│   │   │   └── migration.sql
+│   │   ├── 20260730000000_add_tenant_feature_flags
+│   │   │   └── migration.sql
+│   │   ├── 20260731000000_add_setting_value_type_enum
+│   │   │   ├── migration_lock.json
+│   │   │   └── migration.sql
 │   │   ├── manual_add_tenant_billing_models
 │   │   │   └── migration.sql
 │   │   └── migration_lock.toml
@@ -1290,6 +1336,8 @@
 │   │   │   ├── carousel.svg
 │   │   │   ├── chatting.svg
 │   │   │   ├── cloud-storage.svg
+│   │   │   ├── dwallet-register.svg
+│   │   │   ├── dwallet.svg
 │   │   │   ├── global-community.svg
 │   │   │   ├── invoice.svg
 │   │   │   ├── live-collaboration.svg
@@ -1336,8 +1384,8 @@
 │   └── soralia.png
 ├── PubSub.md
 ├── README.md
-├── REORG_USER_DASH.md
 ├── REPORT.md
+├── SCHEMA_DISCUSS.md
 ├── scripts
 │   ├── add-suspension-guards.ts
 │   ├── audit-locale-parity.ts
@@ -1476,6 +1524,7 @@
 │   │   │   │   │   │   └── route.ts
 │   │   │   │   │   ├── tenants
 │   │   │   │   │   │   ├── [id]
+│   │   │   │   │   │   │   ├── features
 │   │   │   │   │   │   │   └── route.ts
 │   │   │   │   │   │   ├── route.ts
 │   │   │   │   │   │   └── **tests**
@@ -1629,8 +1678,17 @@
 │   │   │   │   │   │   └── **tests**
 │   │   │   │   │   │   └── content-moderate.test.ts
 │   │   │   │   │   ├── route.ts
+│   │   │   │   │   ├── **tests**
+│   │   │   │   │   │   └── content-id.test.ts
+│   │   │   │   │   └── versions
+│   │   │   │   │   ├── route.ts
+│   │   │   │   │   ├── **tests**
+│   │   │   │   │   │   └── content-versions.test.ts
+│   │   │   │   │   └── [versionId]
+│   │   │   │   │   └── restore
+│   │   │   │   │   ├── route.ts
 │   │   │   │   │   └── **tests**
-│   │   │   │   │   └── content-id.test.ts
+│   │   │   │   │   └── content-restore-version.test.ts
 │   │   │   │   ├── route.ts
 │   │   │   │   └── **tests**
 │   │   │   │   ├── content-routes.test.ts
@@ -1645,6 +1703,8 @@
 │   │   │   │   └── route.ts
 │   │   │   ├── cron
 │   │   │   │   ├── ai-pool-rollover
+│   │   │   │   │   └── route.ts
+│   │   │   │   ├── outbox-dispatch
 │   │   │   │   │   └── route.ts
 │   │   │   │   └── **tests**
 │   │   │   │   └── ai-pool-rollover.test.ts
@@ -1857,6 +1917,9 @@
 │   │   │   │   │   │   └── route.ts
 │   │   │   │   │   └── route.ts
 │   │   │   │   └── verification
+│   │   │   │   └── route.ts
+│   │   │   ├── proxy-vote
+│   │   │   │   └── upload
 │   │   │   │   └── route.ts
 │   │   │   ├── purge
 │   │   │   │   ├── route.ts
@@ -2376,6 +2439,9 @@
 │   │   │   │   │   ├── billing
 │   │   │   │   │   │   └── page.tsx
 │   │   │   │   │   └── page.tsx
+│   │   │   │   ├── proxy
+│   │   │   │   │   └── [meetingId]
+│   │   │   │   │   └── page.tsx
 │   │   │   │   ├── services
 │   │   │   │   │   ├── bookings
 │   │   │   │   │   │   └── page.tsx
@@ -2417,17 +2483,6 @@
 │   │   │   └── page.tsx
 │   │   └── page.tsx
 │   ├── components
-│   │   └── admin
-│   │   ├── adminApi.ts
-│   │   ├── ProviderAnalyticsDashboard.tsx
-│   │   ├── ProviderDetailView.tsx
-│   │   ├── ProviderModerationDashboard.tsx
-│   │   ├── RefundModal.tsx
-│   │   ├── RevenueChart.tsx
-│   │   ├── RevenueDashboard.tsx
-│   │   ├── TransactionDashboard.tsx
-│   │   ├── types.ts
-│   │   └── VerificationQueue.tsx
 │   ├── db
 │   │   ├── index.ts
 │   │   ├── schema
@@ -2483,6 +2538,14 @@
 │   │   │   ├── bursary-fields-relations.ts
 │   │   │   ├── bursary-fields.ts
 │   │   │   ├── bursary-status-enum.ts
+│   │   │   ├── comment-reports-relations.ts
+│   │   │   ├── comment-reports.ts
+│   │   │   ├── comments-relations.ts
+│   │   │   ├── comment-status-enum.ts
+│   │   │   ├── comments.ts
+│   │   │   ├── comment-votes-relations.ts
+│   │   │   ├── comment-votes.ts
+│   │   │   ├── comment-vote-type-enum.ts
 │   │   │   ├── community-merits-relations.ts
 │   │   │   ├── community-merits.ts
 │   │   │   ├── community-service-inquiries-relations.ts
@@ -2497,12 +2560,17 @@
 │   │   │   ├── competition-status-enum.ts
 │   │   │   ├── competitions.ts
 │   │   │   ├── competition-type-enum.ts
+│   │   │   ├── content-audit-action-enum.ts
+│   │   │   ├── content-audit-logs-relations.ts
+│   │   │   ├── content-audit-logs.ts
 │   │   │   ├── content-category-enum.ts
 │   │   │   ├── content-license-enum.ts
 │   │   │   ├── content-likes-relations.ts
 │   │   │   ├── content-likes.ts
 │   │   │   ├── contents-relations.ts
 │   │   │   ├── contents.ts
+│   │   │   ├── content-versions-relations.ts
+│   │   │   ├── content-versions.ts
 │   │   │   ├── conversation-participants-relations.ts
 │   │   │   ├── conversation-participants.ts
 │   │   │   ├── conversations-relations.ts
@@ -2540,6 +2608,8 @@
 │   │   │   ├── dispute-respondent-enum.ts
 │   │   │   ├── dispute-severity-enum.ts
 │   │   │   ├── dispute-status-enum.ts
+│   │   │   ├── due-diligence-document-category-enum.ts
+│   │   │   ├── due-diligence-item-status-enum.ts
 │   │   │   ├── d-wallets-relations.ts
 │   │   │   ├── d-wallets.ts
 │   │   │   ├── endpoint-type-enum.ts
@@ -2586,6 +2656,8 @@
 │   │   │   ├── maintenance-teams.ts
 │   │   │   ├── media-uploads-relations.ts
 │   │   │   ├── media-uploads.ts
+│   │   │   ├── meeting-proxies-relations.ts
+│   │   │   ├── meeting-proxies.ts
 │   │   │   ├── membership-status-enum.ts
 │   │   │   ├── members-relations.ts
 │   │   │   ├── members.ts
@@ -2630,6 +2702,15 @@
 │   │   │   ├── provider-charges-relations.ts
 │   │   │   ├── provider-charge-status-enum.ts
 │   │   │   ├── provider-charges.ts
+│   │   │   ├── provider-due-diligence-documents-relations.ts
+│   │   │   ├── provider-due-diligence-documents.ts
+│   │   │   ├── provider-due-diligence-events-relations.ts
+│   │   │   ├── provider-due-diligence-events.ts
+│   │   │   ├── provider-due-diligence-items-relations.ts
+│   │   │   ├── provider-due-diligence-items.ts
+│   │   │   ├── provider-due-diligence-status-enum.ts
+│   │   │   ├── provider-due-diligence-workflows-relations.ts
+│   │   │   ├── provider-due-diligence-workflows.ts
 │   │   │   ├── provider-employment-type-enum.ts
 │   │   │   ├── provider-invoices-relations.ts
 │   │   │   ├── provider-invoices.ts
@@ -2646,9 +2727,13 @@
 │   │   │   ├── provider-verifications-relations.ts
 │   │   │   ├── provider-verification-status-enum.ts
 │   │   │   ├── provider-verifications.ts
+│   │   │   ├── proxy-status-enum.ts
+│   │   │   ├── proxy-vote.ts
 │   │   │   ├── questions-relations.ts
 │   │   │   ├── questions.ts
 │   │   │   ├── question-type-enum.ts
+│   │   │   ├── report-reason-enum.ts
+│   │   │   ├── report-resolution-enum.ts
 │   │   │   ├── request-histories-relations.ts
 │   │   │   ├── request-histories.ts
 │   │   │   ├── request-notes-relations.ts
@@ -2681,10 +2766,12 @@
 │   │   │   ├── sessions.ts
 │   │   │   ├── settings-relations.ts
 │   │   │   ├── settings.ts
+│   │   │   ├── setting-value-type-enum.ts
 │   │   │   ├── setup-missions-relations.ts
 │   │   │   ├── setup-missions.ts
 │   │   │   ├── setup-settings-relations.ts
 │   │   │   ├── setup-settings.ts
+│   │   │   ├── signature-provider-enum.ts
 │   │   │   ├── solo-seats-relations.ts
 │   │   │   ├── solo-seats.ts
 │   │   │   ├── solo-seat-type-enum.ts
@@ -2711,6 +2798,8 @@
 │   │   │   ├── tenant-achievements.ts
 │   │   │   ├── tenant-ai-usages-relations.ts
 │   │   │   ├── tenant-ai-usages.ts
+│   │   │   ├── tenant-feature-flags-relations.ts
+│   │   │   ├── tenant-feature-flags.ts
 │   │   │   ├── tenant-invoices-relations.ts
 │   │   │   ├── tenant-invoices.ts
 │   │   │   ├── tenant-modules-relations.ts
@@ -2808,6 +2897,16 @@
 │   │   │   ├── ParticipantAvatarStack.tsx
 │   │   │   ├── ParticipantAvatar.tsx
 │   │   │   └── TypingIndicator.tsx
+│   │   ├── comment
+│   │   │   ├── index.server.ts
+│   │   │   ├── index.ts
+│   │   │   ├── permissions
+│   │   │   │   └── index.ts
+│   │   │   ├── schema.ts
+│   │   │   ├── services
+│   │   │   │   └── index.ts
+│   │   │   └── **tests**
+│   │   │   └── comment-dto.test.ts
 │   │   ├── content
 │   │   │   ├── api
 │   │   │   │   └── route.ts
@@ -2819,6 +2918,7 @@
 │   │   │   │   └── index.ts
 │   │   │   ├── schema.ts
 │   │   │   ├── services
+│   │   │   │   ├── audit.ts
 │   │   │   │   └── index.ts
 │   │   │   └── **tests**
 │   │   │   ├── announcements.test.ts
@@ -2899,7 +2999,6 @@
 │   │   │   ├── DWalletAdminWidget.tsx
 │   │   │   └── DWalletSummaryWidget.tsx
 │   │   ├── education
-│   │   │   ├── dto
 │   │   │   ├── index.server.ts
 │   │   │   ├── index.ts
 │   │   │   ├── permissions
@@ -2975,9 +3074,8 @@
 │   │   │   │   └── types.ts
 │   │   │   ├── permissions
 │   │   │   │   └── index.ts
-│   │   │   ├── services
-│   │   │   │   └── index.ts
-│   │   │   └── ui
+│   │   │   └── services
+│   │   │   └── index.ts
 │   │   ├── service
 │   │   │   ├── index.ts
 │   │   │   ├── model
@@ -3085,6 +3183,9 @@
 │   │   └── widget-store.ts
 │   ├── features
 │   │   ├── admin
+│   │   │   ├── api
+│   │   │   │   ├── adminApi.ts
+│   │   │   │   └── types.ts
 │   │   │   ├── index.ts
 │   │   │   ├── model
 │   │   │   │   ├── useAdminActivity.ts
@@ -3094,7 +3195,15 @@
 │   │   │   └── ui
 │   │   │   ├── BrandingForm.tsx
 │   │   │   ├── FeaturesForm.tsx
-│   │   │   └── NewTenantForm.tsx
+│   │   │   ├── NewTenantForm.tsx
+│   │   │   ├── ProviderAnalyticsDashboard.tsx
+│   │   │   ├── ProviderDetailView.tsx
+│   │   │   ├── ProviderModerationDashboard.tsx
+│   │   │   ├── RefundModal.tsx
+│   │   │   ├── RevenueChart.tsx
+│   │   │   ├── RevenueDashboard.tsx
+│   │   │   ├── TransactionDashboard.tsx
+│   │   │   └── VerificationQueue.tsx
 │   │   ├── ai-provider
 │   │   │   ├── index.ts
 │   │   │   └── ui
@@ -3268,6 +3377,46 @@
 │   │   │   └── ui
 │   │   │   ├── LegalAgreementModal.tsx
 │   │   │   └── RegistrationForm.tsx
+│   │   ├── proxy-vote
+│   │   │   ├── index.ts
+│   │   │   ├── lib
+│   │   │   │   ├── constants.ts
+│   │   │   │   └── status-transitions.ts
+│   │   │   ├── model
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── proxy-vote.dto.ts
+│   │   │   │   ├── proxy-vote.zod.ts
+│   │   │   │   └── types.ts
+│   │   │   ├── server
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── proxy-crud.service.ts
+│   │   │   │   ├── proxy-notify.service.ts
+│   │   │   │   ├── proxy-vote.router.ts
+│   │   │   │   └── signature
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── internal-adapter.ts
+│   │   │   │   ├── provider-adapter.ts
+│   │   │   │   └── registry.ts
+│   │   │   ├── **tests**
+│   │   │   │   ├── constants.test.ts
+│   │   │   │   ├── **mocks**
+│   │   │   │   │   └── signature-canvas.ts
+│   │   │   │   ├── notifications.test.ts
+│   │   │   │   ├── qr.test.ts
+│   │   │   │   ├── schema.test.ts
+│   │   │   │   ├── signature-adapter.test.ts
+│   │   │   │   ├── status-transitions.test.ts
+│   │   │   │   └── upload.test.ts
+│   │   │   └── ui
+│   │   │   ├── index.ts
+│   │   │   ├── MeetingAttendancePrompt.tsx
+│   │   │   ├── ProxyAcceptanceCard.tsx
+│   │   │   ├── ProxyFlowWizard.tsx
+│   │   │   ├── ProxyQRCode.tsx
+│   │   │   ├── ProxySearchBox.tsx
+│   │   │   ├── ProxyStatusCard.tsx
+│   │   │   ├── ProxyUploadForm.tsx
+│   │   │   └── SignatureCanvas.tsx
 │   │   ├── service
 │   │   │   ├── index.ts
 │   │   │   ├── model
@@ -3307,7 +3456,9 @@
 │   │   │   ├── model
 │   │   │   │   ├── schema.ts
 │   │   │   │   └── types.ts
-│   │   │   └── server.ts
+│   │   │   ├── server.ts
+│   │   │   └── ui
+│   │   │   └── SupportChipsButton.tsx
 │   │   └── survey-builder
 │   │   ├── index.ts
 │   │   ├── lib
@@ -3439,7 +3590,8 @@
 │   │   │   ├── groups.ts
 │   │   │   ├── index.ts
 │   │   │   ├── merits.ts
-│   │   │   └── notifications.ts
+│   │   │   ├── notifications.ts
+│   │   │   └── proxy-vote.ts
 │   │   ├── core
 │   │   │   ├── content.ts
 │   │   │   ├── delegations.ts
@@ -3473,6 +3625,7 @@
 │   │   │   └── urgency.ts
 │   │   ├── operations
 │   │   │   ├── bookings.ts
+│   │   │   ├── comments.ts
 │   │   │   ├── disputes.ts
 │   │   │   ├── index.ts
 │   │   │   ├── maintenance
@@ -3535,6 +3688,7 @@
 │   │   │   │   ├── album.ts
 │   │   │   │   ├── announcement.ts
 │   │   │   │   ├── booking.ts
+│   │   │   │   ├── comment.ts
 │   │   │   │   ├── competition.ts
 │   │   │   │   ├── consent.ts
 │   │   │   │   ├── content-author.ts
@@ -3585,7 +3739,9 @@
 │   │   │   ├── envelope.ts
 │   │   │   ├── events
 │   │   │   │   ├── emitter.ts
-│   │   │   │   └── index.ts
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── outbox.ts
+│   │   │   │   └── registry.ts
 │   │   │   ├── handle-service.ts
 │   │   │   ├── http-client.ts
 │   │   │   ├── index.ts
@@ -3634,7 +3790,10 @@
 │   │   │   │   ├── index.ts
 │   │   │   │   ├── seed-plans.ts
 │   │   │   │   └── tier-sync.ts
+│   │   │   ├── bus.ts
 │   │   │   ├── constants
+│   │   │   │   ├── **tests**
+│   │   │   │   │   └── tiers.test.ts
 │   │   │   │   └── tiers.ts
 │   │   │   ├── constants.ts
 │   │   │   ├── dispute
@@ -3678,6 +3837,7 @@
 │   │   │   │   ├── index.ts
 │   │   │   │   ├── registration.test.ts
 │   │   │   │   └── registration.ts
+│   │   │   ├── realtime.ts
 │   │   │   ├── sanitize
 │   │   │   │   ├── index.ts
 │   │   │   │   └── server.ts
@@ -3701,6 +3861,7 @@
 │   │   │   │   └── tenant.ts
 │   │   │   ├── useAutoSave.ts
 │   │   │   ├── utils.ts
+│   │   │   ├── webhook.ts
 │   │   │   └── workflow
 │   │   │   ├── createWorkflow.ts
 │   │   │   ├── index.ts
@@ -3710,8 +3871,15 @@
 │   │   │   └── useWorkflow.ts
 │   │   └── ui
 │   │   ├── Accordion.tsx
+│   │   ├── avatar-group.tsx
+│   │   ├── avatar.tsx
+│   │   ├── badge.tsx
 │   │   ├── Bookshelf.tsx
 │   │   ├── Breadcrumbs.tsx
+│   │   ├── breadcrumb.tsx
+│   │   ├── button.tsx
+│   │   ├── calendar.tsx
+│   │   ├── card.tsx
 │   │   ├── Carousel.tsx
 │   │   ├── ContainerLayout.tsx
 │   │   ├── EmojiMartPicker.tsx
@@ -3725,6 +3893,8 @@
 │   │   ├── Honeypot.tsx
 │   │   ├── ImageUpload.tsx
 │   │   ├── index.ts
+│   │   ├── input.tsx
+│   │   ├── label.tsx
 │   │   ├── LanguageSwitcher.tsx
 │   │   ├── Loading.tsx
 │   │   ├── MapContent.tsx
@@ -3733,14 +3903,27 @@
 │   │   ├── ModalOverlay.tsx
 │   │   ├── PageCTA.tsx
 │   │   ├── PageLayout.tsx
+│   │   ├── pagination-primitives.tsx
 │   │   ├── Pagination.tsx
+│   │   ├── popover.tsx
 │   │   ├── PrimaryCTA.tsx
 │   │   ├── PromoBanner.tsx
 │   │   ├── PromoIllustration.tsx
 │   │   ├── RichTextEditorDynamic.tsx
 │   │   ├── RichTextEditor.tsx
 │   │   ├── RichTextRenderer.tsx
+│   │   ├── scroll-area.tsx
 │   │   ├── SectionLayout.tsx
+│   │   ├── shadcn-blocks
+│   │   │   ├── avatar-08.tsx
+│   │   │   ├── badge-04.tsx
+│   │   │   ├── breadcrumb-01.tsx
+│   │   │   ├── calendar-02.tsx
+│   │   │   ├── calendar-03.tsx
+│   │   │   ├── calendar-08.tsx
+│   │   │   ├── date-picker-01.tsx
+│   │   │   ├── pagination-01.tsx
+│   │   │   └── popover-02.tsx
 │   │   ├── TagCloud.tsx
 │   │   ├── TagInput.tsx
 │   │   ├── **tests**
@@ -3810,10 +3993,6 @@
 │   │   │   ├── UsersListSection.tsx
 │   │   │   └── UserTable.tsx
 │   │   └── UsersListSection.tsx
-│   ├── booking
-│   │   ├── index.ts
-│   │   └── model
-│   │   └── index.ts
 │   ├── chat
 │   │   ├── index.ts
 │   │   └── ui
@@ -3921,6 +4100,11 @@
 │   ├── merit
 │   │   ├── index.ts
 │   │   └── StandingBadge.tsx
+│   ├── proxy-vote
+│   │   ├── index.ts
+│   │   └── ui
+│   │   ├── HoaProxyWidget.tsx
+│   │   └── ProxyWidget.tsx
 │   ├── service
 │   │   ├── index.ts
 │   │   └── ui
@@ -3951,7 +4135,6 @@
 │   ├── test-failed-1.png
 │   └── trace.zip
 ├── test-results.log
-├── TOPOLOGY.md
 ├── tree.md
 ├── tsconfig.json
 ├── tsconfig.tsbuildinfo
@@ -3959,4 +4142,4 @@
 ├── vercel.json
 └── vitest.config.ts
 
-1155 directories, 2805 files
+1185 directories, 2958 files

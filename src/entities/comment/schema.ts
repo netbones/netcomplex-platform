@@ -41,11 +41,19 @@ export const listCommentsSchema = z.object({
   limit: z.coerce.number().int().positive().max(100).default(50),
 });
 
+export const listFlaggedSchema = z.object({
+  status: z.enum(['FLAGGED', 'HIDDEN', 'REMOVED', 'PUBLISHED']).optional().default('FLAGGED'),
+  page: z.coerce.number().int().positive().default(1),
+  limit: z.coerce.number().int().positive().max(100).default(20),
+  contentId: z.string().optional(),
+});
+
 export type CreateCommentInput = z.infer<typeof createCommentSchema>;
 export type VoteInput = z.infer<typeof voteSchema>;
 export type ReportInput = z.infer<typeof reportSchema>;
 export type ModerateInput = z.infer<typeof moderateSchema>;
 export type ListCommentsInput = z.infer<typeof listCommentsSchema>;
+export type ListFlaggedInput = z.infer<typeof listFlaggedSchema>;
 
 export type CommentVoteType = 'UPVOTE' | 'DOWNVOTE';
 export type CommentStatusValue = 'PUBLISHED' | 'HIDDEN' | 'FLAGGED' | 'REMOVED';

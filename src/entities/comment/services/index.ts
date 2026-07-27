@@ -1,6 +1,19 @@
-import { and, eq, isNull, sql, count } from 'drizzle-orm';
-import { db, comments, commentVotes, commentReports, users } from '@api/server';
+import { and, eq, isNull, sql, count, desc } from 'drizzle-orm';
+import { db, comments, commentVotes, commentReports, settings, users } from '@api/server';
 import { createId } from '@shared/lib/id';
+
+const DEFAULT_AUTO_FLAG_THRESHOLD = 3;
+
+async function getAutoFlagThreshold(tenantId: string): Promise<number> {
+  const [row] = await db
+    .select({ value: settings.value })
+    .from(settings)
+    .where(and(eq(settings.tenantId, tenantId), eq(settings.key, 'comments.autoFlagThreshold')))
+    .limit(1);
+  if (!row?.value) return DEFAULT_AUTO_FLAG_THRESHOLD;
+  const parsed = Number.parseInt(row.value, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : DEFAULT_AUTO_FLAG_THRESHOLD;
+}
 
 export interface CommentTreeItem {
   id: string;
@@ -130,8 +143,8 @@ export async function createCommentService(
   return id;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function voteOnComment(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tx: any,
   input: { tenantId: string; commentId: string; userId: string; type: 'UPVOTE' | 'DOWNVOTE' }
 ): Promise<void> {
@@ -196,7 +209,7 @@ export async function reportCommentService(
     note: data.note ?? null,
   });
 
-  const threshold = 3;
+  const threshold = await getAutoFlagThreshold(tenantId);
   const [{ count: openReports }] = await db
     .select({ count: count() })
     .from(commentReports)
@@ -272,4 +285,122 @@ export async function getUserVotes(
     map.set(row.commentId, row.type as 'UPVOTE' | 'DOWNVOTE');
   }
   return map;
+}
+
+export interface FlaggedCommentRow {
+  id: string;
+  contentId: string;
+  authorId: string;
+  body: string;
+  status: string;
+  score: number;
+  upvotes: number;
+  downvotes: number;
+  moderationNotes: string | null;
+  moderatedAt: Date | null;
+  moderatedBy: string | null;
+  createdAt: Date;
+  contentTitle: string | null;
+  author: {
+    id: string | null;
+    name: string | null;
+    avatar: string | null;
+    profileSlug: string | null;
+  } | null;
+  openReports: number;
+}
+
+export async function listFlaggedComments(
+  tenantId: string,
+  opts: {
+    status?: 'FLAGGED' | 'HIDDEN' | 'REMOVED' | 'PUBLISHED';
+    contentId?: string;
+    limit?: number;
+    offset?: number;
+  }
+): Promise<{ items: FlaggedCommentRow[]; total: number }> {
+  const status = opts.status ?? 'FLAGGED';
+  const limit = opts.limit ?? 20;
+  const offset = opts.offset ?? 0;
+
+  const baseConditions = [eq(comments.tenantId, tenantId), eq(comments.status, status)];
+  if (opts.contentId) {
+    baseConditions.push(eq(comments.contentId, opts.contentId));
+  }
+
+  const [{ total }] = await db
+    .select({ total: count() })
+    .from(comments)
+    .where(and(...baseConditions));
+
+  const rows = await db
+    .select({
+      id: comments.id,
+      contentId: comments.contentId,
+      authorId: comments.authorId,
+      body: comments.body,
+      status: comments.status,
+      score: comments.score,
+      upvotes: comments.upvotes,
+      downvotes: comments.downvotes,
+      moderationNotes: comments.moderationNotes,
+      moderatedAt: comments.moderatedAt,
+      moderatedBy: comments.moderatedBy,
+      createdAt: comments.createdAt,
+      authorId_: users.id,
+      authorName: users.name,
+      authorAvatar: users.avatar,
+      authorProfileSlug: users.profileSlug,
+    })
+    .from(comments)
+    .leftJoin(users, eq(comments.authorId, users.id))
+    .where(and(...baseConditions))
+    .orderBy(desc(comments.createdAt))
+    .limit(limit)
+    .offset(offset);
+
+  const commentIds = rows.map(r => r.id);
+  const reportCounts = new Map<string, number>();
+  if (commentIds.length > 0) {
+    const reportRows = await db
+      .select({ commentId: commentReports.commentId })
+      .from(commentReports)
+      .where(
+        and(
+          eq(commentReports.tenantId, tenantId),
+          isNull(commentReports.resolvedAt),
+          sql`${commentReports.commentId} IN (${commentIds.join(',')})`
+        )
+      );
+    for (const r of reportRows) {
+      reportCounts.set(r.commentId, (reportCounts.get(r.commentId) ?? 0) + 1);
+    }
+  }
+
+  const items: FlaggedCommentRow[] = rows.map(r => ({
+    id: r.id,
+    contentId: r.contentId,
+    authorId: r.authorId,
+    body: r.body,
+    status: r.status,
+    score: r.score,
+    upvotes: r.upvotes,
+    downvotes: r.downvotes,
+    moderationNotes: r.moderationNotes,
+    moderatedAt: r.moderatedAt,
+    moderatedBy: r.moderatedBy,
+    createdAt: r.createdAt,
+    contentTitle: null,
+    author: r.authorId_
+      ? {
+          id: r.authorId_,
+          name: r.authorName,
+          avatar: r.authorAvatar,
+          profileSlug: r.authorProfileSlug,
+        }
+      : null,
+    openReports: reportCounts.get(r.id) ?? 0,
+  }));
+
+  return { items, total: Number(total) };
 }

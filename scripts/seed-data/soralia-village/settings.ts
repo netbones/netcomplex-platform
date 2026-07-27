@@ -231,4 +231,5 @@ export const settings: SettingInput[] = [
       { name: 'Conebrush Rd', coords: [-34.09101, 18.483769] },
     ]),
   },
+  { id: 'setting-comments-auto-flag-threshold', key: 'comments.autoFlagThreshold', value: '3' },
 ];
