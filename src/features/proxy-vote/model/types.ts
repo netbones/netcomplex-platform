@@ -26,11 +26,8 @@ export const PROXY_STATUS_VALUES = [
 
 export const SIGNATURE_PROVIDER_VALUES = [
   'INTERNAL',
-  'LIGHTNING',
-  'NOSTR',
   'DOCUSIGN',
   'ADOBE_SIGN',
-  'PASSKEY',
   'PGP',
   'GOV_EID',
 ] as const satisfies readonly SignatureProvider[];

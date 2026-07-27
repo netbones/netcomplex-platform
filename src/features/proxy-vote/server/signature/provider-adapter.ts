@@ -1,13 +1,17 @@
 /**
- * Signature provider adapter contract (plan 125-04, task 02).
+ * Signature provider adapter contract (plan 125-04, task 02; updated 126-02).
  *
- * Every signature source — INTERNAL (draw/type), LIGHTNING (LNbits message
- * signing), NOSTR (NIP-98), DOCUSIGN, ADOBE_SIGN, PASSKEY (WebAuthn), PGP,
+ * Every signature source — INTERNAL (draw/type), DOCUSIGN, ADOBE_SIGN, PGP,
  * GOV_EID — must conform to this interface. Phase 125 ships only the
- * INTERNAL adapter (`internal-adapter.ts`); the seven external providers
+ * INTERNAL adapter (`internal-adapter.ts`); the four external providers
  * are schema-reserved but code-deferred. Adding a new provider later means
  * implementing this interface and registering it in `registry.ts` —
  * callers never change.
+ *
+ * Note: PLAN 126-02 narrowed SignatureProvider from 8 -> 5 values
+ * (dropped PASSKEY/NOSTR/LIGHTNING). Identity-bound signage now flows
+ * through INTERNAL + Credential.credentialId; WebAuthn/PGP-style flows
+ * were deferred per ADVISORY-034-SUPPLEMENTAL-1 Gate S1.
  *
  * The discriminated `SignatureEvidence` shape lives in
  * `model/types.ts`; an adapter's `sign()` output must pass the
