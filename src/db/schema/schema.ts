@@ -34,6 +34,9 @@ import * as contentLikes from './content-likes';
 import * as comments from './comments';
 import * as commentVotes from './comment-votes';
 import * as commentReports from './comment-reports';
+import * as credentialTypeEnum from './credential-type-enum';
+import * as credentials from './credentials';
+import * as identities from './identities';
 import * as contentVersions from './content-versions';
 import * as contentAuditLogs from './content-audit-logs';
 import * as supports from './supports';
@@ -162,6 +165,8 @@ import * as contentLikesRelations from './content-likes-relations';
 import * as commentsRelations from './comments-relations';
 import * as commentVotesRelations from './comment-votes-relations';
 import * as commentReportsRelations from './comment-reports-relations';
+import * as identitiesRelations from './identities-relations';
+import * as credentialsRelations from './credentials-relations';
 import * as contentVersionsRelations from './content-versions-relations';
 import * as contentAuditLogsRelations from './content-audit-logs-relations';
 import * as supportsRelations from './supports-relations';
@@ -289,6 +294,9 @@ export const schema = {
   ...comments,
   ...commentVotes,
   ...commentReports,
+  ...credentialTypeEnum,
+  ...credentials,
+  ...identities,
   ...contentVersions,
   ...contentAuditLogs,
   ...supports,
@@ -417,6 +425,8 @@ export const schema = {
   ...commentsRelations,
   ...commentVotesRelations,
   ...commentReportsRelations,
+  ...identitiesRelations,
+  ...credentialsRelations,
   ...contentVersionsRelations,
   ...contentAuditLogsRelations,
   ...supportsRelations,
