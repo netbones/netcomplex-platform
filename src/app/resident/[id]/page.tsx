@@ -433,6 +433,7 @@ function ProfileContent() {
                         />
                         <ContentEngagementBar
                           contentId={content.id}
+                          shareUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/stream/${id}/${content.id}`}
                           commentsEnabled={content.commentsEnabled}
                           commentCount={content.commentCount ?? 0}
                           chipsConfig={{
