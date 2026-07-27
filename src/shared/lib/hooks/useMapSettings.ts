@@ -20,6 +20,19 @@ interface MapSettings {
   loading: boolean;
 }
 
+interface SettingResponse {
+  data: {
+    key: string;
+    value: string | null;
+  };
+}
+
+async function fetchSetting(key: string): Promise<string | null> {
+  const res = await fetch(`/api/settings/${key}`);
+  const envelope: SettingResponse = await res.json();
+  return envelope?.data?.value ?? null;
+}
+
 export function useMapSettings(): MapSettings {
   const [settings, setSettings] = useState<MapSettings>({
     center: null,
@@ -28,13 +41,8 @@ export function useMapSettings(): MapSettings {
   });
 
   useEffect(() => {
-    fetch('/api/settings/contact')
-      .then(res => res.json())
-      .then((envelope: { data?: Record<string, string> }) => {
-        const data = envelope?.data ?? {};
-        const centerRaw = data['map.center'];
-        const streetsRaw = data['map.streets'];
-
+    Promise.all([fetchSetting('map.center'), fetchSetting('map.streets')])
+      .then(([centerRaw, streetsRaw]) => {
         if (centerRaw) {
           try {
             const parsed = JSON.parse(centerRaw);
