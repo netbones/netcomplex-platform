@@ -419,7 +419,7 @@ function ProfileContent() {
                         className="border-b border-gray-200 pb-6 last:border-0 last:pb-0"
                       >
                         <Link
-                          href={`/resident/${id}/blog/${content.id}`}
+                          href={`/stream/${id}/${content.id}`}
                           className="font-semibold text-gray-900 text-lg hover:text-indigo-600 transition-colors"
                         >
                           {content.title}

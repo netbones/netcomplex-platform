@@ -11,7 +11,7 @@ import Image from 'next/image';
 import { usePageLoading } from '@shared/ui';
 
 import { AlertCircle, ArrowLeft, User } from 'lucide-react';
-const log = createComponentLogger('blog-post-page');
+const log = createComponentLogger('stream-post-page');
 
 interface ContentItem {
   id: string;
@@ -63,7 +63,7 @@ function getCategoryLabel(category: string) {
   return labels[category] || category;
 }
 
-export default function BlogPostPage() {
+export default function StreamPostPage() {
   const params = useParams();
   const residentId = params?.id as string;
   const contentId = params?.contentId as string;
@@ -78,7 +78,7 @@ export default function BlogPostPage() {
     [
       { label: 'Home', href: '/' },
       { label: 'Profile', href: `/resident/${residentId}` },
-      { label: 'Post', href: `/resident/${residentId}/blog/${contentId}` },
+      { label: 'Post', href: `/stream/${residentId}/${contentId}` },
     ],
     { additionalLoading: loading }
   );
@@ -157,7 +157,6 @@ export default function BlogPostPage() {
         />
 
         <article className="mt-8">
-          {/* Header */}
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-4">
               <span
@@ -186,7 +185,6 @@ export default function BlogPostPage() {
             )}
           </div>
 
-          {/* Featured image */}
           {post.image && (
             <div className="mb-8 rounded-xl overflow-hidden relative">
               <Image
@@ -199,14 +197,12 @@ export default function BlogPostPage() {
             </div>
           )}
 
-          {/* Excerpt */}
           {post.excerpt && (
             <div className="bg-indigo-50 border-l-4 border-indigo-400 p-4 mb-8 rounded-r-lg">
               <p className="text-indigo-800 font-medium italic">{post.excerpt}</p>
             </div>
           )}
 
-          {/* Content */}
           <RichTextRenderer content={post.content} className="mb-8" />
 
           <ContentEngagementBar
@@ -220,7 +216,6 @@ export default function BlogPostPage() {
             <CommentThread contentId={post.id} />
           </ContentEngagementBar>
 
-          {/* Tags */}
           {post.tags && post.tags.length > 0 && (
             <div className="flex flex-wrap gap-2 pt-6 border-t border-gray-200">
               {post.tags.map(tag => (
@@ -234,7 +229,6 @@ export default function BlogPostPage() {
             </div>
           )}
 
-          {/* Back to profile */}
           <div className="mt-8 pt-6 border-t border-gray-200">
             <Link
               href={`/resident/${residentId}`}
