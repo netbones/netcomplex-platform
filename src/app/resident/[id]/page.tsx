@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { authClient } from '@api/client';
 import { Breadcrumbs, ErrorBoundary, RichTextRenderer } from '@shared/ui';
 import { ContentEngagementBar } from '@features/content';
+import { CommentThread } from '@features/comments';
 import { createComponentLogger } from '@shared/lib';
 import { DirectoryChatModal } from '@/features/directory/ui/DirectoryChatModal';
 import Image from 'next/image';
@@ -203,6 +204,7 @@ interface ResidentUser {
     tags: string[];
     publishedAt: string | null;
     commentsEnabled?: boolean;
+    commentCount?: number;
     authorId?: string;
   }>;
 }
@@ -416,7 +418,12 @@ function ProfileContent() {
                         key={content.id}
                         className="border-b border-gray-200 pb-6 last:border-0 last:pb-0"
                       >
-                        <h3 className="font-semibold text-gray-900 text-lg">{content.title}</h3>
+                        <Link
+                          href={`/news/${content.id}`}
+                          className="font-semibold text-gray-900 text-lg hover:text-indigo-600 transition-colors"
+                        >
+                          {content.title}
+                        </Link>
                         {content.excerpt && (
                           <p className="text-gray-600 text-sm mt-1 mb-3">{content.excerpt}</p>
                         )}
@@ -427,13 +434,16 @@ function ProfileContent() {
                         <ContentEngagementBar
                           contentId={content.id}
                           commentsEnabled={content.commentsEnabled}
+                          commentCount={content.commentCount ?? 0}
                           chipsConfig={{
                             targetType: 'CONTENT',
                             targetId: content.id,
                             recipientUserId: user.id,
                           }}
                           className="mb-2"
-                        />
+                        >
+                          {content.commentsEnabled && <CommentThread contentId={content.id} />}
+                        </ContentEngagementBar>
                         <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
                           <div className="flex items-center gap-3">
                             <span className="text-xs text-gray-500">
