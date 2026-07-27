@@ -508,19 +508,20 @@ model Identity {
 }
 
 model Credential {
-  id           String         @id @default(uuid())
-  identityId   String
-  identity     Identity       @relation(fields: [identityId], references: [id])
-  type         CredentialType
-  email        String?
-  publicKey    String?
-  fingerprint  String?
-  metadata     Json?          @db.JsonB
-  revokedAt    DateTime?
-  lastUsedAt   DateTime?
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  deletedAt    DateTime?
+  id            String         @id @default(uuid())
+  identityId    String
+  identity      Identity       @relation(fields: [identityId], references: [id])
+  type          CredentialType
+  email         String?
+  publicKey     String?
+  fingerprint   String?
+  metadata      Json?          @db.JsonB
+  revokedAt     DateTime?
+  lastUsedAt    DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  deletedAt     DateTime?
+  meetingProxies MeetingProxy[] @relation("MeetingProxyToCredential")
 
   @@index([identityId])
   @@map("credentials")
@@ -3511,11 +3512,8 @@ enum ProxyStatus {
 
 enum SignatureProvider {
   INTERNAL
-  LIGHTNING
-  NOSTR
   DOCUSIGN
   ADOBE_SIGN
-  PASSKEY
   PGP
   GOV_EID
 }
@@ -3541,8 +3539,11 @@ model MeetingProxy {
   notes             String?
   signatureProvider SignatureProvider @default(INTERNAL)
   signatureEvidence Json              @default("{}")
+  credentialId      String?
+  credential        Credential?       @relation("MeetingProxyToCredential", fields: [credentialId], references: [id])
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
+  deletedAt         DateTime?
   referenceCode     String?           @unique
   owner             user              @relation("MeetingProxyOwner", fields: [ownerUserId], references: [id])
   proxy             user?             @relation("MeetingProxyProxy", fields: [proxyUserId], references: [id])
