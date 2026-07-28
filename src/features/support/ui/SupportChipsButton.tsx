@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Coins, Loader2, Send, Check } from 'lucide-react';
+import { BadgeCent, Loader2, Send, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@shared/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@shared/ui';
@@ -140,14 +140,14 @@ export function SupportChipsButton({
             className
           )}
         >
-          <Coins className="h-4 w-4" aria-hidden="true" />
+          <BadgeCent className="h-4 w-4" aria-hidden="true" />
           <span>{aggregate ? aggregate.totalChips : '—'}</span>
         </button>
       </PopoverTrigger>
       <PopoverContent align="start" side="top" sideOffset={8} className="w-72 p-0">
         <div className="p-4">
           <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-            <Coins className="h-4 w-4 text-amber-500" />
+            <BadgeCent className="h-4 w-4 text-amber-500" />
             Support with Chips
           </h3>
 
@@ -179,7 +179,7 @@ export function SupportChipsButton({
 
           <div className="relative mb-3">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">
-              <Coins className="h-3.5 w-3.5" />
+              <BadgeCent className="h-3.5 w-3.5" />
             </span>
             <input
               ref={inputRef}

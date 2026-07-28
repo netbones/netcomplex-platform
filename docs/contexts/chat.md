@@ -53,4 +53,4 @@ Real-time messaging with Supabase Realtime. Conversations (direct + group), typi
 
 ## Open Issues
 
-- [ ] ⏳ Message pruning (30-day retention) planned but not implemented
+- [x] ✅ Message pruning (30-day retention) — Drizzle-based in message route

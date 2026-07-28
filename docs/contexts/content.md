@@ -41,5 +41,5 @@ Content management for articles, resources, and pages. Supports scheduling, visi
 ## Open Issues
 
 - [ ] **No `index.ts` barrel export** — files exist (permissions, schema, dto, api, services) but no public barrel
-- [ ] ⏳ Content DTO not in shared barrel (`@shared/api/dto/index.ts`)
+- [x] ✅ Content DTO in shared barrel (`@shared/api/dto/index.ts:11`)
 - [ ] Service entity defines its own `ContentItem` interface — overlapping boundary (see CONTEXT_MAP.md)

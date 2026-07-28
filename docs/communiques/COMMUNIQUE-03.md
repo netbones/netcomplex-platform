@@ -201,8 +201,8 @@ During active development (pre-launch), the Soralia tenant should be `PREMIUM` t
 
 ### Phase B — Gate context endpoint
 
-- [ ] ⏳ Implement `GET /api/gate/context` returning module availability map
-- [ ] ⏳ Add Zustand store for gate context with session-scoped caching
+- [x] ✅ `GET /api/gate/context` route exists at `src/app/api/gate/context/route.ts`
+- [x] ✅ Zustand store (`useGateContextStore`) at `src/entities/tenant/model/gate-context-store.ts`
 - [ ] ⏳ Hydrate on app shell mount
 
 ### Phase C — Domain card gating
@@ -219,8 +219,8 @@ During active development (pre-launch), the Soralia tenant should be `PREMIUM` t
 
 ### Phase E — Soralia tier resolution
 
-- [ ] ⏳ Decide: dev tier = PREMIUM, or STANDARD + TenantModule overrides
-- [ ] ⏳ Apply to seed data and/or database
+- [x] ✅ Decided: dev tier = PREMIUM (Soralia seeded as `tier: 'PREMIUM'`)
+- [x] ✅ Applied to seed data: 11 modules at STANDARD, 7 at PREMIUM
 - [ ] ⏳ Document the decision in ADR-022 or a new ADR
 
 ---

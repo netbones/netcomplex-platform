@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useRef, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Send, X } from 'lucide-react';
@@ -34,7 +34,6 @@ export function CommentForm({
 }: CommentFormProps) {
   const { data: session } = authClient.useSession();
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
-  const [charCount, setCharCount] = useState(0);
 
   const {
     register,
@@ -57,7 +56,6 @@ export function CommentForm({
   const createMutation = trpc.comments.create.useMutation({
     onSuccess: () => {
       reset({ contentId, body: '', parentId, rootId });
-      setCharCount(0);
       onSuccess?.();
       utils.comments.list.invalidate();
     },
@@ -67,6 +65,7 @@ export function CommentForm({
   });
 
   const body = watch('body');
+  const charCount = body?.length ?? 0;
 
   const onSubmit = useCallback(
     async (data: CreateCommentInput) => {
@@ -107,15 +106,13 @@ export function CommentForm({
     >
       <textarea
         {...register('body')}
-        ref={el => {
-          register('body').ref(el);
-          textAreaRef.current = el;
+        ref={e => {
+          textAreaRef.current = e;
         }}
         placeholder={placeholder}
         rows={compact ? 2 : 3}
         maxLength={5000}
         autoFocus={autoFocus}
-        onChange={e => setCharCount(e.target.value.length)}
         aria-label={placeholder}
         aria-invalid={!!errors.body}
         aria-describedby={errors.body ? 'comment-error' : undefined}

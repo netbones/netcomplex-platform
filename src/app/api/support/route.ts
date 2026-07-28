@@ -116,10 +116,12 @@ export const POST = withErrorHandler(async (request: Request) => {
   const parsed = createSupportSchema.safeParse(body);
   if (!parsed.success) return apiValidationError(parsed.error.flatten());
 
-  const { targetType, targetId, recipientUserId, chips, message, isAnonymous } =
-    parsed.data;
+  const { targetType, targetId, recipientUserId, chips, message, isAnonymous } = parsed.data;
 
-  await getOrCreateWallet(senderUserId, tenantId);
+  await Promise.all([
+    getOrCreateWallet(senderUserId, tenantId),
+    getOrCreateWallet(recipientUserId, tenantId),
+  ]);
 
   try {
     const result = await createSupport({

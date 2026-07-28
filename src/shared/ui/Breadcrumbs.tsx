@@ -1,3 +1,4 @@
+import React from 'react';
 import { HomeIcon } from 'lucide-react';
 import {
   Breadcrumb,
@@ -28,19 +29,21 @@ export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
         {items.map((item, idx) => {
           const isLast = idx === items.length - 1;
           return (
-            <BreadcrumbItem key={idx}>
-              {idx === 0 && (
-                <BreadcrumbLink href={item.href ?? '/'}>
-                  <HomeIcon className="size-4" />
-                  <span className="sr-only">{item.label}</span>
-                </BreadcrumbLink>
-              )}
-              {idx > 0 && !isLast && (
-                <BreadcrumbLink href={item.href ?? '#'}>{item.label}</BreadcrumbLink>
-              )}
-              {idx > 0 && isLast && <BreadcrumbPage>{item.label}</BreadcrumbPage>}
+            <React.Fragment key={idx}>
+              <BreadcrumbItem>
+                {idx === 0 && (
+                  <BreadcrumbLink href={item.href ?? '/'}>
+                    <HomeIcon className="size-4" />
+                    <span className="sr-only">{item.label}</span>
+                  </BreadcrumbLink>
+                )}
+                {idx > 0 && !isLast && (
+                  <BreadcrumbLink href={item.href ?? '#'}>{item.label}</BreadcrumbLink>
+                )}
+                {idx > 0 && isLast && <BreadcrumbPage>{item.label}</BreadcrumbPage>}
+              </BreadcrumbItem>
               {idx < items.length - 1 && <BreadcrumbSeparator />}
-            </BreadcrumbItem>
+            </React.Fragment>
           );
         })}
       </BreadcrumbList>

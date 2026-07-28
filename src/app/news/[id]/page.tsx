@@ -24,6 +24,7 @@ interface ContentItem {
   tags: string[];
   published: boolean;
   publishedAt?: string;
+  commentCount?: number;
   createdAt: string;
   updatedAt: string;
   author?: {
@@ -214,6 +215,7 @@ export default function NewsPostPage() {
             initialLiked={liked}
             likeCount={likeCount}
             commentsEnabled={true}
+            commentCount={post.commentCount ?? 0}
             className="mb-6"
           >
             <CommentThread contentId={post.id} />

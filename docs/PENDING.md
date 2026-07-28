@@ -1,135 +1,192 @@
-# Pending Work Items
+# Pending Work Items — Priority Assessment
 
-> Auto-generated on 2026-07-28. Items marked ⏳ across all docs/ files.
+> Analyzed 2026-07-28. Items marked ⏳ verified against source code for currency.
 > BD issue refs are included where noted in source documents.
-
-## STEERING
-
-| File   | Items | Key BD Issues |
-| ------ | ----- | ------------- |
-| PRD.md | 29    | —             |
-| API.md | 11    | —             |
-
-## Architecture
-
-| File                            | Items | Notes                                                               |
-| ------------------------------- | ----- | ------------------------------------------------------------------- |
-| AGENT_MODEL.md                  | 24    | Agent verification, commission tracking, marketplace, analytics     |
-| cleaner_react_architecture.md   | 40    | API client, service layer, domain helpers, TanStack Query patterns  |
-| DASHBOARD-PHASE-B-DISCUSSION.md | 4     | Mobile slot, module gating, transition strategy decisions           |
-| MOBILE_MONOREPO.md              | 8     | App store readiness (privacy policy, screenshots, encryption, etc.) |
-
-## Features
-
-| File                                                 | Items | Key BD Issues                                   |
-| ---------------------------------------------------- | ----- | ----------------------------------------------- |
-| MAINTENANCE_TICKETING_SPEC.md                        | 26    | Admin dashboard, notifications, API compliance  |
-| widget-registry-architecture-react-rnd-v2.md         | 26    | Config versioning, lazy loading, grid mechanics |
-| widgets/widget-registry-architecture-react-rnd-v2.md | 26    | Duplicate of above                              |
-| widgets/NETCOMPLEX_WIDGET_ALIGNMENT.md               | 16    | Widget checklist conventions                    |
-
-## Migrations
-
-| File                       | Items | Key BD Issues                                                         |
-| -------------------------- | ----- | --------------------------------------------------------------------- |
-| MIGRATION.md               | 29    | FSD migration epic `soralia-village-wpr`, pilot `soralia-village-rbs` |
-| DATABASE_MIGRATION_v2.1.md | 7     | Schema migration verification, renter filtering                       |
-| migration-plan-identity.md | 5     | Household UI, agent dashboard, admin deprecation                      |
-| WHITE_LABEL_MIGRATE.md     | 7     | NetComplex tenant, Soralia tenant, org switcher, super-admin          |
-
-## Multi-Tenant
-
-| File                   | Items | Notes                                                      |
-| ---------------------- | ----- | ---------------------------------------------------------- |
-| MULTI_TENANT_SIGNUP.md | 6     | Middleware extraction, sign-up form, email uniqueness, DNS |
-
-## Plans
-
-| File             | Items | Notes                                                              |
-| ---------------- | ----- | ------------------------------------------------------------------ |
-| GATE_PLAN.md     | 12    | Gate access functions, migration per entity, legacy system removal |
-| DASH_ADVISORY.md | 5     | Phase 11 completion, MyHomeSpace data, viewport-fit                |
-
-## Advisories
-
-| File                                           | Items | Key BD Issues                           |
-| ---------------------------------------------- | ----- | --------------------------------------- |
-| ADVISORY-008.md                                | 13    | —                                       |
-| ADVISORY-009.md                                | 11    | —                                       |
-| ADVISORY-010.md                                | 9     | —                                       |
-| ADVISORY-011.md                                | 4     | —                                       |
-| ADVISORY-012.md                                | 8     | —                                       |
-| ADVISORY-013.md                                | 7     | —                                       |
-| ADVISORY-014.md                                | 14    | —                                       |
-| ADVISORY-015.md                                | 13    | —                                       |
-| ADVISORY-016.md                                | 8     | —                                       |
-| ADVISORY-017.md                                | 13    | —                                       |
-| ADVISORY-017-SUPPLEMENTAL.md                   | 11    | —                                       |
-| ADVISORY-017-SUPPLEMENTAL-2.md                 | 13    | —                                       |
-| ADVISORY-017-SUPPLEMENTAL-2-ADDENDUM.md        | 4     | —                                       |
-| ADVISORY-017-SUPPLEMENTAL-B.md                 | 12    | —                                       |
-| ADVISORY-018.md                                | 8     | —                                       |
-| ADVISORY-019.md                                | 3     | —                                       |
-| ADVISORY-020.md                                | 16    | —                                       |
-| ADVISORY-021.md                                | 8     | —                                       |
-| ADVISORY-026.md                                | 7     | —                                       |
-| ADVISORY-027.md                                | 6     | `soralia-village-sioz` (awaiting close) |
-| ADVISORY-030.md                                | 10    | —                                       |
-| ADVISORY-031.md                                | 17    | —                                       |
-| ADVISORY-032-tenant-resolution-rls-fallback.md | 3     | —                                       |
-| ADVISORY-034-platform-identity-layer.md        | 7     | —                                       |
-| ADVISORY-SPECIAL-TIME-TRACKING.md              | 1     | —                                       |
-
-## Contexts
-
-| File            | Items | Notes                                                       |
-| --------------- | ----- | ----------------------------------------------------------- |
-| chat.md         | 1     | Message pruning not implemented                             |
-| competitions.md | 1     | Missing widget registration                                 |
-| content.md      | 1     | Content DTO not in shared barrel                            |
-| user.md         | 2     | `residentType` overlap; suspension frontend not implemented |
-| widget.md       | 1     | Phase 38 not started                                        |
-
-## Communiques
-
-| File             | Items | Notes                                                                 |
-| ---------------- | ----- | --------------------------------------------------------------------- |
-| COMMUNIQUE.md    | 5     | Admin plugin, banned/banExpires verification, test stop-impersonating |
-| COMMUNIQUE-03.md | 13    | Gate context API, Zustand store, FeatureGateWall                      |
-
-## Product
-
-| File                      | Items | Notes                                                                                                    |
-| ------------------------- | ----- | -------------------------------------------------------------------------------------------------------- |
-| user-stories-john-mary.md | 114   | Full lifecycle: registration, profiles, Premium Seat upgrade, agent workflows, eviction, multi-household |
-
-## Standards
-
-| File                                   | Items | Notes                                                                |
-| -------------------------------------- | ----- | -------------------------------------------------------------------- |
-| TECH_DEBT_REMEDIATION_PLAN.md          | 44    | Error boundaries, server components, lint, perf monitoring, security |
-| TESTING_METHODS.md                     | 17    | Manual E2E test checklist items                                      |
-| dependency-analysis-recommendations.md | 9     | Vercel Blob, auth provider migration, Drizzle schema migration       |
-
-## SOLID Report (bd issues created)
-
-From `todo/SOLID_REPORT.md`:
-
-| Item                            | BD Issue               |
-| ------------------------------- | ---------------------- |
-| Domain service layer extraction | `soralia-village-nm2z` |
-| WidgetRegistry abstraction      | `soralia-village-j8ke` |
-| WidgetDataState consolidation   | `soralia-village-sdft` |
+>
+> **P0** = Critical/blocked | **P1** = High (needed for anchor tenant launch) |
+> **P2** = Medium (should do before production) | **P3** = Low (nice to have / deferred)
 
 ---
 
-**Total: ~590 pending items across 55 files.**
+## P0 — Critical (blocking other work)
 
-Top-level workstreams represented:
+| Source       | Item                                                                         | Notes                                |
+| ------------ | ---------------------------------------------------------------------------- | ------------------------------------ |
+| MIGRATION.md | Steiger/lint already enforced but not reflected in doc status (doc is stale) | ⚠️ doc is stale — code ahead of docs |
+| USER STORIES | Events P0 bug (`soralia-village-n2j6`)                                       | BD issue, not in PENDING.md          |
 
-- FSD migration (`soralia-village-wpr`) — 29 items in MIGRATION.md
-- Multi-tenant / white-label — 13 items across 2 files
-- Widget registry architecture — 68 items across 3 files
-- Maintenance ticketing — 26 items
-- User story implementation (John & Mary) — 114 items
-- Tech debt remediation — 44 items
+**No P0 items in PENDING.md are genuinely current.** The event bugs in BD are the only P0 work.
+
+---
+
+## P1 — High Priority
+
+| Source                              | Item                                                                                                  | Why P1                                                        | BD / Tracked?         |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- | --------------------- |
+| **AGENT_MODEL.md**                  | Agent verification workflow                                                                           | Schema has `isVerified`/`verificationDate` but no UI/workflow | —                     |
+| **AGENT_MODEL.md**                  | Agent rating & review system                                                                          | Review system exists for services but not agents              | —                     |
+| **cleaner_react_architecture.md**   | ~30 remaining raw `fetch()` call sites                                                                | Should migrate to tRPC for caching/stability                  | —                     |
+| **DASHBOARD-PHASE-B-DISCUSSION.md** | Mobile overflow pattern (6 spaces > 5 slots)                                                          | Needs hardening before launch                                 | —                     |
+| **DASHBOARD-PHASE-B-DISCUSSION.md** | Module gating enforcement in SpaceLauncher                                                            | Optional spaces must auto-hide when all flags disabled        | —                     |
+| **MAINTENANCE_TICKETING_SPEC.md**   | Sort by date/priority/status                                                                          | No sort controls in admin UI or API                           | —                     |
+| **MAINTENANCE_TICKETING_SPEC.md**   | Auto-notify resident on status change                                                                 | Email sent only on manual click, not automatically            | —                     |
+| **MAINTENANCE_TICKETING_SPEC.md**   | ISR caching on list endpoint                                                                          | Missing Cache-Control headers                                 | —                     |
+| **MAINTENANCE_TICKETING_SPEC.md**   | Notify admin on new request                                                                           | Event emitted but no notification delivered                   | —                     |
+| **widget-registry**.md              | WidgetPermissionGate in WidgetRenderer                                                                | Permission not enforced during render                         | —                     |
+| **MIGRATION.md**                    | Phase 1.3 lint guardrails (doc stale — code already has `no-restricted-imports` + Steiger at `error`) | Update docs to match reality                                  | `soralia-village-wpr` |
+| **MIGRATION.md**                    | Phase 3.5 enforce lint boundaries (doc stale — already `error` globally)                              | Update docs                                                   | —                     |
+| **MIGRATION.md**                    | Phase 2.2 shared/api/\* infrastructure (doc stale — substantially complete)                           | Update docs                                                   | —                     |
+| **migration-plan-identity.md**      | "My Households" section on dashboard                                                                  | Not implemented                                               | —                     |
+| **migration-plan-identity.md**      | `/unit/[id]/manage` household management UI                                                           | Not implemented                                               | —                     |
+| **migration-plan-identity.md**      | Agent dashboard section (when role=AGENT)                                                             | Widgets exist but no dedicated section                        | —                     |
+| **WHITE_LABEL_MIGRATE.md**          | Organization switcher component                                                                       | No org/tenant switcher in Header                              | —                     |
+| **WHITE_LABEL_MIGRATE.md**          | Better-Auth org plugin integration                                                                    | Organization model exists but org plugin status unclear       | —                     |
+| **COMMUNIQUE.md**                   | Test `POST /api/auth/admin/stop-impersonating`                                                        | Not tested                                                    | —                     |
+| **COMMUNIQUE-03.md**                | Domain card gating — audit all domain card components                                                 | Cards don't reference gate context store                      | —                     |
+| **COMMUNIQUE-03.md**                | Add tooltip for gated cards                                                                           | Not implemented                                               | —                     |
+| **COMMUNIQUE-03.md**                | `<FeatureGateWall>` wrapper component                                                                 | Not implemented                                               | —                     |
+
+---
+
+## P2 — Medium Priority
+
+| Source                              | Item                                                                                            | Notes                                                                                     |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| **PRD.md**                          | Tenant provisioning UI (NewTenantForm exists but no guided wizard)                              | —                                                                                         |
+| **PRD.md**                          | Platform admin tenant management dashboard                                                      | No dedicated page for listing/managing tenants                                            |
+| **PRD.md**                          | Module configuration UI (for tenant admins)                                                     | —                                                                                         |
+| **PRD.md**                          | Migrate Soralia hardcoded slug (`DEFAULT_TENANT_SLUG = 'soralia'`)                              | —                                                                                         |
+| **PRD.md**                          | Billing integration (real payment provider)                                                     | Models exist but no integration                                                           |
+| **API.md**                          | OpenAPI CI validation (`npx redocly lint` in CI)                                                | —                                                                                         |
+| **API.md**                          | Comprehensive API governance test suite                                                         | —                                                                                         |
+| **API.md**                          | OpenAPI coverage for remaining ~211 procedures                                                  | ~24/235 exported                                                                          |
+| **AGENT_MODEL.md**                  | Commission tracking system                                                                      | `commissionRate` exists but no tracking/payout                                            |
+| **AGENT_MODEL.md**                  | Agent-investor messaging integration                                                            | General messaging exists, not agent-contextualized                                        |
+| **AGENT_MODEL.md**                  | Agent onboarding flow                                                                           | No registration flow for agents                                                           |
+| **AGENT_MODEL.md**                  | Premium Seat upgrade prompts in UI                                                              | —                                                                                         |
+| **AGENT_MODEL.md**                  | Agent blacklist/blocking                                                                        | Not implemented                                                                           |
+| **AGENT_MODEL.md**                  | Quality gates / pre-launch verification                                                         | —                                                                                         |
+| **cleaner_react_architecture.md**   | Missing service layers for 7 entities (chat, directory, user, admin, identity, widget, service) | —                                                                                         |
+| **cleaner_react_architecture.md**   | Missing DTO re-exports for several entities                                                     | —                                                                                         |
+| **cleaner_react_architecture.md**   | `useApiToast.ts` (317 lines) paper layer over tRPC mutations                                    | —                                                                                         |
+| **cleaner_react_architecture.md**   | Maintenance route duplication (REST + tRPC)                                                     | —                                                                                         |
+| **DASHBOARD-PHASE-B-DISCUSSION.md** | Announcement absorption into Community/Messages space                                           | —                                                                                         |
+| **DASHBOARD-PHASE-B-DISCUSSION.md** | B6 Mobile complete verification                                                                 | —                                                                                         |
+| **MAINTENANCE_TICKETING_SPEC.md**   | CSV export for requests                                                                         | —                                                                                         |
+| **widget-registry**.md              | Config versioning/migration (`resolveConfig`)                                                   | Not implemented                                                                           |
+| **widget-registry**.md              | Collapsed state on widgets (widgets don't handle `collapsed` prop)                              | —                                                                                         |
+| **widget-registry**.md              | `useSuspenseQuery` for widget data fetching                                                     | Widgets use `useEffect`+`fetch`                                                           |
+| **widget-registry**.md              | Instance ID generation for placed widgets                                                       | —                                                                                         |
+| **widget-registry**.md              | Persisted `collapsed`/`configVersion` on WidgetLayout                                           | —                                                                                         |
+| **MIGRATION.md**                    | Fix `pnpm run build` (pg module)                                                                | May now pass — needs verification                                                         |
+| **MIGRATION.md**                    | Make boundary violations fail CI (Steiger already `error` — doc stale)                          | Update docs                                                                               |
+| **MIGRATION.md**                    | Verify no deep imports within new slices (Steiger enforces — doc stale)                         | Update docs                                                                               |
+| **MIGRATION.md**                    | Tighten lint boundaries per domain (Steiger already `error`)                                    | Update docs                                                                               |
+| **DATABASE_MIGRATION_v2.1.md**      | API responses include new fields (`landlord`, `residencyType`)                                  | Partial coverage                                                                          |
+| **DATABASE_MIGRATION_v2.1.md**      | Frontend interfaces updated                                                                     | Partial coverage                                                                          |
+| **DATABASE_MIGRATION_v2.1.md**      | No breaking changes verification                                                                | Need to verify                                                                            |
+| **WHITE_LABEL_MIGRATE.md**          | Replace hard-coded "Soralia Village" text with dynamic tenant values                            | Partial                                                                                   |
+| **WHITE_LABEL_MIGRATE.md**          | Update all existing rows with tenantId                                                          | —                                                                                         |
+| **WHITE_LABEL_MIGRATE.md**          | Existing users become members of Soralia org                                                    | —                                                                                         |
+| **WHITE_LABEL_MIGRATE.md**          | Add tenantId to all tables                                                                      | Most done, few may remain                                                                 |
+| **MULTI_TENANT_SIGNUP.md**          | Email uniqueness per tenant (not global)                                                        | —                                                                                         |
+| **MULTI_TENANT_SIGNUP.md**          | Test with local subdomain (e.g. soralia.localhost:3000)                                         | —                                                                                         |
+| **GATE_PLAN.md**                    | All new routes use `canAccess()` or `canAccessClient()`                                         | —                                                                                         |
+| **GATE_PLAN.md**                    | Migration progress tracked per-entity in contexts/\*.md                                         | —                                                                                         |
+| **GATE_PLAN.md**                    | `canAccess()`/`canAccessClient()`/`GateGuard` as only public gate API                           | —                                                                                         |
+| **ADVISORY-027.md**                 | Seat/Invoice/Payment model duplication                                                          | `soralia-village-sioz`                                                                    |
+| **ADVISORY-031.md**                 | Onboarding refactor (canonical)                                                                 | Phase 0 nullable tenantId not done                                                        |
+| **contexts/competitions.md**        | Missing competition widget registration                                                         | —                                                                                         |
+| **contexts/widget.md**              | Phase 38 (ServicesLayer + MessagesLayer) pending                                                | ServicesLayer exists but architecture milestone not done                                  |
+| **COMMUNIQUE-03.md**                | Wrap gated pages with FeatureGateWall                                                           | Depends on FeatureGateWall existing                                                       |
+| **COMMUNIQUE-03.md**                | Remove per-page 403 handling                                                                    | Depends on above                                                                          |
+| **STANDARDS/TECH_DEBT_REMEDIATION** | ~26 still-open items (p2 bucket)                                                                | Error boundaries, React.memo, ESLint rules, a11y, Prettier, perf monitoring, Vercel costs |
+| **STANDARDS/dependency-analysis**   | Supabase region verification                                                                    | —                                                                                         |
+| **STANDARDS/dependency-analysis**   | Edge Runtime migration (blocked by deps)                                                        | —                                                                                         |
+| **STANDARDS/dependency-analysis**   | Vercel spend alerts & scaling limits                                                            | —                                                                                         |
+
+---
+
+## P3 — Low Priority (deferred / aspirational)
+
+| Source                                | Item                                                                           | Notes                                     |
+| ------------------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------- |
+| **PRD.md**                            | Platform analytics dashboard                                                   | Cross-tenant analytics                    |
+| **AGENT_MODEL.md**                    | Agent performance analytics                                                    | —                                         |
+| **AGENT_MODEL.md**                    | Commission payment processing (needs UCP/AP2)                                  | —                                         |
+| **AGENT_MODEL.md**                    | Property listing analytics                                                     | —                                         |
+| **AGENT_MODEL.md**                    | Agent specialization matching                                                  | —                                         |
+| **AGENT_MODEL.md**                    | External real estate platform integration                                      | —                                         |
+| **AGENT_MODEL.md**                    | All success metrics (conversion, engagement, deals)                            | —                                         |
+| **cleaner_react_architecture.md**     | Domain predicates in `useIdentity.ts` as pure functions                        | —                                         |
+| **cleaner_react_architecture.md**     | Permissions module expansion                                                   | —                                         |
+| **MOBILE_MONOREPO.md**                | All 8 app store readiness items (blocked on app existence)                     | Privacy policy, screenshots, etc.         |
+| **widget-registry**.md                | react-rnd drag-and-drop grid (all items)                                       | No WidgetContainer, resize, drag          |
+| **widget-registry**.md                | MobileWidgetCard, useIsMobile, breakpoint testing                              | —                                         |
+| **widget-registry**.md                | Remote widget loading (loader field, Module Federation)                        | —                                         |
+| **MIGRATION.md**                      | Remove empty legacy buckets (src/components/ empty, src/lib/ gone — doc stale) | Already done                              |
+| **MIGRATION.md**                      | Update README (doc stale — already marked done)                                | Already done                              |
+| **migration-plan-identity.md**        | Phase 5: Remove legacy fields (already removed from schema)                    | Already done                              |
+| **ADVISORY-030.md**                   | Onboarding refactor (earlier draft)                                            | **SUPERSEDED** by ADVISORY-031            |
+| **contexts/widget.md**                | Phase 38 architecture milestone                                                | ServicesLayer exists, milestone unplanned |
+| **COMMUNIQUE-03.md**                  | Document tier decision in ADR                                                  | —                                         |
+| **STANDARDS/TESTING_METHODS.md**      | All 17 manual E2E testing items                                                | Ongoing QA activity                       |
+| **STANDARDS/dependency-analysis.md**  | Vercel Blob migration (not adopted)                                            | Project chose different approach          |
+| **STANDARDS/dependency-analysis.md**  | Clerk auth migration (not adopted)                                             | Project chose Better Auth                 |
+| **STANDARDS/dependency-analysis.md**  | Full Edge Runtime deployment (not adopted)                                     | —                                         |
+| **STANDARDS/dependency-analysis.md**  | Edge-compatible health check                                                   | —                                         |
+| **STANDARDS/dependency-analysis.md**  | Monitor cost reduction                                                         | —                                         |
+| **PRODUCT/user-stories-john-mary.md** | All 114 user stories (full anchor tenant roadmap)                              | M5 launch aspirational scope              |
+| **TECH_DEBT_REMEDIATION_PLAN.md**     | P3 remaining items (unused code, logging, Core Web Vitals, Sentry)             | Nice-to-have improvements                 |
+
+---
+
+## Items Confirmed as Already Implemented (source docs need ✅ update)
+
+These are marked ⏳ in source docs but code confirms they are done:
+
+| Source                             | Item                                                             | Code Evidence                                                     |
+| ---------------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------- |
+| **contexts/chat.md**               | Message pruning (30-day retention)                               | Drizzle-based pruning in message route                            |
+| **contexts/content.md**            | Content DTO in shared barrel                                     | Exported at `src/shared/api/dto/index.ts:11`                      |
+| **contexts/user.md**               | `residentType` overlap                                           | Resolved — `residencyType` used consistently                      |
+| **contexts/user.md**               | Suspension frontend                                              | `SuspendUserModal.tsx` + `UsersListSection.tsx` live              |
+| **COMMUNIQUE.md**                  | `admin()` plugin configured                                      | In `auth.ts:178-180`                                              |
+| **COMMUNIQUE.md**                  | `customSyntheticUser` config                                     | In `auth.ts:65-72`                                                |
+| **COMMUNIQUE.md**                  | `banned`/`banReason`/`banExpires` columns                        | In `schema.prisma:121-123`                                        |
+| **COMMUNIQUE.md**                  | `impersonatedBy` on session table                                | In `schema.prisma:79`                                             |
+| **COMMUNIQUE-03.md**               | Gate context endpoint (`GET /api/gate/context`)                  | Route exists                                                      |
+| **COMMUNIQUE-03.md**               | Zustand store (`useGateContextStore`)                            | At `entities/tenant/model/gate-context-store.ts`                  |
+| **COMMUNIQUE-03.md**               | Dev tier decision (Soralia = PREMIUM)                            | Seeded as PREMIUM                                                 |
+| **COMMUNIQUE-03.md**               | Apply tier to seed data (PlatformModule)                         | Done                                                              |
+| **MIGRATION.md**                   | Phase 1.3: no-restricted-imports rules                           | Active in eslint.config.js                                        |
+| **MIGRATION.md**                   | Phase 3.5: enforce lint boundaries                               | Steiger at `error` globally                                       |
+| **MIGRATION.md**                   | Legacy bucket removal (`src/lib/` gone, `src/components/` empty) | Verified                                                          |
+| **MIGRATION.md**                   | Lint boundaries prevent backsliding                              | Steiger in CI/pre-commit                                          |
+| **migration-plan-identity.md**     | Phase 5: Remove legacy User fields                               | `street`, `unit`, `homeImage`, `residentType` removed from schema |
+| **NETCOMPLEX_WIDGET_ALIGNMENT.md** | Version on widgets (gap resolved)                                | All have `version: '1.0.0'`                                       |
+| **NETCOMPLEX_WIDGET_ALIGNMENT.md** | Lazy loading (gap resolved)                                      | All use `React.lazy()`                                            |
+| **NETCOMPLEX_WIDGET_ALIGNMENT.md** | `icon` as component (gap resolved)                               | All use Lucide components                                         |
+| **NETCOMPLEX_WIDGET_ALIGNMENT.md** | `author` field (gap resolved)                                    | On WidgetManifest                                                 |
+
+---
+
+## Summary by Priority
+
+| Priority             | Items | Notes                                                                                                                     |
+| -------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------- |
+| **P0**               | 0     | No P0 items genuinely pending in PENDING.md                                                                               |
+| **P1**               | ~20   | Agent verification, maintenance notifications, gate enforcement, household management UI, org switcher, FSD doc staleness |
+| **P2**               | ~50   | Tenant provisioning UI, billing, API governance, commission tracking, widget patterns, migration doc staleness, tech debt |
+| **P3**               | ~150+ | Analytics, mobile app store, react-rnd grid, user stories (114), aspirational standards                                   |
+| **Done (doc stale)** | ~20   | Items confirmed implemented in code but still marked ⏳ in docs                                                           |
+
+---
+
+## Action Items
+
+1. Update source docs for ~20 confirmed-implemented items (⏳ → ✅)
+2. Convert P1 items without BD issues into BD issues
+3. Assess user-stories-john-mary.md (114 items) as M5 milestone scope — split into BD issues
+4. Resolve MIGRATION.md doc staleness (many items done but still marked pending)
+5. Remove duplicate widget-registry doc (`features/widget-registry-architecture-react-rnd-v2.md` = `features/widgets/widget-registry-architecture-react-rnd-v2.md`)

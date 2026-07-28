@@ -8,8 +8,15 @@ import { createId } from '@shared/lib/id';
 const logger = createComponentLogger('dwallet-api');
 
 /**
- * Upsert a DWallet for the given user. Creates with ACTIVE status and 0 balance
- * if none exists. Returns the wallet record.
+ * Starting balance credited to newly created wallets.
+ * Used for testing/dev — users can send chips immediately without a
+ * prior earn event.
+ */
+const NEW_WALLET_BALANCE = '1000.00';
+
+/**
+ * Upsert a DWallet for the given user. Creates with ACTIVE status and
+ * {@link NEW_WALLET_BALANCE} chips if none exists. Returns the wallet record.
  *
  * Called by all API routes that need the wallet — single source of truth for
  * wallet creation.
@@ -32,6 +39,9 @@ export async function getOrCreateWallet(userId: string, tenantId: string) {
       id,
       tenantId,
       userId,
+      balance: NEW_WALLET_BALANCE,
+      lifetimePaid: '0.00',
+      lifetimeEarned: '0.00',
       updatedAt: timestamp,
     })
     .onConflictDoNothing()

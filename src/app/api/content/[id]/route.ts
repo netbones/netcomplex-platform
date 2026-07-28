@@ -61,6 +61,7 @@ function transformContentForLocale(content: Record<string, unknown>, userLocale:
     copyrightHolder: content.copyrightHolder,
     moderationStatus: content.moderationStatus,
     viewCount: content.viewCount,
+    commentCount: content.commentCount ?? 0,
     createdAt: content.createdAt,
     updatedAt: content.updatedAt,
     publishedAt: content.publishedAt,
@@ -141,6 +142,7 @@ export const GET = withErrorHandler(
         copyrightHolder: contents.copyrightHolder,
         moderationStatus: contents.moderationStatus,
         viewCount: contents.viewCount,
+        commentCount: contents.commentCount,
         createdAt: contents.createdAt,
         updatedAt: contents.updatedAt,
         publishedAt: contents.publishedAt,
@@ -260,7 +262,9 @@ export const PATCH = withErrorHandler(
       .returning();
 
     await snapshotContentVersion(id, session?.user?.id ?? null, 'REST PATCH update');
-    await insertAuditLog(id, 'UPDATED', session?.user?.id ?? null, { changes: Object.keys(updateData) });
+    await insertAuditLog(id, 'UPDATED', session?.user?.id ?? null, {
+      changes: Object.keys(updateData),
+    });
 
     // Revalidate content caches
     revalidateContent();

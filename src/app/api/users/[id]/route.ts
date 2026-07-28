@@ -251,6 +251,7 @@ export const GET = withErrorHandler(
         tags: contents.tags,
         publishedAt: contents.publishedAt,
         commentsEnabled: contents.commentsEnabled,
+        commentCount: contents.commentCount,
       })
       .from(contents)
       .where(and(eq(contents.authorId, userId), eq(contents.published, true)))
