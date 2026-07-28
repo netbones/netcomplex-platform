@@ -1,9 +1,7 @@
 import {
   apiCreated,
   apiSuccess,
-  apiUnauthorized,
   db,
-  getSessionAndRole,
   invitations,
   notDeleted,
   now,
@@ -12,8 +10,9 @@ import {
   templates,
   tenants,
   users,
-  guardSuspension,
 } from '@api/server';
+
+import { requireAuth } from '@/shared/api/auth-utils';
 
 import { eq, and, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
@@ -28,10 +27,8 @@ const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL || 'http://localhost:3000';
  * @deprecated Use trpc.invitations.listInvitations instead.
  */
 export async function GET(request: Request) {
-  const authData = await getSessionAndRole(request);
-  if (!authData) return apiUnauthorized();
-  const guard = guardSuspension(authData);
-  if (guard) return guard;
+  const auth = await requireAuth(request);
+  if (!auth.success) return auth.response;
 
   const { tenantId } = await withTenant();
   const invitationList = await db
@@ -46,8 +43,8 @@ export async function GET(request: Request) {
  * @deprecated Use trpc.invitations.createInvitation instead.
  */
 export async function POST(request: Request) {
-  const authData = await getSessionAndRole(request);
-  if (!authData) return apiUnauthorized();
+  const auth = await requireAuth(request);
+  if (!auth.success) return auth.response;
 
   // Rate limit: 5 invitations per minute per IP
   const rateLimit = await rateLimitByIP(request, { windowMs: 60_000, maxRequests: 5 });

@@ -24,6 +24,27 @@ const mocks = vi.hoisted(() => ({
   createContentResult: null as unknown,
 }));
 
+vi.mock('@/shared/api/auth-utils', () => ({
+  requireAuth: vi.fn(async () => {
+    if (!mocks.authSession) {
+      return {
+        success: false as const,
+        response: new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 }),
+      };
+    }
+    return {
+      success: true as const,
+      data: {
+        userId: mocks.authSession.user.id,
+        role: 'ADMIN',
+        tenantId: 'test-tenant-id',
+        session: { user: { id: mocks.authSession.user.id } },
+        suspension: null,
+      },
+    };
+  }),
+}));
+
 vi.mock('@api/server', () => ({
   db: mocks.dbMock,
   auth: {
@@ -70,6 +91,7 @@ vi.mock('@api/server', () => ({
 
 vi.mock('@entities/tenant/server', () => ({
   withTenant: () => Promise.resolve(mocks.tenantResult),
+  assertModuleEnabled: vi.fn(() => Promise.resolve(null)),
   requireAssistScope: vi.fn(() => null),
 }));
 vi.mock('@entities/tenant', () => ({
@@ -87,6 +109,7 @@ vi.mock('@shared/lib', () => ({
   hasPermission: vi.fn(() => true),
   defaultLanguage: 'en',
   createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
+  createLogger: vi.fn(() => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() })),
 }));
 
 import { GET, POST } from '@/app/api/content/route';

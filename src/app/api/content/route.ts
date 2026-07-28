@@ -1,13 +1,11 @@
+import { requireAuth } from '@/shared/api/auth-utils';
 import {
   revalidateContent,
   apiCreated,
   apiForbidden,
   apiSuccess,
-  apiUnauthorized,
   emitEvent,
   withErrorHandler,
-  getSessionAndRole,
-  guardSuspension,
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
@@ -40,13 +38,8 @@ export const maxDuration = 8;
  * @deprecated Use trpc.content.listContent instead.
  */
 export const GET = withErrorHandler(async (request: Request) => {
-  const authData = await getSessionAndRole(request);
-
-  if (!authData) {
-    return apiUnauthorized();
-  }
-  const guard = guardSuspension(authData);
-  if (guard) return guard;
+  const auth = await requireAuth(request);
+  if (!auth.success) return auth.response;
 
   const featureCheck = await assertModuleEnabled('content');
   if (featureCheck) return featureCheck;
@@ -97,19 +90,14 @@ export const GET = withErrorHandler(async (request: Request) => {
  * @deprecated Use trpc.content.createContent instead.
  */
 export const POST = withErrorHandler(async (request: Request) => {
-  const authData = await getSessionAndRole(request);
-
-  if (!authData) {
-    return apiUnauthorized();
-  }
-  const guard = guardSuspension(authData);
-  if (guard) return guard;
+  const auth = await requireAuth(request);
+  if (!auth.success) return auth.response;
 
   // AssistSession scope guard: metadata-scoped staff can only read, not modify content/users/settings
   const scopeError = await requireAssistScope(request, 'full');
   if (scopeError) return scopeError;
 
-  if (!hasPermission(authData.role, 'content') && !hasPermission(authData.role, 'contentOwn')) {
+  if (!hasPermission(auth.data.role, 'content') && !hasPermission(auth.data.role, 'contentOwn')) {
     return apiForbidden();
   }
 
@@ -125,7 +113,7 @@ export const POST = withErrorHandler(async (request: Request) => {
     content: body.content || { [defaultLanguage]: '' },
     excerpt: body.excerpt || null,
     category: body.category,
-    authorId: authData.role === 'ADMIN' ? null : authData.userId,
+    authorId: auth.data.role === 'ADMIN' ? null : auth.data.userId,
     groupId: body.groupId || null,
     featured: body.featured || false,
     published: body.published || false,
@@ -144,7 +132,7 @@ export const POST = withErrorHandler(async (request: Request) => {
 
   emitEvent('content.created', {
     tenantId,
-    userId: authData.userId,
+    userId: auth.data.userId,
     contentId: content.id,
     category: content.category,
   });

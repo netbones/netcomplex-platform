@@ -1,15 +1,6 @@
 import { NextRequest } from 'next/server';
-import {
-  albums,
-  apiInternalError,
-  apiSuccess,
-  apiUnauthorized,
-  db,
-  getSessionAndRole,
-  notDeleted,
-  users,
-  guardSuspension,
-} from '@api/server';
+import { albums, apiInternalError, apiSuccess, db, notDeleted, users } from '@api/server';
+import { requireAuth } from '@/shared/api/auth-utils';
 import { eq, desc, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
@@ -21,10 +12,8 @@ export const maxDuration = 8;
  */
 export async function GET(request: NextRequest) {
   try {
-    const authData = await getSessionAndRole(request);
-    if (!authData) return apiUnauthorized();
-    const guard = guardSuspension(authData);
-    if (guard) return guard;
+    const auth = await requireAuth(request);
+    if (!auth.success) return auth.response;
 
     const { tenantId } = await withTenant();
 

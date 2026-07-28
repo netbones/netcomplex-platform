@@ -31,6 +31,14 @@ const mocks = vi.hoisted(() => ({
   apiCreated: vi.fn(),
 }));
 
+vi.mock('@/shared/api/auth-utils', () => ({
+  requireAuth: vi.fn(async () => {
+    const session = await mocks.getSessionAndRole();
+    if (!session) return { success: false, response: mocks.apiUnauthorized() };
+    return { success: true };
+  }),
+}));
+
 vi.mock('@api/server', () => ({
   CACHE_TAGS: { SETTINGS: 'settings' },
   now: vi.fn(() => new Date('2026-06-21T12:00:00Z')),

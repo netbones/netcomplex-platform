@@ -1,14 +1,6 @@
-import {
-  db,
-  invitations,
-  apiSuccess,
-  apiUnauthorized,
-  getSessionAndRole,
-  now,
-  withErrorHandler,
-  guardSuspension,
-} from '@api/server';
+import { db, invitations, apiSuccess, now, withErrorHandler } from '@api/server';
 
+import { requireAuth } from '@/shared/api/auth-utils';
 import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { notDeleted } from '@api/server';
@@ -20,10 +12,8 @@ export const maxDuration = 8;
  */
 export const DELETE = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
-    const authData = await getSessionAndRole(request);
-    if (!authData) return apiUnauthorized();
-    const guard = guardSuspension(authData);
-    if (guard) return guard;
+    const auth = await requireAuth(request);
+    if (!auth.success) return auth.response;
 
     const { tenantId } = await withTenant();
     const { id } = await params;

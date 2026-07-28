@@ -1,8 +1,8 @@
+import { requireAuth } from '@/shared/api/auth-utils';
 import {
   apiCreated,
   apiForbidden,
   apiSuccess,
-  apiUnauthorized,
   competitions,
   db,
   emitEvent,
@@ -10,8 +10,6 @@ import {
   now,
   revalidateContent,
   withErrorHandler,
-  getSessionAndRole,
-  guardSuspension,
 } from '@api/server';
 
 import { eq, and, desc, lte, gte } from 'drizzle-orm';
@@ -64,13 +62,8 @@ export const GET = withErrorHandler(async (request: Request) => {
   }
 
   // All other queries require authentication
-  const authData = await getSessionAndRole(request);
-
-  if (!authData) {
-    return apiUnauthorized();
-  }
-  const guard = guardSuspension(authData);
-  if (guard) return guard;
+  const auth = await requireAuth(request);
+  if (!auth.success) return auth.response;
 
   // Enforce tenant isolation
   const { tenantId } = await withTenant();
@@ -115,16 +108,13 @@ export const GET = withErrorHandler(async (request: Request) => {
  * @deprecated Use trpc.competitions.createCompetition instead.
  */
 export const POST = withErrorHandler(async (request: Request) => {
-  const authData = await getSessionAndRole(request);
-
-  if (!authData) {
-    return apiUnauthorized();
-  }
+  const auth = await requireAuth(request);
+  if (!auth.success) return auth.response;
 
   const moduleCheck = await assertModuleEnabled('competitions');
   if (moduleCheck) return moduleCheck;
 
-  if (!hasPermission(authData.role, 'content') && !hasPermission(authData.role, 'contentOwn')) {
+  if (!hasPermission(auth.data.role, 'content') && !hasPermission(auth.data.role, 'contentOwn')) {
     return apiForbidden();
   }
 
@@ -167,7 +157,7 @@ export const POST = withErrorHandler(async (request: Request) => {
 
   emitEvent('competition.entered', {
     tenantId,
-    userId: authData.userId,
+    userId: auth.data.userId,
     competitionId: competition.id,
   });
 

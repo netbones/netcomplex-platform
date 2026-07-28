@@ -2,11 +2,10 @@ import {
   apiError,
   apiNotFound,
   apiSuccess,
-  apiUnauthorized,
   getSessionAndRole,
   withErrorHandler,
-  guardSuspension,
 } from '@api/server';
+import { requireAuth } from '@/shared/api/auth-utils';
 import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import {
   getProviderLegalAgreementStatus,
@@ -42,18 +41,14 @@ export const GET = withErrorHandler(async (request: Request) => {
  * @deprecated Use trpc.providers.acceptLegalAgreements instead.
  */
 export const POST = withErrorHandler(async (request: Request) => {
-  const auth = await getSessionAndRole(request);
-  if (!auth) {
-    return apiUnauthorized();
-  }
-  const guard = guardSuspension(auth);
-  if (guard) return guard;
+  const auth = await requireAuth(request);
+  if (!auth.success) return auth.response;
 
   const moduleCheck = await assertModuleEnabled('providers');
   if (moduleCheck) return moduleCheck;
 
   const { tenantId } = await withTenant();
-  const providerRecord = await getProviderRecordForUser(tenantId, auth.session.user.email);
+  const providerRecord = await getProviderRecordForUser(tenantId, auth.data.session.user.email);
   if (!providerRecord) {
     return apiNotFound('Linked provider profile not found');
   }
