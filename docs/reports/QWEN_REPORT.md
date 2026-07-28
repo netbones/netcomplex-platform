@@ -12,9 +12,11 @@ audience: developer
 
 A single `schema.prisma` with 55+ models spanning auth, billing, disputes, marketplace, AI, seats, proxies, and more. No modularization. Any developer needs to understand the entire schema to work on any feature. Adding a new model risks breaking unrelated relations.
 
-### 3. God router: merits.ts is 639 lines with all business logic in the router
+### 3. God router: merits.ts is 639 lines with all business logic in the router ✅
 
-tRPC routers should be thin – input validation + calling a service. This router contains 8 procedures, helper functions (`createMeritRecord`, `requireUsersPermission`, `notifyTierChange`), constants, and complex business logic (standing calculation, dispute workflows) all in one file. Same pattern in `competitions.ts` (556 lines) and `proxy-vote.router.ts` (200 lines).
+tRPC routers should be thin – input validation + calling a service. This router contained 8 procedures, helper functions (`createMeritRecord`, `requireUsersPermission`, `notifyTierChange`), constants, and complex business logic (standing calculation, dispute workflows) all in one file. Same pattern in `competitions.ts` (556 lines).
+
+✅ Fixed: `merits.ts` (639→240) and `competitions.ts` (914→310) — logic extracted to `entities/{merit,competition}/services/`. `proxy-vote.router.ts` was already thin (153 lines, delegates to services).
 
 ### 4. Auth logic duplicated across ~304 API route handlers
 
