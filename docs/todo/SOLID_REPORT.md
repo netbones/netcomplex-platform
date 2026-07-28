@@ -2,31 +2,32 @@
 
 ## 1. Executive Summary
 
-| Metric                     | Value                                                              |
-| -------------------------- | ------------------------------------------------------------------ |
-| **Overall Health Score**   | **68/100** (+6)                                                    |
-| **Files Analyzed**         | 14 largest + codebase-wide grep                                    |
-| **Total Violations Found** | **45+** (10 OCP, 5 LSP, 8 DIP, 14 SRP, 8 ISP)                      |
-| **Resolved**               | **8** (6 dual-switch consolidations, 1 LSP fix, 1 component split) |
+| Metric                     | Value                                                                                |
+| -------------------------- | ------------------------------------------------------------------------------------ |
+| **Overall Health Score**   | **72/100** (+10)                                                                     |
+| **Files Analyzed**         | 14 largest + codebase-wide grep                                                      |
+| **Total Violations Found** | **45+** (10 OCP, 5 LSP, 8 DIP, 14 SRP, 8 ISP)                                        |
+| **Resolved**               | **12** (6 dual-switch consolidations, 1 LSP fix, 4 component splits, 1 router split) |
 
 ### Primary Violations
 
-**God files dominate.** The wallet page (1,444 lines), identity router (2,058 lines — 16 entity groups in one file), and billing modules (1,376 + 1,172 lines) each contain 8–15 distinct responsibilities. **20+ widgets** call raw `fetch()` or `trpc.useQuery()` directly instead of depending on abstractions.
+**God files were the main problem.** The wallet page, identity router, and billing modules contained 8–15 distinct responsibilities each. The identity router is now split into 12 single-responsibility files (properties, users, households, myProfile, profiles, soloSeats, agentAccess, suspensions, albums, seats, dashboardStats, userBooks). **20+ widgets** call raw `fetch()` or `trpc.useQuery()` directly instead of depending on abstractions.
 
 ### Progress This Session
 
-| #             | Fix                                                                       | Status |
-| ------------- | ------------------------------------------------------------------------- | ------ |
-| 1             | Consolidated 6 dual-switch anti-patterns into single config maps          | ✅     |
-| 2             | Extracted duplicated billing display styles to shared `display-config.ts` | ✅     |
-| 3             | Fixed `Button` forwardRef type for `asChild` LSP compliance               | ✅     |
-| 4             | Replaced `getActivityHref` switch with `ACTIVITY_ROUTES` lookup           | ✅     |
-| 5             | Split CompetitionList (682→166 lines, 5 single-responsibility files)      | ✅     |
-| **Remaining** | Split wallet page, identity router, EducationList, ProviderDetailView     | 📋     |
+| #             | Fix                                                                        | Status |
+| ------------- | -------------------------------------------------------------------------- | ------ |
+| 1             | Consolidated 6 dual-switch anti-patterns into single config maps           | ✅     |
+| 2             | Extracted duplicated billing display styles to shared `display-config.ts`  | ✅     |
+| 3             | Fixed `Button` forwardRef type for `asChild` LSP compliance                | ✅     |
+| 4             | Replaced `getActivityHref` switch with `ACTIVITY_ROUTES` lookup            | ✅     |
+| 5             | Split CompetitionList (682→166 lines, 5 single-responsibility files)       | ✅     |
+| 6             | Split identity router (2058→12 single-responsibility files)                | ✅     |
+| **Remaining** | Step 3 refactoring (domain service layer, WidgetRegistry, WidgetDataState) | 📋     |
 
 ### Impact Assessment
 
-- **Testability**: The identity router and billing modules cannot be unit-tested independently — every test must wire the full tRPC context.
+- **Testability**: The identity router sub-routers can now be unit-tested independently. Billing modules cannot — every test must wire the full tRPC context.
 - **Feature velocity**: Adding a new admin widget requires editing `AdminWidgetRenderer`'s 18-case switch and the widget registry.
 - **Onboarding**: New developers must understand 1,400-line pages before making any change to a single tab.
 
@@ -400,10 +401,10 @@ export function AdminWidgetRenderer({ widgetId }) {
 
 ### Step 2 — Extract-then-validate (moderate effort, same files)
 
-5. **Split Wallet page** into 5 tab components under `app/(tenant)/wallet/ui/` + 3 hooks under `model/`.
+5. ✅ **Split Wallet page** (1444→158 lines, 5 tab components + PageHeader/TabBar/ConsentToggle + helpers under model/).
 6. **Split Identity router** into 9 files in `server/routers/core/` (mechanical operation — move exports).
-7. **Split EducationList** CRUD into hooks: `useBursaryCRUD`, `useResourceCRUD`, `usePinEditor`.
-8. **Split ProviderDetailView** into 6 tab components + 1 hook.
+7. ✅ **Split EducationList** (904→180 lines, 4 tab components: PinTab, BursaryTab, ResourceTab, ShelfTab).
+8. ✅ **Split ProviderDetailView** (766→157 lines, 6 tab components + 1 hook + LegalDocumentCard subcomponent).
 9. ✅ **Split CompetitionList** — extracted DrawWinnersModal, AutoSelectModal, StatusBadge, ParticipantsPanel (with RafflePanel/PhotoPanel/ScorePanel sub-components) into `competition/` directory. Main file dropped from 682→166 lines.
 
 ### Step 3 — Architectural (higher effort, needs decision on CA)
@@ -413,7 +414,10 @@ export function AdminWidgetRenderer({ widgetId }) {
     - `entities/user/api/useUsers()` replaces 11+ fetch calls in UsersListSection
     - `entities/resource/api/useResources()` — replaces 5+ fetch calls in ResourceList
     - `entities/calendar/api/useCompetitions()` — replaces raw fetch in CompetitionList
+    - **BD:** `soralia-village-nm2z`
 
 11. **Implement WidgetRegistry pattern** to replace AdminWidgetRenderer's 18-case switch + SidebarWidgetBox's manual widget list. Each widget exports its own registration.
+    - **BD:** `soralia-village-j8ke`
 
-12. **Create `WidgetDataState<T>`** generica interface for all widgets to meeta common LSP — so the order widget shell can uniformly handle loading/error/empty/retry states.
+12. **Create `WidgetDataState<T>`** generic interface for all widgets to meet a common LSP — so the order widget shell can uniformly handle loading/error/empty/retry states.
+    - **BD:** `soralia-village-sdft`
