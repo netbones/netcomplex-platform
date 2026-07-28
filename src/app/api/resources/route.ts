@@ -1,9 +1,7 @@
 import {
   apiCreated,
   apiError,
-  apiForbidden,
   apiSuccess,
-  apiUnauthorized,
   db,
   notDeleted,
   now,
@@ -11,12 +9,13 @@ import {
   revalidateContent,
   withErrorHandler,
   getSessionAndRole,
-  guardSuspension,
 } from '@api/server';
+
+import { requireAuth } from '@/shared/api/auth-utils';
 
 import { eq, and, desc, inArray } from 'drizzle-orm';
 
-import { withTenant, assertModuleEnabled } from '@entities/tenant/server';
+import { withTenant } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
 import { createId } from '@shared/lib/id';
 
@@ -123,19 +122,8 @@ export const GET = withErrorHandler(async (request: Request) => {
  * @deprecated Use trpc.resources.createResource instead.
  */
 export const POST = withErrorHandler(async (request: Request) => {
-  const authData = await getSessionAndRole(request);
-
-  if (!authData) {
-    return apiUnauthorized();
-  }
-  const guard = guardSuspension(authData);
-  if (guard) return guard;
-  const featureCheck = await assertModuleEnabled('resources');
-  if (featureCheck) return featureCheck;
-
-  if (!hasPermission(authData.role, 'content')) {
-    return apiForbidden();
-  }
+  const auth = await requireAuth(request, { permission: 'content', module: 'resources' });
+  if (!auth.success) return auth.response;
 
   const body = await request.json();
 
@@ -164,7 +152,7 @@ export const POST = withErrorHandler(async (request: Request) => {
       bodyContent: body.bodyContent || null,
       version: body.version || null,
       visibility: body.visibility || 'ALL_RESIDENTS',
-      authorId: authData.role === 'ADMIN' ? null : authData.userId,
+      authorId: auth.data.role === 'ADMIN' ? null : auth.data.userId,
       publishedAt: body.publishedAt ? new Date(body.publishedAt) : null,
       createdAt: ts,
       updatedAt: ts,

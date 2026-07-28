@@ -7,6 +7,7 @@ import { db, users, tenants, platformSuspensions } from '../db';
 import { eq, and } from 'drizzle-orm';
 import { tRPCCodeToCanonical } from '../envelope';
 import type { ModuleKey } from '@/shared/lib';
+import { checkUserSuspension } from '../auth-utils';
 
 export interface Context {
   session: Awaited<ReturnType<typeof auth.api.getSession>>;
@@ -148,40 +149,14 @@ export const agentProcedure = protectedProcedure.use(async ({ ctx, next }) => {
 });
 
 /**
- * Suspension check helper — queries platformSuspensions for active suspensions.
- * Auto-unsuspends expired timed suspensions before blocking.
- *
- * Used by privilegedProcedure (Step 4 of 5-step auth middleware).
+ * Suspension check helper — delegates to shared checkUserSuspension for common
+ * query + auto-unsuspension logic. Used by privilegedProcedure.
  */
-async function checkNotSuspended(ctx: { userId: string; tenantId: string | null; db: typeof db }) {
-  // No-op when there's no user or tenant context
+async function checkNotSuspended(ctx: { userId: string; tenantId: string | null }) {
   if (!ctx.userId || !ctx.tenantId) return;
 
-  const [activeSuspension] = await ctx.db
-    .select({
-      id: platformSuspensions.id,
-      endDate: platformSuspensions.endDate,
-    })
-    .from(platformSuspensions)
-    .where(
-      and(
-        eq(platformSuspensions.userId, ctx.userId),
-        eq(platformSuspensions.tenantId, ctx.tenantId),
-        eq(platformSuspensions.isActive, true)
-      )
-    )
-    .limit(1);
-
-  if (activeSuspension) {
-    // Auto-unsuspend expired timed suspensions
-    if (activeSuspension.endDate && new Date(activeSuspension.endDate) < new Date()) {
-      await ctx.db
-        .update(platformSuspensions)
-        .set({ isActive: false, updatedAt: new Date() })
-        .where(eq(platformSuspensions.id, activeSuspension.id));
-      await ctx.db.update(users).set({ isActive: true }).where(eq(users.id, ctx.userId));
-      return;
-    }
+  const suspension = await checkUserSuspension(ctx.userId, ctx.tenantId);
+  if (suspension) {
     throw new TRPCError({
       code: 'FORBIDDEN',
       message: 'SUSPENDED_USER',

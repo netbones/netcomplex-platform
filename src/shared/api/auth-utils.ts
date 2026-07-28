@@ -1,5 +1,5 @@
 import { auth } from './auth';
-import { hasPermission, canManageOwnGroupOnly, Permission } from '@shared/lib';
+import { hasPermission, canManageOwnGroupOnly, Permission, ModuleKey } from '@shared/lib';
 import { db, users, platformSuspensions } from './db';
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
@@ -31,15 +31,15 @@ export interface SessionAndRole {
   suspension: SuspensionInfo | null;
 }
 
-/**
- * Retrieves the current user session and role from Better Auth.
- * If a request is provided, uses request headers for session lookup.
- * Falls back to headers() from next/headers for App Router server context.
- * Also checks suspension status for the authenticated user.
- *
- * @param request - Optional incoming HTTP request for header-based auth
- * @returns Session data with user ID, role, and suspension info, or null if not authenticated
- */
+export type AuthResult =
+  | { success: true; data: SessionAndRole }
+  | { success: false; response: NextResponse };
+
+export interface AuthOptions {
+  permission?: keyof Permission;
+  module?: ModuleKey;
+}
+
 export async function getSessionAndRole(request?: Request): Promise<SessionAndRole | null> {
   const session = await auth.api.getSession({
     headers: request?.headers ?? (await headers()),
@@ -56,8 +56,7 @@ export async function getSessionAndRole(request?: Request): Promise<SessionAndRo
 
   const role = user?.role || 'RESIDENT';
 
-  // Check suspension status for the authenticated user
-  const suspensionInfo = await checkActiveSuspension(session.user.id);
+  const suspensionInfo = await checkUserSuspension(session.user.id);
 
   return {
     session,
@@ -68,11 +67,22 @@ export async function getSessionAndRole(request?: Request): Promise<SessionAndRo
 }
 
 /**
- * Check if a user has an active suspension, with auto-unsuspension for expired timed suspensions.
- * @param userId - The user ID to check
- * @returns SuspensionInfo if actively suspended, null otherwise
+ * Unified suspension check — shared by REST (auth-utils) and tRPC (trpc/server).
+ * Queries active suspension for a user, auto-unsuspends if expired.
+ * Returns SuspensionInfo if actively suspended, null otherwise.
  */
-async function checkActiveSuspension(userId: string): Promise<SuspensionInfo | null> {
+export async function checkUserSuspension(
+  userId: string,
+  tenantId?: string
+): Promise<SuspensionInfo | null> {
+  const conditions = [
+    eq(platformSuspensions.userId, userId),
+    eq(platformSuspensions.isActive, true),
+  ];
+  if (tenantId) {
+    conditions.push(eq(platformSuspensions.tenantId, tenantId));
+  }
+
   const [suspension] = await db
     .select({
       id: platformSuspensions.id,
@@ -85,14 +95,13 @@ async function checkActiveSuspension(userId: string): Promise<SuspensionInfo | n
       createdById: platformSuspensions.createdById,
     })
     .from(platformSuspensions)
-    .where(and(eq(platformSuspensions.userId, userId), eq(platformSuspensions.isActive, true)))
+    .where(and(...conditions))
     .limit(1);
 
   if (!suspension) {
     return null;
   }
 
-  // Auto-unsuspend if the timed suspension has expired
   if (suspension.endDate && new Date(suspension.endDate) < new Date()) {
     await db
       .update(platformSuspensions)
@@ -108,12 +117,45 @@ async function checkActiveSuspension(userId: string): Promise<SuspensionInfo | n
 }
 
 /**
- * Check if the current request's user is suspended.
- * Auto-unsuspends expired timed suspensions before returning.
+ * Single auth call that replaces the 3-line pattern in REST handlers:
+ *   const authData = await getSessionAndRole(request);
+ *   if (!authData) return apiUnauthorized();
+ *   const guard = guardSuspension(authData);
+ *   if (guard) return guard;
  *
- * @param request - Incoming HTTP request
- * @returns Object with suspended flag and optional suspension details
+ * Optionally checks permission and module feature-gate.
  */
+export async function requireAuth(request: Request, options?: AuthOptions): Promise<AuthResult> {
+  const authData = await getSessionAndRole(request);
+
+  if (!authData) {
+    return { success: false, response: apiUnauthorized() };
+  }
+
+  const guard = guardSuspension(authData);
+  if (guard) {
+    return { success: false, response: guard };
+  }
+
+  if (options?.permission && !hasPermission(authData.role, options.permission)) {
+    return { success: false, response: apiForbidden('Insufficient permissions') };
+  }
+
+  if (options?.module) {
+    const { assertModuleEnabled } = await import('@entities/tenant/server');
+    const featureCheck = await assertModuleEnabled(options.module);
+    if (featureCheck) {
+      return { success: false, response: featureCheck };
+    }
+  }
+
+  return { success: true, data: authData };
+}
+
+async function checkActiveSuspension(userId: string): Promise<SuspensionInfo | null> {
+  return checkUserSuspension(userId);
+}
+
 export async function requireNotSuspended(request: Request): Promise<{
   suspended: boolean;
   suspension: SuspensionInfo | null;
@@ -124,20 +166,13 @@ export async function requireNotSuspended(request: Request): Promise<{
     return { suspended: false, suspension: null };
   }
 
-  const suspension = await checkActiveSuspension(session.user.id);
+  const suspension = await checkUserSuspension(session.user.id);
   return {
     suspended: suspension !== null,
     suspension,
   };
 }
 
-/**
- * Guard against a suspended user using pre-fetched session data.
- * Unlike `throwIfSuspended`, this does not re-query the session.
- *
- * @param authData - Pre-fetched session data from getSessionAndRole
- * @returns NextResponse with 403 error if suspended, null otherwise
- */
 export function guardSuspension(authData: SessionAndRole): NextResponse | null {
   if (!authData.suspension) return null;
   return apiSuspendedUser({
@@ -150,13 +185,6 @@ export function guardSuspension(authData: SessionAndRole): NextResponse | null {
   });
 }
 
-/**
- * Convenience guard that returns a 403 NextResponse if the user is suspended.
- * Returns null if not suspended (allowing clean early-return usage at top of routes).
- *
- * @param request - Incoming HTTP request
- * @returns NextResponse with 403 error if suspended, null otherwise
- */
 export async function throwIfSuspended(request: Request): Promise<NextResponse | null> {
   const { suspended, suspension } = await requireNotSuspended(request);
 
@@ -174,11 +202,6 @@ export async function throwIfSuspended(request: Request): Promise<NextResponse |
   return null;
 }
 
-/**
- * Requires the authenticated user to have a specific permission.
- * @param permission - The permission to check
- * @returns {NextResponse | null} - Error response if unauthorized, null if authorized
- */
 export async function requirePermission(
   permission: keyof Permission
 ): Promise<NextResponse | null> {
@@ -195,12 +218,6 @@ export async function requirePermission(
   return null;
 }
 
-/**
- * Requires the authenticated user to have a specific permission OR be a group admin.
- * Allows group admins to manage their own group's content.
- * @param permission - The permission to check
- * @returns {NextResponse | null} - Error response if unauthorized, null if authorized
- */
 export async function requireOwnPermission(
   permission: keyof Permission
 ): Promise<NextResponse | null> {
@@ -220,11 +237,6 @@ export async function requireOwnPermission(
   return null;
 }
 
-/**
- * Requires the authenticated user to have at least one of the specified permissions.
- * @param permissions - Array of permissions where any match grants access
- * @returns {NextResponse | null} - Error response if unauthorized, null if authorized
- */
 export async function requireAnyPermission(
   permissions: Array<keyof Permission>
 ): Promise<NextResponse | null> {
