@@ -1,3 +1,11 @@
+---
+title: Netcomplex Documentation Index
+status: current
+reviewed: 2026-07-28
+tags: [index, navigation]
+audience: all
+---
+
 # Netcomplex Documentation Index
 
 Welcome to the central documentation hub for Netcomplex. This index provides an overview of the project's documentation organized by functional area.

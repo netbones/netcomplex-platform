@@ -1,3 +1,12 @@
+---
+title: Events System Review
+status: current
+reviewed: 2026-07-22
+tags: [events, audit, report]
+audience: developer
+bd_issues: [tepl, e4fy, f1k7]
+---
+
 # Events System Review
 
 > **Date:** 2026-07-15

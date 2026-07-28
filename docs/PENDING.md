@@ -1,3 +1,11 @@
+---
+title: Pending Work Items — Priority Assessment
+status: current
+reviewed: 2026-07-28
+tags: [tracking, priorities, todos]
+audience: all
+---
+
 # Pending Work Items — Priority Assessment
 
 > Analyzed 2026-07-28. Items marked ⏳ verified against source code for currency.
