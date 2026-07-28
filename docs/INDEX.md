@@ -186,6 +186,7 @@ Analysis, architecture reviews, and investigation reports.
 - **[CMS_AUDIT_DISCOVERY.md](./reports/CMS_AUDIT_DISCOVERY.md)**: Full CMS implementation audit — TipTap editor, Content schema, API routes, media pipeline
 - **[EVENT_REPORT.md](./reports/EVENT_REPORT.md)**: Events system review — 17 issues, 13/17 resolved, 4 remaining (all P3)
 - **[PubSub.md](./reports/PubSub.md)**: Pub/Sub event architecture review — designed bus is inert, real reactivity via Supabase + cache invalidation
+- **[QWEN_REPORT.md](./reports/QWEN_REPORT.md)**: Qwen codebase analysis — monolithic Prisma, auth duplication, god routers, state fragmentation
 - And more: DEDUP, GATING, MERITS, NOTIFICATIONS, PERFORMANCE, SECURITY, SITE, TIER, TOAST_TOOLTIPS
 
 ---

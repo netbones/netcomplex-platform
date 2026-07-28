@@ -118,6 +118,10 @@ audience: all
 | **CMS_AUDIT_DISCOVERY.md**          | Content moderation — no multi-stage review pipeline, single-step publish/unpublish only         | Per CMS audit report §8. Existing admin has basic publish/flag — no staged workflow       |
 | **reports/PubSub.md**               | Pick one event topology and document it — Supabase vs node:events vs cache invalidation         | Architectural decision, needs ADR                                                         |
 | **reports/PubSub.md**               | Add event catalog mapping every DomainEvent to producer and consumer                            | CI check that every event has ≥1 emitter and ≥1 handler                                   |
+| **reports/QWEN_REPORT.md**          | Massive Prisma schema — 3,500+ lines, 55+ models, no modularization                             | Adding models risks unrelated relations. Consider multi-file Prisma or domain schemas     |
+| **reports/QWEN_REPORT.md**          | Auth logic duplicated across ~304 REST handlers + tRPC middleware — no middleware/CDI layer     | `getSessionAndRole` in every handler, same suspension check duplicated                    |
+| **reports/QWEN_REPORT.md**          | Better Auth config tightly coupled to 10 Drizzle tables (circular dep: auth→drizzle→prisma)     | `databaseHooks.user.create` queries `tenants` directly                                    |
+| **reports/QWEN_REPORT.md**          | Fragmented state management — zustand stores, React Context, no coordination pattern            | `useTenantStore`, `useGateContextStore`, `useWidgetStore`, ad-hoc Contexts                |
 
 ---
 
