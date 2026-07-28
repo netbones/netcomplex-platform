@@ -176,6 +176,7 @@ Analysis, architecture reviews, and investigation reports.
 - **[TICKETING_REPORT.md](./reports/TICKETING_REPORT.md)**: Ticketing system report
 - **[CMS_COMPARISON.md](./reports/CMS_COMPARISON.md)**: Headless CMS platform comparison (Payload, Strapi, Contentful, Sanity, Directus, Ghost)
 - **[CMS_AUDIT_DISCOVERY.md](./reports/CMS_AUDIT_DISCOVERY.md)**: Full CMS implementation audit — TipTap editor, Content schema, API routes, media pipeline
+- **[EVENT_REPORT.md](./reports/EVENT_REPORT.md)**: Events system review — 17 issues, 13/17 resolved, 4 remaining (all P3)
 - And more: DEDUP, GATING, MERITS, NOTIFICATIONS, PERFORMANCE, SECURITY, SITE, TIER, TOAST_TOOLTIPS
 
 ---

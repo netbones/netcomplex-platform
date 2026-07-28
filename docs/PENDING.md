@@ -111,35 +111,39 @@
 
 ## P3 — Low Priority (deferred / aspirational)
 
-| Source                                | Item                                                                           | Notes                                     |
-| ------------------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------- |
-| **PRD.md**                            | Platform analytics dashboard                                                   | Cross-tenant analytics                    |
-| **AGENT_MODEL.md**                    | Agent performance analytics                                                    | —                                         |
-| **AGENT_MODEL.md**                    | Commission payment processing (needs UCP/AP2)                                  | —                                         |
-| **AGENT_MODEL.md**                    | Property listing analytics                                                     | —                                         |
-| **AGENT_MODEL.md**                    | Agent specialization matching                                                  | —                                         |
-| **AGENT_MODEL.md**                    | External real estate platform integration                                      | —                                         |
-| **AGENT_MODEL.md**                    | All success metrics (conversion, engagement, deals)                            | —                                         |
-| **cleaner_react_architecture.md**     | Domain predicates in `useIdentity.ts` as pure functions                        | —                                         |
-| **cleaner_react_architecture.md**     | Permissions module expansion                                                   | —                                         |
-| **MOBILE_MONOREPO.md**                | All 8 app store readiness items (blocked on app existence)                     | Privacy policy, screenshots, etc.         |
-| **widget-registry**.md                | react-rnd drag-and-drop grid (all items)                                       | No WidgetContainer, resize, drag          |
-| **widget-registry**.md                | MobileWidgetCard, useIsMobile, breakpoint testing                              | —                                         |
-| **widget-registry**.md                | Remote widget loading (loader field, Module Federation)                        | —                                         |
-| **MIGRATION.md**                      | Remove empty legacy buckets (src/components/ empty, src/lib/ gone — doc stale) | Already done                              |
-| **MIGRATION.md**                      | Update README (doc stale — already marked done)                                | Already done                              |
-| **migration-plan-identity.md**        | Phase 5: Remove legacy fields (already removed from schema)                    | Already done                              |
-| **ADVISORY-030.md**                   | Onboarding refactor (earlier draft)                                            | **SUPERSEDED** by ADVISORY-031            |
-| **contexts/widget.md**                | Phase 38 architecture milestone                                                | ServicesLayer exists, milestone unplanned |
-| **COMMUNIQUE-03.md**                  | Document tier decision in ADR                                                  | —                                         |
-| **STANDARDS/TESTING_METHODS.md**      | All 17 manual E2E testing items                                                | Ongoing QA activity                       |
-| **STANDARDS/dependency-analysis.md**  | Vercel Blob migration (not adopted)                                            | Project chose different approach          |
-| **STANDARDS/dependency-analysis.md**  | Clerk auth migration (not adopted)                                             | Project chose Better Auth                 |
-| **STANDARDS/dependency-analysis.md**  | Full Edge Runtime deployment (not adopted)                                     | —                                         |
-| **STANDARDS/dependency-analysis.md**  | Edge-compatible health check                                                   | —                                         |
-| **STANDARDS/dependency-analysis.md**  | Monitor cost reduction                                                         | —                                         |
-| **PRODUCT/user-stories-john-mary.md** | All 114 user stories (full anchor tenant roadmap)                              | M5 launch aspirational scope              |
-| **TECH_DEBT_REMEDIATION_PLAN.md**     | P3 remaining items (unused code, logging, Core Web Vitals, Sentry)             | Nice-to-have improvements                 |
+| Source                                | Item                                                                           | Notes                                                    |
+| ------------------------------------- | ------------------------------------------------------------------------------ | -------------------------------------------------------- |
+| **PRD.md**                            | Platform analytics dashboard                                                   | Cross-tenant analytics                                   |
+| **AGENT_MODEL.md**                    | Agent performance analytics                                                    | —                                                        |
+| **AGENT_MODEL.md**                    | Commission payment processing (needs UCP/AP2)                                  | —                                                        |
+| **AGENT_MODEL.md**                    | Property listing analytics                                                     | —                                                        |
+| **AGENT_MODEL.md**                    | Agent specialization matching                                                  | —                                                        |
+| **AGENT_MODEL.md**                    | External real estate platform integration                                      | —                                                        |
+| **AGENT_MODEL.md**                    | All success metrics (conversion, engagement, deals)                            | —                                                        |
+| **cleaner_react_architecture.md**     | Domain predicates in `useIdentity.ts` as pure functions                        | —                                                        |
+| **cleaner_react_architecture.md**     | Permissions module expansion                                                   | —                                                        |
+| **MOBILE_MONOREPO.md**                | All 8 app store readiness items (blocked on app existence)                     | Privacy policy, screenshots, etc.                        |
+| **widget-registry**.md                | react-rnd drag-and-drop grid (all items)                                       | No WidgetContainer, resize, drag                         |
+| **widget-registry**.md                | MobileWidgetCard, useIsMobile, breakpoint testing                              | —                                                        |
+| **widget-registry**.md                | Remote widget loading (loader field, Module Federation)                        | —                                                        |
+| **MIGRATION.md**                      | Remove empty legacy buckets (src/components/ empty, src/lib/ gone — doc stale) | Already done                                             |
+| **MIGRATION.md**                      | Update README (doc stale — already marked done)                                | Already done                                             |
+| **migration-plan-identity.md**        | Phase 5: Remove legacy fields (already removed from schema)                    | Already done                                             |
+| **ADVISORY-030.md**                   | Onboarding refactor (earlier draft)                                            | **SUPERSEDED** by ADVISORY-031                           |
+| **contexts/widget.md**                | Phase 38 architecture milestone                                                | ServicesLayer exists, milestone unplanned                |
+| **COMMUNIQUE-03.md**                  | Document tier decision in ADR                                                  | —                                                        |
+| **STANDARDS/TESTING_METHODS.md**      | All 17 manual E2E testing items                                                | Ongoing QA activity                                      |
+| **STANDARDS/dependency-analysis.md**  | Vercel Blob migration (not adopted)                                            | Project chose different approach                         |
+| **STANDARDS/dependency-analysis.md**  | Clerk auth migration (not adopted)                                             | Project chose Better Auth                                |
+| **STANDARDS/dependency-analysis.md**  | Full Edge Runtime deployment (not adopted)                                     | —                                                        |
+| **STANDARDS/dependency-analysis.md**  | Edge-compatible health check                                                   | —                                                        |
+| **STANDARDS/dependency-analysis.md**  | Monitor cost reduction                                                         | —                                                        |
+| **PRODUCT/user-stories-john-mary.md** | All 114 user stories (full anchor tenant roadmap)                              | M5 launch aspirational scope                             |
+| **TECH_DEBT_REMEDIATION_PLAN.md**     | P3 remaining items (unused code, logging, Core Web Vitals, Sentry)             | Nice-to-have improvements                                |
+| **reports/EVENT_REPORT.md**           | Recurring events support (#11)                                                 | `soralia-village-tepl`                                   |
+| **reports/EVENT_REPORT.md**           | Font Awesome → lucide-react migration (#13)                                    | `soralia-village-e4fy` (69 occurrences in admin widgets) |
+| **reports/EVENT_REPORT.md**           | Split `DisputeEventType` enum (#16)                                            | `soralia-village-f1k7`                                   |
+| **reports/EVENT_REPORT.md**           | Lowercase `user` model — coordinate with Better Auth upgrade (#17)             | Not tracked — defer to Better Auth upgrade               |
 
 ---
 
@@ -180,7 +184,7 @@ These are marked ⏳ in source docs but code confirms they are done:
 | **P0**               | 0     | No P0 items genuinely pending in PENDING.md                                                                               |
 | **P1**               | ~20   | Agent verification, maintenance notifications, gate enforcement, household management UI, org switcher, FSD doc staleness |
 | **P2**               | ~50   | Tenant provisioning UI, billing, API governance, commission tracking, widget patterns, migration doc staleness, tech debt |
-| **P3**               | ~150+ | Analytics, mobile app store, react-rnd grid, user stories (114), aspirational standards                                   |
+| **P3**               | ~155+ | Analytics, mobile app store, react-rnd grid, user stories (114), event report items (4), aspirational standards           |
 | **Done (doc stale)** | ~20   | Items confirmed implemented in code but still marked ⏳ in docs                                                           |
 
 ---
@@ -191,6 +195,7 @@ These are marked ⏳ in source docs but code confirms they are done:
 | ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | **reports/CMS_COMPARISON.md**      | Headless CMS platform comparison (Payload, Strapi, Contentful, Sanity, Directus, Ghost) — patterns to consider, no actionable items |
 | **reports/CMS_AUDIT_DISCOVERY.md** | Full CMS implementation audit of existing TipTap/Content system — two P2 findings above (versioning, moderation workflow)           |
+| **reports/EVENT_REPORT.md**        | Events system review — 17 issues identified, 13/17 resolved, 4 P3 remaining (see P3 table above)                                    |
 
 ## Action Items
 

@@ -392,20 +392,9 @@ Inconsistent with the rest of the codebase which uses `User`/`users`.
 
 ## Remaining Work (4 items, all P3)
 
-| #   | Issue                                                        | BD Issue    |
-| --- | ------------------------------------------------------------ | ----------- |
-| 11  | Recurring events support                                     | Not tracked |
-| 13  | Font Awesome → lucide-react migration                        | Not tracked |
-| 16  | Split `DisputeEventType` enum                                | Not tracked |
-| 17  | Lowercase `user` model (coordinate with Better Auth upgrade) | Not tracked |
-
----
-
-## Remaining Work (4 items, all P3)
-
-| #   | Issue                                                        | BD Issue    |
-| --- | ------------------------------------------------------------ | ----------- |
-| 11  | Recurring events support                                     | Not tracked |
-| 13  | Font Awesome → lucide-react migration                        | Not tracked |
-| 16  | Split `DisputeEventType` enum                                | Not tracked |
-| 17  | Lowercase `user` model (coordinate with Better Auth upgrade) | Not tracked |
+| #   | Issue                                                        | BD Issue                  |
+| --- | ------------------------------------------------------------ | ------------------------- |
+| 11  | Recurring events support                                     | `soralia-village-tepl`    |
+| 13  | Font Awesome → lucide-react migration                        | `soralia-village-e4fy`    |
+| 16  | Split `DisputeEventType` enum                                | `soralia-village-f1k7`    |
+| 17  | Lowercase `user` model (coordinate with Better Auth upgrade) | Not tracked — defer to BA |
