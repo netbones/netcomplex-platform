@@ -1,107 +1,36 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { trpc } from '@api/client';
 
-interface BursaryRow {
-  id: string;
-  title: string;
-  funder: string;
-  fieldId: string;
-  amount: string;
-  description: string;
-  applyUrl: string | null;
-  deadline: string;
-  status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
-}
-
-interface ResourceRow {
-  id: string;
-  title: string;
-  provider: string | null;
-  externalUrl: string | null;
-  mediaType: 'BOOK' | 'COURSE' | 'JOURNAL' | 'VIDEO' | null;
-  featured: boolean;
-  tags: string[];
-  createdAt: string;
-}
-
-interface BursaryField {
-  id: string;
-  value: string;
-  label: string;
-  isActive: boolean;
-}
-
-interface PinData {
-  title: string;
-  sub: string;
-  link: string;
-  btn: string;
-}
-
-interface ShelfBook {
-  title: string;
-  author: string;
-  gutId: string;
-  stripe: string;
-}
-
-interface EduSettings {
-  pin: PinData;
-  shelf: ShelfBook[];
-}
-
-type TabId = 'pin' | 'bursaries' | 'resources' | 'shelf';
-
-const STRIPE_POOL = [
-  '#3B6D11',
-  '#185FA5',
-  '#854F0B',
-  '#993556',
-  '#534AB7',
-  '#993C1D',
-  '#0F6E56',
-  '#3C3489',
-];
-const EMPTY_PIN: PinData = { title: '', sub: '', link: '', btn: 'Apply' };
+import type { BursaryRow, ResourceRow, EduSettings, TabId } from './education/types';
+import { PinTab } from './education/PinTab';
+import { BursaryTab } from './education/BursaryTab';
+import { ResourceTab } from './education/ResourceTab';
+import { ShelfTab } from './education/ShelfTab';
 
 export function EducationList() {
   const [tab, setTab] = useState<TabId>('pin');
-  const [loading, setLoading] = useState(true);
   const [searchB, setSearchB] = useState('');
   const [searchR, setSearchR] = useState('');
 
-  const { data: bursaries = [], refetch: refetchBursaries } =
-    trpc.education.listBursaries.useQuery() as {
-      data?: BursaryRow[];
-      refetch: () => void;
-    };
-  const { data: resources = [], refetch: refetchResources } =
-    trpc.education.listEducationResources.useQuery() as {
-      data?: ResourceRow[];
-      refetch: () => void;
-    };
-  const { data: fields = [] } = trpc.education.listBursaryFields.useQuery() as {
-    data?: BursaryField[];
+  const { data: bursaries = [] } = trpc.education.listBursaries.useQuery() as {
+    data?: BursaryRow[];
   };
-  const { data: settings = { pin: EMPTY_PIN, shelf: [] }, refetch: refetchSettings } =
-    trpc.education.getEducationSettings.useQuery() as {
-      data?: EduSettings;
-      refetch: () => void;
-    };
+  const { data: resources = [] } = trpc.education.listEducationResources.useQuery() as {
+    data?: ResourceRow[];
+  };
+  const { data: fields = [] } = trpc.education.listBursaryFields.useQuery() as {
+    data?: { id: string; value: string; label: string; isActive: boolean }[];
+  };
+  const {
+    data: settings = { pin: { title: '', sub: '', link: '', btn: 'Apply' }, shelf: [] },
+    refetch: refetchSettings,
+  } = trpc.education.getEducationSettings.useQuery() as {
+    data?: EduSettings;
+    refetch: () => void;
+  };
 
-  // Form state
-  const [editingBursary, setEditingBursary] = useState<BursaryRow | null>(null);
-  const [editingResource, setEditingResource] = useState<ResourceRow | null>(null);
-
-  useEffect(() => {
-    if (bursaries || resources || fields || settings) {
-      setLoading(false);
-    }
-  }, [bursaries, resources, fields, settings]);
-
-  // Mutation hooks
   const createBursaryMutation = trpc.education.createBursary.useMutation({
     onSuccess: () => refetchBursaries(),
   });
@@ -124,18 +53,18 @@ export function EducationList() {
     onSuccess: () => refetchSettings(),
   });
 
-  const getFieldLabel = (fieldId: string) => fields.find(f => f.id === fieldId)?.label ?? fieldId;
-
-  const statusBadge = (s: string) => {
-    const cls = s === 'PUBLISHED' ? 'published' : s === 'DRAFT' ? 'draft' : 'expired';
-    const lbl = s === 'PUBLISHED' ? 'Published' : s === 'DRAFT' ? 'Draft' : 'Expired';
-    return <span className={`adm-status ${cls}`}>{lbl}</span>;
-  };
-
-  const resTypeLabel = (mt: string | null) =>
-    mt ? mt.charAt(0) + mt.slice(1).toLowerCase() : 'Link';
-
-  // ── Bursary actions ──
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { data: _bursaries, refetch: refetchBursaries } =
+    trpc.education.listBursaries.useQuery() as {
+      data?: BursaryRow[];
+      refetch: () => void;
+    };
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { data: _resources, refetch: refetchResources } =
+    trpc.education.listEducationResources.useQuery() as {
+      data?: ResourceRow[];
+      refetch: () => void;
+    };
 
   const saveBursary = (item: Partial<BursaryRow> & { id?: string }) => {
     if (item.id) {
@@ -153,7 +82,6 @@ export function EducationList() {
         status: (item.status as 'DRAFT' | 'PUBLISHED' | 'ARCHIVED') ?? 'DRAFT',
       } as Parameters<typeof createBursaryMutation.mutate>[0]);
     }
-    setEditingBursary(null);
   };
 
   const toggleBursaryStatus = (b: BursaryRow) => {
@@ -161,11 +89,7 @@ export function EducationList() {
     updateBursaryMutation.mutate({ id: b.id, status: newStatus });
   };
 
-  const deleteBursary = (id: string) => {
-    deleteBursaryMutation.mutate({ id });
-  };
-
-  // ── Resource actions ──
+  const deleteBursary = (id: string) => deleteBursaryMutation.mutate({ id });
 
   const saveResource = (item: Partial<ResourceRow> & { id?: string }) => {
     if (item.id) {
@@ -182,66 +106,11 @@ export function EducationList() {
         tags: item.tags,
       } as Parameters<typeof createResourceMutation.mutate>[0]);
     }
-    setEditingResource(null);
   };
 
-  const deleteResource = (id: string) => {
-    deleteResourceMutation.mutate({ id });
-  };
+  const deleteResource = (id: string) => deleteResourceMutation.mutate({ id });
 
-  // ── Settings actions ──
-
-  const saveSettings = (data: EduSettings) => {
-    updateSettingsMutation.mutate(data);
-  };
-
-  // ── Pin ──
-
-  const [pinForm, setPinForm] = useState<PinData>(EMPTY_PIN);
-  useEffect(() => {
-    setPinForm(settings.pin);
-  }, [settings.pin]);
-
-  const savePin = () => saveSettings({ ...settings, pin: pinForm });
-  const clearPin = () => saveSettings({ ...settings, pin: EMPTY_PIN });
-
-  // ── Shelf ──
-
-  const addShelfItem = () => {
-    const title = (document.getElementById('shelf-title') as HTMLInputElement)?.value?.trim();
-    const author = (document.getElementById('shelf-author') as HTMLInputElement)?.value?.trim();
-    const gutId = (document.getElementById('shelf-gutid') as HTMLInputElement)?.value?.trim();
-    if (!title || !gutId) return;
-    const newShelf = [
-      ...settings.shelf,
-      {
-        title,
-        author: author || 'Unknown',
-        gutId,
-        stripe: STRIPE_POOL[settings.shelf.length % STRIPE_POOL.length],
-      },
-    ];
-    saveSettings({ ...settings, shelf: newShelf });
-  };
-
-  const removeShelfItem = (i: number) => {
-    saveSettings({ ...settings, shelf: settings.shelf.filter((_, idx) => idx !== i) });
-  };
-
-  if (loading) return <div className="animate-pulse h-64 bg-gray-100 rounded-lg" />;
-
-  const filteredBursaries = bursaries.filter(
-    b =>
-      !searchB ||
-      b.title.toLowerCase().includes(searchB.toLowerCase()) ||
-      b.funder.toLowerCase().includes(searchB.toLowerCase())
-  );
-  const filteredResources = resources.filter(
-    r =>
-      !searchR ||
-      r.title.toLowerCase().includes(searchR.toLowerCase()) ||
-      (r.provider ?? '').toLowerCase().includes(searchR.toLowerCase())
-  );
+  const saveSettings = (data: EduSettings) => updateSettingsMutation.mutate(data);
 
   return (
     <div className="adm-root">
@@ -285,11 +154,7 @@ export function EducationList() {
           <button
             key={t}
             className={`adm-tab ${tab === t ? 'active' : ''}`}
-            onClick={() => {
-              setTab(t);
-              setEditingBursary(null);
-              setEditingResource(null);
-            }}
+            onClick={() => setTab(t)}
           >
             {t === 'pin' && 'Pinned'}
             {t === 'bursaries' && 'Bursaries'}
@@ -299,560 +164,28 @@ export function EducationList() {
         ))}
       </div>
 
-      {/* PIN TAB */}
-      {tab === 'pin' && (
-        <div>
-          <div className="adm-pin-current">
-            {settings.pin.title ? (
-              <>
-                <span className="adm-pin-label">Currently pinned</span>
-                <div className="adm-pin-title">{settings.pin.title}</div>
-                <div className="adm-pin-sub">{settings.pin.sub}</div>
-              </>
-            ) : (
-              <>
-                <span
-                  className="adm-pin-label"
-                  style={{ background: 'var(--surface-1)', color: 'var(--text-muted)' }}
-                >
-                  No pin set
-                </span>
-                <div className="adm-pin-title" style={{ color: 'var(--text-muted)' }}>
-                  No pinned item is showing to residents
-                </div>
-              </>
-            )}
-          </div>
-          <div className="adm-panel">
-            <div className="adm-panel-label">Set pinned item</div>
-            <div className="adm-field-row full">
-              <div className="adm-field">
-                <label>Headline</label>
-                <input
-                  type="text"
-                  value={pinForm.title}
-                  onChange={e => setPinForm({ ...pinForm, title: e.target.value })}
-                  placeholder="e.g. NSFAS 2026 applications are open"
-                />
-              </div>
-            </div>
-            <div className="adm-field-row full">
-              <div className="adm-field">
-                <label>Subtext</label>
-                <input
-                  type="text"
-                  value={pinForm.sub}
-                  onChange={e => setPinForm({ ...pinForm, sub: e.target.value })}
-                  placeholder="e.g. All SA citizens at public universities — closes 31 Jan 2026"
-                />
-              </div>
-            </div>
-            <div className="adm-field-row">
-              <div className="adm-field">
-                <label>Link URL</label>
-                <input
-                  type="text"
-                  value={pinForm.link}
-                  onChange={e => setPinForm({ ...pinForm, link: e.target.value })}
-                  placeholder="https://..."
-                />
-              </div>
-              <div className="adm-field">
-                <label>Button label</label>
-                <input
-                  type="text"
-                  value={pinForm.btn}
-                  onChange={e => setPinForm({ ...pinForm, btn: e.target.value })}
-                />
-              </div>
-            </div>
-            <div className="adm-panel-actions">
-              <button
-                className="adm-icon-btn"
-                style={{ width: 'auto', padding: '0 12px' }}
-                onClick={clearPin}
-              >
-                Clear pin
-              </button>
-              <button
-                className="adm-icon-btn"
-                style={{
-                  width: 'auto',
-                  padding: '0 12px',
-                  background: 'var(--bg-accent)',
-                  color: 'white',
-                }}
-                onClick={savePin}
-              >
-                Save pin
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* BURSARIES TAB */}
+      {tab === 'pin' && <PinTab settings={settings} onSaveSettings={saveSettings} />}
       {tab === 'bursaries' && (
-        <div>
-          <div className="adm-toolbar">
-            <input
-              type="text"
-              value={searchB}
-              onChange={e => setSearchB(e.target.value)}
-              placeholder="Filter bursaries..."
-            />
-            <span className="adm-count">
-              {filteredBursaries.length} of {bursaries.length}
-            </span>
-            <button
-              className="adm-icon-btn"
-              style={{ width: 'auto', padding: '0 12px', gap: 4, display: 'flex' }}
-              onClick={() =>
-                setEditingBursary({
-                  id: '',
-                  title: '',
-                  funder: '',
-                  fieldId: fields[0]?.id ?? '',
-                  amount: '',
-                  description: '',
-                  applyUrl: null,
-                  deadline: '',
-                  status: 'DRAFT',
-                })
-              }
-            >
-              Add bursary
-            </button>
-          </div>
-          {editingBursary && (
-            <div className="adm-panel">
-              <div className="adm-panel-label">
-                {editingBursary.id ? 'Edit bursary' : 'New bursary'}
-              </div>
-              <div className="adm-field-row">
-                <div className="adm-field">
-                  <label>Title</label>
-                  <input
-                    value={editingBursary.title}
-                    onChange={e => setEditingBursary({ ...editingBursary, title: e.target.value })}
-                  />
-                </div>
-                <div className="adm-field">
-                  <label>Funder</label>
-                  <input
-                    value={editingBursary.funder}
-                    onChange={e => setEditingBursary({ ...editingBursary, funder: e.target.value })}
-                  />
-                </div>
-              </div>
-              <div className="adm-field-row">
-                <div className="adm-field">
-                  <label>Field of study</label>
-                  <select
-                    value={editingBursary.fieldId}
-                    onChange={e =>
-                      setEditingBursary({ ...editingBursary, fieldId: e.target.value })
-                    }
-                  >
-                    {fields
-                      .filter(f => f.isActive)
-                      .map(f => (
-                        <option key={f.id} value={f.id}>
-                          {f.label}
-                        </option>
-                      ))}
-                  </select>
-                </div>
-                <div className="adm-field">
-                  <label>Amount</label>
-                  <input
-                    value={editingBursary.amount}
-                    onChange={e => setEditingBursary({ ...editingBursary, amount: e.target.value })}
-                    placeholder="e.g. R90 000/yr"
-                  />
-                </div>
-              </div>
-              <div className="adm-field-row">
-                <div className="adm-field">
-                  <label>Closing date</label>
-                  <input
-                    type="date"
-                    value={editingBursary.deadline ? editingBursary.deadline.slice(0, 10) : ''}
-                    onChange={e =>
-                      setEditingBursary({ ...editingBursary, deadline: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="adm-field">
-                  <label>Status</label>
-                  <select
-                    value={editingBursary.status}
-                    onChange={e =>
-                      setEditingBursary({
-                        ...editingBursary,
-                        status: e.target.value as BursaryRow['status'],
-                      })
-                    }
-                  >
-                    <option value="DRAFT">Draft</option>
-                    <option value="PUBLISHED">Published</option>
-                    <option value="ARCHIVED">Archived</option>
-                  </select>
-                </div>
-              </div>
-              <div className="adm-panel-actions">
-                <button
-                  className="adm-icon-btn"
-                  style={{ width: 'auto', padding: '0 12px' }}
-                  onClick={() => setEditingBursary(null)}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="adm-icon-btn"
-                  style={{
-                    width: 'auto',
-                    padding: '0 12px',
-                    background: 'var(--bg-accent)',
-                    color: 'white',
-                  }}
-                  onClick={() => saveBursary(editingBursary)}
-                >
-                  {editingBursary.id ? 'Save changes' : 'Create bursary'}
-                </button>
-              </div>
-            </div>
-          )}
-          <div>
-            {filteredBursaries.length ? (
-              filteredBursaries.map(b => (
-                <div key={b.id} className="adm-row">
-                  <div className="adm-row-icon bursary">$</div>
-                  <div className="adm-row-body">
-                    <div className="adm-row-title">{b.title}</div>
-                    <div className="adm-row-sub">
-                      {b.funder} · {getFieldLabel(b.fieldId)} · {b.amount} · closes{' '}
-                      {b.deadline ? new Date(b.deadline).toLocaleDateString('en-ZA') : '—'}
-                    </div>
-                  </div>
-                  {statusBadge(b.status)}
-                  <div className="adm-row-actions">
-                    <button className="adm-icon-btn" onClick={() => setEditingBursary(b)}>
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
-                        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
-                      </svg>
-                    </button>
-                    <button className="adm-icon-btn" onClick={() => toggleBursaryStatus(b)}>
-                      {b.status === 'PUBLISHED' ? (
-                        <svg
-                          width="14"
-                          height="14"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        >
-                          <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" />
-                          <line x1="1" y1="1" x2="23" y2="23" />
-                        </svg>
-                      ) : (
-                        <svg
-                          width="14"
-                          height="14"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        >
-                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                          <circle cx="12" cy="12" r="3" />
-                        </svg>
-                      )}
-                    </button>
-                  </div>
-                  <button className="adm-icon-btn danger" onClick={() => deleteBursary(b.id)}>
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <polyline points="3 6 5 6 21 6" />
-                      <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
-                    </svg>
-                  </button>
-                </div>
-              ))
-            ) : (
-              <div className="adm-empty">
-                No bursaries match. Try a different search or add a new one.
-              </div>
-            )}
-          </div>
-        </div>
+        <BursaryTab
+          bursaries={bursaries}
+          fields={fields}
+          search={searchB}
+          onSearchChange={setSearchB}
+          onSave={saveBursary}
+          onToggleStatus={toggleBursaryStatus}
+          onDelete={deleteBursary}
+        />
       )}
-
-      {/* RESOURCES TAB */}
       {tab === 'resources' && (
-        <div>
-          <div className="adm-toolbar">
-            <input
-              type="text"
-              value={searchR}
-              onChange={e => setSearchR(e.target.value)}
-              placeholder="Filter resources..."
-            />
-            <span className="adm-count">
-              {filteredResources.length} of {resources.length}
-            </span>
-            <button
-              className="adm-icon-btn"
-              style={{ width: 'auto', padding: '0 12px', gap: 4, display: 'flex' }}
-              onClick={() =>
-                setEditingResource({
-                  id: '',
-                  title: '',
-                  provider: null,
-                  externalUrl: null,
-                  mediaType: 'COURSE',
-                  featured: false,
-                  tags: [],
-                  createdAt: '',
-                })
-              }
-            >
-              Add resource
-            </button>
-          </div>
-          {editingResource && (
-            <div className="adm-panel">
-              <div className="adm-panel-label">
-                {editingResource.id ? 'Edit resource' : 'New resource'}
-              </div>
-              <div className="adm-field-row">
-                <div className="adm-field">
-                  <label>Title</label>
-                  <input
-                    value={editingResource.title}
-                    onChange={e =>
-                      setEditingResource({ ...editingResource, title: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="adm-field">
-                  <label>Provider</label>
-                  <input
-                    value={editingResource.provider ?? ''}
-                    onChange={e =>
-                      setEditingResource({ ...editingResource, provider: e.target.value })
-                    }
-                  />
-                </div>
-              </div>
-              <div className="adm-field-row">
-                <div className="adm-field">
-                  <label>Type</label>
-                  <select
-                    value={editingResource.mediaType ?? ''}
-                    onChange={e =>
-                      setEditingResource({
-                        ...editingResource,
-                        mediaType: e.target.value as ResourceRow['mediaType'],
-                      })
-                    }
-                  >
-                    <option value="BOOK">Book</option>
-                    <option value="COURSE">Course</option>
-                    <option value="JOURNAL">Journal</option>
-                    <option value="VIDEO">Video</option>
-                  </select>
-                </div>
-                <div className="adm-field">
-                  <label>Featured on shelf?</label>
-                  <input
-                    type="checkbox"
-                    checked={editingResource.featured}
-                    onChange={e =>
-                      setEditingResource({ ...editingResource, featured: e.target.checked })
-                    }
-                    style={{ width: 'auto', marginTop: 6 }}
-                  />
-                </div>
-              </div>
-              <div className="adm-field-row full">
-                <div className="adm-field">
-                  <label>Link URL</label>
-                  <input
-                    value={editingResource.externalUrl ?? ''}
-                    onChange={e =>
-                      setEditingResource({ ...editingResource, externalUrl: e.target.value })
-                    }
-                    placeholder="https://..."
-                  />
-                </div>
-              </div>
-              <div className="adm-panel-actions">
-                <button
-                  className="adm-icon-btn"
-                  style={{ width: 'auto', padding: '0 12px' }}
-                  onClick={() => setEditingResource(null)}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="adm-icon-btn"
-                  style={{
-                    width: 'auto',
-                    padding: '0 12px',
-                    background: 'var(--bg-accent)',
-                    color: 'white',
-                  }}
-                  onClick={() => saveResource(editingResource)}
-                >
-                  {editingResource.id ? 'Save changes' : 'Create resource'}
-                </button>
-              </div>
-            </div>
-          )}
-          <div>
-            {filteredResources.length ? (
-              filteredResources.map(r => (
-                <div key={r.id} className="adm-row">
-                  <div className="adm-row-icon resource">
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <path d="M4 19.5A2.5 2.5 0 016.5 17H20" />
-                      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" />
-                    </svg>
-                  </div>
-                  <div className="adm-row-body">
-                    <div className="adm-row-title">{r.title}</div>
-                    <div className="adm-row-sub">
-                      {r.provider || '—'} · {resTypeLabel(r.mediaType)}{' '}
-                      {r.featured ? '· Featured' : ''}
-                    </div>
-                  </div>
-                  <div style={{ fontSize: 12, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
-                    {resTypeLabel(r.mediaType)}
-                  </div>
-                  <div className="adm-row-actions">
-                    <button className="adm-icon-btn" onClick={() => setEditingResource(r)}>
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
-                        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
-                      </svg>
-                    </button>
-                  </div>
-                  <button className="adm-icon-btn danger" onClick={() => deleteResource(r.id)}>
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <polyline points="3 6 5 6 21 6" />
-                      <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
-                    </svg>
-                  </button>
-                </div>
-              ))
-            ) : (
-              <div className="adm-empty">
-                No resources match. Try a different search or add a new one.
-              </div>
-            )}
-          </div>
-        </div>
+        <ResourceTab
+          resources={resources}
+          search={searchR}
+          onSearchChange={setSearchR}
+          onSave={saveResource}
+          onDelete={deleteResource}
+        />
       )}
-
-      {/* SHELF TAB */}
-      {tab === 'shelf' && (
-        <div>
-          <div className="adm-panel">
-            <div className="adm-panel-label">
-              Gutenberg shelf — up to 10 titles shown to residents
-            </div>
-            <div className="adm-shelf-manager">
-              {settings.shelf.map((b, i) => (
-                <div key={i} className="adm-shelf-item">
-                  <div className="adm-shelf-stripe" style={{ background: b.stripe }} />
-                  <div>
-                    <div className="adm-shelf-title">{b.title}</div>
-                    <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-                      {b.author} · #{b.gutId}
-                    </div>
-                  </div>
-                  <span
-                    className="adm-shelf-remove"
-                    onClick={() => removeShelfItem(i)}
-                    style={{ cursor: 'pointer', marginLeft: 8 }}
-                  >
-                    &times;
-                  </span>
-                </div>
-              ))}
-              <div className="adm-shelf-add">
-                <input
-                  id="shelf-title"
-                  type="text"
-                  placeholder="Title"
-                  style={{ width: 130, fontSize: 12, height: 30 }}
-                />
-                <input
-                  id="shelf-author"
-                  type="text"
-                  placeholder="Author"
-                  style={{ width: 100, fontSize: 12, height: 30 }}
-                />
-                <input
-                  id="shelf-gutid"
-                  type="text"
-                  placeholder="Gutenberg ID"
-                  style={{ width: 90, fontSize: 12, height: 30 }}
-                />
-                <button className="adm-icon-btn" onClick={addShelfItem}>
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <line x1="12" y1="5" x2="12" y2="19" />
-                    <line x1="5" y1="12" x2="19" y2="12" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {tab === 'shelf' && <ShelfTab settings={settings} onSaveSettings={saveSettings} />}
 
       <style>{`
         .adm-root { padding: 1rem 0; font-family: var(--font-sans); }
