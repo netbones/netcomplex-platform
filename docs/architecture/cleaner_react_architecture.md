@@ -182,11 +182,15 @@ A practical, opinionated checklist derived from the eight chapters above. Use it
 
 ## 1. Shared API Client
 
-- [ ] ⏳ A single HTTP client owns base URL, auth headers, and error normalization
-- [ ] ⏳ No component or feature imports `fetch` directly for app traffic
-- [ ] ⏳ Tooling choice is consistent (do not mix `fetch` and `axios` in the same layer)
-- [ ] ⏳ Token refresh / 401 retry lives in the client, not in call sites
-- [ ] ⏳ Base path (e.g. `/api/v2`) is configurable in one place
+> ⏭️ **SUPERSEDED:** The project chose tRPC expansion (44 routers) over wrapping REST calls.
+> `http-client.ts` exists but the primary data path is now tRPC, making a shared REST client
+> less critical. Remaining `fetch()` calls are a shrinking tail being migrated per-feature.
+
+- [ ] ⏭️ SUPERSEDED: A single HTTP client owns base URL, auth headers, and error normalization
+- [ ] ⏭️ SUPERSEDED: No component or feature imports `fetch` directly for app traffic
+- [ ] ⏭️ SUPERSEDED: Tooling choice is consistent (do not mix `fetch` and `axios` in the same layer)
+- [ ] ⏭️ SUPERSEDED: Token refresh / 401 retry lives in the client, not in call sites
+- [ ] ⏭️ SUPERSEDED: Base path (e.g. `/api/v2`) is configurable in one place
 
 ## 2. API Layer & Fetch Functions
 

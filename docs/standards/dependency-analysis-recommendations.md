@@ -324,21 +324,21 @@ const r2 = new S3Client({
 
 ### Month 1: Foundation
 
-- [ ] ⏳ Migrate file storage to Vercel Blob
-- [ ] ⏳ Deploy Edge-compatible health check
-- [ ] ⏳ Monitor cost reduction
+- [ ] ⏭️ SUPERSEDED: Migrate file storage to Vercel Blob (project uses different storage)
+- [ ] ⏭️ SUPERSEDED: Deploy Edge-compatible health check (path not adopted)
+- [ ] ⏭️ SUPERSEDED: Monitor cost reduction (different infra path)
 
 ### Month 2: Authentication
 
-- [ ] ⏳ Evaluate and select auth provider (Clerk recommended)
-- [ ] ⏳ Implement authentication migration
-- [ ] ⏳ Test all auth flows
+- [ ] ⏭️ SUPERSEDED: Evaluate and select auth provider (Clerk recommended) — chose Better Auth
+- [ ] ⏭️ SUPERSEDED: Implement authentication migration
+- [ ] ⏭️ SUPERSEDED: Test all auth flows
 
 ### Month 3-4: Database
 
-- [ ] ⏳ Schema migration to Drizzle
-- [ ] ⏳ API route updates
-- [ ] ⏳ Full Edge Runtime deployment
+- [x] ✅ Schema migration to Drizzle (`drizzle-orm@0.45.2` in use)
+- [x] ✅ API route updates (Drizzle schema + tRPC 44 routers)
+- [ ] ⏭️ SUPERSEDED: Full Edge Runtime deployment (not adopted, still Node.js)
 
 ## Success Metrics
 
