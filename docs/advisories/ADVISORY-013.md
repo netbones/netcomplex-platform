@@ -289,8 +289,8 @@ grep -rl "Notification" src/shared/api/ src/entities/ 2>/dev/null | head -5
 
 ## 9. Done Criteria Checklist
 
-- [x] Discovery checklist (Section 5) run and results reported before any code written
-- [x] Decision gates G1–G4 explicitly confirmed by DavDev (2026-06-23)
+- [x] ✅ Discovery checklist (Section 5) run and results reported before any code written
+- [x] ✅ Decision gates G1–G4 explicitly confirmed by DavDev (2026-06-23)
 - [ ] Event emitter ships without altering response shape/latency of existing routes
 - [ ] 4 new Prisma models added, `prisma generate` run, Drizzle schema verified
 - [ ] Zero changes to `BehaviorRecord` model or Merits-related code paths

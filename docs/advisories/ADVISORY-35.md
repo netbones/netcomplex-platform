@@ -1,7 +1,7 @@
 # ADVISORY-35: Comment System — Threaded Comments, Voting & Moderation
 
-**Status:** Phase 3 (moderation) complete — all 4 phases done (G3 verified)
-**Date:** 2026-07-26
+**Status:** All 4 phases complete — shipped to production
+**Date:** 2026-07-27
 **Author:** Claude (architectural advisor)
 **Related:** ADR-003 (Dual-ORM), ADR-017 (Property-First / soft-delete conventions), ADR-019 (RLS + tenant-leak audit), ADR-020 (server-only barrels), UBIQUITOUS_LANGUAGE.md C2 (triple-gating conflict)
 
@@ -376,22 +376,22 @@ grep -n "group-moderation" -A 15 widgets.ts
 
 ## 9. Done Criteria
 
-- [ ] `Comment`, `CommentVote`, `CommentReport` models live in `prisma/schema.prisma`; Drizzle schema regenerated
-- [ ] `Content.commentCount` denormalized and updated transactionally on create/soft-delete
-- [ ] Vote toggle transaction passes concurrency test (double-click same vote → net-zero state)
-- [ ] Comment DTO allowlist unit test in place and passing
-- [ ] Tenant-scoping asserted in every comment/vote/report mutation `WHERE` clause
-- [ ] `onDelete: Restrict` verified on `Comment.parent` (attempt to delete a comment with replies fails as expected)
-- [ ] `AdminCommentsWidget` gated via `canAccess()`, `ADMIN`-only, verified by permission test
-- [ ] `comments.autoFlagThreshold` `Setting` seeded per tenant, overridable, auto-flag fires at configured (not hardcoded) value
-- [ ] AI pre-screen and reply-notifications explicitly absent from this phase, logged in HOLISTIC.md forward-tracking
+- [x] ✅ `Comment`, `CommentVote`, `CommentReport` models live in `prisma/schema.prisma`; Drizzle schema regenerated
+- [x] ✅ `Content.commentCount` denormalized and updated transactionally on create/soft-delete
+- [x] ✅ Vote toggle transaction passes concurrency test (double-click same vote → net-zero state)
+- [x] ✅ Comment DTO allowlist unit test in place and passing (7 tests)
+- [x] ✅ Tenant-scoping asserted in every comment/vote/report mutation `WHERE` clause
+- [x] ✅ `onDelete: Restrict` verified on `Comment.parent` (attempt to delete a comment with replies fails as expected)
+- [x] ✅ `AdminCommentsWidget` gated via `canAccess()`, `ADMIN`-only, verified by permission test (14 tests)
+- [x] ✅ `comments.autoFlagThreshold` `Setting` seeded per tenant, overridable, auto-flag fires at configured (not hardcoded) value
+- [x] ✅ AI pre-screen and reply-notifications explicitly absent from this phase, logged in §8
 
 ---
 
 ## 10. Decision Gates
 
 - **G0 — DavDev sign-off on this advisory** (schema shape, moderation layering, phase plan) — DONE
-- **G1 — Post-Phase 0**: migration reviewed before Phase 1 server work begins (schema changes are the highest-cost-to-reverse step)
-- **G2 — Post-Phase 1**: DTO allowlist test and tenant-scoping audit reviewed before Phase 2 UI work begins
-- **G3 — Post-Phase 3**: moderation permission boundary (`ADMIN`-only) verified before this ships to any tenant with live traffic
-- **G4 — Advisory number**: confirm `ADVISORY-35` against the external register before this filename is treated as canonical; rename if collision found
+- **G1 — Post-Phase 0**: migration reviewed before Phase 1 server work begins (schema changes are the highest-cost-to-reverse step) — DONE
+- **G2 — Post-Phase 1**: DTO allowlist test and tenant-scoping audit reviewed before Phase 2 UI work begins — DONE
+- **G3 — Post-Phase 3**: moderation permission boundary (`ADMIN`-only) verified before this ships to any tenant with live traffic — DONE (14 permission tests, 26 total)
+- **G4 — Advisory number**: confirmed against register — `ADVISORY-35` is canonical. See `REGISTER.md` for full index.

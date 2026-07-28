@@ -218,14 +218,14 @@ Repo-wide discovery completed. All three defects **confirmed from source**.
 
 ## 8. Done Criteria
 
-- [x] Discovery checklist (§5) completed and findings documented in §5a
+- [x] ✅ Discovery checklist (§5) completed and findings documented in §5a
 - [ ] Empirical curl test on staging (§5.7) — deferred until preview deploy
-- [x] `middleware.ts` forwards headers via `NextResponse.next({ request: { headers } })` on every pass-through return; strips client tenant headers before authoritative set
-- [x] `withTenant()` aligned with `getCurrentTenant()` via `resolveTenantFromRequestHeaders()` in `base.ts`
+- [x] ✅ `middleware.ts` forwards headers via `NextResponse.next({ request: { headers } })` on every pass-through return; strips client tenant headers before authoritative set
+- [x] ✅ `withTenant()` aligned with `getCurrentTenant()` via `resolveTenantFromRequestHeaders()` in `base.ts`
 - [ ] Confirmed via debug echo that route handler receives middleware's computed `x-tenant-slug` (staging)
-- [x] `x-tenant-slug` / `x-tenant-id` removed from `Access-Control-Allow-Headers` (Phase 2, 2026-07-10)
-- [x] Session-vs-resolved-tenant cross-check added in `withTenant()`; `TenantMismatchError` + unit test (Phase 3, 2026-07-10)
-- [x] `db.ts` `runWithRLS` fails closed + error-level alert on role-switch failure (Phase 4, 2026-07-10)
+- [x] ✅ `x-tenant-slug` / `x-tenant-id` removed from `Access-Control-Allow-Headers` (Phase 2, 2026-07-10)
+- [x] ✅ Session-vs-resolved-tenant cross-check added in `withTenant()`; `TenantMismatchError` + unit test (Phase 3, 2026-07-10)
+- [x] ✅ `db.ts` `runWithRLS` fails closed + error-level alert on role-switch failure (Phase 4, 2026-07-10)
 - [ ] All current RLS routes green in staging under fail-closed polarity (G3 — before production)
 - [ ] Regression suite confirms distinct, correct tenant resolution across all currently-live tenants
 - [ ] This advisory logged as independent of, and not gating on, ADR-027/ADR-028

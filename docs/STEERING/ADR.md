@@ -1286,13 +1286,13 @@ Sign-up (any path) → USER
 
 ### Verification
 
-- [x] `prisma migrate status` shows no drift after migration
-- [x] New sign-up creates `user.role = USER` (via auth.ts hook `role: 'USER'`)
-- [x] Invitation acceptance promotes `USER` to the role encoded in the invitation (non-PROVIDER paths)
-- [x] Provider stub creation + approval pipeline (deferred — needs `ServiceProvider.userId` FK)
-- [x] `Property.platformAddress` has `@unique` constraint
-- [x] Seat tables have `status` and `archivedAt` columns
-- [x] Cross-table address guard function exists and is called in seat-creation paths
+- [x] ✅ `prisma migrate status` shows no drift after migration
+- [x] ✅ New sign-up creates `user.role = USER` (via auth.ts hook `role: 'USER'`)
+- [x] ✅ Invitation acceptance promotes `USER` to the role encoded in the invitation (non-PROVIDER paths)
+- [x] ✅ Provider stub creation + approval pipeline (deferred — needs `ServiceProvider.userId` FK)
+- [x] ✅ `Property.platformAddress` has `@unique` constraint
+- [x] ✅ Seat tables have `status` and `archivedAt` columns
+- [x] ✅ Cross-table address guard function exists and is called in seat-creation paths
 
 ### Related
 

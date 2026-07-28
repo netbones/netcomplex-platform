@@ -53,10 +53,10 @@ Route Mapping:
 
 **Status**: ✅ Completed
 
-- [x] Add new tables: Household, StandardSeat, Profile, SoloSeat, AgentAccess
-- [x] Add AGENT role to enum
-- [x] Set up tRPC infrastructure
-- [x] Create pages: `/unit/[id]`, `/unit/[id]/member/[profileId]`, `/member/[id]`
+- [x] ✅ Add new tables: Household, StandardSeat, Profile, SoloSeat, AgentAccess
+- [x] ✅ Add AGENT role to enum
+- [x] ✅ Set up tRPC infrastructure
+- [x] ✅ Create pages: `/unit/[id]`, `/unit/[id]/member/[profileId]`, `/member/[id]`
 
 **Database**: Tables created, initial data migrated (2026-03-30)
 
@@ -66,10 +66,10 @@ Route Mapping:
 
 **Status**: ✅ Mostly Complete (2026-03-30)
 
-- [x] Create Household records from existing OWNER users (3 created)
-- [x] Create StandardSeat links for property owners (3 created)
-- [x] Migrate homeImage from User to Household
-- [x] Create SoloSeat for BOARD members (1 created - Sarah Mitchell, complimentary)
+- [x] ✅ Create Household records from existing OWNER users (3 created)
+- [x] ✅ Create StandardSeat links for property owners (3 created)
+- [x] ✅ Migrate homeImage from User to Household
+- [x] ✅ Create SoloSeat for BOARD members (1 created - Sarah Mitchell, complimentary)
 - [ ] Create Profile records for existing RENTER users (0 created - no matching households)
 
 **Known Gaps**:
@@ -113,9 +113,9 @@ Route Mapping:
 
 **Status**: ✅ Done (2026-03-30)
 
-- [x] Update `/resident/[id]` to resolve via SoloSeat → User
-- [x] Add resolveUserId tRPC endpoint for backward compatibility
-- [x] Updated page to handle: SoloSeat → profile → standardSeat → not found
+- [x] ✅ Update `/resident/[id]` to resolve via SoloSeat → User
+- [x] ✅ Add resolveUserId tRPC endpoint for backward compatibility
+- [x] ✅ Updated page to handle: SoloSeat → profile → standardSeat → not found
 
 **Route Resolution Order**:
 

@@ -161,9 +161,9 @@ Audit Logger: Pino → structured JSON
 
 ### Missing Documentation
 
-- [x] `docs/CONTEXT_MAP.md` — bounded contexts and their relationships (created 2026-06-01)
-- [x] `docs/UBIQUITOUS_LANGUAGE.md` — canonical terminology (created 2026-06-01)
-- [x] `docs/contexts/*.md` — per-entity ownership contracts (12 contexts, created 2026-06-01)
+- [x] ✅ `docs/CONTEXT_MAP.md` — bounded contexts and their relationships (created 2026-06-01)
+- [x] ✅ `docs/UBIQUITOUS_LANGUAGE.md` — canonical terminology (created 2026-06-01)
+- [x] ✅ `docs/contexts/*.md` — per-entity ownership contracts (12 contexts, created 2026-06-01)
 - ADRs are well-maintained (21 entries) — Focus Space architecture (ADR-020) and Dual-API governance (ADR-021) added
 
 ---

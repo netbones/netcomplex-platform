@@ -296,11 +296,11 @@ find . -maxdepth 2 -iname "*.agent*" -o -iname "*session*log*" 2>/dev/null | gre
 
 ## 8. Done Criteria
 
-- [x] `docs/TIME_LOG.csv` exists with the schema above, committed
-- [x] `commit-msg` hook installed and confirmed non-blocking (warn-only) in Phase 2
-- [x] `AGENTS.md` updated with the "Time & Cost Attribution" section
-- [x] `scripts/summarize-time-log.ts` runs and produces `docs/reports/TIME_SUMMARY.md`
-- [x] GSD `PLAN.md` template includes `bd_refs` frontmatter field
+- [x] ✅ `docs/TIME_LOG.csv` exists with the schema above, committed
+- [x] ✅ `commit-msg` hook installed and confirmed non-blocking (warn-only) in Phase 2
+- [x] ✅ `AGENTS.md` updated with the "Time & Cost Attribution" section
+- [x] ✅ `scripts/summarize-time-log.ts` runs and produces `docs/reports/TIME_SUMMARY.md`
+- [x] ✅ GSD `PLAN.md` template includes `bd_refs` frontmatter field
 - [ ] DavDev has logged at least one real session end-to-end to validate the workflow
 
 ---

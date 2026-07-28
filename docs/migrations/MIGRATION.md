@@ -33,10 +33,10 @@ Layer dependency direction:
 
 ## Phase 0 — Baseline + tracking
 
-- [x] Create BD epic: `soralia-village-wpr`
-- [x] Add this file `MIGRATION.md`
-- [x] Pilot child issue created: `soralia-village-rbs` (Dashboard)
-- [x] Slice naming convention: kebab-case (dashboard, my-services, etc.)
+- [x] ✅ Create BD epic: `soralia-village-wpr`
+- [x] ✅ Add this file `MIGRATION.md`
+- [x] ✅ Pilot child issue created: `soralia-village-rbs` (Dashboard)
+- [x] ✅ Slice naming convention: kebab-case (dashboard, my-services, etc.)
 
 ---
 
@@ -44,29 +44,29 @@ Layer dependency direction:
 
 ### 1.1 Create folders
 
-- [x] FSD folders created (Apr 14): shared/, entities/, features/, widgets/, pages/, processes/
+- [x] ✅ FSD folders created (Apr 14): shared/, entities/, features/, widgets/, pages/, processes/
 
 ### 1.2 Add path aliases
 
-- [x] tsconfig.json paths configured:
-- [x] `@shared/*` → `src/shared/*`
-- [x] `@entities/*` → `src/entities/*`
-- [x] `@features/*` → `src/features/*`
-- [x] `@widgets/*` → `src/widgets/*`
-- [x] `@pages/*` → `src/page-modules/*` (aliased)
-- [x] `@processes/*` → `src/processes/*`
+- [x] ✅ tsconfig.json paths configured:
+- [x] ✅ `@shared/*` → `src/shared/*`
+- [x] ✅ `@entities/*` → `src/entities/*`
+- [x] ✅ `@features/*` → `src/features/*`
+- [x] ✅ `@widgets/*` → `src/widgets/*`
+- [x] ✅ `@pages/*` → `src/page-modules/*` (aliased)
+- [x] ✅ `@processes/*` → `src/processes/*`
 
 ### 1.2.1 Fix path alias mismatch (RESOLVED)
 
-- [x] **Problem**: Next.js confused `src/pages/` with Pages Router
-- [x] **Solution**:
+- [x] ✅ **Problem**: Next.js confused `src/pages/` with Pages Router
+- [x] ✅ **Solution**:
   - Use `@pages/*` alias → `src/page-modules/*`
   - Dashboard at `src/page-modules/dashboard/`
   - Route imports: `@pages/dashboard`
-- [x] **Type fixes applied**: Fix DraggableWidget props (`widgetId` → `id`, `title`, `icon`, `removable`, `tabId`)
+- [x] ✅ **Type fixes applied**: Fix DraggableWidget props (`widgetId` → `id`, `title`, `icon`, `removable`, `tabId`)
   - Fix AddWidgetModal props (`onSelect`, availableWidgets shape)
   - Fix DashboardTab interface (`widgetIds` → `defaultWidgets`)
-- [x] Dashboard route now thin composition shell
+- [x] ✅ Dashboard route now thin composition shell
 
 ### 1.3 Add lint guardrails (pending)
 
@@ -92,30 +92,30 @@ Layer dependency direction:
 
 ### 2.1 UI kit
 
-- [x] Move `src/components/ui/*` → `src/shared/ui/*` (29 components)
-- [x] Update imports across app/components (109 imports updated)
-- [x] Ensure client components keep `"use client"` where needed
-- [x] Populate `src/shared/ui/index.ts` with all UI components (Apr 2026)
+- [x] ✅ Move `src/components/ui/*` → `src/shared/ui/*` (29 components)
+- [x] ✅ Update imports across app/components (109 imports updated)
+- [x] ✅ Ensure client components keep `"use client"` where needed
+- [x] ✅ Populate `src/shared/ui/index.ts` with all UI components (Apr 2026)
 - [ ] **Pending**: Enforce Public API via lint rules (Phase 1.3)
 
 ### 2.2 Shared utilities + infra
 
-- [x] Create `src/shared/lib/*` and move truly generic utilities:
-  - [x] `utils`, `constants`, `logger/logging`, `i18n-config`
-  - [x] Generic hooks (useApiToast, usePageFlags, usePageLoading)
-- [x] Create `src/shared/api/*` for infra clients/adapters:
-  - [x] DB / ORM access (moved from `src/lib/db.ts`)
-  - [x] tRPC client/server helpers (moved from `src/lib/trpc/*`, `src/server/*`)
-  - [x] Auth client/server wrappers (moved from `src/lib/auth*.ts`)
-  - [x] Revalidation helpers, flags providers
-- [x] Update imports so features/entities consume **only** `shared/*` infra (Completed)
+- [x] ✅ Create `src/shared/lib/*` and move truly generic utilities:
+  - [x] ✅ `utils`, `constants`, `logger/logging`, `i18n-config`
+  - [x] ✅ Generic hooks (useApiToast, usePageFlags, usePageLoading)
+- [x] ✅ Create `src/shared/api/*` for infra clients/adapters:
+  - [x] ✅ DB / ORM access (moved from `src/lib/db.ts`)
+  - [x] ✅ tRPC client/server helpers (moved from `src/lib/trpc/*`, `src/server/*`)
+  - [x] ✅ Auth client/server wrappers (moved from `src/lib/auth*.ts`)
+  - [x] ✅ Revalidation helpers, flags providers
+- [x] ✅ Update imports so features/entities consume **only** `shared/*` infra (Completed)
 
 ### 2.3 Type improvements (completed inline during refactors)
 
-- [x] Use `$inferInsert` for type inference in API routes:
-  - [x] `community-services/listings/[id]/route.ts`: `ListingUpdate` type
-  - [x] Use `enumValues` for enum types:
-  - [x] `community-services/moderation/listings/[id]/route.ts`: `ListingStatus`
+- [x] ✅ Use `$inferInsert` for type inference in API routes:
+  - [x] ✅ `community-services/listings/[id]/route.ts`: `ListingUpdate` type
+  - [x] ✅ Use `enumValues` for enum types:
+  - [x] ✅ `community-services/moderation/listings/[id]/route.ts`: `ListingStatus`
 
 ### 2.4 Quality gates
 
@@ -129,7 +129,7 @@ Layer dependency direction:
 
 ### Decision
 
-- [x] Pilot domain: **Dashboard**
+- [x] ✅ Pilot domain: **Dashboard**
 - [ ] (Alternative) Pilot domain: Maintenance
 
 ---
@@ -141,18 +141,18 @@ Layer dependency direction:
 
 ### Pilot Exit Criteria (Phase 3.7)
 
-- [x] Route is thin shell (imports from `@pages/dashboard`)
-- [x] Page module created (`src/page-modules/dashboard/`)
-- [x] Build passes successfully
-- [x] Typecheck passes
-- [x] Lint passes (0 errors)
+- [x] ✅ Route is thin shell (imports from `@pages/dashboard`)
+- [x] ✅ Page module created (`src/page-modules/dashboard/`)
+- [x] ✅ Build passes successfully
+- [x] ✅ Typecheck passes
+- [x] ✅ Lint passes (0 errors)
 
 ### 3.1 Slice map (create first)
 
-- [x] `src/page-modules/dashboard/` created with:
-- [x] `index.ts` - exports DashboardPage
-- [x] `ui/DashboardPage.tsx` - page component
-- [x] Route imports via `@pages/dashboard` alias
+- [x] ✅ `src/page-modules/dashboard/` created with:
+- [x] ✅ `index.ts` - exports DashboardPage
+- [x] ✅ `ui/DashboardPage.tsx` - page component
+- [x] ✅ Route imports via `@pages/dashboard` alias
 
 ### 3.1.1 FSD Slice Status
 
@@ -163,23 +163,23 @@ Layer dependency direction:
 
 ### 3.2 Move dashboard UI pieces
 
-- [x] Moved from `src/components/dashboard/*` to:
-- [x] `widgets/dashboard/*` for composition components (`DashboardTabs`, `WidgetRenderer`, layout shells)
-- [x] `features/*` for action components (`AddWidgetModal`, "add/remove/reset" flows)
-- [x] `entities/*` for read-only domain representations
-- [x] Kept `src/shared/ui/*` for primitives (buttons, modal primitives, ErrorBoundary, etc.)
+- [x] ✅ Moved from `src/components/dashboard/*` to:
+- [x] ✅ `widgets/dashboard/*` for composition components (`DashboardTabs`, `WidgetRenderer`, layout shells)
+- [x] ✅ `features/*` for action components (`AddWidgetModal`, "add/remove/reset" flows)
+- [x] ✅ `entities/*` for read-only domain representations
+- [x] ✅ Kept `src/shared/ui/*` for primitives (buttons, modal primitives, ErrorBoundary, etc.)
 
 ### 3.3 Move dashboard "config/model"
 
-- [x] Migrated `src/lib/dashboard-config.ts` into `entities/widget/model/*`
-- [x] Migrated `src/lib/stores/widget-store.ts` into `entities/widget/model/*`
+- [x] ✅ Migrated `src/lib/dashboard-config.ts` into `entities/widget/model/*`
+- [x] ✅ Migrated `src/lib/stores/widget-store.ts` into `entities/widget/model/*`
 
 ### 3.4 Create pages module + thin route
 
-- [x] Create `src/pages/dashboard/` (aliased as `@pages/dashboard` in `src/page-modules/dashboard`)
-- [x] Refactor `src/app/dashboard/page.tsx` to:
-  - [x] import from `@pages/dashboard`
-  - [x] contain minimal glue only (no dashboard logic)
+- [x] ✅ Create `src/pages/dashboard/` (aliased as `@pages/dashboard` in `src/page-modules/dashboard`)
+- [x] ✅ Refactor `src/app/dashboard/page.tsx` to:
+  - [x] ✅ import from `@pages/dashboard`
+  - [x] ✅ contain minimal glue only (no dashboard logic)
 
 ### 3.5 Enforce boundaries (tighten)
 
@@ -215,11 +215,11 @@ Pick the next domain and repeat the pattern:
 
 For each domain:
 
-- [x] Create `pages/<domain>/` (page-modules for route shell)
-- [x] Create `widgets/<domain>/`
-- [x] Identify `features/<domain-*>/`
-- [x] Identify `entities/<domain>/`
-- [x] Move code + update imports
+- [x] ✅ Create `pages/<domain>/` (page-modules for route shell)
+- [x] ✅ Create `widgets/<domain>/`
+- [x] ✅ Identify `features/<domain-*>/`
+- [x] ✅ Identify `entities/<domain>/`
+- [x] ✅ Move code + update imports
 - [ ] Tighten lint boundaries for that domain
 - [x] Run quality gates (typecheck ✅, lint ✅, build ⚠️ pre-existing issue)
 
@@ -239,12 +239,12 @@ For each domain:
 
 - [ ] Phase 1.3: Add lint guardrails (no-restricted-imports rules) - **Blocked by Public API cleanup**
 - [ ] Phase 3.5: Enforce lint boundaries for dashboard slices - **Blocked by Phase 1.3**
-- [x] Update README.md with new FSD architecture rules
+- [x] ✅ Update README.md with new FSD architecture rules
 
 ### Medium Priority
 
 - [ ] Phase 2.1: Enforce Public API via lint rules (Phase 1.3)
-- [x] Complete migration of `src/components/surveys` to FSD layers
+- [x] ✅ Complete migration of `src/components/surveys` to FSD layers
 - [ ] Fix `pnpm run build` issue (pg module)
 
 ### Low Priority (Cleanup)
@@ -258,23 +258,23 @@ For each domain:
 
 ### Completed Domains (FSD Migration)
 
-- [x] Dashboard (pilot - COMPLETE)
-- [x] Maintenance
-- [x] Services / Community services
-- [x] Messages / Conversations
-- [x] Bookings
-- [x] Directory
-- [x] Admin tenant management
-- [x] Agent widgets (Managed Properties, Agent Activity)
+- [x] ✅ Dashboard (pilot - COMPLETE)
+- [x] ✅ Maintenance
+- [x] ✅ Services / Community services
+- [x] ✅ Messages / Conversations
+- [x] ✅ Bookings
+- [x] ✅ Directory
+- [x] ✅ Admin tenant management
+- [x] ✅ Agent widgets (Managed Properties, Agent Activity)
 
 ### Cleanup Tasks Completed
 
-- [x] Task 1: shared/ui cleanup (AuthCheck, TierGuard, TenantStyles already in entities/tenant/ui)
-- [x] Task 1c: Move usePageLoading.tsx → shared/lib/hooks/
-- [x] Task 2a: Delete empty src/hooks/ directory
-- [x] Task 2b: Delete shared/api/tenant/ stub
-- [x] Task 3: entities/identity/ audit (already properly organized)
-- [x] Task 4: Update vitest.config.ts coverage paths for FSD layers
+- [x] ✅ Task 1: shared/ui cleanup (AuthCheck, TierGuard, TenantStyles already in entities/tenant/ui)
+- [x] ✅ Task 1c: Move usePageLoading.tsx → shared/lib/hooks/
+- [x] ✅ Task 2a: Delete empty src/hooks/ directory
+- [x] ✅ Task 2b: Delete shared/api/tenant/ stub
+- [x] ✅ Task 3: entities/identity/ audit (already properly organized)
+- [x] ✅ Task 4: Update vitest.config.ts coverage paths for FSD layers
 
 ### Remaining
 
@@ -284,6 +284,6 @@ For each domain:
 
 ## FSD Architectural Audit (Post-Migration)
 
-- [x] Survey Module: Successfully migrated to FSD (entities/survey, features/survey-builder) [x]
-- [x] Boundary Enforcement: Strict `no-restricted-imports` linting rules enabled and verified [x]
-- [x] Legacy Buckets: `src/lib`, `src/hooks`, `src/components/surveys` successfully removed/consolidated [x]
+- [x] ✅ Survey Module: Successfully migrated to FSD (entities/survey, features/survey-builder) [x]
+- [x] ✅ Boundary Enforcement: Strict `no-restricted-imports` linting rules enabled and verified [x]
+- [x] ✅ Legacy Buckets: `src/lib`, `src/hooks`, `src/components/surveys` successfully removed/consolidated [x]
