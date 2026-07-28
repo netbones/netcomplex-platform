@@ -5,8 +5,8 @@ milestone_name: milestone
 current_phase: 126
 current_phase_name: identity-credential-layer
 status: In progress
-stopped_at: Phase 126 plan 02 complete — Identity/Credential schema + MeetingProxy remediation applied; awaiting plans 126-03 (user.identityId backfill) and 126-04 (blocker resolutions)
-last_updated: '2026-07-27T04:18:00.000Z'
+stopped_at: Phase 126-03 context gathered — user.identityId backfill plan ready for /gsd-plan-phase; awaits ADVISORY-032 Phase 5/6 staging+production verification (G2) before execution; 126-04 still follows
+last_updated: '2026-07-28T00:00:00.000Z'
 progress:
   total_phases: 73
   completed_phases: 61
