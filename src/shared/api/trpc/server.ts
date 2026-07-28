@@ -78,7 +78,7 @@ export interface TRPCMeta {
 }
 
 // Main tRPC instance with superjson for internal use
-const t = initTRPC
+export const t = initTRPC
   .context<Context>()
   .meta<TRPCMeta>()
   .create({
@@ -266,7 +266,8 @@ export const privilegedModuleProcedure = privilegedProcedure.use(async ({ ctx, n
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function rateLimitMiddleware(config: RateLimitConfig): any {
-  return protectedProcedure.use(async ({ ctx, next }) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return async ({ ctx, next }: { ctx: any; next: any }) => {
     const result = await rateLimitByUser(ctx.userId, config);
     if (result) {
       throw new TRPCError({
@@ -275,5 +276,5 @@ export function rateLimitMiddleware(config: RateLimitConfig): any {
       });
     }
     return next({ ctx });
-  });
+  };
 }

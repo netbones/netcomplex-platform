@@ -225,6 +225,7 @@ export {
 export type { ApiEnvelope, ApiErrorEnvelope, ApiResult, PaginatedMeta } from '../envelope';
 export {
   createContext,
+  t,
   router,
   publicProcedure,
   protectedProcedure,
