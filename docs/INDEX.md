@@ -207,6 +207,10 @@ Project communications and status updates.
 
 ---
 
+## 🕐 [Pending](./PENDING.md)
+
+Consolidated list of all incomplete (⏳) work items across docs/, with BD issue references.
+
 ## 🗒️ [Todo](./todo/)
 
 Outstanding work items and technical debt tracking.
