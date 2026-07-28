@@ -26,9 +26,11 @@ tRPC routers should be thin – input validation + calling a service. This route
 
 `auth.ts` directly imports `users`, `sessions`, `accounts`, `verifications`, `passkeys`, `twoFactors`, `members`, `invitations`, `organizations`, `tenants` from the Drizzle schema. The `databaseHooks.user.create` hook queries `tenants` to resolve slug-to-ID. This creates circular dependency: auth config depends on Drizzle schema $\rightarrow$ Drizzle schema is generated from Prisma schema.
 
-### 6. No service layer – business logic lives in routers
+### 6. No service layer – business logic lives in routers ✅ (duplicate of #3)
 
 There are entity service directories (`src/entities/*/services/`) but the tRPC routers in `src/server/routers/` bypass them and query `db` directly with business logic mixed in. `merits.ts` calculates standing, creates notifications, writes audit logs, and performs revalidation – all inside a router.
+
+✅ Same fix as #3: `merits.ts` and `competitions.ts` now delegate to `entities/*/services/`.
 
 ### 7. Fragmented state management
 
