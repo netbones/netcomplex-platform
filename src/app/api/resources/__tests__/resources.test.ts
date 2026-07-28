@@ -2,6 +2,29 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 vi.mock('server-only', () => ({}));
 
+vi.mock('@api/auth', () => ({
+  auth: { api: { getSession: () => Promise.resolve(mocks.sessionResult) } },
+}));
+
+vi.mock('@api/db', () => ({
+  db: mocks.dbMock,
+  users: { id: 'id', role: 'role' } as never,
+  platformSuspensions: {
+    id: 'id',
+    userId: 'userId',
+    tenantId: 'tenantId',
+    suspensionType: 'suspensionType',
+    reason: 'reason',
+    description: 'description',
+    startDate: 'startDate',
+    endDate: 'endDate',
+    isPermanent: 'isPermanent',
+    isActive: 'isActive',
+    createdById: 'createdById',
+    updatedAt: 'updatedAt',
+  } as never,
+}));
+
 vi.mock('next/headers', () => ({
   headers: vi.fn(() =>
     Promise.resolve({
@@ -40,7 +63,9 @@ vi.mock('@api/server', () => {
     getSessionAndRole: vi.fn(() => {
       if (!mocks.sessionResult) return Promise.resolve(null);
       return Promise.resolve({
-        session: { user: { id: mocks.sessionResult.user.id, email: 'test@test.com', name: 'Test' } },
+        session: {
+          user: { id: mocks.sessionResult.user.id, email: 'test@test.com', name: 'Test' },
+        },
         userId: mocks.sessionResult.user.id,
         role: 'ADMIN',
         suspension: null,
@@ -87,6 +112,8 @@ vi.mock('@api/server', () => {
 
 vi.mock('@entities/tenant/server', () => ({
   withTenant: () => Promise.resolve(mocks.tenantResult),
+  assertModuleEnabled: () => Promise.resolve(null),
+  isModuleEnabled: () => Promise.resolve(true),
 }));
 
 vi.mock('@entities/tenant', () => ({
@@ -95,7 +122,17 @@ vi.mock('@entities/tenant', () => ({
 
 vi.mock('@shared/lib', () => ({
   hasPermission: (...args: unknown[]) => mocks.hasPermissionMock(...args),
+  createLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
   createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
+  tenantConfig: {
+    defaultSlug: 'test',
+    location: { latitude: 0, longitude: 0, name: 'Test' },
+    auth: {
+      cookiePrefix: 'test',
+      issuer: 'Test',
+      allowedHosts: ['localhost'],
+    },
+  },
 }));
 
 import { GET, POST } from '@/app/api/resources/route';
@@ -124,26 +161,24 @@ describe('Resources API', () => {
   it('returns resources for authenticated admin user', async () => {
     mocks.sessionResult = { user: { id: 'user-1' }, session: { id: 'sess-1' } };
     mocks.hasPermissionMock.mockReturnValue(true);
-    mocks.dbMock.select
-      .mockReturnValueOnce(makeOwnerSelect(true))
-      .mockReturnValueOnce(
-        makeSelectChain([
-          {
-            id: '1',
-            title: 'Guide',
-            category: 'GUIDE',
-            visibility: 'ALL_RESIDENTS',
-            description: 'User guide',
-          },
-          {
-            id: '2',
-            title: 'Form',
-            category: 'FORM',
-            visibility: 'OWNERS_ONLY',
-            description: 'Registration form',
-          },
-        ])
-      );
+    mocks.dbMock.select.mockReturnValueOnce(makeOwnerSelect(true)).mockReturnValueOnce(
+      makeSelectChain([
+        {
+          id: '1',
+          title: 'Guide',
+          category: 'GUIDE',
+          visibility: 'ALL_RESIDENTS',
+          description: 'User guide',
+        },
+        {
+          id: '2',
+          title: 'Form',
+          category: 'FORM',
+          visibility: 'OWNERS_ONLY',
+          description: 'Registration form',
+        },
+      ])
+    );
 
     const request = new Request('http://localhost:3000/api/resources');
     const response = await GET(request);
@@ -183,7 +218,9 @@ describe('Resources API', () => {
   it('creates a resource via POST with content permission', async () => {
     mocks.sessionResult = { user: { id: 'user-1' }, session: { id: 'sess-1' } };
     mocks.hasPermissionMock.mockReturnValue(true);
-    mocks.dbMock.select.mockReturnValueOnce(makeUserSelect('MANAGER'));
+    mocks.dbMock.select
+      .mockReturnValueOnce(makeUserSelect('MANAGER'))
+      .mockReturnValueOnce(makeSelectChain([]));
     mocks.dbMock.insert.mockReturnValueOnce(
       makeInsertChain([{ id: 'new-1', title: 'New Doc', category: 'GUIDE' }])
     );
@@ -202,7 +239,9 @@ describe('Resources API', () => {
 
   it('returns 403 when user lacks content permission', async () => {
     mocks.sessionResult = { user: { id: 'user-1' }, session: { id: 'sess-1' } };
-    mocks.dbMock.select.mockReturnValueOnce(makeUserSelect('RESIDENT'));
+    mocks.dbMock.select
+      .mockReturnValueOnce(makeUserSelect('RESIDENT'))
+      .mockReturnValueOnce(makeSelectChain([]));
 
     const request = new Request('http://localhost:3000/api/resources', {
       method: 'POST',
@@ -217,7 +256,9 @@ describe('Resources API', () => {
   it('returns 400 when required fields are missing', async () => {
     mocks.sessionResult = { user: { id: 'user-1' }, session: { id: 'sess-1' } };
     mocks.hasPermissionMock.mockReturnValue(true);
-    mocks.dbMock.select.mockReturnValueOnce(makeUserSelect('MANAGER'));
+    mocks.dbMock.select
+      .mockReturnValueOnce(makeUserSelect('MANAGER'))
+      .mockReturnValueOnce(makeSelectChain([]));
 
     const request = new Request('http://localhost:3000/api/resources', {
       method: 'POST',
