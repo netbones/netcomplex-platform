@@ -2,25 +2,11 @@
 
 import { Download, FileText, HelpCircle } from 'lucide-react';
 import type { TenantInvoiceView } from '../model/types';
+import { INVOICE_STATUS_BADGE } from '../model/display-config';
 
 interface InvoiceListProps {
   invoices: TenantInvoiceView[];
   isLoading?: boolean;
-}
-
-function statusBadge(status: string) {
-  switch (status) {
-    case 'PAID':
-      return 'bg-green-100 text-green-800';
-    case 'PENDING':
-      return 'bg-yellow-100 text-yellow-800';
-    case 'OVERDUE':
-      return 'bg-red-100 text-red-800';
-    case 'VOID':
-      return 'bg-gray-100 text-gray-500';
-    default:
-      return 'bg-gray-100 text-gray-800';
-  }
 }
 
 function SkeletonRow() {
@@ -98,7 +84,7 @@ export function InvoiceList({ invoices, isLoading }: InvoiceListProps) {
                   </td>
                   <td className="px-4 py-3">
                     <span
-                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${statusBadge(invoice.status)}`}
+                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${INVOICE_STATUS_BADGE[invoice.status] ?? 'bg-gray-100 text-gray-800'}`}
                     >
                       {invoice.status}
                     </span>

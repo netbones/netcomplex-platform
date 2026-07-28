@@ -375,19 +375,18 @@ function ActivityZone({
   );
 }
 
+const ACTIVITY_ROUTES: Record<string, string> = {
+  Maintenance: '/dashboard/services/maintenance?id=',
+  News: '/news/',
+  Blog: '/news/',
+};
+
 function getActivityHref(id: string, type: string): string | null {
-  switch (type) {
-    case 'Maintenance':
-      return `/dashboard/services/maintenance?id=${id}`;
-    case 'News':
-    case 'Blog':
-      return `/news/${id}`;
-    case 'Announcement':
-      // Announcements expand inline — no navigation href
-      return null;
-    default:
-      return '/dashboard/community';
+  const base = ACTIVITY_ROUTES[type];
+  if (!base) {
+    return type === 'Announcement' ? null : '/dashboard/community';
   }
+  return `${base}${id}`;
 }
 
 function ActivityCard({

@@ -13,35 +13,13 @@ export function AgentActivityWidget() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const activities: any[] = (data?.data as any)?.activities ?? [];
 
-  const getActivityIcon = (type: string) => {
-    switch (type) {
-      case 'lease_review':
-        return 'fa-file-signature';
-      case 'maintenance':
-        return 'fa-wrench';
-      case 'communication':
-        return 'fa-comments';
-      case 'inspection':
-        return 'fa-search';
-      default:
-        return 'fa-tasks';
-    }
+  const ACTIVITY_CONFIG: Record<string, { icon: string; color: string }> = {
+    lease_review: { icon: 'fa-file-signature', color: 'bg-blue-100 text-blue-600' },
+    maintenance: { icon: 'fa-wrench', color: 'bg-amber-100 text-amber-600' },
+    communication: { icon: 'fa-comments', color: 'bg-green-100 text-green-600' },
+    inspection: { icon: 'fa-search', color: 'bg-purple-100 text-purple-600' },
   };
-
-  const getActivityColor = (type: string) => {
-    switch (type) {
-      case 'lease_review':
-        return 'bg-blue-100 text-blue-600';
-      case 'maintenance':
-        return 'bg-amber-100 text-amber-600';
-      case 'communication':
-        return 'bg-green-100 text-green-600';
-      case 'inspection':
-        return 'bg-purple-100 text-purple-600';
-      default:
-        return 'bg-gray-100 text-gray-600';
-    }
-  };
+  const DEFAULT_ACTIVITY = { icon: 'fa-tasks', color: 'bg-gray-100 text-gray-600' };
 
   if (isLoading) {
     return (
@@ -85,9 +63,11 @@ export function AgentActivityWidget() {
         >
           <div className="flex items-start gap-3">
             <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center ${getActivityColor(activity.type)}`}
+              className={`w-8 h-8 rounded-full flex items-center justify-center ${ACTIVITY_CONFIG[activity.type]?.color ?? DEFAULT_ACTIVITY.color}`}
             >
-              <i className={`fas ${getActivityIcon(activity.type)} text-xs`}></i>
+              <i
+                className={`fas ${ACTIVITY_CONFIG[activity.type]?.icon ?? DEFAULT_ACTIVITY.icon} text-xs`}
+              ></i>
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-900">{activity.description}</p>

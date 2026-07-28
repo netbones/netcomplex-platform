@@ -3,39 +3,10 @@
 import { useState } from 'react';
 import { CreditCard, AlertTriangle, Calendar, Clock } from 'lucide-react';
 import type { TenantBillingSnapshot } from '../model/types';
+import { TIER_BADGE, SUBSCRIPTION_STATUS_COLOR } from '../model/display-config';
 
 interface BillingOverviewProps {
   snapshot: TenantBillingSnapshot;
-}
-
-function statusColor(status: string): string {
-  switch (status) {
-    case 'ACTIVE':
-      return 'bg-green-100 text-green-800';
-    case 'TRIALING':
-      return 'bg-blue-100 text-blue-800';
-    case 'PENDING':
-      return 'bg-yellow-100 text-yellow-800';
-    case 'PAST_DUE':
-      return 'bg-red-100 text-red-800';
-    case 'CANCELLED':
-      return 'bg-gray-100 text-gray-600';
-    case 'EXPIRED':
-      return 'bg-gray-100 text-gray-600';
-    default:
-      return 'bg-gray-100 text-gray-800';
-  }
-}
-
-function tierBadgeColor(tier: string): string {
-  switch (tier) {
-    case 'PREMIUM':
-      return 'bg-blue-100 text-blue-700';
-    case 'ENTERPRISE':
-      return 'bg-purple-100 text-purple-700';
-    default:
-      return 'bg-gray-100 text-gray-600';
-  }
 }
 
 export function BillingOverview({ snapshot }: BillingOverviewProps) {
@@ -77,13 +48,13 @@ export function BillingOverview({ snapshot }: BillingOverviewProps) {
           <span className="text-xl font-bold text-gray-900">{sub.planName ?? 'Unknown Plan'}</span>
           {sub.planTier && (
             <span
-              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${tierBadgeColor(sub.planTier)}`}
+              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${TIER_BADGE[sub.planTier] ?? TIER_BADGE.STANDARD}`}
             >
               {sub.planTier}
             </span>
           )}
           <span
-            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColor(sub.status)}`}
+            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${SUBSCRIPTION_STATUS_COLOR[sub.status] ?? 'bg-gray-100 text-gray-800'}`}
           >
             {sub.status}
           </span>

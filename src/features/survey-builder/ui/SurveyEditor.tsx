@@ -28,6 +28,7 @@ import type {
   SurveyQuestion,
   SurveySection,
   QuestionType,
+  QuestionTypeConfig,
 } from '@entities/survey';
 import { SurveyEditorHeader } from './SurveyEditorHeader';
 import { SectionBlock } from './SectionBlock';
@@ -629,33 +630,29 @@ function EmptySurvey({ onAdd }: { onAdd: (type: QuestionType) => void }) {
 }
 
 function getDefaultTextForType(type: QuestionType): string {
-  switch (type) {
-    case 'SINGLE_CHOICE':
-      return 'Untitled multiple choice question';
-    case 'MULTIPLE_CHOICE':
-      return 'Untitled checkbox question';
-    case 'TEXT':
-      return 'Untitled text question';
-    case 'RATING':
-      return 'How would you rate this?';
-    case 'YES_NO':
-      return 'Yes or no?';
-    case 'LINEAR_SCALE':
-      return 'Rate on a scale';
-  }
+  return QUESTION_DEFAULTS[type]?.defaultText ?? 'Untitled question';
 }
 
 function getDefaultConfigForType(type: QuestionType): Record<string, unknown> {
-  switch (type) {
-    case 'SINGLE_CHOICE':
-      return { displayAs: 'radio' };
-    case 'TEXT':
-      return { isParagraph: false, charLimit: 200 };
-    case 'RATING':
-      return { maxStars: 5 };
-    case 'LINEAR_SCALE':
-      return { minValue: 1, maxValue: 5, minLabel: '', maxLabel: '' };
-    default:
-      return {};
-  }
+  return { ...QUESTION_DEFAULTS[type]?.defaultConfig };
 }
+
+const QUESTION_DEFAULTS: Partial<
+  Record<QuestionType, { defaultText: string; defaultConfig: QuestionTypeConfig }>
+> = {
+  SINGLE_CHOICE: {
+    defaultText: 'Untitled multiple choice question',
+    defaultConfig: { displayAs: 'radio' },
+  },
+  MULTIPLE_CHOICE: { defaultText: 'Untitled checkbox question', defaultConfig: {} },
+  TEXT: {
+    defaultText: 'Untitled text question',
+    defaultConfig: { isParagraph: false, charLimit: 200 },
+  },
+  RATING: { defaultText: 'How would you rate this?', defaultConfig: { maxStars: 5 } },
+  YES_NO: { defaultText: 'Yes or no?', defaultConfig: {} },
+  LINEAR_SCALE: {
+    defaultText: 'Rate on a scale',
+    defaultConfig: { minValue: 1, maxValue: 5, minLabel: '', maxLabel: '' },
+  },
+};

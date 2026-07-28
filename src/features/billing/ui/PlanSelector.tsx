@@ -4,22 +4,12 @@ import { useState } from 'react';
 import { Check, Star } from 'lucide-react';
 import { CheckoutButton } from './CheckoutButton';
 import type { TenantBillingPlan } from '../model/types';
+import { TIER_BADGE } from '../model/display-config';
 
 interface PlanSelectorProps {
   plans: TenantBillingPlan[];
   currentPlanId?: string;
   onSelectPlan?: (planId: string) => void;
-}
-
-function tierBadgeColor(tier: string): string {
-  switch (tier) {
-    case 'PREMIUM':
-      return 'bg-blue-100 text-blue-700 border-blue-200';
-    case 'ENTERPRISE':
-      return 'bg-purple-100 text-purple-700 border-purple-200';
-    default:
-      return 'bg-gray-100 text-gray-600 border-gray-200';
-  }
 }
 
 export function PlanSelector({ plans, currentPlanId, onSelectPlan }: PlanSelectorProps) {
@@ -72,7 +62,7 @@ export function PlanSelector({ plans, currentPlanId, onSelectPlan }: PlanSelecto
               {/* Plan name + tier */}
               <div className="mb-3">
                 <span
-                  className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${tierBadgeColor(plan.tier)}`}
+                  className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${TIER_BADGE[plan.tier] ?? TIER_BADGE.STANDARD}`}
                 >
                   {plan.tier}
                 </span>
