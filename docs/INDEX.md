@@ -174,7 +174,9 @@ Analysis, architecture reviews, and investigation reports.
 - **[CONSERVATION_PAGE_REVIEW.md](./reports/CONSERVATION_PAGE_REVIEW.md)**: Conservation page feature analysis
 - **[ADMIN_INFRA_REPORT.md](./reports/ADMIN_INFRA_REPORT.md)**: Admin infrastructure report
 - **[TICKETING_REPORT.md](./reports/TICKETING_REPORT.md)**: Ticketing system report
-- And more: CMS, DEDUP, GATING, MERITS, NOTIFICATIONS, PERFORMANCE, SECURITY, SITE, TIER, TOAST_TOOLTIPS
+- **[CMS_COMPARISON.md](./reports/CMS_COMPARISON.md)**: Headless CMS platform comparison (Payload, Strapi, Contentful, Sanity, Directus, Ghost)
+- **[CMS_AUDIT_DISCOVERY.md](./reports/CMS_AUDIT_DISCOVERY.md)**: Full CMS implementation audit — TipTap editor, Content schema, API routes, media pipeline
+- And more: DEDUP, GATING, MERITS, NOTIFICATIONS, PERFORMANCE, SECURITY, SITE, TIER, TOAST_TOOLTIPS
 
 ---
 

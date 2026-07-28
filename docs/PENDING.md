@@ -104,6 +104,8 @@
 | **STANDARDS/dependency-analysis**   | Supabase region verification                                                                    | —                                                                                         |
 | **STANDARDS/dependency-analysis**   | Edge Runtime migration (blocked by deps)                                                        | —                                                                                         |
 | **STANDARDS/dependency-analysis**   | Vercel spend alerts & scaling limits                                                            | —                                                                                         |
+| **CMS_AUDIT_DISCOVERY.md**          | Content versioning — no revision history, diff, or rollback exists                              | Per CMS audit report, see `docs/reports/CMS_AUDIT_DISCOVERY.md` §7                        |
+| **CMS_AUDIT_DISCOVERY.md**          | Content moderation — no multi-stage review pipeline, single-step publish/unpublish only         | Per CMS audit report §8. Existing admin has basic publish/flag — no staged workflow       |
 
 ---
 
@@ -182,6 +184,13 @@ These are marked ⏳ in source docs but code confirms they are done:
 | **Done (doc stale)** | ~20   | Items confirmed implemented in code but still marked ⏳ in docs                                                           |
 
 ---
+
+## Reference Documents (no pending items)
+
+| Source                             | Purpose                                                                                                                             |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| **reports/CMS_COMPARISON.md**      | Headless CMS platform comparison (Payload, Strapi, Contentful, Sanity, Directus, Ghost) — patterns to consider, no actionable items |
+| **reports/CMS_AUDIT_DISCOVERY.md** | Full CMS implementation audit of existing TipTap/Content system — two P2 findings above (versioning, moderation workflow)           |
 
 ## Action Items
 
