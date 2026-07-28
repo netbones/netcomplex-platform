@@ -1,3 +1,11 @@
+---
+title: Pub/Sub Event Architecture Review
+status: current
+reviewed: 2026-07-28
+tags: [events, architecture, pubsub, audit]
+audience: developer
+---
+
 # Pub/Sub (Publish/Subscribe) Event Architecture Review
 
 **Project:** soralia-village (Netcomplex / Soralia Village)
