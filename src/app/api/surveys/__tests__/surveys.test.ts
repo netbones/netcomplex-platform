@@ -46,23 +46,36 @@ const mocks = vi.hoisted(() => ({
   ),
 }));
 
+vi.mock('@/shared/api/auth-utils', () => ({
+  requireAuth: vi.fn(async () => {
+    if (!mocks.sessionResult) {
+      return {
+        success: false as const,
+        response: mocks.apiUnauthorized(),
+      };
+    }
+    return {
+      success: true as const,
+      data: {
+        userId: mocks.sessionResult.user.id,
+        role: 'ADMIN' as const,
+        tenantId: 'test-tenant-id',
+        session: {
+          user: { id: mocks.sessionResult.user.id, email: 'test@test.com', name: 'Test' },
+        },
+        suspension: null,
+      },
+    };
+  }),
+}));
+
 vi.mock('@api/server', () => ({
   auth: {
     api: {
       getSession: () => Promise.resolve(mocks.sessionResult),
     },
   },
-  getSessionAndRole: vi.fn(() => {
-    if (!mocks.sessionResult) return Promise.resolve(null);
-    return Promise.resolve({
-      session: { user: { id: mocks.sessionResult.user.id, email: 'test@test.com', name: 'Test' } },
-      userId: mocks.sessionResult.user.id,
-      role: 'ADMIN',
-      suspension: null,
-    });
-  }),
   notDeleted: vi.fn(() => true),
-  guardSuspension: vi.fn(() => null),
   CACHE_TAGS: {},
   db: mocks.dbMock,
   surveys: {
@@ -85,12 +98,14 @@ vi.mock('@api/server', () => ({
   apiUnauthorized: mocks.apiUnauthorized,
   apiForbidden: mocks.apiForbidden,
   apiError: mocks.apiError,
+  rateLimitByUser: vi.fn(() => Promise.resolve(null)),
   withErrorHandler: (fn: (...args: unknown[]) => unknown) => fn,
   now: () => new Date('2026-06-21T00:00:00Z'),
 }));
 
 vi.mock('@entities/tenant/server', () => ({
   withTenant: () => Promise.resolve(mocks.tenantResult),
+  assertModuleEnabled: vi.fn(() => Promise.resolve(null)),
 }));
 
 vi.mock('@shared/lib', async importOriginal => {

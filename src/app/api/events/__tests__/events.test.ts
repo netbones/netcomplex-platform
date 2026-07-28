@@ -29,6 +29,32 @@ const mocks = vi.hoisted(() => ({
   validateEventFields: vi.fn(),
 }));
 
+vi.mock('@/shared/api/auth-utils', () => ({
+  requireAuth: vi.fn(async () => {
+    if (!mocks.sessionResult) {
+      return {
+        success: false as const,
+        response: Response.json(
+          { success: false, error: { code: 'AUTH_REQUIRED', message: 'Authentication required' } },
+          { status: 401, headers: { 'content-type': 'application/json' } }
+        ),
+      };
+    }
+    return {
+      success: true as const,
+      data: {
+        userId: mocks.sessionResult.user.id,
+        role: mocks.mockRole,
+        tenantId: 'test-tenant-id',
+        session: {
+          user: { id: mocks.sessionResult.user.id, email: 'test@test.com', name: 'Test' },
+        },
+        suspension: null,
+      },
+    };
+  }),
+}));
+
 vi.mock('@api/server', () => {
   const jsonResponse = (data: unknown, status: number) =>
     new Response(JSON.stringify(data), {
@@ -45,7 +71,9 @@ vi.mock('@api/server', () => {
     getSessionAndRole: vi.fn(() => {
       if (!mocks.sessionResult) return Promise.resolve(null);
       return Promise.resolve({
-        session: { user: { id: mocks.sessionResult.user.id, email: 'test@test.com', name: 'Test' } },
+        session: {
+          user: { id: mocks.sessionResult.user.id, email: 'test@test.com', name: 'Test' },
+        },
         userId: mocks.sessionResult.user.id,
         role: mocks.mockRole,
         suspension: null,
@@ -102,6 +130,7 @@ vi.mock('@api/server', () => {
 
 vi.mock('@entities/tenant/server', () => ({
   withTenant: () => Promise.resolve(mocks.tenantResult),
+  assertModuleEnabled: vi.fn(() => Promise.resolve(null)),
 }));
 
 vi.mock('@entities/event/server', () => ({

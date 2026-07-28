@@ -2,21 +2,17 @@ import {
   db,
   settings,
   apiError,
-  apiForbidden,
-  apiUnauthorized,
   apiSuccess,
   writeAuditLog,
   rateLimitByUser,
   withErrorHandler,
   revalidateAdminChanges,
-  getSessionAndRole,
-  guardSuspension,
 } from '@api/server';
 
-import { hasPermission } from '@shared/lib';
+import { requireAuth } from '@/shared/api/auth-utils';
 
 import { eq, and } from 'drizzle-orm';
-import { assertModuleEnabled, withTenant, requireAssistScope } from '@entities/tenant/server';
+import { withTenant, requireAssistScope } from '@entities/tenant/server';
 import { validateSettingValue } from '@shared/lib/settings/validation';
 
 export const maxDuration = 8;
@@ -25,14 +21,8 @@ export const maxDuration = 8;
  * @deprecated Use trpc.settings.listSettings instead.
  */
 export const GET = withErrorHandler(async (request: Request) => {
-  const authData = await getSessionAndRole(request);
-  if (!authData) return apiUnauthorized();
-  const guard = guardSuspension(authData);
-  if (guard) return guard;
-  if (!hasPermission(authData.role, 'admin')) return apiForbidden();
-
-  const moduleCheck = await assertModuleEnabled('settings');
-  if (moduleCheck) return moduleCheck;
+  const auth = await requireAuth(request, { permission: 'admin', module: 'settings' });
+  if (!auth.success) return auth.response;
 
   const { searchParams } = new URL(request.url);
   const key = searchParams.get('key');
@@ -57,19 +47,13 @@ export const GET = withErrorHandler(async (request: Request) => {
  * @deprecated Use trpc.settings.upsertSetting instead.
  */
 export const POST = withErrorHandler(async (request: Request) => {
-  const authData = await getSessionAndRole(request);
-  if (!authData) return apiUnauthorized();
-  const guard = guardSuspension(authData);
-  if (guard) return guard;
-  if (!hasPermission(authData.role, 'admin')) return apiForbidden();
-
-  const moduleCheck = await assertModuleEnabled('settings');
-  if (moduleCheck) return moduleCheck;
+  const auth = await requireAuth(request, { permission: 'admin', module: 'settings' });
+  if (!auth.success) return auth.response;
 
   const scopeError = await requireAssistScope(request, 'full');
   if (scopeError) return scopeError;
 
-  const rateLimit = await rateLimitByUser(authData.userId, { windowMs: 60_000, maxRequests: 10 });
+  const rateLimit = await rateLimitByUser(auth.data.userId, { windowMs: 60_000, maxRequests: 10 });
   if (rateLimit) return rateLimit;
 
   interface SettingBody {
@@ -108,7 +92,7 @@ export const POST = withErrorHandler(async (request: Request) => {
 
     writeAuditLog({
       action: 'SETTINGS_CHANGED',
-      actorId: authData.userId,
+      actorId: auth.data.userId,
       tenantId,
       details: { key: body.key, oldValue, newValue: body.value, method: 'POST' },
     });
@@ -125,7 +109,7 @@ export const POST = withErrorHandler(async (request: Request) => {
 
     writeAuditLog({
       action: 'SETTINGS_CHANGED',
-      actorId: authData.userId,
+      actorId: auth.data.userId,
       tenantId,
       details: { key: body.key, oldValue: null, newValue: body.value, method: 'POST' },
     });

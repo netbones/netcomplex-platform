@@ -17,6 +17,7 @@ vi.mock('next/headers', () => ({
 const mocks = vi.hoisted(() => ({
   tenantResult: { tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' },
   authSession: null as { user: { id: string } } | null,
+  authRole: 'ADMIN',
   dbMock: {
     select: vi.fn(),
     insert: vi.fn(),
@@ -25,6 +26,42 @@ const mocks = vi.hoisted(() => ({
   writeAuditLog: vi.fn(),
   requireAssistScopeResult: null as Response | null,
   validateSettingValueResult: { valid: true } as { valid: boolean; error?: string },
+}));
+
+vi.mock('@/shared/api/auth-utils', () => ({
+  requireAuth: vi.fn(async (_request: Request, opts?: { permission?: string }) => {
+    if (!mocks.authSession) {
+      return {
+        success: false as const,
+        response: new Response(
+          JSON.stringify({
+            success: false,
+            error: { code: 'UNAUTHORIZED', message: 'Unauthorized' },
+          }),
+          { status: 401, headers: { 'Content-Type': 'application/json' } }
+        ),
+      };
+    }
+    if (opts?.permission && !['ADMIN', 'SUPER_ADMIN'].includes(mocks.authRole)) {
+      return {
+        success: false as const,
+        response: new Response(
+          JSON.stringify({ success: false, error: { code: 'FORBIDDEN', message: 'Forbidden' } }),
+          { status: 403, headers: { 'Content-Type': 'application/json' } }
+        ),
+      };
+    }
+    return {
+      success: true as const,
+      data: {
+        userId: mocks.authSession.user.id,
+        role: mocks.authRole,
+        tenantId: 'test-tenant-id',
+        session: { user: { id: mocks.authSession.user.id } },
+        suspension: null,
+      },
+    };
+  }),
 }));
 
 vi.mock('@api/server', () => ({
@@ -88,6 +125,7 @@ vi.mock('@entities/tenant', () => ({
 vi.mock('@shared/lib', () => ({
   hasPermission: vi.fn(() => true),
   createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
+  createLogger: vi.fn(() => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() })),
 }));
 
 vi.mock('@shared/lib/settings/validation', () => ({
@@ -101,6 +139,7 @@ describe('Settings API', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.authSession = { user: { id: 'admin-1' } };
+    mocks.authRole = 'ADMIN';
     mocks.tenantResult = { tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' };
     mocks.requireAssistScopeResult = null;
     mocks.validateSettingValueResult = { valid: true };
@@ -163,8 +202,7 @@ describe('Settings API', () => {
     });
 
     it('returns 403 for non-admin role', async () => {
-      const { hasPermission } = await import('@shared/lib');
-      vi.mocked(hasPermission).mockReturnValueOnce(false);
+      mocks.authRole = 'RESIDENT';
 
       const response = await GET(
         new Request('http://localhost:3000/api/settings') as unknown as Request

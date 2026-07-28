@@ -4,7 +4,6 @@ import {
   apiForbidden,
   apiInternalError,
   apiSuccess,
-  apiUnauthorized,
   apiValidationError,
   conversationParticipants,
   db,
@@ -15,9 +14,9 @@ import {
   rateLimitByUser,
   revalidateConversations,
   users,
-  getSessionAndRole,
-  guardSuspension,
 } from '@api/server';
+
+import { requireAuth } from '@/shared/api/auth-utils';
 
 import { broadcastChatMessage } from '@shared/lib';
 import { messageSchema } from '@entities/chat';
@@ -27,7 +26,7 @@ import { apiLogger } from '@shared/lib';
 // Drizzle imports - use db.ts exports
 
 import { eq, and, or, isNull, isNotNull, gt, lt, asc } from 'drizzle-orm';
-import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
+import { withTenant } from '@entities/tenant/server';
 import { sanitizeHtml } from '@/shared/lib/sanitize/server';
 
 import { hasPermission } from '@shared/lib';
@@ -36,26 +35,14 @@ import { createId } from '@shared/lib/id';
 export const maxDuration = 8;
 
 /**
- * Retrieves session and role from the request for API routes.
- * @param request - Incoming HTTP request
- * @returns Session data with user ID and role, or null if not authenticated
- */
-/**
  * GET /api/messages - Get messages for a conversation
  * @query conversationId - Required conversation ID
  * Requires authentication
  * @deprecated Use `trpc.chat.getMessages` instead
  */
 export async function GET(request: Request) {
-  const authData = await getSessionAndRole(request);
-
-  if (!authData) {
-    return apiUnauthorized();
-  }
-  const guard = guardSuspension(authData);
-  if (guard) return guard;
-  const featureCheck = await assertModuleEnabled('chat');
-  if (featureCheck) return featureCheck;
+  const auth = await requireAuth(request, { module: 'chat' });
+  if (!auth.success) return auth.response;
 
   const { searchParams } = new URL(request.url);
   const conversationId = searchParams.get('conversationId');
@@ -74,13 +61,13 @@ export async function GET(request: Request) {
     .where(
       and(
         eq(conversationParticipants.conversationId, conversationId),
-        eq(conversationParticipants.userId, authData.userId),
+        eq(conversationParticipants.userId, auth.data.userId),
         eq(conversationParticipants.tenantId, tenantId)
       )
     )
     .limit(1);
 
-  if (!participant && !hasPermission(authData.role, 'admin')) {
+  if (!participant && !hasPermission(auth.data.role, 'admin')) {
     return apiForbidden('Access denied');
   }
 
@@ -127,14 +114,11 @@ export async function GET(request: Request) {
  * @deprecated Use `trpc.chat.sendMessage` instead
  */
 export async function POST(request: Request) {
-  const authData = await getSessionAndRole(request);
-
-  if (!authData) {
-    return apiUnauthorized();
-  }
+  const auth = await requireAuth(request);
+  if (!auth.success) return auth.response;
 
   // Rate limit: 30 messages per minute per user
-  const rateLimit = await rateLimitByUser(authData.userId, { windowMs: 60_000, maxRequests: 30 });
+  const rateLimit = await rateLimitByUser(auth.data.userId, { windowMs: 60_000, maxRequests: 30 });
   if (rateLimit) return rateLimit;
 
   try {
@@ -159,13 +143,13 @@ export async function POST(request: Request) {
       .where(
         and(
           eq(conversationParticipants.conversationId, conversationId),
-          eq(conversationParticipants.userId, authData.userId),
+          eq(conversationParticipants.userId, auth.data.userId),
           eq(conversationParticipants.tenantId, tenantId)
         )
       )
       .limit(1);
 
-    if (!participant && !hasPermission(authData.role, 'admin')) {
+    if (!participant && !hasPermission(auth.data.role, 'admin')) {
       return apiForbidden('Access denied');
     }
 
@@ -173,7 +157,7 @@ export async function POST(request: Request) {
     const [premiumSeat] = await db
       .select({ messageRetentionDays: premiumSeats.messageRetentionDays })
       .from(premiumSeats)
-      .where(eq(premiumSeats.userId, authData.userId))
+      .where(eq(premiumSeats.userId, auth.data.userId))
       .limit(1);
 
     const retentionDays = premiumSeat?.messageRetentionDays ?? 30;
@@ -187,7 +171,7 @@ export async function POST(request: Request) {
         id: createId(),
         tenantId,
         conversationId,
-        senderId: authData.userId,
+        senderId: auth.data.userId,
         content: type === 'TEXT' ? sanitizeHtml(content) : content,
         type: type || 'TEXT',
         messageVersion: messageVersion || 1,
@@ -205,7 +189,7 @@ export async function POST(request: Request) {
         avatar: users.avatar,
       })
       .from(users)
-      .where(eq(users.id, authData.userId));
+      .where(eq(users.id, auth.data.userId));
 
     const message = {
       ...newMessage,
@@ -230,13 +214,10 @@ export async function POST(request: Request) {
  * @deprecated Use trpc.chat.deleteMessage instead.
  */
 export async function DELETE(request: Request) {
-  const authData = await getSessionAndRole(request);
+  const auth = await requireAuth(request);
+  if (!auth.success) return auth.response;
 
-  if (!authData) {
-    return apiUnauthorized();
-  }
-
-  if (!hasPermission(authData.role, 'admin')) {
+  if (!hasPermission(auth.data.role, 'admin')) {
     return apiForbidden();
   }
 

@@ -1,34 +1,26 @@
 import {
-  auth,
   db,
   conversations,
   conversationParticipants,
   messages,
   users,
   apiSuccess,
-  apiUnauthorized,
   now,
   notDeleted,
   withErrorHandler,
 } from '@api/server';
 
-// Drizzle imports - use db.ts exports
-
 import { eq, and, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
+import { requireAuth } from '@/shared/api/auth-utils';
 import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
 /** @deprecated Use `trpc.conversations.listConversations` instead */
 export const GET = withErrorHandler(async (request: Request) => {
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
-
-  if (!session?.user?.id) {
-    return apiUnauthorized();
-  }
+  const auth = await requireAuth(request);
+  if (!auth.success) return auth.response;
 
   const { tenantId } = await withTenant();
 
@@ -49,7 +41,7 @@ export const GET = withErrorHandler(async (request: Request) => {
     )
     .where(
       and(
-        eq(conversationParticipants.userId, session.user.id),
+        eq(conversationParticipants.userId, auth.data.userId),
         eq(conversations.tenantId, tenantId),
         notDeleted(conversations)
       )
@@ -110,13 +102,8 @@ export const GET = withErrorHandler(async (request: Request) => {
 
 /** @deprecated Use `trpc.conversations.createConversation` instead */
 export const POST = withErrorHandler(async (request: Request) => {
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
-
-  if (!session?.user?.id) {
-    return apiUnauthorized();
-  }
+  const auth = await requireAuth(request);
+  if (!auth.success) return auth.response;
 
   const body = await request.json();
   const { name, type, participantIds } = body;
@@ -139,7 +126,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   });
 
   // Add participants including the current user (deduplicate)
-  const allParticipantIds = [...new Set([session.user.id, ...(participantIds || [])])];
+  const allParticipantIds = [...new Set([auth.data.userId, ...(participantIds || [])])];
   await db.insert(conversationParticipants).values(
     allParticipantIds.map((userId: string) => ({
       id: createId(),

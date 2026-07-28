@@ -113,8 +113,33 @@ vi.mock('@api/server', () => ({
   now: vi.fn(() => new Date('2026-06-21T12:00:00Z')),
 }));
 
+vi.mock('@/shared/api/auth-utils', () => ({
+  requireAuth: vi.fn(async () => {
+    if (!mocks.sessionResult) {
+      return {
+        success: false as const,
+        response: Response.json(
+          { success: false, error: { code: 'AUTH_REQUIRED', message: 'Authentication required' } },
+          { status: 401, headers: { 'content-type': 'application/json' } }
+        ),
+      };
+    }
+    return {
+      success: true as const,
+      data: {
+        userId: mocks.sessionResult.user.id,
+        role: mocks.mockRole,
+        tenantId: 'test-tenant-id',
+        session: { user: { id: mocks.sessionResult.user.id } },
+        suspension: null,
+      },
+    };
+  }),
+}));
+
 vi.mock('@entities/tenant/server', () => ({
   withTenant: () => Promise.resolve(mocks.tenantResult),
+  assertModuleEnabled: vi.fn(() => Promise.resolve(null)),
 }));
 
 vi.mock('@entities/chat', () => ({
@@ -130,7 +155,9 @@ vi.mock('@shared/lib', () => ({
     if (permission === 'admin') return role === 'ADMIN';
     return false;
   }),
+  broadcastChatMessage: vi.fn(),
   createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
+  createLogger: vi.fn(() => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() })),
 }));
 
 vi.mock('@/shared/lib/sanitize/server', () => ({
@@ -299,6 +326,11 @@ describe('Messages API', () => {
 
     it('sends message successfully and broadcasts via Supabase', async () => {
       mocks.sessionResult = { user: { id: 'user-1' } };
+
+      (messageSchema.safeParse as ReturnType<typeof vi.fn>).mockImplementation(() => ({
+        success: true,
+        data: { conversationId: 'conv-1', content: 'Hello world', type: 'TEXT' },
+      }));
 
       const newMsg = {
         id: 'msg-new',

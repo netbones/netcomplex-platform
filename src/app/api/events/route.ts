@@ -6,15 +6,13 @@ import {
   apiCreated,
   apiForbidden,
   apiSuccess,
-  apiUnauthorized,
   withErrorHandler,
-  getSessionAndRole,
-  guardSuspension,
 } from '@api/server';
 
 import { eq, inArray, and, sql } from 'drizzle-orm';
 
-import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
+import { withTenant } from '@entities/tenant/server';
+import { requireAuth } from '@/shared/api/auth-utils';
 import { hasPermission } from '@shared/lib';
 import { listEvents, createEvent, validateEventFields } from '@entities/event/server';
 import { createId } from '@shared/lib/id';
@@ -87,15 +85,8 @@ async function enrichWithAttendees(events: Array<Record<string, unknown>>, userI
  * @deprecated Use `trpc.events.listEvents` instead
  */
 export const GET = withErrorHandler(async (request: Request) => {
-  const authData = await getSessionAndRole(request);
-
-  if (!authData) {
-    return apiUnauthorized();
-  }
-  const guard = guardSuspension(authData);
-  if (guard) return guard;
-  const featureCheck = await assertModuleEnabled('events');
-  if (featureCheck) return featureCheck;
+  const auth = await requireAuth(request, { module: 'events' });
+  if (!auth.success) return auth.response;
 
   // Enforce tenant isolation
   const { tenantId } = await withTenant();
@@ -112,7 +103,7 @@ export const GET = withErrorHandler(async (request: Request) => {
 
   const enriched = await enrichWithAttendees(
     eventItems as Array<Record<string, unknown>>,
-    authData.userId
+    auth.data.userId
   );
 
   return apiSuccess(enriched);
@@ -124,13 +115,10 @@ export const GET = withErrorHandler(async (request: Request) => {
  * @deprecated Use `trpc.events.createEvent` instead
  */
 export const POST = withErrorHandler(async (request: Request) => {
-  const authData = await getSessionAndRole(request);
+  const auth = await requireAuth(request);
+  if (!auth.success) return auth.response;
 
-  if (!authData) {
-    return apiUnauthorized();
-  }
-
-  if (!hasPermission(authData.role, 'content') && !hasPermission(authData.role, 'contentOwn')) {
+  if (!hasPermission(auth.data.role, 'content') && !hasPermission(auth.data.role, 'contentOwn')) {
     return apiForbidden();
   }
 

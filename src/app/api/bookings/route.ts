@@ -1,20 +1,16 @@
+import { requireAuth } from '@/shared/api/auth-utils';
+
 import {
   revalidateDashboard,
   apiCreated,
   apiError,
   apiInternalError,
   apiSuccess,
-  apiUnauthorized,
   emitEvent,
   now,
-  getSessionAndRole,
-  guardSuspension,
   rateLimitByUser,
 } from '@api/server';
 
-import { assertModuleEnabled } from '@entities/tenant/server';
-
-import { hasPermission } from '@shared/lib';
 import { bookingSchema } from '@entities/booking';
 import { toBookingDTO } from '@api/server';
 
@@ -46,19 +42,9 @@ export const maxDuration = 8;
  * @deprecated Use `trpc.bookings.listBookings` instead
  */
 export async function GET(request: Request) {
-  const authData = await getSessionAndRole(request);
-
-  if (!authData) {
-    return apiUnauthorized();
-  }
-  const guard = guardSuspension(authData);
-  if (guard) return guard;
-
-  // Feature gate: check bookings module is enabled for tenant
-  const featureCheck = await assertModuleEnabled('bookings');
-  if (featureCheck) return featureCheck;
-
-  const canViewAll = hasPermission(authData.role, 'bookings');
+  const auth = await requireAuth(request, { permission: 'bookings', module: 'bookings' });
+  if (!auth.success) return auth.response;
+  const canViewAll = true;
 
   const { searchParams } = new URL(request.url);
   const facility = searchParams.get('facility');
@@ -74,7 +60,7 @@ export async function GET(request: Request) {
   // Delegate to entity service for query building and execution
   const bookingResults = await listBookings({
     tenantId,
-    userId: authData.userId,
+    userId: auth.data.userId,
     canViewAll,
     facility,
     date,
@@ -109,21 +95,14 @@ export async function GET(request: Request) {
  * @deprecated Use `trpc.bookings.createBooking` instead
  */
 export async function POST(request: Request) {
-  const authData = await getSessionAndRole(request);
+  const auth = await requireAuth(request, { module: 'bookings' });
+  if (!auth.success) return auth.response;
 
-  if (!authData) {
-    return apiUnauthorized();
-  }
-
-  const rateLimit = await rateLimitByUser(authData.userId, {
+  const rateLimit = await rateLimitByUser(auth.data.userId, {
     windowMs: 60_000,
     maxRequests: 10,
   });
   if (rateLimit) return rateLimit;
-
-  // Feature gate: check bookings module is enabled for tenant
-  const featureCheck = await assertModuleEnabled('bookings');
-  if (featureCheck) return featureCheck;
 
   try {
     const body = await request.json();
@@ -135,7 +114,7 @@ export async function POST(request: Request) {
     }
 
     const { facility, date, startTime, endTime, purpose } = validationResult.data;
-    const userId = body.userId || authData.userId;
+    const userId = body.userId || auth.data.userId;
 
     // Enforce tenant isolation
     const { tenantId } = await withTenant();

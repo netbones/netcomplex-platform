@@ -7,15 +7,13 @@ import {
   apiCreated,
   apiForbidden,
   apiSuccess,
-  apiUnauthorized,
   apiValidationError,
   now,
   withErrorHandler,
-  getSessionAndRole,
-  guardSuspension,
   rateLimitByUser,
 } from '@api/server';
 
+import { requireAuth } from '@/shared/api/auth-utils';
 import { hasPermission } from '@shared/lib';
 
 import { eq, and, desc, sql } from 'drizzle-orm';
@@ -34,13 +32,9 @@ const surveyCreateSchema = z.object({
 export const maxDuration = 8;
 /** @deprecated Use `trpc.surveys.listSurveys` instead */
 export const GET = withErrorHandler(async (request: Request) => {
-  const authData = await getSessionAndRole(request);
-
-  if (!authData) {
-    return apiUnauthorized();
-  }
-  const guard = guardSuspension(authData);
-  if (guard) return guard;
+  const authResult = await requireAuth(request);
+  if (!authResult.success) return authResult.response;
+  const authData = authResult.data;
   const featureCheck = await assertModuleEnabled('surveys');
   if (featureCheck) return featureCheck;
 
@@ -96,11 +90,9 @@ export const GET = withErrorHandler(async (request: Request) => {
 
 /** @deprecated Use `trpc.surveys.createSurvey` instead */
 export const POST = withErrorHandler(async (request: Request) => {
-  const authData = await getSessionAndRole(request);
-
-  if (!authData) {
-    return apiUnauthorized();
-  }
+  const authResult = await requireAuth(request);
+  if (!authResult.success) return authResult.response;
+  const authData = authResult.data;
 
   if (!hasPermission(authData.role, 'content')) {
     return apiForbidden();
