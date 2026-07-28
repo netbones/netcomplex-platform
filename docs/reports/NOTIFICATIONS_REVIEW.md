@@ -1,3 +1,11 @@
+---
+title: Notifications System Review
+status: current
+reviewed: 2026-07-28
+tags: [report, analysis]
+audience: developer
+---
+
 # Notifications System Review
 
 **System:** In-App Notifications + Email  

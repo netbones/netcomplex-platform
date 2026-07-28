@@ -1,3 +1,11 @@
+---
+title: best practice gathering toast errors sonner
+status: current
+reviewed: 2026-07-28
+tags: [standards, best-practices]
+audience: developer
+---
+
 # best practice gathering toast errors sonner
 
 Using Sonner for error handling is a popular choice due to its opinionated design and efficient Promise API. To gather and display errors effectively, follow these best practices:

@@ -1,3 +1,11 @@
+---
+title: ADVISORY-024 — Resolve DTO Duplication (COMMUNIQUE-08)
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # ADVISORY-024 — Resolve DTO Duplication (COMMUNIQUE-08)
 
 **Status:** ✅ Executed (Commit 668535ee, 2026-07-03) — Decision gates G1–G4 confirmed 2026-07-03

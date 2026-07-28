@@ -1,3 +1,11 @@
+---
+title: useApiToast Hook
+status: current
+reviewed: 2026-07-28
+tags: [architecture, design]
+audience: developer
+---
+
 # useApiToast Hook
 
 Unified API error handling with toast notifications, auto-retry, and error logging.

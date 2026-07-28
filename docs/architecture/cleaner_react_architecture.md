@@ -1,3 +1,11 @@
+---
+title: Cleaner React Architecture Series.
+status: current
+reviewed: 2026-07-28
+tags: [architecture, design]
+audience: developer
+---
+
 # Cleaner React Architecture Series.
 
 These are item chapters from youtube series

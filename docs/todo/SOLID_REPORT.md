@@ -1,3 +1,11 @@
+---
+title: SOLID Architecture Audit — Soralia Village Codebase
+status: current
+reviewed: 2026-07-28
+tags: [todo, debt]
+audience: developer
+---
+
 # SOLID Architecture Audit — Soralia Village Codebase
 
 ## 1. Executive Summary

@@ -1,3 +1,11 @@
+---
+title: Dependency Analysis & Optimization Recommendations
+status: current
+reviewed: 2026-07-28
+tags: [standards, best-practices]
+audience: developer
+---
+
 # Dependency Analysis & Optimization Recommendations
 
 ## Executive Summary

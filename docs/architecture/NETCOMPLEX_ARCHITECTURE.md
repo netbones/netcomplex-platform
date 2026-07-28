@@ -1,3 +1,11 @@
+---
+title: Netcomplex ARCHITECTURE
+status: current
+reviewed: 2026-07-28
+tags: [architecture, design]
+audience: developer
+---
+
 ## NetComplex Architecture
 
 This document describes how the NetComplex SaaS platform is structured across:

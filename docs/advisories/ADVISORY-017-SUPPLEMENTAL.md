@@ -1,3 +1,11 @@
+---
+title: ADVISORY-017-SUPPLEMENTAL: AI Provider Module
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # ADVISORY-017-SUPPLEMENTAL: AI Provider Module
 
 ## Amends: ADVISORY-017 (Dispute Resolution System)

@@ -1,3 +1,11 @@
+---
+title: ADVISORY-036: Useful Patterns from Tamagui Takeout
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # ADVISORY-036: Useful Patterns from Tamagui Takeout
 
 **Status:** Guidance  

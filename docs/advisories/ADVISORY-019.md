@@ -1,3 +1,11 @@
+---
+title: ADVISORY-018: Mobile Monorepo Architecture
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # ADVISORY-018: Mobile Monorepo Architecture
 
 **Status:** APPROVED FOR PLANNING — Pending gate resolutions before agent execution  

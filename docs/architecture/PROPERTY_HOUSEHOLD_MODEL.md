@@ -1,3 +1,11 @@
+---
+title: Property vs. Household Architectural Model
+status: current
+reviewed: 2026-07-28
+tags: [architecture, design]
+audience: developer
+---
+
 # Property vs. Household Architectural Model
 
 ## 🎯 Objective

@@ -1,3 +1,11 @@
+---
+title: NetComplex Platform Architecture Report
+status: current
+reviewed: 2026-07-28
+tags: [architecture, design]
+audience: developer
+---
+
 # NetComplex Platform Architecture Report
 
 > Generated: 2026-07-11

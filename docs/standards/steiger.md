@@ -1,3 +1,11 @@
+---
+title: Steiger
+status: current
+reviewed: 2026-07-28
+tags: [standards, best-practices]
+audience: developer
+---
+
 The Steiger allow list has a config issue (even @api/server still shows 123 violations despite being listed). But the categories are clear — here's what Steiger surfaces:
 
 327 warnings across 2 rules:

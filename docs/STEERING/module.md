@@ -1,3 +1,11 @@
+---
+title: Module
+status: current
+reviewed: 2026-07-28
+tags: [steering, governance]
+audience: all
+---
+
 Let me do a focused review of the project tree first,
 
 then address the modular services question. Two distinct things to address here.

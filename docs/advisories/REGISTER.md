@@ -1,3 +1,11 @@
+---
+title: Advisory Register
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # Advisory Register
 
 Canonical advisory index. Numbers are allocated sequentially.

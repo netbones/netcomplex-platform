@@ -1,3 +1,11 @@
+---
+title: COMMUNIQUE-05 — Agent Gateway: Human & Mechanical Agent Architecture
+status: current
+reviewed: 2026-07-28
+tags: [status, communication]
+audience: all
+---
+
 # COMMUNIQUE-05 — Agent Gateway: Human & Mechanical Agent Architecture
 
 **To:** Architecture Advisors  

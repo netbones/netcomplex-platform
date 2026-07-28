@@ -1,3 +1,11 @@
+---
+title: Preparing FOR MULTI TENANT
+status: current
+reviewed: 2026-07-28
+tags: [multi-tenant, architecture]
+audience: developer
+---
+
 ## Preparing for Multi-Tenant Production
 
 This document captures the practical steps and guardrails required before NetComplex hosts more than the Soralia Village tenant.

@@ -1,3 +1,11 @@
+---
+title: Event Topology Plan (TOPOLOGY.md)
+status: current
+reviewed: 2026-07-28
+tags: [steering, governance]
+audience: all
+---
+
 # Event Topology Plan (TOPOLOGY.md)
 
 **Status:** Proposed (revised per `docs/advisories/ADVISORY-033.md`)

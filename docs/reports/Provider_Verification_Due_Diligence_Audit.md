@@ -1,3 +1,11 @@
+---
+title: Provider Verification & Due Diligence System — Audit Report
+status: current
+reviewed: 2026-07-28
+tags: [report, analysis]
+audience: developer
+---
+
 # Provider Verification & Due Diligence System — Audit Report
 
 **Date:** 2026-06-23  

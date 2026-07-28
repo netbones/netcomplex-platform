@@ -1,3 +1,11 @@
+---
+title: NETCOMPLEX White-Label Multi-Tenant Migration Guide
+status: current
+reviewed: 2026-07-28
+tags: [migration, database]
+audience: developer
+---
+
 # NETCOMPLEX White-Label Multi-Tenant Migration Guide
 
 **Updated & Reconciled with Current Repository State — April 2026**

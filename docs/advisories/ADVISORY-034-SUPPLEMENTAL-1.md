@@ -1,3 +1,11 @@
+---
+title: ADVISORY-034-SUPPLEMENTAL-1: SignatureProvider / CredentialType Overlap (MeetingProxy)
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # ADVISORY-034-SUPPLEMENTAL-1: SignatureProvider / CredentialType Overlap (MeetingProxy)
 
 **Status:** Proposed — findings below confirmed against Plan 125-01 (`125-01-PLAN.md`, Phase 125 Proxy Vote Module, wave 1, `autonomous: true`)

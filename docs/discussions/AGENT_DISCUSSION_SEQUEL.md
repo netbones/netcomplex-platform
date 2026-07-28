@@ -1,3 +1,11 @@
+---
+title: 1. I would NOT gate Workspace by `premiumSeat`
+status: current
+reviewed: 2026-07-28
+tags: [discussion, proposal]
+audience: developer
+---
+
 I think this is an excellent report. It's moved beyond identifying implementation bugs and is now exposing architectural assumptions. Most of the findings are correct, but there are **three recommendations** that I would change because they risk coupling unrelated concerns.
 
 ## Overall Assessment

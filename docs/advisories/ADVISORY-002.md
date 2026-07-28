@@ -1,3 +1,11 @@
+---
+title: ADVISORY_TRPC_LOADING.md
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # ADVISORY_TRPC_LOADING.md
 
 ## Purpose

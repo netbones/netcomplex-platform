@@ -1,3 +1,11 @@
+---
+title: Discussion ADMIN LAYER
+status: current
+reviewed: 2026-07-28
+tags: [plan, roadmap]
+audience: developer
+---
+
 ## Problem statement:
 
 src/app/(tenant)/dashboard/admin/page.tsx does NOT exist — the admin space currently renders through src/app/(tenant)/dashboard/[space]/page.tsx , this is an important observation, we need to consider how our admin system is interacting with dashboard spaces? Please advise on how to resolve this contradiction?

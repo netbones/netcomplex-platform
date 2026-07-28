@@ -1,3 +1,11 @@
+---
+title: User Stories: John & Mary Onboarding
+status: current
+reviewed: 2026-07-28
+tags: [product, requirements]
+audience: product
+---
+
 # User Stories: John & Mary Onboarding
 
 ## Scenario Overview

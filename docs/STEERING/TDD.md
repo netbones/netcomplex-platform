@@ -1,3 +1,11 @@
+---
+title: Test-Driven Development (TDD) Workflow
+status: current
+reviewed: 2026-07-28
+tags: [steering, governance]
+audience: all
+---
+
 # Test-Driven Development (TDD) Workflow
 
 This document describes the TDD approach for Netcomplex and Soralia Village multi-tenant — a Next.js + TypeScript platform using Prisma for schema development and Drizzle ORM for runtime querying.

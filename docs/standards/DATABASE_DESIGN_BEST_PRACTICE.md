@@ -1,3 +1,11 @@
+---
+title: Best practices for designing a PostgreSQL database involve a combination of relational theory and specific engine optimizations for storage and performance
+status: current
+reviewed: 2026-07-28
+tags: [standards, best-practices]
+audience: developer
+---
+
 # Best practices for designing a PostgreSQL database involve a combination of relational theory and specific engine optimizations for storage and performance
 
 ## 1. Schema Design and Normalization

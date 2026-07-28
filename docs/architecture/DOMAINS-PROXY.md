@@ -1,3 +1,11 @@
+---
+title: Multi-Tenant Proxy / Middleware Architecture
+status: current
+reviewed: 2026-07-28
+tags: [architecture, design]
+audience: developer
+---
+
 # Multi-Tenant Proxy / Middleware Architecture
 
 > **Next.js version note:** As of Next.js 15.5 (current deployment), the file convention

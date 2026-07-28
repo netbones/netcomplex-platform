@@ -1,3 +1,11 @@
+---
+title: dWallet — Functional Specification & Agent Instructions
+status: current
+reviewed: 2026-07-28
+tags: [architecture, design]
+audience: developer
+---
+
 # dWallet — Functional Specification & Agent Instructions
 
 > **Document type:** Feature Specification + Agent Handoff  

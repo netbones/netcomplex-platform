@@ -1,3 +1,11 @@
+---
+title: tRPC Migration Status
+status: current
+reviewed: 2026-07-28
+tags: [steering, governance]
+audience: all
+---
+
 # tRPC Migration Status
 
 **Last updated:** 2026-07-16 (verified live/dead routes)

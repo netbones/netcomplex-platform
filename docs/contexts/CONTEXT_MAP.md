@@ -1,3 +1,11 @@
+---
+title: Context Map — NetComplex / Soralia Village
+status: current
+reviewed: 2026-07-28
+tags: [context-map, bounded-context]
+audience: developer
+---
+
 # Context Map — NetComplex / Soralia Village
 
 > **Last updated:** 2026-06-01

@@ -1,3 +1,11 @@
+---
+title: COMMUNIQUE-03 — Tier Gating System Architecture Review
+status: current
+reviewed: 2026-07-28
+tags: [status, communication]
+audience: all
+---
+
 # COMMUNIQUE-03 — Tier Gating System Architecture Review
 
 **Status:** Open for review

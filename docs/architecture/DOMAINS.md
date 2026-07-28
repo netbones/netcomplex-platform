@@ -1,3 +1,11 @@
+---
+title: Netcomplex Multi-Tenant Middleware Instructions
+status: current
+reviewed: 2026-07-28
+tags: [architecture, design]
+audience: developer
+---
+
 # Netcomplex Multi-Tenant Middleware Instructions
 
 ## Objective

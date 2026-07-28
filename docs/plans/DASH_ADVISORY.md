@@ -1,3 +1,11 @@
+---
+title: Advisory — Phase 30: Dashboard Phase B (Focus Spaces)
+status: current
+reviewed: 2026-07-28
+tags: [plan, roadmap]
+audience: developer
+---
+
 # Advisory — Phase 30: Dashboard Phase B (Focus Spaces)
 
 **Reviewed:** 2026-05-24  

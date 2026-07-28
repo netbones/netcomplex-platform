@@ -1,3 +1,11 @@
+---
+title: Platform Identity Model
+status: current
+reviewed: 2026-07-28
+tags: [architecture, design]
+audience: developer
+---
+
 # Platform Identity Model
 
 ## Overview

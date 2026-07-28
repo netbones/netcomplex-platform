@@ -1,3 +1,11 @@
+---
+title: docs/architecture/API_ARCHITECTURE.md
+status: current
+reviewed: 2026-07-28
+tags: [architecture, design]
+audience: developer
+---
+
 # docs/architecture/API_ARCHITECTURE.md
 
 # Netcomplex API Architecture

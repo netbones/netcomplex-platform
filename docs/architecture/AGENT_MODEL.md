@@ -1,3 +1,11 @@
+---
+title: Agent Marketplace Implementation Plan
+status: current
+reviewed: 2026-07-28
+tags: [architecture, design]
+audience: developer
+---
+
 # Agent Marketplace Implementation Plan
 
 ## Overview

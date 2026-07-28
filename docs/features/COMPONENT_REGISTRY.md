@@ -1,3 +1,11 @@
+---
+title: Component Registry System
+status: current
+reviewed: 2026-07-28
+tags: [feature, spec]
+audience: developer
+---
+
 # Component Registry System
 
 ## Overview

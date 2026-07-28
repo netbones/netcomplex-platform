@@ -1,3 +1,11 @@
+---
+title: Mobile Monorepo Architecture
+status: current
+reviewed: 2026-07-28
+tags: [architecture, design]
+audience: developer
+---
+
 # Mobile Monorepo Architecture
 
 ## Decision Context

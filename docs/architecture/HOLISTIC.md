@@ -1,3 +1,11 @@
+---
+title: NetComplex / Soralia Village — Holistic View
+status: current
+reviewed: 2026-07-28
+tags: [architecture, design]
+audience: developer
+---
+
 # NetComplex / Soralia Village — Holistic View
 
 > **Last updated:** 2026-06-03

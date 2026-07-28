@@ -1,3 +1,11 @@
+---
+title: Route Map Planning (NetComplex + Tenants)
+status: current
+reviewed: 2026-07-28
+tags: [plan, roadmap]
+audience: developer
+---
+
 # Route Map Planning (NetComplex + Tenants)
 
 This is a **planning + refactor guide** for organising routes so that:

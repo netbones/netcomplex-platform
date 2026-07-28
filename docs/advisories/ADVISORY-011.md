@@ -1,3 +1,11 @@
+---
+title: ADVISORY-011: Confirmed Root Cause — DATABASE_URL / DIRECT_URL Precedence Bug in `db.ts`
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # ADVISORY-011: Confirmed Root Cause — DATABASE_URL / DIRECT_URL Precedence Bug in `db.ts`
 
 **Status:** P0 — Production incident, root cause identified from source

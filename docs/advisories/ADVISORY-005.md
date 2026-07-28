@@ -1,3 +1,11 @@
+---
+title: Migrating from v10 to v11
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # Migrating from v10 to v11
 
 URL: https://pnpm.io/migration

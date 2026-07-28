@@ -1,3 +1,11 @@
+---
+title: Better Auth Vercel Edge Runtime Research
+status: current
+reviewed: 2026-07-28
+tags: [infrastructure, devops]
+audience: developer
+---
+
 # Better Auth Vercel Edge Runtime Research
 
 ## Summary

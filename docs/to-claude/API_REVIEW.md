@@ -1,3 +1,11 @@
+---
+title: Comprehensive API Layer Architecture Analysis
+status: current
+reviewed: 2026-07-28
+tags: [context, handoff]
+audience: developer
+---
+
 # Comprehensive API Layer Architecture Analysis
 
 ## 1. `src/server/` Directory Structure

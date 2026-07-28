@@ -1,3 +1,11 @@
+---
+title: Content Context
+status: current
+reviewed: 2026-07-28
+tags: [context-map, bounded-context]
+audience: developer
+---
+
 # Content Context
 
 > **Last updated:** 2026-06-01

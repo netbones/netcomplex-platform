@@ -1,3 +1,11 @@
+---
+title: Headless/Content CMS Platform Comparison
+status: current
+reviewed: 2026-07-28
+tags: [report, analysis]
+audience: developer
+---
+
 # Headless/Content CMS Platform Comparison
 
 ## Feature Comparison Matrix

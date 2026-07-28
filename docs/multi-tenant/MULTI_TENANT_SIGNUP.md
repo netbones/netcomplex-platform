@@ -1,3 +1,11 @@
+---
+title: Multi-Tenant Sign-Up Options
+status: current
+reviewed: 2026-07-28
+tags: [multi-tenant, architecture]
+audience: developer
+---
+
 # Multi-Tenant Sign-Up Options
 
 This document outlines approaches for handling user sign-up in a multi-tenant SaaS platform where each tenant needs isolated data.

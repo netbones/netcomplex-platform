@@ -1,3 +1,11 @@
+---
+title: NetComplex Infrastructure Cost Model
+status: current
+reviewed: 2026-07-28
+tags: [product, requirements]
+audience: product
+---
+
 # NetComplex Infrastructure Cost Model
 
 **Prepared for:** Soralia Village AGM — 13 August 2026 (financial supporting document)

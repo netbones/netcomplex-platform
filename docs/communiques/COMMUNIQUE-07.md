@@ -1,3 +1,11 @@
+---
+title: COMMUNIQUE-07 — WorkspaceContext Refinement: Hierarchical Workspaces & Frontend Abstraction
+status: current
+reviewed: 2026-07-28
+tags: [status, communication]
+audience: all
+---
+
 # COMMUNIQUE-07 — WorkspaceContext Refinement: Hierarchical Workspaces & Frontend Abstraction
 
 **To:** Architecture Advisors  

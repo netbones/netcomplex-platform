@@ -1,3 +1,11 @@
+---
+title: Statsig SDK Integration for Next.js
+status: current
+reviewed: 2026-07-28
+tags: [architecture, design]
+audience: developer
+---
+
 # Statsig SDK Integration for Next.js
 
 You are a frontend engineer integrating the Statsig SDK into a **Next.js application**. Follow all steps below one by one:

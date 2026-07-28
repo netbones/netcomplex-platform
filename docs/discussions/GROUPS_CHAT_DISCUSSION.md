@@ -1,3 +1,11 @@
+---
+title: DISCUSSION ON FUTURE OF COMMUNITY GROUPS vs PLATFORM CHAT FEATURE
+status: current
+reviewed: 2026-07-28
+tags: [discussion, proposal]
+audience: developer
+---
+
 # DISCUSSION ON FUTURE OF COMMUNITY GROUPS vs PLATFORM CHAT FEATURE
 
 # PART ONE

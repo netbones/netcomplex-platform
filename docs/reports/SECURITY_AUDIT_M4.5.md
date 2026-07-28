@@ -1,3 +1,11 @@
+---
+title: M4.5 Tenant Isolation Audit
+status: current
+reviewed: 2026-07-28
+tags: [report, analysis]
+audience: developer
+---
+
 # M4.5 Tenant Isolation Audit
 
 **Generated:** 2026-06-06T11:10:10Z

@@ -1,3 +1,11 @@
+---
+title: ADVISORY-016: Multi-Tenant Domain Routing — Platform vs Tenant Plane Separation
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # ADVISORY-016: Multi-Tenant Domain Routing — Platform vs Tenant Plane Separation
 
 **Date:** 2026-06-26

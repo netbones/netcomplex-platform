@@ -1,3 +1,11 @@
+---
+title: Balancing FSD Lint Rules with Practical Concerns
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # Balancing FSD Lint Rules with Practical Concerns
 
 **Date:** 2026-06-12

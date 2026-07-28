@@ -1,3 +1,11 @@
+---
+title: COMMUNIQUE-10 — Model Duplication: Seat Polymorphism & Invoice/Payment Overlap
+status: current
+reviewed: 2026-07-28
+tags: [status, communication]
+audience: all
+---
+
 # COMMUNIQUE-10 — Model Duplication: Seat Polymorphism & Invoice/Payment Overlap
 
 **To:** Architecture Advisors

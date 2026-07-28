@@ -1,3 +1,11 @@
+---
+title: Surveys audit
+status: current
+reviewed: 2026-07-28
+tags: [feature, spec]
+audience: developer
+---
+
 1. Survey-Related Pages (Routes in src/app)
    There are two top-level route groups for surveys:
    Public-facing route

@@ -1,3 +1,11 @@
+---
+title: Report 001
+status: current
+reviewed: 2026-07-28
+tags: [report, analysis]
+audience: developer
+---
+
 **High-Level Architecture Review: Netcomplex (as of June 2026)**
 
 I've reviewed the current **Prisma schema**, project tree, and supporting docs (AGENTS.md, etc.). Here's a structured **architectural health check** as your high-level consultant.

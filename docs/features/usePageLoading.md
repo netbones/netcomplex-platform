@@ -1,3 +1,11 @@
+---
+title: usePageLoading Hook
+status: current
+reviewed: 2026-07-28
+tags: [feature, spec]
+audience: developer
+---
+
 # usePageLoading Hook
 
 A utility hook for handling i18n loading states and providing consistent page loading skeletons.

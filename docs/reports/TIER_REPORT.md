@@ -1,3 +1,11 @@
+---
+title: Tier REPORT
+status: current
+reviewed: 2026-07-28
+tags: [report, analysis]
+audience: developer
+---
+
 Complete Tier/Plan Definition Report
 
 1. TWO SEPARATE TIER SYSTEMS

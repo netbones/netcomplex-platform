@@ -1,3 +1,11 @@
+---
+title: Admin Context
+status: current
+reviewed: 2026-07-28
+tags: [context-map, bounded-context]
+audience: developer
+---
+
 # Admin Context
 
 > **Last updated:** 2026-06-01

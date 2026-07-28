@@ -1,3 +1,11 @@
+---
+title: Profile URL Guide
+status: current
+reviewed: 2026-07-28
+tags: [multi-tenant, architecture]
+audience: developer
+---
+
 # Profile URL Guide
 
 ## Overview

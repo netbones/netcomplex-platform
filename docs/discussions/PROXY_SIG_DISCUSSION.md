@@ -1,3 +1,11 @@
+---
+title: DISCUSSION A: Proxy Voting Module
+status: current
+reviewed: 2026-07-28
+tags: [discussion, proposal]
+audience: developer
+---
+
 # DISCUSSION A: Proxy Voting Module
 
 Design a proxy vote submission module. Use case: Owner cannot physically attend the AGM. The rules on virtual attendance have not been implemented. He or she is required to submit a signed proxy form to the HOA prior to the meeting, the proxy nominee / person is also required to sign the form. It should be a simple click flow. Nothing elaborate.

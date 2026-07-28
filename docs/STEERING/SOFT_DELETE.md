@@ -1,3 +1,11 @@
+---
+title: Soft-Delete Policy
+status: current
+reviewed: 2026-07-28
+tags: [steering, governance]
+audience: all
+---
+
 # Soft-Delete Policy
 
 ## Principles

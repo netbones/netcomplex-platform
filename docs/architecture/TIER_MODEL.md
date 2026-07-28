@@ -1,3 +1,11 @@
+---
+title: NetComplex Tier Model
+status: current
+reviewed: 2026-07-28
+tags: [architecture, design]
+audience: developer
+---
+
 # NetComplex Tier Model
 
 ## Overview

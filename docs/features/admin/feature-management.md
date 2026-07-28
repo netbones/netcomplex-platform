@@ -1,3 +1,11 @@
+---
+title: Feature Management Console
+status: current
+reviewed: 2026-07-28
+tags: [feature, spec]
+audience: developer
+---
+
 # Feature Management Console
 
 The **Feature Management Console** is a centralized administrative interface that allows tenant administrators to manage the visibility and access levels of platform modules defined in the `NAV_REGISTRY`.

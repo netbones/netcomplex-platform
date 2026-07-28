@@ -1,3 +1,11 @@
+---
+title: Settings Infrastructure Review
+status: current
+reviewed: 2026-07-28
+tags: [report, analysis]
+audience: developer
+---
+
 # Settings Infrastructure Review
 
 **Date:** 2026-06-20

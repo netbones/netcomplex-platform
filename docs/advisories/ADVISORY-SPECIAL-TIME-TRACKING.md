@@ -1,3 +1,11 @@
+---
+title: ADVISORY-SPECIAL-TIME-TRACKING: Cost/Time Tracking Layer for BD + GSD + Git
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # ADVISORY-SPECIAL-TIME-TRACKING: Cost/Time Tracking Layer for BD + GSD + Git
 
 > **⚠️ NUMBERING NOTE:** This advisory is issued as **SPECIAL** (unnumbered) pending

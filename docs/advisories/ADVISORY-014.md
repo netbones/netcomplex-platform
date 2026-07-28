@@ -1,3 +1,11 @@
+---
+title: ADVISORY-014: Better Auth Admin Plugin & User Impersonation
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # ADVISORY-014: Better Auth Admin Plugin & User Impersonation
 
 **Status:** Phase 1 — Agent Ready | Phase 2 — Gated on DavDev Approval  

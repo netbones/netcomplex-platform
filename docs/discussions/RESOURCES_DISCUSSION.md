@@ -1,3 +1,11 @@
+---
+title: DISCUSSION PART ONE
+status: current
+reviewed: 2026-07-28
+tags: [discussion, proposal]
+audience: developer
+---
+
 # DISCUSSION PART ONE
 
 Yes. Looking at the implementation, every category section is essentially:

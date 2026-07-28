@@ -1,3 +1,11 @@
+---
+title: Structured summary of the settings architecture in the Soralia Village codebase.
+status: current
+reviewed: 2026-07-28
+tags: [architecture, design]
+audience: developer
+---
+
 # Structured summary of the settings architecture in the Soralia Village codebase.
 
 ## 1. DATABASE

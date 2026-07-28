@@ -1,3 +1,11 @@
+---
+title: ADVISORY-032: Tenant-Resolution Header-Propagation Failure + RLS Fail-Open Fallback
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # ADVISORY-032: Tenant-Resolution Header-Propagation Failure + RLS Fail-Open Fallback
 
 > **Status:** Phases 1–4 complete · Phase 5–6 pending (staging regression + deploy verification)

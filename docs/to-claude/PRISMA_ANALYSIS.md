@@ -1,3 +1,11 @@
+---
+title: Comprehensive Prisma Schema Analysis
+status: current
+reviewed: 2026-07-28
+tags: [context, handoff]
+audience: developer
+---
+
 # Comprehensive Prisma Schema Analysis
 
 File: `prisma/schema/schema.prisma` + `prisma/schema/tenant.prisma` (3308 lines across 2 files via `prismaSchemaFolder`)

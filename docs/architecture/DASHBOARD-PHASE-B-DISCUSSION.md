@@ -1,3 +1,11 @@
+---
+title: Dashboard Phase B: Focus Space Architecture
+status: current
+reviewed: 2026-07-28
+tags: [architecture, design]
+audience: developer
+---
+
 # Dashboard Phase B: Focus Space Architecture
 
 **Status:** Discussion  

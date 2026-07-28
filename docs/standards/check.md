@@ -1,3 +1,11 @@
+---
+title: Check
+status: current
+reviewed: 2026-07-28
+tags: [standards, best-practices]
+audience: developer
+---
+
 Don't skip this:
 https://x.com/PrajwalTomar_/status/2080974596392837123
 

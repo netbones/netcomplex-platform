@@ -1,3 +1,11 @@
+---
+title: Identity & Permissions System Review
+status: current
+reviewed: 2026-07-28
+tags: [migration, database]
+audience: developer
+---
+
 # Identity & Permissions System Review
 
 **Reviewed:** 2026-03-31  

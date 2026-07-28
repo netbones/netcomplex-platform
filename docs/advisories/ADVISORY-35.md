@@ -1,3 +1,11 @@
+---
+title: ADVISORY-35: Comment System — Threaded Comments, Voting & Moderation
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # ADVISORY-35: Comment System — Threaded Comments, Voting & Moderation
 
 **Status:** All 4 phases complete — shipped to production

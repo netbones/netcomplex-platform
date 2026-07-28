@@ -1,3 +1,11 @@
+---
+title: Implementing roll up feature with rnd
+status: current
+reviewed: 2026-07-28
+tags: [feature, spec]
+audience: developer
+---
+
 Implementing a "roll-up" feature with
 react-rnd and Zustand involves managing the widget's height state. When rolled up, you set the height to match the header and disable resizing.
 

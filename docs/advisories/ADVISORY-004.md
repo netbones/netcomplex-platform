@@ -1,3 +1,11 @@
+---
+title: ADVISORY-004 — Deprecate Local `listings.json` in Favour of Neon DB
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # ADVISORY-004 — Deprecate Local `listings.json` in Favour of Neon DB
 
 **Status:** Active  

@@ -1,3 +1,11 @@
+---
+title: NetComplex Module Architecture — Design Decisions
+status: current
+reviewed: 2026-07-28
+tags: [steering, governance]
+audience: all
+---
+
 # NetComplex Module Architecture — Design Decisions
 
 **Date:** 2026-04-22  

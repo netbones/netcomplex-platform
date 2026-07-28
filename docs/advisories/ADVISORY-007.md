@@ -1,3 +1,11 @@
+---
+title: Advisory 007
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 ## Advisory: FSD Forbidden-Imports Remediation
 
 The agent's plan is largely correct in intent but has a critical circular-import hazard that the agent itself identifies and then partially mis-resolves. Here's my analysis and corrected guidance.

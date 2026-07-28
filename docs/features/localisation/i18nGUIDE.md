@@ -1,3 +1,11 @@
+---
+title: i18n Guide for Soralia Village
+status: current
+reviewed: 2026-07-28
+tags: [feature, spec]
+audience: developer
+---
+
 # i18n Guide for Soralia Village
 
 ## Overview

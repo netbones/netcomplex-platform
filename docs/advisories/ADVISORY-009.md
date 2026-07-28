@@ -1,3 +1,11 @@
+---
+title: ADVISORY-009: Steiger Config Bugs and `no-public-api-sidestep` Remediation
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # ADVISORY-009: Steiger Config Bugs and `no-public-api-sidestep` Remediation
 
 **Date:** 2026-06-14

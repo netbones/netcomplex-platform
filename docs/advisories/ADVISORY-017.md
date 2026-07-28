@@ -1,3 +1,11 @@
+---
+title: ADVISORY-017: Dispute Resolution System
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # ADVISORY-017: Dispute Resolution System
 
 ## NetComplex / Soralia Village

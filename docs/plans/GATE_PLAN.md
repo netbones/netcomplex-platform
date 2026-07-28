@@ -1,3 +1,11 @@
+---
+title: Feature Gate Consolidation Plan
+status: current
+reviewed: 2026-07-28
+tags: [plan, roadmap]
+audience: developer
+---
+
 # Feature Gate Consolidation Plan
 
 > **Last updated:** 2026-06-01

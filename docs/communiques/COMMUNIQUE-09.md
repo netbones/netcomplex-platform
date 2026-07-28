@@ -1,3 +1,11 @@
+---
+title: COMMUNIQUE-09 — ADR-024 Executed: DTO Consolidation Complete; Client-Bundle Gating Blocking
+status: current
+reviewed: 2026-07-28
+tags: [status, communication]
+audience: all
+---
+
 # COMMUNIQUE-09 — ADR-024 Executed: DTO Consolidation Complete; Client-Bundle Gating Blocking
 
 **To:** Architecture Advisors  

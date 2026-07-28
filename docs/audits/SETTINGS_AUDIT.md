@@ -1,3 +1,11 @@
+---
+title: Settings AUDIT
+status: current
+reviewed: 2026-07-28
+tags: [audit]
+audience: developer
+---
+
 Research Report: System-Level Settings, Analytics, and Configuration
 
 1. ANALYTICS PAGES / COMPONENTS

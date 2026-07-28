@@ -1,3 +1,11 @@
+---
+title: Announcement & Communication System — Problem Definition
+status: current
+reviewed: 2026-07-28
+tags: [architecture, design]
+audience: developer
+---
+
 # Announcement & Communication System — Problem Definition
 
 **Document type:** Problem Statement & Requirements Context  

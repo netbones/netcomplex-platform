@@ -1,3 +1,11 @@
+---
+title: Phase 1 — Registration (under 2 minutes)
+status: current
+reviewed: 2026-07-28
+tags: [discussion, proposal]
+audience: developer
+---
+
 Given what I know about NetComplex, I would avoid an **"immediate wizard after signup"** as the primary onboarding mechanism.
 
 Your platform is no longer a simple SaaS app—it is a **multi-tenant operating system**. Different users arrive with different intentions:

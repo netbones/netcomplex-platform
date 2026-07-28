@@ -1,3 +1,11 @@
+---
+title: CHAT E2EE
+status: current
+reviewed: 2026-07-28
+tags: [discussion, proposal]
+audience: developer
+---
+
 # CHAT E2EE
 
 > **Status (2026-06-22):** Groundwork complete. Phase 48 architecture hardening and Discussion C payload abstraction shipped. Future work (Phases 49–54) tracked in BD `soralia-village-m5ug`.

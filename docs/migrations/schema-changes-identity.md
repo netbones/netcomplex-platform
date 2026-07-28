@@ -1,3 +1,11 @@
+---
+title: Prisma Schema Changes - Identity Model Implementation
+status: current
+reviewed: 2026-07-28
+tags: [migration, database]
+audience: developer
+---
+
 # Prisma Schema Changes - Identity Model Implementation
 
 ## Overview

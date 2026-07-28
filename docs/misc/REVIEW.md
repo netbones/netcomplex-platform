@@ -1,3 +1,11 @@
+---
+title: Review
+status: current
+reviewed: 2026-07-28
+tags: [misc]
+audience: developer
+---
+
 review of the codebase and documentation, here is an analysis of the
 multi-tenant architecture, identifying critical gaps, technical debt, and architectural
 "gotchas."

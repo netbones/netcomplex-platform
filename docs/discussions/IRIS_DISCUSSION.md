@@ -1,3 +1,11 @@
+---
+title: IRIS DISCUSSION
+status: current
+reviewed: 2026-07-28
+tags: [discussion, proposal]
+audience: developer
+---
+
 # IRIS DISCUSSION
 
 Q: Should the current User Activity feed on /dashboard evolve into an Iris-like stream (with content from my friends, my groups), or should this be situated elsewhere, perhaps on our current community space /community dashboard, which is currently a widget dashboard that allows many different widgets , was initially solely about allowing user to customise experiences?

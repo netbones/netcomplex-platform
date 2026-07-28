@@ -1,3 +1,11 @@
+---
+title: Ticketing System Review: Soralia Village vs. Market Standards
+status: current
+reviewed: 2026-07-28
+tags: [report, analysis]
+audience: developer
+---
+
 # Ticketing System Review: Soralia Village vs. Market Standards
 
 > **Date:** 2026-07-11

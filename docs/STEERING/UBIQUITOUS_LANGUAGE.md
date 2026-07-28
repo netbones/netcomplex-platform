@@ -1,3 +1,11 @@
+---
+title: Ubiquitous Language — NetComplex / Soralia Village
+status: current
+reviewed: 2026-07-28
+tags: [steering, governance]
+audience: all
+---
+
 # Ubiquitous Language — NetComplex / Soralia Village
 
 > **Last updated:** 2026-07-07

@@ -1,3 +1,11 @@
+---
+title: Implementation Plan: Property & Household Migration
+status: current
+reviewed: 2026-07-28
+tags: [plan, roadmap]
+audience: developer
+---
+
 # Implementation Plan: Property & Household Migration
 
 ## 🏁 Objective

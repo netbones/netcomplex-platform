@@ -1,3 +1,11 @@
+---
+title: NetComplex / Soralia Village — Full Architecture Summary
+status: current
+reviewed: 2026-07-28
+tags: [report, analysis]
+audience: developer
+---
+
 # NetComplex / Soralia Village — Full Architecture Summary
 
 ## 1. Tech Stack

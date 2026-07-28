@@ -1,3 +1,11 @@
+---
+title: DISCUSSION: Server-Only Modules vs FSD Barrel Public API
+status: current
+reviewed: 2026-07-28
+tags: [discussion, proposal]
+audience: developer
+---
+
 # DISCUSSION: Server-Only Modules vs FSD Barrel Public API
 
 **Status**: Open — seeking architectural advice  

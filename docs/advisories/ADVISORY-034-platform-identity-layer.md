@@ -1,3 +1,11 @@
+---
+title: ADVISORY-034: Introduce a Platform Identity Layer (Decouple Identity from Authentication and Tenant Membership)
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # ADVISORY-034: Introduce a Platform Identity Layer (Decouple Identity from Authentication and Tenant Membership)
 
 **Status:** Proposed

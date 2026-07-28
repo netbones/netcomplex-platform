@@ -1,3 +1,11 @@
+---
+title: Architecture Decision Records (ADR)
+status: current
+reviewed: 2026-07-28
+tags: [steering, governance]
+audience: all
+---
+
 # Architecture Decision Records (ADR)
 
 An Architecture Decision Record (ADR) documents a significant architectural decision made during the project lifecycle, including the context, decision, and consequences.

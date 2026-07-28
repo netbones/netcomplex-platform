@@ -1,3 +1,11 @@
+---
+title: COMMUNIQUE-04 — Tenant Foreign Key Relations: Schema Integrity Architecture
+status: current
+reviewed: 2026-07-28
+tags: [status, communication]
+audience: all
+---
+
 # COMMUNIQUE-04 — Tenant Foreign Key Relations: Schema Integrity Architecture
 
 **To:** Architecture Advisors
@@ -13,11 +21,11 @@
 
 The `prisma/schema.prisma` contains **95 models** with a `tenantId` field. Only **3** declare a proper `@relation` to the `Tenant` model:
 
-| Model | onDelete | Purpose |
-|-------|----------|---------|
-| `TenantModule` | Cascade | Junction: tenant ↔ module enablement |
-| `AssistSession` | Cascade | Agent assist session scoped to tenant |
-| `TenantAchievement` | Cascade | Junction: tenant ↔ achievement definitions |
+| Model               | onDelete | Purpose                                    |
+| ------------------- | -------- | ------------------------------------------ |
+| `TenantModule`      | Cascade  | Junction: tenant ↔ module enablement       |
+| `AssistSession`     | Cascade  | Agent assist session scoped to tenant      |
+| `TenantAchievement` | Cascade  | Junction: tenant ↔ achievement definitions |
 
 The remaining **92 models** use a bare `tenantId String` field with **no referential integrity constraint**. This means:
 
@@ -30,16 +38,17 @@ The remaining **92 models** use a bare `tenantId String` field with **no referen
 
 The SaaS License Agreement (v10, `docs/product/SaaS/`) defines the Tenant as the contracting entity — the Soralia Village HOA. The agreement specifies:
 
-| Lifecycle Event | Rule | Source |
-|----------------|------|--------|
-| **User Departure** | 90-day archival → permanent deletion | §6.7 |
-| **Premium Seat Cooling-Off** | 6 months before address reissue | §6.7 |
-| **Contract Termination** | All data returned/deleted within 30 days | §6.5 |
-| **Data subject rights** | Self-service export/deletion via dWallet | §6.8 |
+| Lifecycle Event              | Rule                                     | Source |
+| ---------------------------- | ---------------------------------------- | ------ |
+| **User Departure**           | 90-day archival → permanent deletion     | §6.7   |
+| **Premium Seat Cooling-Off** | 6 months before address reissue          | §6.7   |
+| **Contract Termination**     | All data returned/deleted within 30 days | §6.5   |
+| **Data subject rights**      | Self-service export/deletion via dWallet | §6.8   |
 
 These lifecycle rules govern **user and seat data**, not the Tenant itself. The agreement has no concept of "deleting the tenant" — the Tenant IS the HOA and can only be terminated through contract expiry or breach.
 
 **However**, the current schema cannot distinguish between:
+
 - A legitimate `tenantId` → orphan data pointing to nowhere
 - A departed user's archival data → user-scoped lifecycle, not tenant-scoped
 - A tenant in deletion → data that should have been cascaded or blocked
@@ -50,30 +59,30 @@ These lifecycle rules govern **user and seat data**, not the Tenant itself. The 
 
 ### 2.1 — Excluded: Better Auth Tables (managed by auth library)
 
-| Model | tenantId | Reason for exclusion |
-|-------|----------|---------------------|
-| `account` | Optional | Better Auth OAuth account linking |
-| `session` | Optional | Better Auth session management |
-| `passkey` | — | Better Auth passkey auth |
-| `user` | Required | Central identity; RLS-managed |
-| `verification` | Optional | Better Auth email verification |
-| `twoFactor` | — | Better Auth 2FA |
+| Model          | tenantId | Reason for exclusion              |
+| -------------- | -------- | --------------------------------- |
+| `account`      | Optional | Better Auth OAuth account linking |
+| `session`      | Optional | Better Auth session management    |
+| `passkey`      | —        | Better Auth passkey auth          |
+| `user`         | Required | Central identity; RLS-managed     |
+| `verification` | Optional | Better Auth email verification    |
+| `twoFactor`    | —        | Better Auth 2FA                   |
 
 These tables are managed by Better Auth's internal lifecycle. Adding `@relation` constrains the auth library's ability to create/destroy records during auth flows.
 
 ### 2.2 — Included: 86 tenant-scoped models by domain
 
-| Wave | Domain | Count | Representative Models |
-|------|--------|-------|----------------------|
-| 1 | Core Community | 20 | Profile, Member, Organization, Notification, Property, Household, Conversation, Message, Content, Group, Event, Booking |
-| 2 | Seats & Listings | 7 | PremiumSeat, SoloSeat, StandardSeat, PropertyListing, ServiceBooking, AgentProfile |
-| 3 | Maintenance & Providers | 14 | MaintenanceRequest, MaintenanceTeam, ServiceProvider, CommunityServiceListing, ProviderVerification, ProviderSubscription |
-| 4 | Billing & Commerce | 12 | PaymentTransaction, ProviderInvoice, BillingPlan, TenantSubscription, TenantInvoice, Coupon, CouponRedemption |
-| 5 | Surveys & Merits | 8 | Survey, Question, Response, SurveySection, ExternalSurvey, CommunityMerit, Competition |
-| 6 | dWallet & Data | 6 | DWallet, WalletTransaction, DataConsent, PayoutRequest, DataRevenueStream, DataShareBatch |
-| 7 | Admin & Agents | 6 | AgentAccess, AgentToken, DelegationAction, ResidentDelegation, PlatformSuspension, SubscriptionTier |
-| 8 | Achievements & Disputes | 7 | UserAchievementProgress, UserAchievement, DisputeCase, DisputeEvidence, DisputeMessage |
-| 9 | Address & AI | 6 | Setting, Address, Handle, Bursary, TenantAiUsage, AiUsageEvent |
+| Wave | Domain                  | Count | Representative Models                                                                                                     |
+| ---- | ----------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------- |
+| 1    | Core Community          | 20    | Profile, Member, Organization, Notification, Property, Household, Conversation, Message, Content, Group, Event, Booking   |
+| 2    | Seats & Listings        | 7     | PremiumSeat, SoloSeat, StandardSeat, PropertyListing, ServiceBooking, AgentProfile                                        |
+| 3    | Maintenance & Providers | 14    | MaintenanceRequest, MaintenanceTeam, ServiceProvider, CommunityServiceListing, ProviderVerification, ProviderSubscription |
+| 4    | Billing & Commerce      | 12    | PaymentTransaction, ProviderInvoice, BillingPlan, TenantSubscription, TenantInvoice, Coupon, CouponRedemption             |
+| 5    | Surveys & Merits        | 8     | Survey, Question, Response, SurveySection, ExternalSurvey, CommunityMerit, Competition                                    |
+| 6    | dWallet & Data          | 6     | DWallet, WalletTransaction, DataConsent, PayoutRequest, DataRevenueStream, DataShareBatch                                 |
+| 7    | Admin & Agents          | 6     | AgentAccess, AgentToken, DelegationAction, ResidentDelegation, PlatformSuspension, SubscriptionTier                       |
+| 8    | Achievements & Disputes | 7     | UserAchievementProgress, UserAchievement, DisputeCase, DisputeEvidence, DisputeMessage                                    |
+| 9    | Address & AI            | 6     | Setting, Address, Handle, Bursary, TenantAiUsage, AiUsageEvent                                                            |
 
 ---
 
@@ -88,12 +97,14 @@ tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Restrict
 Every domain model gets a FK. Deleting a Tenant **blocks** until all child data is removed.
 
 **Pros:**
+
 - Referential integrity enforced: no orphan `tenantId` values possible
 - Accidental tenant deletion is impossible — requires explicit cleanup
 - Matches the SaaS contract: tenant deletion = contract termination, a deliberate multi-step process
 - Safe for all 86 models regardless of domain
 
 **Cons:**
+
 - No automatic cleanup. An admin deleting a tenant must manually clear all 86 tables first
 - A `DELETE FROM Tenant WHERE id = 'X'` will fail until every referencing row is handled
 - Requires a tenant deletion workflow (or a SQL script) to be built
@@ -107,11 +118,13 @@ tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 Matches the existing 3 relations (TenantModule, AssistSession, TenantAchievement).
 
 **Pros:**
+
 - Single `DELETE FROM Tenant` cleans everything
 - Consistent with existing FK relations
 - No orphan cleanup burden
 
 **Cons:**
+
 - One accidental query destroys **all** tenant data — irreversible without backups
 - No distinction between "tenant being sunset" and "tenant being deleted by bug"
 - Does not align with the SaaS agreement's structured data lifecycle (archival periods, portability windows, cooling-off)

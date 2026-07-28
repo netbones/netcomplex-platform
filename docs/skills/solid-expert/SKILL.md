@@ -1,3 +1,11 @@
+---
+title: Skill: Enforce SOLID Principles in React & TypeScript
+status: current
+reviewed: 2026-07-28
+tags: [skill, agent]
+audience: developer
+---
+
 # Skill: Enforce SOLID Principles in React & TypeScript
 
 ## Persona Engram

@@ -1,3 +1,11 @@
+---
+title: ADVISORY-012: Community Merits — Pre-Execution Corrections
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # ADVISORY-012: Community Merits — Pre-Execution Corrections
 
 **Status:** Blocking — apply Section 5 fixes to `45-02-PLAN.md` and `45-03-PLAN.md` before wave 2/3 execution begins.

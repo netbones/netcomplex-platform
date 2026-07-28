@@ -1,3 +1,11 @@
+---
+title: Navigation Governance
+status: current
+reviewed: 2026-07-28
+tags: [architecture, design]
+audience: developer
+---
+
 # Navigation Governance
 
 ## Netcomplex Multitenant Platform

@@ -1,3 +1,11 @@
+---
+title: FSD (Feature-Sliced Design)
+status: current
+reviewed: 2026-07-28
+tags: [steering, governance]
+audience: all
+---
+
 # FSD (Feature-Sliced Design)
 
 Feature-Sliced Design is the enforced architecture for `src/`. Boundaries are

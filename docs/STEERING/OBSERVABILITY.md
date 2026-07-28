@@ -1,3 +1,11 @@
+---
+title: Operational Runbook — M5b Soak Observability
+status: current
+reviewed: 2026-07-28
+tags: [steering, governance]
+audience: all
+---
+
 # Operational Runbook — M5b Soak Observability
 
 > **Stack:** Pino + PostHog
@@ -59,15 +67,15 @@ Navigate to your Vercel project dashboard → Project (e.g., `soralia-village`) 
 
 All Pino logs are available in Vercel Logs as structured JSON. Each log line includes a `component` field set by the child logger (`api`, `database`, `auth`, `upload`). Use these queries in the Vercel Logs search bar:
 
-| Scenario | Query | Expected output |
-|---|---|---|
-| All errors in the last hour | `level:error @timestamp:>now-1h` | List of error-level log entries with stack traces |
-| All API requests for tenant X in last 15 min | `component:api tenantId:X @timestamp:>now-15m` | API route calls for that tenant (includes `route` and `method` fields) |
-| All auth failures | `component:auth level:warn message:"auth failed"` | Failed login attempts, expired sessions, etc. |
-| All slow requests (>1s) for chat | `component:api duration:>1000 route:"/api/messages"` | Slow chat API requests with duration in ms |
-| Correlate a request by ID | `requestId:<uuid>` | All log entries (api + database + auth) for that specific request |
-| Upload errors | `component:upload level:error` | Failed file uploads with error details |
-| Slow database queries | `component:database duration:>500` | Database queries taking over 500ms |
+| Scenario                                     | Query                                                | Expected output                                                        |
+| -------------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------------------- |
+| All errors in the last hour                  | `level:error @timestamp:>now-1h`                     | List of error-level log entries with stack traces                      |
+| All API requests for tenant X in last 15 min | `component:api tenantId:X @timestamp:>now-15m`       | API route calls for that tenant (includes `route` and `method` fields) |
+| All auth failures                            | `component:auth level:warn message:"auth failed"`    | Failed login attempts, expired sessions, etc.                          |
+| All slow requests (>1s) for chat             | `component:api duration:>1000 route:"/api/messages"` | Slow chat API requests with duration in ms                             |
+| Correlate a request by ID                    | `requestId:<uuid>`                                   | All log entries (api + database + auth) for that specific request      |
+| Upload errors                                | `component:upload level:error`                       | Failed file uploads with error details                                 |
+| Slow database queries                        | `component:database duration:>500`                   | Database queries taking over 500ms                                     |
 
 The `requestId` field is set by `src/middleware.ts` (`x-request-id` header) and propagated through `createLogContext` in `src/shared/api/observability.ts`.
 
@@ -139,15 +147,15 @@ The database query took 4.8s of the 5.2s total. This points to a database bottle
 
 ## §6 Common Alerts and Their Runbook Links
 
-| Alert (from decision doc §6) | First thing to check |
-|---|---|
-| **Server p75 TTFB > 1.2s for 5 min** | Open Vercel Analytics → Web Vitals. Check if the increase is global or route-specific. If route-specific, inspect that route's handler for expensive operations. |
-| **Server error rate > 1% for 5 min** | Open Vercel Monitoring → 5xx breakdown by route. Identify the failing route. Check recent deployments — did a deploy correlate with the error spike? |
-| **Client JS error rate > 0.5% for 5 min** | Open PostHog → Issues / Errors tab. Filter by `env: production`. Sort by frequency. The top error is likely a regression from the latest deploy. |
-| **Real-user p75 LCP > 4s for 5 min** | Open Vercel Analytics → Web Vitals → LCP breakdown by route. Check if a specific page has a slow LCP. Large images or unoptimized components are common causes. |
-| **Pino error log rate > 5/sec for 5 min** | Open Vercel Logs. Query `level:error @timestamp:>now-5m`. Group by `route` to find the source. |
-| **Chat delivery < 99% in 3s** | Check Supabase Realtime status dashboard. Check `/api/messages` route latency in Vercel Analytics. |
-| **PostHog event backlog > 100** | Open PostHog → Project Settings → Data Pipeline → Events. Click "Flush backlog". If backlog persists, check PostHog status page. |
+| Alert (from decision doc §6)              | First thing to check                                                                                                                                             |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Server p75 TTFB > 1.2s for 5 min**      | Open Vercel Analytics → Web Vitals. Check if the increase is global or route-specific. If route-specific, inspect that route's handler for expensive operations. |
+| **Server error rate > 1% for 5 min**      | Open Vercel Monitoring → 5xx breakdown by route. Identify the failing route. Check recent deployments — did a deploy correlate with the error spike?             |
+| **Client JS error rate > 0.5% for 5 min** | Open PostHog → Issues / Errors tab. Filter by `env: production`. Sort by frequency. The top error is likely a regression from the latest deploy.                 |
+| **Real-user p75 LCP > 4s for 5 min**      | Open Vercel Analytics → Web Vitals → LCP breakdown by route. Check if a specific page has a slow LCP. Large images or unoptimized components are common causes.  |
+| **Pino error log rate > 5/sec for 5 min** | Open Vercel Logs. Query `level:error @timestamp:>now-5m`. Group by `route` to find the source.                                                                   |
+| **Chat delivery < 99% in 3s**             | Check Supabase Realtime status dashboard. Check `/api/messages` route latency in Vercel Analytics.                                                               |
+| **PostHog event backlog > 100**           | Open PostHog → Project Settings → Data Pipeline → Events. Click "Flush backlog". If backlog persists, check PostHog status page.                                 |
 
 ---
 
@@ -204,11 +212,11 @@ During planned maintenance (e.g., database migration, deployment of a new phase)
 
 ## §10 References
 
-| Reference | Purpose |
-|---|---|
+| Reference                            | Purpose                                                                    |
+| ------------------------------------ | -------------------------------------------------------------------------- |
 | `.planning/observability-soak-M5.md` | Decision document — stack rationale, signal set, start/stop/abort criteria |
-| `.planning/MILESTONES.md` (M4.5) | Soak criteria, rollback procedure |
-| `src/instrumentation-client.ts` | PostHog init file — used for debugging init issues |
-| `src/shared/lib/logger.ts` | Pino child loggers (api, database, auth, upload) |
-| `src/shared/api/observability.ts` | `withTiming`, `createLogContext`, `getRequestId` helpers |
-| `src/middleware.ts` | `x-request-id` header generation for request correlation |
+| `.planning/MILESTONES.md` (M4.5)     | Soak criteria, rollback procedure                                          |
+| `src/instrumentation-client.ts`      | PostHog init file — used for debugging init issues                         |
+| `src/shared/lib/logger.ts`           | Pino child loggers (api, database, auth, upload)                           |
+| `src/shared/api/observability.ts`    | `withTiming`, `createLogContext`, `getRequestId` helpers                   |
+| `src/middleware.ts`                  | `x-request-id` header generation for request correlation                   |

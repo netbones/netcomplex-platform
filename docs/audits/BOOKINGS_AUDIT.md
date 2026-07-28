@@ -1,3 +1,11 @@
+---
+title: Bookings AUDIT
+status: current
+reviewed: 2026-07-28
+tags: [audit]
+audience: developer
+---
+
 1. DATABASE SCHEMA: TWO DISTINCT BOOKING MODELS
    Facility Booking (Booking model)
    Prisma: prisma/schema/schema.prisma line 943  

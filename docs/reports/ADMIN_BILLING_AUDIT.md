@@ -1,3 +1,11 @@
+---
+title: Platform Billing System Audit Report
+status: current
+reviewed: 2026-07-28
+tags: [report, analysis]
+audience: developer
+---
+
 # Platform Billing System Audit Report
 
 ## 1. Does a Platform Billing System Exist?

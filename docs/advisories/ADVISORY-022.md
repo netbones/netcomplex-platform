@@ -1,3 +1,11 @@
+---
+title: ADVISORY-22.md
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # ADVISORY-22.md
 
 # Agent Identity & Delegation Architecture Advisory

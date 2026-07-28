@@ -1,3 +1,11 @@
+---
+title: ESLint 9 completely broke backward compatibility by making "flat config" the default system
+status: current
+reviewed: 2026-07-28
+tags: [standards, best-practices]
+audience: developer
+---
+
 # ESLint 9 completely broke backward compatibility by making "flat config" the default system
 
 To resolve TypeScript parser issues in this new format, you must transition to the modern typescript-eslint package and update your configuration structure.

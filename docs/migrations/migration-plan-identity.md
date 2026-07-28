@@ -1,3 +1,11 @@
+---
+title: Identity Model Migration Plan
+status: current
+reviewed: 2026-07-28
+tags: [migration, database]
+audience: developer
+---
+
 # Identity Model Migration Plan
 
 ## Overview

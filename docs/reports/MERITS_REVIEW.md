@@ -1,3 +1,11 @@
+---
+title: Merits System Review
+status: current
+reviewed: 2026-07-28
+tags: [report, analysis]
+audience: developer
+---
+
 # Merits System Review
 
 **System:** Community Merits & Standing (Phase 45)  

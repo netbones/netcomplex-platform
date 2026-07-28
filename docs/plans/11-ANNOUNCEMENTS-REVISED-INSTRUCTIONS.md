@@ -1,3 +1,11 @@
+---
+title: Phase 11 — Announcements: Revised Instructions
+status: current
+reviewed: 2026-07-28
+tags: [plan, roadmap]
+audience: developer
+---
+
 # Phase 11 — Announcements: Revised Instructions
 
 **Status:** SUPERSEDES plans `11-01-PLAN.md` and `11-02-PLAN.md`  

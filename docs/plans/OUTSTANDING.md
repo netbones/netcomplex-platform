@@ -1,3 +1,11 @@
+---
+title: Deferred Items Register — NetComplex
+status: current
+reviewed: 2026-07-28
+tags: [plan, roadmap]
+audience: developer
+---
+
 # Deferred Items Register — NetComplex
 
 Tracks all deferred items — phases, features, BD issues, and cross-cutting work — with blocker, disposition, and rationale.

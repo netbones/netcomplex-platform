@@ -1,3 +1,11 @@
+---
+title: Chat / Messaging Subsystem -- Complete Exploration
+status: current
+reviewed: 2026-07-28
+tags: [report, analysis]
+audience: developer
+---
+
 # Chat / Messaging Subsystem -- Complete Exploration
 
 1. Prisma Schema Models: Message and Conversation

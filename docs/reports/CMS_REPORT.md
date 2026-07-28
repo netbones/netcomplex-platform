@@ -1,3 +1,11 @@
+---
+title: Soralia Village CMS Audit Report
+status: current
+reviewed: 2026-07-28
+tags: [report, analysis]
+audience: developer
+---
+
 # Soralia Village CMS Audit Report
 
 > **Date:** 2026-07-11  

@@ -1,3 +1,11 @@
+---
+title: Multi tenant
+status: current
+reviewed: 2026-07-28
+tags: [multi-tenant, architecture]
+audience: developer
+---
+
 GENERAL ADVICE ON MULTI-TENANT TRANSITION
 
 Transitioning a single-organization HOA app to multi-tenant with a "1 seat + 5 profiles" model is a classic authorization challenge. Since you're using Better Auth, you're in a good spot—it flexible, but you'll need to map your household logic to its internal structures.

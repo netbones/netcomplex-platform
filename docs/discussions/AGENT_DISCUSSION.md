@@ -1,3 +1,11 @@
+---
+title: RESPONSE TO [COMMUNIQUE](../communiques/COMMUNIQUE-05.md)
+status: current
+reviewed: 2026-07-28
+tags: [discussion, proposal]
+audience: developer
+---
+
 # RESPONSE TO [COMMUNIQUE](../communiques/COMMUNIQUE-05.md)
 
 Overall, I think your draft is asking the right questions, but it is treating three different concepts as if they are one architectural problem:

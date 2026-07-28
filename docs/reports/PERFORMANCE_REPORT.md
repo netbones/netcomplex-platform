@@ -1,3 +1,11 @@
+---
+title: Architecture & Performance Analysis: Soralia Village
+status: current
+reviewed: 2026-07-28
+tags: [report, analysis]
+audience: developer
+---
+
 # Architecture & Performance Analysis: Soralia Village
 
 ## 1. Overall File Structure

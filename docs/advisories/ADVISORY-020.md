@@ -1,3 +1,11 @@
+---
+title: ADVISORY-020: Phase 46.2 Address Registry — Pre-Execution Corrections
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # ADVISORY-020: Phase 46.2 Address Registry — Pre-Execution Corrections
 
 **Status:** Required before executing 46.2-01-PLAN.md / 46.2-02-PLAN.md / 46.2-03-PLAN.md

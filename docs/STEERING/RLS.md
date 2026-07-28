@@ -1,3 +1,11 @@
+---
+title: Row-Level Security (RLS) Runbook
+status: current
+reviewed: 2026-07-28
+tags: [steering, governance]
+audience: all
+---
+
 # Row-Level Security (RLS) Runbook
 
 This document is the operational reference for the Soralia Village RLS rollout. It supersedes the notes in `prisma/migrations/add_rls_note.md` (which contained a connection-role claim that is **wrong** and would break login if implemented).

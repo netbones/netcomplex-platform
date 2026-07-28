@@ -1,3 +1,11 @@
+---
+title: Registration Flow Documentation
+status: current
+reviewed: 2026-07-28
+tags: [architecture, design]
+audience: developer
+---
+
 # Registration Flow Documentation
 
 > **Last updated:** 2026-05-17

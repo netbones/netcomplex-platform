@@ -1,3 +1,11 @@
+---
+title: ADVISORY-29: Maintenance Teams — Multi-Member Teams & In-House Provider Lifecycle
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # ADVISORY-29: Maintenance Teams — Multi-Member Teams & In-House Provider Lifecycle
 
 **Responds to:** COMMUNIQUE-11

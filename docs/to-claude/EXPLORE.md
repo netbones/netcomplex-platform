@@ -1,3 +1,11 @@
+---
+title: 5. package.json — DEPENDENCIES & SCRIPTS
+status: current
+reviewed: 2026-07-28
+tags: [context, handoff]
+audience: developer
+---
+
 Netcomplex Codebase — Complete Exploration
 
 1. TOP-LEVEL DIRECTORY STRUCTURE

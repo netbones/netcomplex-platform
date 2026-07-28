@@ -1,3 +1,11 @@
+---
+title: Flow
+status: current
+reviewed: 2026-07-28
+tags: [architecture, design]
+audience: developer
+---
+
 COMPREHENSIVE REGISTRATION/SIGNUP FLOW MAP
 Email Notifications Sent
 Post-Registration Actions

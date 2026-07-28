@@ -1,3 +1,11 @@
+---
+title: API Routes Registry
+status: current
+reviewed: 2026-07-28
+tags: [steering, governance]
+audience: all
+---
+
 # API Routes Registry
 
 **Last updated:** 2026-06-03

@@ -1,3 +1,11 @@
+---
+title: ADVISORY.md
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # ADVISORY.md
 
 ## Purpose

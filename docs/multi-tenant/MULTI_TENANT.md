@@ -1,3 +1,11 @@
+---
+title: Multi-Tenant SaaS Architecture Guide
+status: current
+reviewed: 2026-07-28
+tags: [multi-tenant, architecture]
+audience: developer
+---
+
 # Multi-Tenant SaaS Architecture Guide
 
 Turning a Next.js (App Router) + Tailwind + Drizzle project into a white-label multi-tenant SaaS is a well-established pattern. The core idea is to run one codebase that serves many customers (tenants) with full data isolation, while allowing each tenant to brand the app as their own.

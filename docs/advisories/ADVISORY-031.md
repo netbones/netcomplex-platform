@@ -1,3 +1,11 @@
+---
+title: ADVISORY-031 — Onboarding Refactor: Defer Tenant Provisioning Until Post-Verification
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # ADVISORY-031 — Onboarding Refactor: Defer Tenant Provisioning Until Post-Verification
 
 **Advisory number:** ADVISORY-031, confirmed against the external advisory register.

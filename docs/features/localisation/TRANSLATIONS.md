@@ -1,3 +1,11 @@
+---
+title: Translation Workflow
+status: current
+reviewed: 2026-07-28
+tags: [feature, spec]
+audience: developer
+---
+
 # Translation Workflow
 
 This document describes how to manage translations for Soralia Village.

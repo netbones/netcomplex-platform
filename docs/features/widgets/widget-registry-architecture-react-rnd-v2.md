@@ -1,3 +1,11 @@
+---
+title: Future-Proofing the Widget Registry for App Registry Evolution
+status: current
+reviewed: 2026-07-28
+tags: [feature, spec]
+audience: developer
+---
+
 # Future-Proofing the Widget Registry for App Registry Evolution
 
 ### React-RND Edition — SA Startup Connect

@@ -1,3 +1,11 @@
+---
+title: COMMUNIQUE-02 — Provider Onboarding Flow & Address Management System
+status: current
+reviewed: 2026-07-28
+tags: [status, communication]
+audience: all
+---
+
 # COMMUNIQUE-02 — Provider Onboarding Flow & Address Management System
 
 **To:** Architecture Advisors

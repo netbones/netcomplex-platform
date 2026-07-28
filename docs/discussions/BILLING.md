@@ -1,3 +1,11 @@
+---
+title: Recommended Billing Architecture
+status: current
+reviewed: 2026-07-28
+tags: [discussion, proposal]
+audience: developer
+---
+
 Based on your roadmap and the billing audit, I would not implement "a billing system" as a single phase. NetComplex actually needs **four distinct financial domains** that should be designed together but delivered separately.
 
 The audit shows you currently have:

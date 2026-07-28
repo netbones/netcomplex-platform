@@ -1,3 +1,11 @@
+---
+title: ADVISORY-008: Server-Only Module Isolation in FSD Barrels
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # ADVISORY-008: Server-Only Module Isolation in FSD Barrels
 
 **Date:** 2026-06-14

@@ -1,3 +1,11 @@
+---
+title: API.md
+status: current
+reviewed: 2026-07-28
+tags: [steering, governance]
+audience: all
+---
+
 # API.md
 
 # Netcomplex API Governance Standard

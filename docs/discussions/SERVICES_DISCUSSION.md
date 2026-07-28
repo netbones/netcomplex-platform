@@ -1,3 +1,11 @@
+---
+title: INITIAL REVIEW DISCUSSION
+status: current
+reviewed: 2026-07-28
+tags: [discussion, proposal]
+audience: developer
+---
+
 # INITIAL REVIEW DISCUSSION
 
 After reviewing the component, the issue is the same as the Resources page, but even more pronounced:

@@ -1,3 +1,11 @@
+---
+title: Security Report — 34 tRPC Router Files
+status: current
+reviewed: 2026-07-28
+tags: [report, analysis]
+audience: developer
+---
+
 # Security Report — 34 tRPC Router Files
 
 **Found: 47 issues** — 7 critical, 18 high, 13 medium, 9 low.

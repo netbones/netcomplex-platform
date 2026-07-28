@@ -1,3 +1,11 @@
+---
+title: Toast & Tooltip System Review
+status: current
+reviewed: 2026-07-28
+tags: [report, analysis]
+audience: developer
+---
+
 # Toast & Tooltip System Review
 
 **Scope:** Toast notifications (Sonner) and tooltips (Radix UI)  

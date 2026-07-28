@@ -1,3 +1,11 @@
+---
+title: ADVISORY-026 Phase 0 Discovery Inventory
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # ADVISORY-026 Phase 0 Discovery Inventory
 
 **Generated:** 2026-07-03

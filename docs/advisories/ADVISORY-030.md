@@ -1,3 +1,11 @@
+---
+title: ADVISORY-030 — Onboarding Refactor: Defer Tenant Provisioning Until Post-Verification
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # ADVISORY-030 — Onboarding Refactor: Defer Tenant Provisioning Until Post-Verification
 
 > **⚠️ SUPERSEDED (2026-07-09) by [ADVISORY-031](./ADVISORY-031.md).** This was the

@@ -1,3 +1,11 @@
+---
+title: NetComplex Widget Registry — Architecture Alignment
+status: current
+reviewed: 2026-07-28
+tags: [feature, spec]
+audience: developer
+---
+
 # NetComplex Widget Registry — Architecture Alignment
 
 **Project:** NetComplex SaaS Platform (`app.netbones.co.za` / `*.netbones.co.za`)  

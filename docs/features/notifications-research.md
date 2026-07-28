@@ -1,3 +1,11 @@
+---
+title: Notification System Research
+status: current
+reviewed: 2026-07-28
+tags: [feature, spec]
+audience: developer
+---
+
 # Notification System Research
 
 ## Current State

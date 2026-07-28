@@ -1,3 +1,11 @@
+---
+title: ADVISORY-017-SUPPLEMENTAL-2: Platform AI Token Pool
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # ADVISORY-017-SUPPLEMENTAL-2: Platform AI Token Pool
 
 ## Amends: ADVISORY-017-SUPPLEMENTAL (AI Provider Module)

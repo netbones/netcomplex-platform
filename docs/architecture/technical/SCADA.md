@@ -1,3 +1,11 @@
+---
+title: Lightweight SCADA/HMI (human-machine interface) product on top of Netbones multi-tenant platform.
+status: current
+reviewed: 2026-07-28
+tags: [architecture, design]
+audience: developer
+---
+
 # Lightweight SCADA/HMI (human-machine interface) product on top of Netbones multi-tenant platform.
 
 The key insight is that the data flows in from the physical world through a narrow ingestion funnel, then fans out across our existing tenant, notification, and permission architecture. Most of the complexity lives at the edges — the field hardware and the UX — not in our application code.

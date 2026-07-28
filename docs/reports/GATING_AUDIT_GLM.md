@@ -1,3 +1,11 @@
+---
+title: Multi-Tenant Feature Gating Investigation Report — Soralia Village / NetComplex
+status: current
+reviewed: 2026-07-28
+tags: [report, analysis]
+audience: developer
+---
+
 # Multi-Tenant Feature Gating Investigation Report — Soralia Village / NetComplex
 
 0. Executive Summary

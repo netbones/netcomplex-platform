@@ -1,3 +1,11 @@
+---
+title: Preview bugs out, we get a 404
+status: current
+reviewed: 2026-07-28
+tags: [feature, spec]
+audience: developer
+---
+
 1. Generally the SurveyEditor works, but there is primary issue.
 
 Hot save/data loading between the editor and the db is wrong, we fighting to input data into some inputs, which are pushing data back and forth between the editor and the db. The correct action is to input to form state and have a save button, distinct from publish. Data is sent only upon save, preview is only available after save, survey is only published upon publish.

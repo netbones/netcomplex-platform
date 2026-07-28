@@ -1,3 +1,11 @@
+---
+title: The mistake most platforms make
+status: current
+reviewed: 2026-07-28
+tags: [discussion, proposal]
+audience: developer
+---
+
 ## Community Graph
 
 Today you have:

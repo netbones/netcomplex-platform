@@ -1,3 +1,11 @@
+---
+title: Model Duplication Analysis — Prisma Schema
+status: current
+reviewed: 2026-07-28
+tags: [report, analysis]
+audience: developer
+---
+
 # Model Duplication Analysis — Prisma Schema
 
 ## DUPLICATION #1: Seat Models (PremiumSeat, SoloSeat, StandardSeat)

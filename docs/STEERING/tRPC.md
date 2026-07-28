@@ -1,3 +1,11 @@
+---
+title: tRPC_GUIDE.md
+status: current
+reviewed: 2026-07-28
+tags: [steering, governance]
+audience: all
+---
+
 # tRPC_GUIDE.md
 
 # Netcomplex tRPC Best Practices Guide

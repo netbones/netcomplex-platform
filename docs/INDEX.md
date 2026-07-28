@@ -218,6 +218,10 @@ Project communications and status updates.
 
 ---
 
+## 📐 [Conventions](./CONVENTIONS.md)
+
+Document metadata standards — YAML front matter schema, status lifecycle, marker conventions, INDEX.md rules, BD cross-references. All `docs/` files SHOULD follow this.
+
 ## 🕐 [Pending](./PENDING.md)
 
 Consolidated list of all incomplete (⏳) work items across docs/, with BD issue references.

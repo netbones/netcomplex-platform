@@ -1,3 +1,11 @@
+---
+title: Sustainable Informatics for Collective Housing Schemes 0.0.2
+status: current
+reviewed: 2026-07-28
+tags: [product, requirements]
+audience: product
+---
+
 # Sustainable Informatics for Collective Housing Schemes 0.0.2
 
 ## Building a Cash-Positive Data Landscape

@@ -1,3 +1,11 @@
+---
+title: Agent USER STORIES
+status: current
+reviewed: 2026-07-28
+tags: [discussion, proposal]
+audience: developer
+---
+
 ## The Actor Landscape
 
 The current model has one `AgentPermission` enum with five values treating all delegation as equivalent. But your platform has at least four structurally different delegation relationships:

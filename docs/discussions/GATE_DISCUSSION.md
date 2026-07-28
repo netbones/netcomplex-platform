@@ -1,3 +1,11 @@
+---
+title: FEATURE GATE DISCUSSION
+status: current
+reviewed: 2026-07-28
+tags: [discussion, proposal]
+audience: developer
+---
+
 # FEATURE GATE DISCUSSION
 
 The triple gating system is:

@@ -1,3 +1,11 @@
+---
+title: Access Control Architecture — Overview
+status: current
+reviewed: 2026-07-28
+tags: [architecture, design]
+audience: developer
+---
+
 # Access Control Architecture — Overview
 
 **Phase:** 110 (Page & Navigation Access Control)

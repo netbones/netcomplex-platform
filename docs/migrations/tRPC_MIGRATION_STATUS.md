@@ -1,3 +1,11 @@
+---
+title: REST API Route Coverage Report: tRPC Migration Status
+status: current
+reviewed: 2026-07-28
+tags: [migration, database]
+audience: developer
+---
+
 # REST API Route Coverage Report: tRPC Migration Status
 
 **Updated:** 2026-07-08 — Phase 120+ complete. 25 domains live (all tenant-facing domains migrated).

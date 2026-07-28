@@ -1,3 +1,11 @@
+---
+title: Technical Debt Register — Soralia Village
+status: current
+reviewed: 2026-07-28
+tags: [standards, best-practices]
+audience: developer
+---
+
 # Technical Debt Register — Soralia Village
 
 ## Review Summary

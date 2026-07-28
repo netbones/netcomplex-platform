@@ -1,3 +1,11 @@
+---
+title: P3 Implementation Plan
+status: current
+reviewed: 2026-07-28
+tags: [plan, roadmap]
+audience: developer
+---
+
 # P3 Implementation Plan
 
 **Date:** 2026-03-31  

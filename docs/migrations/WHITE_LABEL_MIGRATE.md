@@ -1,3 +1,11 @@
+---
+title: White-Label Migration Guide
+status: current
+reviewed: 2026-07-28
+tags: [migration, database]
+audience: developer
+---
+
 # White-Label Migration Guide
 
 ## Overview

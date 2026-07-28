@@ -1,3 +1,11 @@
+---
+title: Maintenance Ticketing System - Admin Features Specification
+status: current
+reviewed: 2026-07-28
+tags: [feature, spec]
+audience: developer
+---
+
 # Maintenance Ticketing System - Admin Features Specification
 
 ## 1. Overview

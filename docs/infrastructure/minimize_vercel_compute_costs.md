@@ -1,3 +1,11 @@
+---
+title: Strategy to minimize Vercel compute costs
+status: current
+reviewed: 2026-07-28
+tags: [infrastructure, devops]
+audience: developer
+---
+
 # Strategy to minimize Vercel compute costs
 
 As of 2026, Vercel's compute billing primarily revolves around **GB-Hours** (a combination of memory allocation and execution time) and **Invocations**. To stay within budget, you must transition from a "server-first" mindset to a "static-first" or "edge-optimized" architecture.

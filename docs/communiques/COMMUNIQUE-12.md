@@ -1,3 +1,11 @@
+---
+title: COMMUNIQUE-12 — Phase 124 Discovery: `tenantId: null` Is Currently Impossible (G1 Scope Expansion)
+status: current
+reviewed: 2026-07-28
+tags: [status, communication]
+audience: all
+---
+
 # COMMUNIQUE-12 — Phase 124 Discovery: `tenantId: null` Is Currently Impossible (G1 Scope Expansion)
 
 **To:** Architecture Advisors

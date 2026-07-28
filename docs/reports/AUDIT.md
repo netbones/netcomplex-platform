@@ -1,3 +1,11 @@
+---
+title: Comprehensive Codebase Analysis: soralia-village
+status: current
+reviewed: 2026-07-28
+tags: [report, analysis]
+audience: developer
+---
+
 # Comprehensive Codebase Analysis: soralia-village
 
 ## 1. ADMIN DASHBOARD -- /dashboard/admin/users Route

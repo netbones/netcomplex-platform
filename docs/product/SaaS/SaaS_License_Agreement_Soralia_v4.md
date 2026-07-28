@@ -1,3 +1,11 @@
+---
+title: Saas License Agreement Soralia v4
+status: current
+reviewed: 2026-07-28
+tags: [product, requirements]
+audience: product
+---
+
 **SOFTWARE-AS-A-SERVICE**
 
 **LICENSE AGREEMENT**

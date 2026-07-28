@@ -1,3 +1,11 @@
+---
+title: COMMUNIQUE-06 — Agent Gateway: Advisor Response & Workspace Design Review
+status: current
+reviewed: 2026-07-28
+tags: [status, communication]
+audience: all
+---
+
 # COMMUNIQUE-06 — Agent Gateway: Advisor Response & Workspace Design Review
 
 **To:** Architecture Advisors  

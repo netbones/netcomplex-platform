@@ -1,3 +1,11 @@
+---
+title: Database Schema Audit - Multi-Tenant Readiness
+status: current
+reviewed: 2026-07-28
+tags: [multi-tenant, architecture]
+audience: developer
+---
+
 # Database Schema Audit - Multi-Tenant Readiness
 
 **Date**: April 2026

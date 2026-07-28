@@ -1,3 +1,11 @@
+---
+title: Soralia Village - App Structure Architecture
+status: current
+reviewed: 2026-07-28
+tags: [steering, governance]
+audience: all
+---
+
 # Soralia Village - App Structure Architecture
 
 ## Overview

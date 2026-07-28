@@ -1,3 +1,11 @@
+---
+title: Hub
+status: current
+reviewed: 2026-07-28
+tags: [feature, spec]
+audience: developer
+---
+
 The Service Directory:
 
 - (Demo shows a categorized list of services like "Plumbing," "Home Care," "Deliveries")\*

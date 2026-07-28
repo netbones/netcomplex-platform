@@ -1,3 +1,11 @@
+---
+title: NAVIGATION DISCUSSION
+status: current
+reviewed: 2026-07-28
+tags: [architecture, design]
+audience: developer
+---
+
 # NAVIGATION DISCUSSION
 
 We've hit a very common scaling problem in multi-tenant/community platforms:

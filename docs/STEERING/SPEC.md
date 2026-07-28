@@ -1,3 +1,11 @@
+---
+title: Soralia Village - Technical Specification
+status: current
+reviewed: 2026-07-28
+tags: [steering, governance]
+audience: all
+---
+
 # Soralia Village - Technical Specification
 
 ## 1. Technology Stack

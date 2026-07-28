@@ -1,3 +1,11 @@
+---
+title: Netcomplex Platform - PRD
+status: current
+reviewed: 2026-07-28
+tags: [steering, governance]
+audience: all
+---
+
 # Netcomplex Platform - PRD
 
 ## Project Overview

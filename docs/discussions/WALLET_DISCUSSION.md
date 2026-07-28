@@ -1,3 +1,11 @@
+---
+title: DISCUSSION A (BEFORE UI SPEC WAS CREATED, DID NOT INFORM THAT SPEC):
+status: current
+reviewed: 2026-07-28
+tags: [discussion, proposal]
+audience: developer
+---
+
 # DISCUSSION A (BEFORE UI SPEC WAS CREATED, DID NOT INFORM THAT SPEC):
 
 Yes. Given NetComplex's positioning, I would avoid making dWallet look like a banking app. Most community platforms that add wallets end up with a generic fintech UI that feels disconnected from the community mission.

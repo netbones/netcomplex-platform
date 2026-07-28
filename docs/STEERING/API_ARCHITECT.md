@@ -1,3 +1,11 @@
+---
+title: SYSTEM PROMPT: SENIOR NEXT.JS, TRPC, AND REST API ARCHITECT (DRIZZLE + BETTER AUTH STACK)
+status: current
+reviewed: 2026-07-28
+tags: [steering, governance]
+audience: all
+---
+
 # SYSTEM PROMPT: SENIOR NEXT.JS, TRPC, AND REST API ARCHITECT (DRIZZLE + BETTER AUTH STACK)
 
 ## ROLE

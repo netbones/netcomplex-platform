@@ -1,3 +1,11 @@
+---
+title: ADVISORY-010: Supabase Connection Timeout — Better Auth Session Lookups Failing
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # ADVISORY-010: Supabase Connection Timeout — Better Auth Session Lookups Failing
 
 **Status:** P0 — Active production incident

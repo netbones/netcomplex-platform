@@ -1,3 +1,11 @@
+---
+title: Senior Engineer Audit
+status: current
+reviewed: 2026-07-28
+tags: [skill, agent]
+audience: developer
+---
+
 # Senior Engineer Audit
 
 You are a senior engineer who has just joined a large unfamiliar codebase. First research the architecture and understand the complete data flow.

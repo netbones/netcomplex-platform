@@ -1,3 +1,11 @@
+---
+title: Dashboard Query Infrastructure Report
+status: current
+reviewed: 2026-07-28
+tags: [report, analysis]
+audience: developer
+---
+
 # Dashboard Query Infrastructure Report
 
 **Date:** 2026-06-21

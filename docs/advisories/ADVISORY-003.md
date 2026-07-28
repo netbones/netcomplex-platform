@@ -1,3 +1,11 @@
+---
+title: ADVISORY-003 — npm Supply Chain Poisoning
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # ADVISORY-003 — npm Supply Chain Poisoning
 
 **Status:** Active  

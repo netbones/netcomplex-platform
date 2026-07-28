@@ -1,3 +1,11 @@
+---
+title: ADVISORY-025 — Resolve G4 Blocker: DTO Client-Bundle Gating (COMMUNIQUE-09)
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # ADVISORY-025 — Resolve G4 Blocker: DTO Client-Bundle Gating (COMMUNIQUE-09)
 
 **Status:** ✅ Executed (Commit 64eab618) — Decision gates G1–G2 confirmed 2026-07-03

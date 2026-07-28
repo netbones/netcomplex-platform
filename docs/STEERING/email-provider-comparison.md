@@ -1,3 +1,11 @@
+---
+title: Email Provider Comparison: Free Tiers
+status: current
+reviewed: 2026-07-28
+tags: [steering, governance]
+audience: all
+---
+
 # Email Provider Comparison: Free Tiers
 
 Comparison of transactional email providers for Soralia Village, focusing on free tier limits and developer experience.

@@ -1,3 +1,11 @@
+---
+title: ADVISORY-013: Achievements System
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # ADVISORY-013: Achievements System
 
 > **Status:** Phase A complete (2026-06-22) — event emitter built and wired into 6 domains. Decision gates G1–G4 resolved (2026-06-23). Phases B–E ready for execution.

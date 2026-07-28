@@ -1,3 +1,11 @@
+---
+title: Database Schema Changes Documentation
+status: current
+reviewed: 2026-07-28
+tags: [migration, database]
+audience: developer
+---
+
 # Database Schema Changes Documentation
 
 ## Overview

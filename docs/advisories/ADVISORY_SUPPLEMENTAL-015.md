@@ -1,3 +1,11 @@
+---
+title: SUPPLEMENTAL-015 — Execution Completion Record
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # SUPPLEMENTAL-015 — Execution Completion Record
 
 **Advisory:** ADVISORY-015 — USER Role Lifecycle, Provider Admission, and Address System Hardening

@@ -1,3 +1,11 @@
+---
+title: Technical Debt & Code Gotchas Report
+status: current
+reviewed: 2026-07-28
+tags: [report, analysis]
+audience: developer
+---
+
 # Technical Debt & Code Gotchas Report
 
 **Project:** Soralia Village (Netcomplex)  

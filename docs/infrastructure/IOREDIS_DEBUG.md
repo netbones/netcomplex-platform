@@ -1,3 +1,11 @@
+---
+title: Ioredis DEBUG
+status: current
+reviewed: 2026-07-28
+tags: [infrastructure, devops]
+audience: developer
+---
+
 THE EXACT IMPORT CHAIN (Client -> ioredis)
 There are two paths from the barrel to ioredis:
 Path A (direct)

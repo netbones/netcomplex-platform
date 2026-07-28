@@ -1,3 +1,11 @@
+---
+title: Several smaller, more lightweight alternatives
+status: current
+reviewed: 2026-07-28
+tags: [feature, spec]
+audience: developer
+---
+
 # Several smaller, more lightweight alternatives
 
 to emoji-picker-react exist, focusing on performance, smaller bundle sizes, or unstyled composability.

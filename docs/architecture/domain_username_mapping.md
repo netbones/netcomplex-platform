@@ -1,3 +1,11 @@
+---
+title: Domain username mapping
+status: current
+reviewed: 2026-07-28
+tags: [architecture, design]
+audience: developer
+---
+
 my app will be deployed on vercel with a supabase backend that includes realtime chat. The tenant will purchase a domain, which will be mapped to @unitNNN for household seats and @name for solo seats, each household will receive up to five aliases. We using better auth, what I understand, is we can issue each use with a unique identifier to login, but they will still need email to recieve password reset notification, am I correct?
 Yes, you are correct. In
 Better Auth, while you can enable username-based login for your unique identifiers (like @unitNNN or @name), a valid email address is still required to handle password reset flows and critical account notifications.

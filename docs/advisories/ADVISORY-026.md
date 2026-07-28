@@ -1,3 +1,11 @@
+---
+title: ADVISORY-021: Eliminate Hardcoded Soralia Village Branding, i18n Copy & Map Data — Enforce Tenant-DB-Driven Header/Footer/Map
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # ADVISORY-021: Eliminate Hardcoded Soralia Village Branding, i18n Copy & Map Data — Enforce Tenant-DB-Driven Header/Footer/Map
 
 **Status:** Draft — awaiting decision gates

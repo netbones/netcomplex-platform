@@ -1,3 +1,11 @@
+---
+title: DISCUSSION A
+status: current
+reviewed: 2026-07-28
+tags: [discussion, proposal]
+audience: developer
+---
+
 # DISCUSSION A
 
 Q: Our current system uses Better Auth with RBAC. Users start their journey by becoming USERS, are then onboarded by their administrators (our tenants) according to the seat plan if they residents (standard, solo, premium), or are providers providing a service, or agents. At least that' is how I understand our system, which is still being nailed down. Since I have been playing with nostr and ditto extension, am wondering if we can't just issue our users with keys, and make login easier?

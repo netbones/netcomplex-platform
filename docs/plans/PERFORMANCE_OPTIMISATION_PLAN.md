@@ -1,3 +1,11 @@
+---
+title: Soralia Village — Performance Audit & Optimization Plan
+status: current
+reviewed: 2026-07-28
+tags: [plan, roadmap]
+audience: developer
+---
+
 # Soralia Village — Performance Audit & Optimization Plan
 
 Prepared by: Senior Performance Engineer (docs/skills/performance-optimisation-engineer/SKILL.md)

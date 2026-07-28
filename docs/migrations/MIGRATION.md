@@ -1,3 +1,11 @@
+---
+title: Migration
+status: current
+reviewed: 2026-07-28
+tags: [migration, database]
+audience: developer
+---
+
 ## FSD Migration Checklist (Epic: `soralia-village-wpr`)
 
 This checklist tracks the migration of this repo to **Feature-Sliced Design (FSD)** without a big-bang rewrite.

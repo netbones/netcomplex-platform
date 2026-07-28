@@ -1,3 +1,11 @@
+---
+title: CMS Implementation Summary
+status: current
+reviewed: 2026-07-28
+tags: [report, analysis]
+audience: developer
+---
+
 # CMS Implementation Summary
 
 ## 1. TipTap Editor Configuration and Extensions

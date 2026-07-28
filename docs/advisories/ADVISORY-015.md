@@ -1,3 +1,11 @@
+---
+title: ADVISORY-015 — USER Role Lifecycle, Provider Admission, and Address System Hardening
+status: current
+reviewed: 2026-07-28
+tags: [advisory, architecture]
+audience: developer
+---
+
 # ADVISORY-015 — USER Role Lifecycle, Provider Admission, and Address System Hardening
 
 **Status:** Awaiting DavDev approval

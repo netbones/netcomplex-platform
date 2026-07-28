@@ -1,3 +1,11 @@
+---
+title: The question is: does Vercel AI SDK replace the custom provider layer, and is it worth migrating?
+status: current
+reviewed: 2026-07-28
+tags: [discussion, proposal]
+audience: developer
+---
+
 # The question is: does Vercel AI SDK replace the custom provider layer, and is it worth migrating?
 
 Key considerations:

@@ -1,3 +1,11 @@
+---
+title: COMMUNIQUE — Better Auth Admin Plugin & User Impersonation
+status: current
+reviewed: 2026-07-28
+tags: [status, communication]
+audience: all
+---
+
 # COMMUNIQUE — Better Auth Admin Plugin & User Impersonation
 
 **To:** Architecture Advisors  

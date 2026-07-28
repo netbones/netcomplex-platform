@@ -1,3 +1,11 @@
+---
+title: Vercel Edge Runtime Compatibility Audit
+status: current
+reviewed: 2026-07-28
+tags: [infrastructure, devops]
+audience: developer
+---
+
 Vercel Edge Runtime Compatibility Audit Completed
 I've conducted a comprehensive audit of your library dependencies for Vercel Edge Runtime compatibility. The results are definitive:
 
