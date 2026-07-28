@@ -1,3 +1,4 @@
+import { requireAuth } from '@/shared/api/auth-utils';
 import {
   db,
   questions,
@@ -5,12 +6,9 @@ import {
   apiForbidden,
   apiNotFound,
   apiSuccess,
-  apiUnauthorized,
   apiValidationError,
   withErrorHandler,
   now,
-  getSessionAndRole,
-  guardSuspension,
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
@@ -26,17 +24,13 @@ export const maxDuration = 8;
  */
 export const POST = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
-    const authData = await getSessionAndRole(request);
+    const auth = await requireAuth(request);
+    if (!auth.success) return auth.response;
 
-    if (!authData) {
-      return apiUnauthorized();
-    }
-    const guard = guardSuspension(authData);
-    if (guard) return guard;
     const featureCheck = await assertModuleEnabled('surveys');
     if (featureCheck) return featureCheck;
 
-    if (!hasPermission(authData.role, 'content')) {
+    if (!hasPermission(auth.data.role, 'content')) {
       return apiForbidden();
     }
 

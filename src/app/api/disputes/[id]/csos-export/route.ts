@@ -1,7 +1,6 @@
 import {
   apiForbidden,
   apiNotFound,
-  apiUnauthorized,
   db,
   disputeCases,
   disputeEvents,
@@ -13,8 +12,6 @@ import {
   rateLimitByKey,
   settings,
   withErrorHandler,
-  getSessionAndRole,
-  guardSuspension,
 } from '@api/server';
 import { hasPermission } from '@shared/lib';
 import { eq, and, asc, gte, inArray, sql } from 'drizzle-orm';
@@ -22,6 +19,7 @@ import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { NextResponse } from 'next/server';
 import { buildCsosExportPdf } from './build-csos-pdf';
 import { createId } from '@shared/lib/id';
+import { requireAuth } from '@/shared/api/auth-utils';
 
 export const maxDuration = 8;
 
@@ -38,12 +36,8 @@ export const GET = withErrorHandler(
 
     const { tenantId, tenantSlug } = await withTenant();
 
-    const authData = await getSessionAndRole(request);
-    if (!authData) {
-      return apiUnauthorized();
-    }
-    const guard = guardSuspension(authData);
-    if (guard) return guard;
+    const auth = await requireAuth(request);
+    if (!auth.success) return auth.response;
     const featureCheck = await assertModuleEnabled('disputes');
     if (featureCheck) return featureCheck;
 
@@ -61,14 +55,14 @@ export const GET = withErrorHandler(
     }
 
     // Access control: complainant (own disputes) OR BOARD/ADMIN
-    const isOwner = dispute.complainantId === authData.userId;
-    const isModerator = authData.role === 'BOARD' || hasPermission(authData.role, 'admin');
+    const isOwner = dispute.complainantId === auth.data.userId;
+    const isModerator = auth.data.role === 'BOARD' || hasPermission(auth.data.role, 'admin');
     if (!isOwner && !isModerator) {
       return apiForbidden();
     }
 
     // Rate limit: 3 exports per case per day (Redis primary)
-    const rateLimitKey = `csos-export:${id}:${authData.userId}`;
+    const rateLimitKey = `csos-export:${id}:${auth.data.userId}`;
     const rateLimit = await rateLimitByKey(rateLimitKey, {
       windowMs: 86_400_000,
       maxRequests: 3,
@@ -86,7 +80,7 @@ export const GET = withErrorHandler(
           and(
             eq(disputeEvents.disputeId, id),
             eq(disputeEvents.tenantId, tenantId),
-            eq(disputeEvents.actorId, authData.userId),
+            eq(disputeEvents.actorId, auth.data.userId),
             eq(disputeEvents.eventType, 'NOTE_ADDED'),
             gte(disputeEvents.createdAt, today)
           )
@@ -170,7 +164,7 @@ export const GET = withErrorHandler(
     // Build PDF
     const pdfBytes = await buildCsosExportPdf({
       parties: {
-        complainant: resolveComplainantName(dispute, authData),
+        complainant: resolveComplainantName(dispute, auth.data),
         respondent: dispute.respondentId ?? 'N/A',
         respondentType: dispute.respondentType,
       },
@@ -218,7 +212,7 @@ export const GET = withErrorHandler(
         : null,
       certification: {
         exportedAt: new Date().toISOString(),
-        exportedBy: authData.userId,
+        exportedBy: auth.data.userId,
       },
       tenant: {
         name: tenantSlug || 'Netcomplex',
@@ -231,7 +225,7 @@ export const GET = withErrorHandler(
       id: createId(),
       tenantId,
       disputeId: id,
-      actorId: authData.userId,
+      actorId: auth.data.userId,
       eventType: 'NOTE_ADDED',
       metadata: { action: 'csos_export', exportedAt: new Date().toISOString() },
       createdAt: now(),

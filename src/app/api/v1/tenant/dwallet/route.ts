@@ -4,29 +4,25 @@ import {
   dataConsents,
   dataRevenueStreams,
   apiSuccess,
-  apiUnauthorized,
   withErrorHandler,
-  getSessionAndRole,
-  guardSuspension,
 } from '@api/server';
 
 import { eq, and, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { getOrCreateWallet } from '@entities/dwallet/server';
 import type { DWalletSummary, ConsentState, TransactionItem } from '@entities/dwallet';
+import { requireAuth } from '@/shared/api/auth-utils';
 
 export const maxDuration = 8;
 
 export const GET = withErrorHandler(async (request: Request) => {
-  const sessionData = await getSessionAndRole(request);
-  if (!sessionData) return apiUnauthorized();
-  const guard = guardSuspension(sessionData);
-  if (guard) return guard;
+  const auth = await requireAuth(request);
+  if (!auth.success) return auth.response;
 
   const { tenantId } = await withTenant();
 
   // Get or create the resident's wallet
-  const wallet = await getOrCreateWallet(sessionData.userId, tenantId);
+  const wallet = await getOrCreateWallet(auth.data.userId, tenantId);
 
   // Fetch active revenue streams for this tenant
   const streams = await db

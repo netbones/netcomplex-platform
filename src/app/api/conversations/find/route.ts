@@ -1,16 +1,9 @@
-import {
-  db,
-  apiError,
-  apiSuccess,
-  apiUnauthorized,
-  getSessionAndRole,
-  withErrorHandler,
-  guardSuspension,
-} from '@api/server';
+import { db, apiError, apiSuccess, withErrorHandler } from '@api/server';
 
 import { sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { createId } from '@shared/lib/id';
+import { requireAuth } from '@/shared/api/auth-utils';
 
 export const maxDuration = 8;
 
@@ -23,10 +16,8 @@ interface ConversationResult {
 
 /** @deprecated Use `trpc.conversations.findOrCreateConversation` instead */
 export const POST = withErrorHandler(async (request: Request) => {
-  const authData = await getSessionAndRole(request);
-  if (!authData) return apiUnauthorized();
-  const guard = guardSuspension(authData);
-  if (guard) return guard;
+  const auth = await requireAuth(request);
+  if (!auth.success) return auth.response;
 
   const { tenantId } = await withTenant();
   const body = await request.json();

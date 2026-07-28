@@ -1,12 +1,7 @@
-import {
-  apiSuccess,
-  apiUnauthorized,
-  withErrorHandler,
-  getSessionAndRole,
-  guardSuspension,
-} from '@api/server';
+import { apiSuccess, withErrorHandler } from '@api/server';
 
 import { withTenant } from '@entities/tenant/server';
+import { requireAuth } from '@/shared/api/auth-utils';
 
 export const maxDuration = 8;
 
@@ -17,10 +12,8 @@ export const maxDuration = 8;
  * in a future update.
  */
 export const GET = withErrorHandler(async (request: Request) => {
-  const sessionData = await getSessionAndRole(request);
-  if (!sessionData) return apiUnauthorized();
-  const guard = guardSuspension(sessionData);
-  if (guard) return guard;
+  const auth = await requireAuth(request);
+  if (!auth.success) return auth.response;
 
   await withTenant();
 

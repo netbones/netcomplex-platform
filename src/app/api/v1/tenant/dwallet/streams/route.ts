@@ -1,24 +1,15 @@
-import {
-  db,
-  dataRevenueStreams,
-  apiSuccess,
-  apiUnauthorized,
-  withErrorHandler,
-  getSessionAndRole,
-  guardSuspension,
-} from '@api/server';
+import { db, dataRevenueStreams, apiSuccess, withErrorHandler } from '@api/server';
 
 import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import type { StreamConfig } from '@entities/dwallet';
+import { requireAuth } from '@/shared/api/auth-utils';
 
 export const maxDuration = 8;
 
 export const GET = withErrorHandler(async (request: Request) => {
-  const sessionData = await getSessionAndRole(request);
-  if (!sessionData) return apiUnauthorized();
-  const guard = guardSuspension(sessionData);
-  if (guard) return guard;
+  const auth = await requireAuth(request);
+  if (!auth.success) return auth.response;
 
   const { tenantId } = await withTenant();
 

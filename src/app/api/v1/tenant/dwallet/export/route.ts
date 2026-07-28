@@ -4,11 +4,8 @@ import {
   walletTransactions,
   payoutRequests,
   apiSuccess,
-  apiUnauthorized,
   withErrorHandler,
-  getSessionAndRole,
   now,
-  guardSuspension,
 } from '@api/server';
 
 import { eq, and, desc } from 'drizzle-orm';
@@ -16,21 +13,20 @@ import { withTenant } from '@entities/tenant/server';
 import { getOrCreateWallet } from '@entities/dwallet/server';
 import { exportRequestSchema } from '@entities/dwallet';
 import { NextResponse } from 'next/server';
+import { requireAuth } from '@/shared/api/auth-utils';
 
 export const maxDuration = 8;
 
 export const POST = withErrorHandler(async (request: Request) => {
-  const sessionData = await getSessionAndRole(request);
-  if (!sessionData) return apiUnauthorized();
-  const guard = guardSuspension(sessionData);
-  if (guard) return guard;
+  const auth = await requireAuth(request);
+  if (!auth.success) return auth.response;
 
   const { tenantId } = await withTenant();
 
   // Parse and validate body with Zod
   const body = exportRequestSchema.parse(await request.json());
 
-  const wallet = await getOrCreateWallet(sessionData.userId, tenantId);
+  const wallet = await getOrCreateWallet(auth.data.userId, tenantId);
 
   const timestamp = now();
 

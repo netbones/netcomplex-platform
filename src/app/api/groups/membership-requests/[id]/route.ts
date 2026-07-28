@@ -6,16 +6,14 @@ import {
   groups,
   apiError,
   apiSuccess,
-  apiUnauthorized,
   apiForbidden,
   apiNotFound,
   now,
   withErrorHandler,
-  getSessionAndRole,
-  guardSuspension,
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
+import { requireAuth } from '@/shared/api/auth-utils';
 
 import { eq, and } from 'drizzle-orm';
 import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
@@ -25,11 +23,6 @@ import { createId } from '@shared/lib/id';
 export const maxDuration = 8;
 
 /**
- * Retrieves session and role from the request for API routes.
- * @param request - Incoming HTTP request
- * @returns Session data with user ID and role, or null if not authenticated
- */
-/**
  * POST /api/groups/membership-requests/[id] - Approve or reject a membership request
  * Requires authentication and content permission.
  * Body: { action: 'approve' | 'reject' }
@@ -37,17 +30,12 @@ export const maxDuration = 8;
 export const POST = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
     const { id: requestId } = await params;
-    const authData = await getSessionAndRole(request);
-
-    if (!authData) {
-      return apiUnauthorized();
-    }
-    const guard = guardSuspension(authData);
-    if (guard) return guard;
+    const auth = await requireAuth(request);
+    if (!auth.success) return auth.response;
     const featureCheck = await assertModuleEnabled('groups');
     if (featureCheck) return featureCheck;
 
-    if (!hasPermission(authData.role, 'content')) {
+    if (!hasPermission(auth.data.role, 'content')) {
       return apiForbidden('Insufficient permissions');
     }
 

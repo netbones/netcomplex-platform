@@ -1,3 +1,4 @@
+import { requireAuth } from '@/shared/api/auth-utils';
 import {
   db,
   surveys,
@@ -7,12 +8,9 @@ import {
   apiError,
   apiForbidden,
   apiSuccess,
-  apiUnauthorized,
   apiNotFound,
   now,
   withErrorHandler,
-  getSessionAndRole,
-  guardSuspension,
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
@@ -25,17 +23,13 @@ export const maxDuration = 8;
 /** @deprecated Use `trpc.surveys.getSurveyResults` instead */
 export const GET = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
-    const authData = await getSessionAndRole(request);
+    const auth = await requireAuth(request);
+    if (!auth.success) return auth.response;
 
-    if (!authData) {
-      return apiUnauthorized();
-    }
-    const guard = guardSuspension(authData);
-    if (guard) return guard;
     const featureCheck = await assertModuleEnabled('surveys');
     if (featureCheck) return featureCheck;
 
-    if (!hasPermission(authData.role, 'content')) {
+    if (!hasPermission(auth.data.role, 'content')) {
       return apiForbidden();
     }
 
@@ -174,11 +168,8 @@ export const GET = withErrorHandler(
 /** @deprecated Use `trpc.surveys.submitResponse` instead */
 export const POST = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
-    const authData = await getSessionAndRole(request);
-
-    if (!authData) {
-      return apiUnauthorized();
-    }
+    const auth = await requireAuth(request);
+    if (!auth.success) return auth.response;
 
     const { tenantId } = await withTenant();
     const { id: surveyId } = await params;
@@ -200,7 +191,7 @@ export const POST = withErrorHandler(
     const [existing] = await db
       .select({ id: responses.id })
       .from(responses)
-      .where(and(eq(responses.surveyId, surveyId), eq(responses.userId, authData.userId)))
+      .where(and(eq(responses.surveyId, surveyId), eq(responses.userId, auth.data.userId)))
       .limit(1);
 
     if (existing) {
@@ -219,7 +210,7 @@ export const POST = withErrorHandler(
         id: createId(),
         tenantId,
         surveyId,
-        userId: authData.userId,
+        userId: auth.data.userId,
         answers: body.answers,
         createdAt: now(),
       })

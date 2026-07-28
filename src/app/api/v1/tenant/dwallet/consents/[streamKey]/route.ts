@@ -4,11 +4,8 @@ import {
   dataRevenueStreams,
   apiSuccess,
   apiError,
-  apiUnauthorized,
   withErrorHandler,
-  getSessionAndRole,
   now,
-  guardSuspension,
 } from '@api/server';
 
 import { eq, and } from 'drizzle-orm';
@@ -17,6 +14,7 @@ import { getOrCreateWallet } from '@entities/dwallet/server';
 import { consentSchema } from '@entities/dwallet';
 import { createComponentLogger } from '@shared/lib';
 import { createId } from '@shared/lib/id';
+import { requireAuth } from '@/shared/api/auth-utils';
 
 const logger = createComponentLogger('dwalet-consent');
 
@@ -24,10 +22,8 @@ export const maxDuration = 8;
 
 export const POST = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ streamKey: string }> }) => {
-    const sessionData = await getSessionAndRole(request);
-    if (!sessionData) return apiUnauthorized();
-    const guard = guardSuspension(sessionData);
-    if (guard) return guard;
+    const auth = await requireAuth(request);
+    if (!auth.success) return auth.response;
 
     const { tenantId } = await withTenant();
     const { streamKey } = await params;
@@ -36,7 +32,7 @@ export const POST = withErrorHandler(
     const body = consentSchema.parse(await request.json());
 
     // Get or create the resident's wallet
-    const wallet = await getOrCreateWallet(sessionData.userId, tenantId);
+    const wallet = await getOrCreateWallet(auth.data.userId, tenantId);
 
     // Validate that the stream exists and is active
     const [stream] = await db
@@ -62,7 +58,7 @@ export const POST = withErrorHandler(
       id: consentId,
       tenantId,
       walletId: wallet.id,
-      userId: sessionData.userId,
+      userId: auth.data.userId,
       streamKey,
       granted: body.granted,
       ipAddress: request.headers.get('x-forwarded-for') ?? null,
@@ -75,7 +71,7 @@ export const POST = withErrorHandler(
     // Pino audit log (mandatory per Constraint 6)
     logger.info({
       event: 'consent_change',
-      userId: sessionData.userId,
+      userId: auth.data.userId,
       streamKey,
       granted: body.granted,
       tenantId,

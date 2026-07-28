@@ -4,7 +4,6 @@ import {
   apiInternalError,
   apiNotFound,
   apiSuccess,
-  apiUnauthorized,
   apiValidationError,
   db,
   disputeCases,
@@ -13,8 +12,6 @@ import {
   now,
   revalidateDashboard,
   withErrorHandler,
-  getSessionAndRole,
-  guardSuspension,
 } from '@api/server';
 
 import { hasPermission, apiLogger } from '@shared/lib';
@@ -23,6 +20,7 @@ import { canTransition } from '@entities/dispute';
 import { eq, and } from 'drizzle-orm';
 import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { createId } from '@shared/lib/id';
+import { requireAuth } from '@/shared/api/auth-utils';
 
 export const maxDuration = 8;
 
@@ -39,12 +37,8 @@ export const GET = withErrorHandler(
 
     const { tenantId } = await withTenant();
 
-    const authData = await getSessionAndRole(request);
-    if (!authData) {
-      return apiUnauthorized();
-    }
-    const guard = guardSuspension(authData);
-    if (guard) return guard;
+    const auth = await requireAuth(request);
+    if (!auth.success) return auth.response;
     const featureCheck = await assertModuleEnabled('disputes');
     if (featureCheck) return featureCheck;
 
@@ -63,11 +57,11 @@ export const GET = withErrorHandler(
 
     // Access control: party or moderator only
     const isParty =
-      dispute.complainantId === authData.userId || dispute.respondentId === authData.userId;
+      dispute.complainantId === auth.data.userId || dispute.respondentId === auth.data.userId;
     const isModerator =
-      hasPermission(authData.role, 'admin') ||
-      authData.role === 'BOARD' ||
-      authData.role === 'COMMITTEE';
+      hasPermission(auth.data.role, 'admin') ||
+      auth.data.role === 'BOARD' ||
+      auth.data.role === 'COMMITTEE';
 
     if (!isParty && !isModerator) {
       return apiForbidden();
@@ -87,10 +81,8 @@ export const PATCH = withErrorHandler(
 
     const { tenantId } = await withTenant();
 
-    const authData = await getSessionAndRole(request);
-    if (!authData) {
-      return apiUnauthorized();
-    }
+    const auth = await requireAuth(request);
+    if (!auth.success) return auth.response;
     const featureCheck = await assertModuleEnabled('disputes');
     if (featureCheck) return featureCheck;
 
@@ -123,11 +115,11 @@ export const PATCH = withErrorHandler(
 
     // Access control: party or moderator only
     const isParty =
-      existing.complainantId === authData.userId || existing.respondentId === authData.userId;
+      existing.complainantId === auth.data.userId || existing.respondentId === auth.data.userId;
     const isModerator =
-      hasPermission(authData.role, 'admin') ||
-      authData.role === 'BOARD' ||
-      authData.role === 'COMMITTEE';
+      hasPermission(auth.data.role, 'admin') ||
+      auth.data.role === 'BOARD' ||
+      auth.data.role === 'COMMITTEE';
 
     if (!isParty && !isModerator) {
       return apiForbidden();
@@ -160,7 +152,7 @@ export const PATCH = withErrorHandler(
             id: createId(),
             tenantId,
             disputeId: id,
-            actorId: authData.userId,
+            actorId: auth.data.userId,
             eventType: 'STATUS_CHANGED',
             fromStatus: existing.status,
             toStatus: updates.status,

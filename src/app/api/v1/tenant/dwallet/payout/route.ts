@@ -4,11 +4,8 @@ import {
   apiSuccess,
   apiCreated,
   apiError,
-  apiUnauthorized,
   withErrorHandler,
-  getSessionAndRole,
   now,
-  guardSuspension,
 } from '@api/server';
 
 import { eq, and, desc } from 'drizzle-orm';
@@ -17,18 +14,17 @@ import { getOrCreateWallet } from '@entities/dwallet/server';
 import { payoutRequestSchema } from '@entities/dwallet';
 import type { PayoutRequestItem } from '@entities/dwallet';
 import { createId } from '@shared/lib/id';
+import { requireAuth } from '@/shared/api/auth-utils';
 
 export const maxDuration = 8;
 
 export const GET = withErrorHandler(async (request: Request) => {
-  const sessionData = await getSessionAndRole(request);
-  if (!sessionData) return apiUnauthorized();
-  const guard = guardSuspension(sessionData);
-  if (guard) return guard;
+  const auth = await requireAuth(request);
+  if (!auth.success) return auth.response;
 
   const { tenantId } = await withTenant();
 
-  const wallet = await getOrCreateWallet(sessionData.userId, tenantId);
+  const wallet = await getOrCreateWallet(auth.data.userId, tenantId);
 
   // List own payout requests
   const payouts = await db
@@ -51,12 +47,12 @@ export const GET = withErrorHandler(async (request: Request) => {
 });
 
 export const POST = withErrorHandler(async (request: Request) => {
-  const sessionData = await getSessionAndRole(request);
-  if (!sessionData) return apiUnauthorized();
+  const auth = await requireAuth(request);
+  if (!auth.success) return auth.response;
 
   const { tenantId } = await withTenant();
 
-  const wallet = await getOrCreateWallet(sessionData.userId, tenantId);
+  const wallet = await getOrCreateWallet(auth.data.userId, tenantId);
 
   // Parse and validate body with Zod
   const body = payoutRequestSchema.parse(await request.json());
@@ -76,7 +72,7 @@ export const POST = withErrorHandler(async (request: Request) => {
     id: payoutId,
     tenantId,
     walletId: wallet.id,
-    userId: sessionData.userId,
+    userId: auth.data.userId,
     amount: body.amount.toString(),
     currency: wallet.currency,
     status: 'PENDING',

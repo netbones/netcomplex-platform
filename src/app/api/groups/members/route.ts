@@ -5,18 +5,16 @@ import {
   apiCreated,
   apiError,
   apiSuccess,
-  apiUnauthorized,
   apiValidationError,
-  getSessionAndRole,
   now,
   withErrorHandler,
-  guardSuspension,
   rateLimitByUser,
 } from '@api/server';
 
 import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { createId } from '@shared/lib/id';
+import { requireAuth } from '@/shared/api/auth-utils';
 
 const groupMemberCreateSchema = z.object({
   userId: z.string().min(1, 'User ID is required'),
@@ -28,12 +26,10 @@ export const maxDuration = 8;
 
 /** @deprecated Use `trpc.groups.joinGroup` instead */
 export const POST = withErrorHandler(async (request: Request) => {
-  const authData = await getSessionAndRole(request);
-  if (!authData) return apiUnauthorized();
-  const guard = guardSuspension(authData);
-  if (guard) return guard;
+  const auth = await requireAuth(request);
+  if (!auth.success) return auth.response;
 
-  const rateLimit = await rateLimitByUser(authData.userId, {
+  const rateLimit = await rateLimitByUser(auth.data.userId, {
     windowMs: 60_000,
     maxRequests: 10,
   });
@@ -79,8 +75,8 @@ export const POST = withErrorHandler(async (request: Request) => {
 
 /** @deprecated Use `trpc.groups.removeMember` instead */
 export const DELETE = withErrorHandler(async (request: Request) => {
-  const authData = await getSessionAndRole(request);
-  if (!authData) return apiUnauthorized();
+  const auth = await requireAuth(request);
+  if (!auth.success) return auth.response;
 
   const { searchParams } = new URL(request.url);
   const userId = searchParams.get('userId');

@@ -4,6 +4,7 @@
  * Returns enabled modules for a tenant based on tier + explicit settings
  */
 
+import { requireAuth } from '@/shared/api/auth-utils';
 import {
   db,
   tenantModules,
@@ -12,9 +13,6 @@ import {
   apiSuccess,
   apiInternalError,
   apiNotFound,
-  apiUnauthorized,
-  getSessionAndRole,
-  guardSuspension,
 } from '@api/server';
 
 import { eq, desc } from 'drizzle-orm';
@@ -33,10 +31,8 @@ const TIER_ORDER: Record<TenantTier, number> = {
  * @deprecated Use trpc.platform.listTenantModules instead.
  */
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const authData = await getSessionAndRole(request);
-  if (!authData) return apiUnauthorized();
-  const guard = guardSuspension(authData);
-  if (guard) return guard;
+  const auth = await requireAuth(request);
+  if (!auth.success) return auth.response;
 
   const { id: tenantId } = await params;
 

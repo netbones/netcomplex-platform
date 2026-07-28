@@ -4,7 +4,6 @@ import {
   apiInternalError,
   apiNotFound,
   apiSuccess,
-  apiUnauthorized,
   apiValidationError,
   db,
   disputeCases,
@@ -13,8 +12,6 @@ import {
   now,
   rateLimitByUser,
   withErrorHandler,
-  getSessionAndRole,
-  guardSuspension,
 } from '@api/server';
 
 import { broadcastDisputeMessage } from '@shared/lib';
@@ -24,6 +21,7 @@ import { sanitizeHtml } from '@/shared/lib/sanitize/server';
 import { eq, and, asc } from 'drizzle-orm';
 import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { createId } from '@shared/lib/id';
+import { requireAuth } from '@/shared/api/auth-utils';
 
 export const maxDuration = 8;
 
@@ -41,12 +39,8 @@ export const GET = withErrorHandler(
 
     const { tenantId } = await withTenant();
 
-    const authData = await getSessionAndRole(request);
-    if (!authData) {
-      return apiUnauthorized();
-    }
-    const guard = guardSuspension(authData);
-    if (guard) return guard;
+    const auth = await requireAuth(request);
+    if (!auth.success) return auth.response;
     const featureCheck = await assertModuleEnabled('disputes');
     if (featureCheck) return featureCheck;
 
@@ -65,11 +59,11 @@ export const GET = withErrorHandler(
 
     // Access control: party or moderator only
     const isParty =
-      dispute.complainantId === authData.userId || dispute.respondentId === authData.userId;
+      dispute.complainantId === auth.data.userId || dispute.respondentId === auth.data.userId;
     const isModerator =
-      hasPermission(authData.role, 'admin') ||
-      authData.role === 'BOARD' ||
-      authData.role === 'COMMITTEE';
+      hasPermission(auth.data.role, 'admin') ||
+      auth.data.role === 'BOARD' ||
+      auth.data.role === 'COMMITTEE';
 
     if (!isParty && !isModerator) {
       return apiForbidden('Access denied');
@@ -109,15 +103,13 @@ export const POST = withErrorHandler(
 
     const { tenantId } = await withTenant();
 
-    const authData = await getSessionAndRole(request);
-    if (!authData) {
-      return apiUnauthorized();
-    }
+    const auth = await requireAuth(request);
+    if (!auth.success) return auth.response;
     const featureCheck = await assertModuleEnabled('disputes');
     if (featureCheck) return featureCheck;
 
     // Rate limit: 30 messages per minute per user
-    const rateLimit = await rateLimitByUser(authData.userId, {
+    const rateLimit = await rateLimitByUser(auth.data.userId, {
       windowMs: 60_000,
       maxRequests: 30,
     });
@@ -152,11 +144,11 @@ export const POST = withErrorHandler(
 
     // Access control
     const isParty =
-      dispute.complainantId === authData.userId || dispute.respondentId === authData.userId;
+      dispute.complainantId === auth.data.userId || dispute.respondentId === auth.data.userId;
     const isModerator =
-      hasPermission(authData.role, 'admin') ||
-      authData.role === 'BOARD' ||
-      authData.role === 'COMMITTEE';
+      hasPermission(auth.data.role, 'admin') ||
+      auth.data.role === 'BOARD' ||
+      auth.data.role === 'COMMITTEE';
 
     if (!isParty && !isModerator) {
       return apiForbidden('Access denied');
@@ -179,7 +171,7 @@ export const POST = withErrorHandler(
           id: createId(),
           tenantId,
           disputeId: id,
-          senderId: authData.userId,
+          senderId: auth.data.userId,
           content: sanitizedContent,
           isInternal: isInternal ?? false,
           createdAt: ts,

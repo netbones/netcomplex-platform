@@ -2,15 +2,12 @@ import {
   apiCreated,
   apiInternalError,
   apiSuccess,
-  apiUnauthorized,
   apiValidationError,
   db,
   disputeCases,
   disputeEvents,
   notDeleted,
   users,
-  getSessionAndRole,
-  guardSuspension,
   rateLimitByUser,
 } from '@api/server';
 
@@ -22,6 +19,7 @@ import { eq, and, desc, sql } from 'drizzle-orm';
 import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { ALL_DISPUTE_CATEGORIES, ALL_DISPUTE_STATUSES } from '@entities/dispute';
 import { createId } from '@shared/lib/id';
+import { requireAuth } from '@/shared/api/auth-utils';
 
 export const maxDuration = 8;
 
@@ -37,17 +35,12 @@ export const maxDuration = 8;
  * @deprecated Use trpc.disputes.listDisputes instead.
  */
 export async function GET(request: Request) {
-  const authData = await getSessionAndRole(request);
-
-  if (!authData) {
-    return apiUnauthorized();
-  }
-  const guard = guardSuspension(authData);
-  if (guard) return guard;
+  const auth = await requireAuth(request);
+  if (!auth.success) return auth.response;
   const featureCheck = await assertModuleEnabled('disputes');
   if (featureCheck) return featureCheck;
 
-  const canViewAll = hasPermission(authData.role, 'admin');
+  const canViewAll = hasPermission(auth.data.role, 'admin');
 
   const { searchParams } = new URL(request.url);
   const status = searchParams.get('status');
@@ -65,8 +58,8 @@ export async function GET(request: Request) {
   ];
 
   // Role-based scoping: residents see only their own disputes
-  if (!canViewAll && authData.role !== 'BOARD' && authData.role !== 'COMMITTEE') {
-    filters.push(eq(disputeCases.complainantId, authData.userId));
+  if (!canViewAll && auth.data.role !== 'BOARD' && auth.data.role !== 'COMMITTEE') {
+    filters.push(eq(disputeCases.complainantId, auth.data.userId));
   }
 
   if (status && ALL_DISPUTE_STATUSES.includes(status as (typeof ALL_DISPUTE_STATUSES)[number])) {
@@ -116,17 +109,12 @@ export async function GET(request: Request) {
  * @deprecated Use trpc.disputes.createDispute instead.
  */
 export async function POST(request: Request) {
-  const authData = await getSessionAndRole(request);
-
-  if (!authData) {
-    return apiUnauthorized();
-  }
-  const guard = guardSuspension(authData);
-  if (guard) return guard;
+  const auth = await requireAuth(request);
+  if (!auth.success) return auth.response;
   const featureCheck = await assertModuleEnabled('disputes');
   if (featureCheck) return featureCheck;
 
-  const rateLimit = await rateLimitByUser(authData.userId, {
+  const rateLimit = await rateLimitByUser(auth.data.userId, {
     windowMs: 60_000,
     maxRequests: 5,
   });
@@ -155,7 +143,7 @@ export async function POST(request: Request) {
         id,
         tenantId,
         referenceNumber,
-        complainantId: authData.userId,
+        complainantId: auth.data.userId,
         respondentId: respondentId ?? null,
         respondentType: respondentType ?? 'RESIDENT',
         category,
@@ -176,7 +164,7 @@ export async function POST(request: Request) {
       id: createId(),
       tenantId,
       disputeId: id,
-      actorId: authData.userId,
+      actorId: auth.data.userId,
       eventType: 'CREATED',
       fromStatus: null,
       toStatus: 'DRAFT',

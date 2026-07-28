@@ -4,11 +4,8 @@ import {
   walletTransactions,
   dataConsents,
   apiSuccess,
-  apiUnauthorized,
   withErrorHandler,
-  getSessionAndRole,
   now,
-  guardSuspension,
 } from '@api/server';
 
 import { eq, and } from 'drizzle-orm';
@@ -16,20 +13,19 @@ import { withTenant } from '@entities/tenant/server';
 import { getOrCreateWallet } from '@entities/dwallet/server';
 import { createComponentLogger } from '@shared/lib';
 import { createId } from '@shared/lib/id';
+import { requireAuth } from '@/shared/api/auth-utils';
 
 const logger = createComponentLogger('dwalet-deletion');
 
 export const maxDuration = 8;
 
 export const POST = withErrorHandler(async (request: Request) => {
-  const sessionData = await getSessionAndRole(request);
-  if (!sessionData) return apiUnauthorized();
-  const guard = guardSuspension(sessionData);
-  if (guard) return guard;
+  const auth = await requireAuth(request);
+  if (!auth.success) return auth.response;
 
   const { tenantId } = await withTenant();
 
-  const wallet = await getOrCreateWallet(sessionData.userId, tenantId);
+  const wallet = await getOrCreateWallet(auth.data.userId, tenantId);
 
   // If already closed, return early
   if (wallet.status === 'CLOSED') {
@@ -83,7 +79,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   // Pino audit log for deletion request
   logger.info({
     event: 'deletion_request',
-    userId: sessionData.userId,
+    userId: auth.data.userId,
     tenantId,
     walletId: wallet.id,
   });

@@ -1,18 +1,11 @@
-import {
-  db,
-  walletTransactions,
-  apiSuccess,
-  apiUnauthorized,
-  withErrorHandler,
-  getSessionAndRole,
-  guardSuspension,
-} from '@api/server';
+import { db, walletTransactions, apiSuccess, withErrorHandler } from '@api/server';
 
 import { eq, and, desc, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { getOrCreateWallet } from '@entities/dwallet/server';
 import type { TransactionItem } from '@entities/dwallet';
 import { z } from 'zod';
+import { requireAuth } from '@/shared/api/auth-utils';
 
 const querySchema = z.object({
   page: z.coerce.number().int().positive().default(1),
@@ -25,14 +18,12 @@ const querySchema = z.object({
 export const maxDuration = 8;
 
 export const GET = withErrorHandler(async (request: Request) => {
-  const sessionData = await getSessionAndRole(request);
-  if (!sessionData) return apiUnauthorized();
-  const guard = guardSuspension(sessionData);
-  if (guard) return guard;
+  const auth = await requireAuth(request);
+  if (!auth.success) return auth.response;
 
   const { tenantId } = await withTenant();
 
-  const wallet = await getOrCreateWallet(sessionData.userId, tenantId);
+  const wallet = await getOrCreateWallet(auth.data.userId, tenantId);
 
   // Parse query parameters
   const url = new URL(request.url);

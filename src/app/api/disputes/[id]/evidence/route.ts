@@ -4,7 +4,6 @@ import {
   apiForbidden,
   apiInternalError,
   apiNotFound,
-  apiUnauthorized,
   apiValidationError,
   db,
   disputeCases,
@@ -15,14 +14,13 @@ import {
   rateLimitByUser,
   uploadImage,
   withErrorHandler,
-  getSessionAndRole,
-  guardSuspension,
 } from '@api/server';
 
 import { apiLogger, hasPermission } from '@shared/lib';
 import { eq, and } from 'drizzle-orm';
 import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { createId } from '@shared/lib/id';
+import { requireAuth } from '@/shared/api/auth-utils';
 
 export const maxDuration = 8;
 
@@ -40,17 +38,13 @@ export const POST = withErrorHandler(
 
     const { tenantId } = await withTenant();
 
-    const authData = await getSessionAndRole(request);
-    if (!authData) {
-      return apiUnauthorized();
-    }
-    const guard = guardSuspension(authData);
-    if (guard) return guard;
+    const auth = await requireAuth(request);
+    if (!auth.success) return auth.response;
     const featureCheck = await assertModuleEnabled('disputes');
     if (featureCheck) return featureCheck;
 
     // Rate limit: 10 uploads per minute per user
-    const rateLimit = await rateLimitByUser(authData.userId, {
+    const rateLimit = await rateLimitByUser(auth.data.userId, {
       windowMs: 60_000,
       maxRequests: 10,
     });
@@ -71,11 +65,11 @@ export const POST = withErrorHandler(
 
     // Access control: party or moderator only
     const isParty =
-      dispute.complainantId === authData.userId || dispute.respondentId === authData.userId;
+      dispute.complainantId === auth.data.userId || dispute.respondentId === auth.data.userId;
     const isModerator =
-      hasPermission(authData.role, 'admin') ||
-      authData.role === 'BOARD' ||
-      authData.role === 'COMMITTEE';
+      hasPermission(auth.data.role, 'admin') ||
+      auth.data.role === 'BOARD' ||
+      auth.data.role === 'COMMITTEE';
 
     if (!isParty && !isModerator) {
       return apiForbidden('Access denied');
@@ -95,7 +89,7 @@ export const POST = withErrorHandler(
     }
 
     // Upload via S3
-    const uploadResult = await uploadImage(file, authData.userId);
+    const uploadResult = await uploadImage(file, auth.data.userId);
 
     if (uploadResult.error) {
       return apiError('UPLOAD_FAILED', uploadResult.error, 400);
@@ -110,7 +104,7 @@ export const POST = withErrorHandler(
           id: createId(),
           tenantId,
           disputeId: id,
-          uploadedBy: authData.userId,
+          uploadedBy: auth.data.userId,
           fileUrl: uploadResult.url,
           fileType: file.type,
           fileName: file.name,
@@ -123,7 +117,7 @@ export const POST = withErrorHandler(
         id: createId(),
         tenantId,
         disputeId: id,
-        actorId: authData.userId,
+        actorId: auth.data.userId,
         eventType: 'EVIDENCE_ADDED',
         createdAt: ts,
       });

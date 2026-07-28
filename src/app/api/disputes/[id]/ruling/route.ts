@@ -4,7 +4,6 @@ import {
   apiInternalError,
   apiNotFound,
   apiSuccess,
-  apiUnauthorized,
   apiValidationError,
   db,
   disputeCases,
@@ -12,8 +11,6 @@ import {
   notDeleted,
   now,
   withErrorHandler,
-  getSessionAndRole,
-  guardSuspension,
 } from '@api/server';
 
 import { disputeRulingSchema } from '@entities/dispute';
@@ -22,6 +19,7 @@ import { apiLogger, hasPermission } from '@shared/lib';
 import { eq, and } from 'drizzle-orm';
 import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { createId } from '@shared/lib/id';
+import { requireAuth } from '@/shared/api/auth-utils';
 
 export const maxDuration = 8;
 
@@ -41,17 +39,13 @@ export const POST = withErrorHandler(
 
     const { tenantId } = await withTenant();
 
-    const authData = await getSessionAndRole(request);
-    if (!authData) {
-      return apiUnauthorized();
-    }
-    const guard = guardSuspension(authData);
-    if (guard) return guard;
+    const auth = await requireAuth(request);
+    if (!auth.success) return auth.response;
     const featureCheck = await assertModuleEnabled('disputes');
     if (featureCheck) return featureCheck;
 
     // Role guard: only BOARD and ADMIN can issue rulings
-    if (authData.role !== 'BOARD' && !hasPermission(authData.role, 'admin')) {
+    if (auth.data.role !== 'BOARD' && !hasPermission(auth.data.role, 'admin')) {
       return apiForbidden('Only board members and admins can issue rulings');
     }
 
@@ -105,7 +99,7 @@ export const POST = withErrorHandler(
           id: createId(),
           tenantId,
           disputeId: id,
-          actorId: authData.userId,
+          actorId: auth.data.userId,
           eventType: 'RULING_ISSUED',
           fromStatus: dispute.status,
           toStatus: 'FORMAL_RULING',

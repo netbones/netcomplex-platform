@@ -1,11 +1,4 @@
-import {
-  apiError,
-  apiInternalError,
-  apiSuccess,
-  db,
-  getSessionAndRole,
-  guardSuspension,
-} from '@api/server';
+import { apiError, apiInternalError, apiSuccess, db } from '@api/server';
 import { getAiProvider, isAiCapabilityEnabled, checkQuota, recordUsage } from '@api/server';
 import type { AiCapabilityKey } from '@entities/tenant/server';
 import { withTenant } from '@entities/tenant/server';
@@ -13,6 +6,7 @@ import { logError } from '@shared/lib';
 import { AI_MODELS, rateLimitByUser } from '@api/server';
 import { intakeScreenRequestSchema, sanitizeDescriptionForAi } from '@entities/dispute/server';
 import { parseIntakeScreenOutput } from '@/shared/lib/dispute/intake-screen-output';
+import { requireAuth } from '@/shared/api/auth-utils';
 
 const CAPABILITY: AiCapabilityKey = 'ai.disputes.frivolityScreen';
 
@@ -31,13 +25,11 @@ export const maxDuration = 15;
 export async function POST(request: Request) {
   try {
     // ── 0. Auth ─────────────────────────────────────────────────────
-    const auth = await getSessionAndRole(request);
-    if (!auth) return apiError('UNAUTHORIZED', 'Authentication required', 401);
-    const guard = guardSuspension(auth);
-    if (guard) return guard;
+    const auth = await requireAuth(request);
+    if (!auth.success) return auth.response;
 
     // ── 1. Rate limit ───────────────────────────────────────────────
-    const rateLimitResult = await rateLimitByUser(auth.userId, {
+    const rateLimitResult = await rateLimitByUser(auth.data.userId, {
       windowMs: 60_000,
       maxRequests: 5,
     });
@@ -115,7 +107,7 @@ export async function POST(request: Request) {
       {
         tenantId,
         capability: CAPABILITY,
-        userId: auth.userId,
+        userId: auth.data.userId,
         referenceId: disputeId,
         provider: result.provider,
         model: modelId,
