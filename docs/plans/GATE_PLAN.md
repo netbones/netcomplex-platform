@@ -98,11 +98,11 @@ export type FeatureKey =
 
 **Acceptance Criteria:**
 
-- [ ] All four files exist with full TypeScript types
-- [ ] `npm test` passes with the new gate test
-- [ ] `npm run typecheck` passes
-- [ ] No existing callsites modified
-- [ ] `canAccess()` is exported and callable but unused in production code
+- [ ] ⏳ All four files exist with full TypeScript types
+- [ ] ⏳ `npm test` passes with the new gate test
+- [ ] ⏳ `npm run typecheck` passes
+- [ ] ⏳ No existing callsites modified
+- [ ] ⏳ `canAccess()` is exported and callable but unused in production code
 
 **Risk:** Low — purely additive. CI test prevents future drift even before migration begins.
 
@@ -180,9 +180,9 @@ const GATE_REASON_TO_ERROR: Record<GateReason, string> = {
 
 **Acceptance Criteria:**
 
-- [ ] All new routes (post-Phase 1) use `canAccess()` or `canAccessClient()`
-- [ ] Migration progress tracked per-entity in `docs/contexts/*.md` "Migration Status" sections
-- [ ] No regression in feature visibility (existing behaviour preserved)
+- [ ] ⏳ All new routes (post-Phase 1) use `canAccess()` or `canAccessClient()`
+- [ ] ⏳ Migration progress tracked per-entity in `docs/contexts/*.md` "Migration Status" sections
+- [ ] ⏳ No regression in feature visibility (existing behaviour preserved)
 
 **Risk:** Low — opportunistic migration. Each touch is reviewed, not bulk-refactored.
 
@@ -202,10 +202,10 @@ const GATE_REASON_TO_ERROR: Record<GateReason, string> = {
 
 **Acceptance Criteria:**
 
-- [ ] All three legacy systems are internal-only
-- [ ] `canAccess()` / `canAccessClient()` / `GateGuard` are the only public gate API
-- [ ] CI test continues to pass
-- [ ] `docs/UBIQUITOUS_LANGUAGE.md` C2 marked resolved
+- [ ] ⏳ All three legacy systems are internal-only
+- [ ] ⏳ `canAccess()` / `canAccessClient()` / `GateGuard` are the only public gate API
+- [ ] ⏳ CI test continues to pass
+- [ ] ⏳ `docs/UBIQUITOUS_LANGUAGE.md` C2 marked resolved
 
 **Risk:** Medium — needs careful audit. But the migration is incremental so risk compounds gradually.
 

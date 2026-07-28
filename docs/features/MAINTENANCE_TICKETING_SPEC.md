@@ -255,41 +255,41 @@ enum RequestStatus {
 
 ### 4.1 Request Management
 
-- [ ] Admin can view all requests in paginated list
-- [ ] Admin can filter by status, priority, category, date range
-- [ ] Admin can search by resident name, address, description
-- [ ] Admin can sort by date, priority, status
-- [ ] Admin can click request to open detail view
-- [ ] Admin can change status via dropdown with history recording
-- [ ] Admin can assign request to board member
-- [ ] Admin can add internal notes (not visible to resident)
-- [ ] Admin can view full history of changes
-- [ ] Admin can schedule repair date
-- [ ] Admin can track estimated/actual costs
-- [ ] Admin can export requests to CSV
+- [ ] ⏳ Admin can view all requests in paginated list
+- [ ] ⏳ Admin can filter by status, priority, category, date range
+- [ ] ⏳ Admin can search by resident name, address, description
+- [ ] ⏳ Admin can sort by date, priority, status
+- [ ] ⏳ Admin can click request to open detail view
+- [ ] ⏳ Admin can change status via dropdown with history recording
+- [ ] ⏳ Admin can assign request to board member
+- [ ] ⏳ Admin can add internal notes (not visible to resident)
+- [ ] ⏳ Admin can view full history of changes
+- [ ] ⏳ Admin can schedule repair date
+- [ ] ⏳ Admin can track estimated/actual costs
+- [ ] ⏳ Admin can export requests to CSV
 
 ### 4.2 Analytics
 
-- [ ] Dashboard shows total open requests count
-- [ ] Dashboard shows average resolution time
-- [ ] Dashboard shows requests by status chart
-- [ ] Dashboard shows requests by priority chart
-- [ ] Dashboard shows trend over time
-- [ ] Admin can view overdue requests list
+- [ ] ⏳ Dashboard shows total open requests count
+- [ ] ⏳ Dashboard shows average resolution time
+- [ ] ⏳ Dashboard shows requests by status chart
+- [ ] ⏳ Dashboard shows requests by priority chart
+- [ ] ⏳ Dashboard shows trend over time
+- [ ] ⏳ Admin can view overdue requests list
 
 ### 4.3 Notifications
 
-- [ ] Resident receives email when status changes
-- [ ] Admin receives notification on new request
-- [ ] Status change history is preserved
+- [ ] ⏳ Resident receives email when status changes
+- [ ] ⏳ Admin receives notification on new request
+- [ ] ⏳ Status change history is preserved
 
 ### 4.4 API
 
-- [ ] All existing endpoints maintain backward compatibility
-- [ ] New endpoints follow REST conventions
-- [ ] Zod schemas validate all inputs
-- [ ] Proper error messages returned
-- [ ] ISR caching implemented appropriately
+- [ ] ⏳ All existing endpoints maintain backward compatibility
+- [ ] ⏳ New endpoints follow REST conventions
+- [ ] ⏳ Zod schemas validate all inputs
+- [ ] ⏳ Proper error messages returned
+- [ ] ⏳ ISR caching implemented appropriately
 
 ---
 

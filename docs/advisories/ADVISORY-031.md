@@ -229,17 +229,17 @@ grep -n "tenantId" src/entities/tenant/api/with-tenant.ts
 
 ## 8. Done Criteria
 
-- [ ] Sign-up collects only name/email/password; no tenant/slug fields in that flow
-- [ ] `sendOnSignUp: true`; verification email delivery failures are surfaced, not silently swallowed
-- [ ] `crossSubDomainCookies` enabled and verified working across `slug.netbones.co.za`
+- [ ] ⏳ Sign-up collects only name/email/password; no tenant/slug fields in that flow
+- [ ] ⏳ `sendOnSignUp: true`; verification email delivery failures are surfaced, not silently swallowed
+- [ ] ⏳ `crossSubDomainCookies` enabled and verified working across `slug.netbones.co.za`
 - [ ] A verified user with `tenantId: null` lands on a non-blocking choice screen (demo / create-a-community) — no forced redirect, no expiry
-- [ ] The community-naming wizard is re-invocable on demand (account menu / platform home), not a one-shot post-verification step
-- [ ] `POST /api/platform/tenants` requires authentication and no longer creates users
-- [ ] No new tables, TTLs, or cron/reaper jobs introduced
-- [ ] Test: sign-up creates zero `Tenant` rows
-- [ ] Test: authenticated tenant creation succeeds and sets `role=ADMIN` correctly
-- [ ] Test: unverified users cannot reach tenant creation at all (route requires verified session)
-- [ ] Test: user with `tenantId: null` does not break any `withTenant()`-gated route (either redirected gracefully or route explicitly allows null-tenant state)
+- [ ] ⏳ The community-naming wizard is re-invocable on demand (account menu / platform home), not a one-shot post-verification step
+- [ ] ⏳ `POST /api/platform/tenants` requires authentication and no longer creates users
+- [ ] ⏳ No new tables, TTLs, or cron/reaper jobs introduced
+- [ ] ⏳ Test: sign-up creates zero `Tenant` rows
+- [ ] ⏳ Test: authenticated tenant creation succeeds and sets `role=ADMIN` correctly
+- [ ] ⏳ Test: unverified users cannot reach tenant creation at all (route requires verified session)
+- [ ] ⏳ Test: user with `tenantId: null` does not break any `withTenant()`-gated route (either redirected gracefully or route explicitly allows null-tenant state)
 
 ## 9. Decision Gates
 
@@ -337,10 +337,10 @@ below serve as the concrete deliverable.
 
 ### Phase 0 — Done Criteria (new, precedes Phase 1)
 
-- [ ] `tenantId` nullable in `prisma/schema/schema.prisma`; Drizzle regenerated (`.notNull()` dropped in `src/db/schema/users.ts`)
-- [ ] Better Auth `tenantId` additionalField: `required: false`, `defaultValue` removed
-- [ ] `user.create.before` hook: `tenantId: tenant?.id ?? rawTenantId ?? null` (invited-signup path unchanged; global signup path now lands null)
-- [ ] Codebase compiles clean under `tenantId: string | null`
-- [ ] Inventory checklist (per Q3 item 2) reviewed and each entry marked handled/N/A
-- [ ] Runtime smoke: null-tenant landing route reachable; a `withTenant()`-gated route rejects/redirects gracefully for `tenantId = null` rather than crashing
-- [ ] Existing invited-user tenant-scoped signup flow regression-tested unchanged
+- [ ] ⏳ `tenantId` nullable in `prisma/schema/schema.prisma`; Drizzle regenerated (`.notNull()` dropped in `src/db/schema/users.ts`)
+- [ ] ⏳ Better Auth `tenantId` additionalField: `required: false`, `defaultValue` removed
+- [ ] ⏳ `user.create.before` hook: `tenantId: tenant?.id ?? rawTenantId ?? null` (invited-signup path unchanged; global signup path now lands null)
+- [ ] ⏳ Codebase compiles clean under `tenantId: string | null`
+- [ ] ⏳ Inventory checklist (per Q3 item 2) reviewed and each entry marked handled/N/A
+- [ ] ⏳ Runtime smoke: null-tenant landing route reachable; a `withTenant()`-gated route rejects/redirects gracefully for `tenantId = null` rather than crashing
+- [ ] ⏳ Existing invited-user tenant-scoped signup flow regression-tested unchanged

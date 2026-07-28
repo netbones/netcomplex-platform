@@ -41,6 +41,6 @@ Authentication identities, user profiles, invitations, and seat assignments.
 ## Open Issues
 
 - [ ] `PropertyInfo` uses `propertyId` instead of `id` — inconsistent with Property shape (see UBIQUITOUS_LANGUAGE.md C1)
-- [ ] `residentType` on Invitation overlaps with `residencyType` on Profile (see UBIQUITOUS_LANGUAGE.md C5)
+- [ ] ⏳ `residentType` on Invitation overlaps with `residencyType` on Profile (see UBIQUITOUS_LANGUAGE.md C5)
 - [ ] `src/entities/identity/` is deprecated but not removed — logic moved to `src/server/routers/identity.ts`
-- [ ] User suspension frontend not yet implemented (Phase 33-02)
+- [ ] ⏳ User suspension frontend not yet implemented (Phase 33-02)

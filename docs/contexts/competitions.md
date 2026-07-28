@@ -44,4 +44,4 @@ No dedicated entity directory. Logic lives in `src/server/routers/competitions.t
 ## Open Issues
 
 - [ ] No dedicated entity directory — logic is spread across tRPC router, features, and app pages. Should be consolidated into `src/entities/competitions/` for consistency with FSD architecture.
-- [ ] Missing widget registration in admin dashboard (GAP-11)
+- [ ] ⏳ Missing widget registration in admin dashboard (GAP-11)

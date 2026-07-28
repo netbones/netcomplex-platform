@@ -281,13 +281,13 @@ If issues arise:
 
 ## ✅ Validation Checklist
 
-- [ ] Schema migration successful
-- [ ] Data migration completes without errors
-- [ ] Renter filtering works in directory
-- [ ] Landlord-tenant relationships accessible
-- [ ] API responses include new fields
-- [ ] Frontend interfaces updated
-- [ ] No breaking changes to existing functionality
+- [ ] ⏳ Schema migration successful
+- [ ] ⏳ Data migration completes without errors
+- [ ] ⏳ Renter filtering works in directory
+- [ ] ⏳ Landlord-tenant relationships accessible
+- [ ] ⏳ API responses include new fields
+- [ ] ⏳ Frontend interfaces updated
+- [ ] ⏳ No breaking changes to existing functionality
 
 ---
 

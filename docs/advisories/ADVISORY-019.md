@@ -630,6 +630,6 @@ Navigation: Expo Router on mobile (Solito not used).
 - [ ] GATE G-1 resolved — tenant resolution strategy decided and implemented in `apps/web`
 - [ ] M2 merged — web app at `apps/web/`, prod-ca-2021.crt moved, full quality gate passes
 - [ ] M3 merged — Expo app boots, authenticates, one tRPC call succeeds, RichTextRenderer spike documented
-- [ ] ADR-022 added to `docs/STEERING/ADR.md`
-- [ ] HOLISTIC.md updated post-M0 (mono-01, mono-02 entries)
-- [ ] M4 waves planned as individual GSD phase plans before execution
+- [ ] ⏳ ADR-022 added to `docs/STEERING/ADR.md`
+- [ ] ⏳ HOLISTIC.md updated post-M0 (mono-01, mono-02 entries)
+- [ ] ⏳ M4 waves planned as individual GSD phase plans before execution

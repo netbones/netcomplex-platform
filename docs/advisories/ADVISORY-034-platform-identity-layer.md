@@ -244,13 +244,13 @@ Each phase ends at a named decision gate. No phase begins execution without DavD
 
 ## 8. Done Criteria
 
-- [ ] `Identity` and `Credential` models exist in `prisma/schema.prisma`, Drizzle schema regenerated (`npx prisma generate`)
-- [ ] Every existing `user` row has exactly one `Identity` and one `EMAIL`-type `Credential`, verified by a reconciliation script (row counts must match)
-- [ ] Better Auth login/session/CSRF flows pass existing e2e suite (`auth-flow.spec.ts`) unchanged
-- [ ] RLS policy addendum to ADR-019 covers `Identity` and `Credential` tables explicitly, with `WITH CHECK` clauses and idempotent policy creation (per the fixes already applied in the 2026-06-04 ADR-019 update)
-- [ ] Public DTO allowlist unit test confirms `Credential.publicKey`, `Credential.metadata`, `Credential.fingerprint` are never serialized on any cross-tenant read surface
-- [ ] No existing route, tRPC procedure, or widget references `user.id` as a proxy for "global human identity" without going through `identityId` where that distinction matters (providers, agents, dWallet)
-- [ ] Discovery findings note (§5) attached to this advisory before Phase 2 begins execution
+- [ ] ⏳ `Identity` and `Credential` models exist in `prisma/schema.prisma`, Drizzle schema regenerated (`npx prisma generate`)
+- [ ] ⏳ Every existing `user` row has exactly one `Identity` and one `EMAIL`-type `Credential`, verified by a reconciliation script (row counts must match)
+- [ ] ⏳ Better Auth login/session/CSRF flows pass existing e2e suite (`auth-flow.spec.ts`) unchanged
+- [ ] ⏳ RLS policy addendum to ADR-019 covers `Identity` and `Credential` tables explicitly, with `WITH CHECK` clauses and idempotent policy creation (per the fixes already applied in the 2026-06-04 ADR-019 update)
+- [ ] ⏳ Public DTO allowlist unit test confirms `Credential.publicKey`, `Credential.metadata`, `Credential.fingerprint` are never serialized on any cross-tenant read surface
+- [ ] ⏳ No existing route, tRPC procedure, or widget references `user.id` as a proxy for "global human identity" without going through `identityId` where that distinction matters (providers, agents, dWallet)
+- [ ] ⏳ Discovery findings note (§5) attached to this advisory before Phase 2 begins execution
 
 ---
 

@@ -729,22 +729,22 @@ margin, which is counterproductive.
 
 The following criteria replace or amend those in ADVISORY-017-SUPPLEMENTAL Section 15:
 
-- [ ] `AiTierQuota` seed rows exist for STANDARD, PREMIUM, ENTERPRISE
-- [ ] `getOrCreateQuota(tenantId, month)` creates a new `AiTenantQuota` row lazily on first call
-- [ ] Atomic increment updates `inputTokensUsed` / `outputTokensUsed` without race condition (verified via concurrent test)
-- [ ] Hard cap at `>= hardCapMultiplier × budget` returns `ThrottledProvider`
+- [ ] ⏳ `AiTierQuota` seed rows exist for STANDARD, PREMIUM, ENTERPRISE
+- [ ] ⏳ `getOrCreateQuota(tenantId, month)` creates a new `AiTenantQuota` row lazily on first call
+- [ ] ⏳ Atomic increment updates `inputTokensUsed` / `outputTokensUsed` without race condition (verified via concurrent test)
+- [ ] ⏳ Hard cap at `>= hardCapMultiplier × budget` returns `ThrottledProvider`
 - [ ] `ThrottledProvider.complete()` throws `AiQuotaExceededError` — features degrade correctly
-- [ ] 80% threshold fires tenant admin notification (check `Notification` table, not just log)
-- [ ] Hard cap fires platform admin notification
-- [ ] `AiUsageRecord` rows are written for successful and failed calls
+- [ ] ⏳ 80% threshold fires tenant admin notification (check `Notification` table, not just log)
+- [ ] ⏳ Hard cap fires platform admin notification
+- [ ] ⏳ `AiUsageRecord` rows are written for successful and failed calls
 - [ ] `AiUsageRecord` contains `capability` tag on every row — no rows with `capability: 'unknown'` (enforced by TypeScript making field required)
-- [ ] `estimateCostUSD` returns correct value for Haiku at 1000 input / 500 output tokens (verify: `(1000/1M × 0.80) + (500/1M × 4.00) = $0.00280`)
+- [ ] ⏳ `estimateCostUSD` returns correct value for Haiku at 1000 input / 500 output tokens (verify: `(1000/1M × 0.80) + (500/1M × 4.00) = $0.00280`)
 - [ ] BYOK path bypasses quota entirely — no `AiUsageRecord` written, no quota check
 - [ ] BYOK path available only to ENTERPRISE tier — STANDARD/PREMIUM tenants cannot configure BYOK key
-- [ ] Platform Admin widget shows correct aggregate cost and per-tenant breakdown
-- [ ] Tenant Admin widget shows percentage consumed, not cost figures
-- [ ] `PLATFORM_ANTHROPIC_KEY` absence causes graceful degradation (NullProvider), not runtime crash
-- [ ] `recordUsage` failure is logged but does not propagate to the caller
+- [ ] ⏳ Platform Admin widget shows correct aggregate cost and per-tenant breakdown
+- [ ] ⏳ Tenant Admin widget shows percentage consumed, not cost figures
+- [ ] ⏳ `PLATFORM_ANTHROPIC_KEY` absence causes graceful degradation (NullProvider), not runtime crash
+- [ ] ⏳ `recordUsage` failure is logged but does not propagate to the caller
 
 ---
 

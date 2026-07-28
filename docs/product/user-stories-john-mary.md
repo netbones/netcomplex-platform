@@ -38,11 +38,11 @@ And I should have the option to add occupants (profiles) later
 
 **Acceptance Criteria:**
 
-- [ ] Landlord can register with email/password
-- [ ] Unit number is captured during registration
-- [ ] Platform creates Standard Seat with platform address (e.g., `unit042@soralia.org`)
-- [ ] Landlord can access household dashboard at `/unit/{id}`
-- [ ] Landlord can add up to 5 profiles for occupants
+- [ ] ⏳ Landlord can register with email/password
+- [ ] ⏳ Unit number is captured during registration
+- [ ] ⏳ Platform creates Standard Seat with platform address (e.g., `unit042@soralia.org`)
+- [ ] ⏳ Landlord can access household dashboard at `/unit/{id}`
+- [ ] ⏳ Landlord can add up to 5 profiles for occupants
 
 ---
 
@@ -66,11 +66,11 @@ And the occupant receives an invitation email
 
 **Acceptance Criteria:**
 
-- [ ] SEEF can request access to a landlord's household management
-- [ ] Landlord must approve SEEF's access request
-- [ ] SEEF can create occupant profiles with: name, email, move-in date
-- [ ] System generates profile address (e.g., `john.unit042@soralia.org`)
-- [ ] Invitation email sent to occupant with setup instructions
+- [ ] ⏳ SEEF can request access to a landlord's household management
+- [ ] ⏳ Landlord must approve SEEF's access request
+- [ ] ⏳ SEEF can create occupant profiles with: name, email, move-in date
+- [ ] ⏳ System generates profile address (e.g., `john.unit042@soralia.org`)
+- [ ] ⏳ Invitation email sent to occupant with setup instructions
 
 **Technical Note:**
 
@@ -98,12 +98,12 @@ And set my display name, avatar, and preferences
 
 **Acceptance Criteria:**
 
-- [ ] John can access setup flow via unique link
-- [ ] John can set display name (visible to community)
-- [ ] John can upload avatar photo
-- [ ] John can select interests for community matching
-- [ ] John can set privacy preferences (show contact info, etc.)
-- [ ] After setup, John can access `/unit/042/member/{profileId}`
+- [ ] ⏳ John can access setup flow via unique link
+- [ ] ⏳ John can set display name (visible to community)
+- [ ] ⏳ John can upload avatar photo
+- [ ] ⏳ John can select interests for community matching
+- [ ] ⏳ John can set privacy preferences (show contact info, etc.)
+- [ ] ⏳ After setup, John can access `/unit/042/member/{profileId}`
 
 **Profile Page Features:**
 
@@ -134,11 +134,11 @@ And both John and Mary can use the platform independently
 
 **Acceptance Criteria:**
 
-- [ ] Landlord (or SEEF) can add Mary as second profile
-- [ ] Mary's profile address: `mary.unit042@soralia.org`
-- [ ] Both John and Mary have separate profile pages
-- [ ] Both can join groups, send messages independently
-- [ ] Directory shows both as occupants of Unit 042
+- [ ] ⏳ Landlord (or SEEF) can add Mary as second profile
+- [ ] ⏳ Mary's profile address: `mary.unit042@soralia.org`
+- [ ] ⏳ Both John and Mary have separate profile pages
+- [ ] ⏳ Both can join groups, send messages independently
+- [ ] ⏳ Directory shows both as occupants of Unit 042
 
 **Profile Limit Check:**
 
@@ -165,17 +165,17 @@ And I should be able to edit or remove profiles
 
 **Acceptance Criteria:**
 
-- [ ] Landlord sees all profiles at `/unit/{id}`
-- [ ] Landlord can edit profile display name
-- [ ] Landlord can set profile visibility (public/private)
-- [ ] Landlord can remove profiles (for move-outs)
-- [ ] Landlord receives notifications about profile activity
+- [ ] ⏳ Landlord sees all profiles at `/unit/{id}`
+- [ ] ⏳ Landlord can edit profile display name
+- [ ] ⏳ Landlord can set profile visibility (public/private)
+- [ ] ⏳ Landlord can remove profiles (for move-outs)
+- [ ] ⏳ Landlord receives notifications about profile activity
 
 **Landlord Cannot:**
 
-- [ ] View occupant's private messages
-- [ ] Change occupant's chosen interests
-- [ ] Access occupant's personal settings
+- [ ] ⏳ View occupant's private messages
+- [ ] ⏳ Change occupant's chosen interests
+- [ ] ⏳ Access occupant's personal settings
 
 ---
 
@@ -200,10 +200,10 @@ Then I should be able to:
 
 **Acceptance Criteria:**
 
-- [ ] John can toggle email visibility
-- [ ] John can toggle phone visibility
-- [ ] John can set profile to private (not in public directory)
-- [ ] John can leave household and upgrade to Premium Seat (after 1 year)
+- [ ] ⏳ John can toggle email visibility
+- [ ] ⏳ John can toggle phone visibility
+- [ ] ⏳ John can set profile to private (not in public directory)
+- [ ] ⏳ John can leave household and upgrade to Premium Seat (after 1 year)
 
 ---
 
@@ -227,12 +227,12 @@ And I can maintain or detach from the household
 
 **Acceptance Criteria:**
 
-- [ ] System tracks occupant tenure (1 year minimum)
-- [ ] Upgrade option appears after 1 year
-- [ ] John creates personal email/password for login
-- [ ] John's platform address becomes `john@soralia.org`
-- [ ] John can now access `/resident/{id}` (independent profile)
-- [ ] John can optionally remain linked to household or detach
+- [ ] ⏳ System tracks occupant tenure (1 year minimum)
+- [ ] ⏳ Upgrade option appears after 1 year
+- [ ] ⏳ John creates personal email/password for login
+- [ ] ⏳ John's platform address becomes `john@soralia.org`
+- [ ] ⏳ John can now access `/resident/{id}` (independent profile)
+- [ ] ⏳ John can optionally remain linked to household or detach
 
 ---
 
@@ -259,18 +259,18 @@ Then I can walk them through:
 
 **Induction Checklist (SEEF UI):**
 
-- [ ] Show occupants how to find their profile
-- [ ] Guide them to join relevant interest groups
-- [ ] Demonstrate directory search
-- [ ] Explain maintenance request submission
-- [ ] Show facility booking calendar
-- [ ] Introduce messaging/chat feature
+- [ ] ⏳ Show occupants how to find their profile
+- [ ] ⏳ Guide them to join relevant interest groups
+- [ ] ⏳ Demonstrate directory search
+- [ ] ⏳ Explain maintenance request submission
+- [ ] ⏳ Show facility booking calendar
+- [ ] ⏳ Introduce messaging/chat feature
 
 **SEEF Special Access:**
 
-- [ ] SEEF can be granted temporary access to household management
-- [ ] SEEF can create profiles (with landlord approval)
-- [ ] SEEF cannot access private occupant data
+- [ ] ⏳ SEEF can be granted temporary access to household management
+- [ ] ⏳ SEEF can create profiles (with landlord approval)
+- [ ] ⏳ SEEF cannot access private occupant data
 
 ---
 
@@ -403,12 +403,12 @@ And both Jim and Molly can access the household
 
 **Acceptance Criteria:**
 
-- [ ] Jim (as Member) can add Molly as a profile
-- [ ] Molly's profile address: `molly.unitXXX@soralia.org`
-- [ ] Molly can set up her own display name and avatar
-- [ ] Molly can join interest groups, send messages
-- [ ] Both Jim and Molly appear in directory as occupants of the same unit
-- [ ] Molly can upgrade to Premium Seat (after 1 year) if she wants independent login
+- [ ] ⏳ Jim (as Member) can add Molly as a profile
+- [ ] ⏳ Molly's profile address: `molly.unitXXX@soralia.org`
+- [ ] ⏳ Molly can set up her own display name and avatar
+- [ ] ⏳ Molly can join interest groups, send messages
+- [ ] ⏳ Both Jim and Molly appear in directory as occupants of the same unit
+- [ ] ⏳ Molly can upgrade to Premium Seat (after 1 year) if she wants independent login
 
 **Key Question**: Should Molly have her own Standard Seat (co-owner) or be a profile (occupant)?
 
@@ -440,12 +440,12 @@ And either of us can manage the household
 
 **Acceptance Criteria:**
 
-- [ ] Both Jack and Jill can register with their own credentials
-- [ ] Both have Standard Seats linked to the same household
-- [ ] Both have platform addresses: `jack.unitXXX@soralia.org` and `jill.unitXXX@soralia.org`
-- [ ] Either can add profiles (children, etc.)
-- [ ] Either can manage household settings
-- [ ] Both appear as household members in directory
+- [ ] ⏳ Both Jack and Jill can register with their own credentials
+- [ ] ⏳ Both have Standard Seats linked to the same household
+- [ ] ⏳ Both have platform addresses: `jack.unitXXX@soralia.org` and `jill.unitXXX@soralia.org`
+- [ ] ⏳ Either can add profiles (children, etc.)
+- [ ] ⏳ Either can manage household settings
+- [ ] ⏳ Both appear as household members in directory
 
 **Data Model Note**:
 
@@ -484,12 +484,12 @@ And they appear as part of our household
 
 **Acceptance Criteria:**
 
-- [ ] Jack or Jill can add child profiles (max 5 total)
-- [ ] Child profiles are marked as MINOR type
-- [ ] Children have no independent login (managed by parents)
-- [ ] Children can join age-appropriate groups
-- [ ] Children appear on household card with avatar stack
-- [ ] When child turns 18, they become eligible for Premium Seat upgrade
+- [ ] ⏳ Jack or Jill can add child profiles (max 5 total)
+- [ ] ⏳ Child profiles are marked as MINOR type
+- [ ] ⏳ Children have no independent login (managed by parents)
+- [ ] ⏳ Children can join age-appropriate groups
+- [ ] ⏳ Children appear on household card with avatar stack
+- [ ] ⏳ When child turns 18, they become eligible for Premium Seat upgrade
 
 **Profile Types**:
 | Type | Description | Login |
@@ -520,11 +520,11 @@ But I don't need to add any occupant profiles (no tenants)
 
 **Acceptance Criteria:**
 
-- [ ] Owner registers with their property details
-- [ ] Household is created with Standard Seat
-- [ ] Owner can add spouse/children as profiles (up to 5)
-- [ ] No "tenant" profiles needed
-- [ ] HomeImage displayed on household page
+- [ ] ⏳ Owner registers with their property details
+- [ ] ⏳ Household is created with Standard Seat
+- [ ] ⏳ Owner can add spouse/children as profiles (up to 5)
+- [ ] ⏳ No "tenant" profiles needed
+- [ ] ⏳ HomeImage displayed on household page
 
 **Example**: Jim owns and lives in Unit 042 → `/unit/042`
 
@@ -550,11 +550,11 @@ And I can manage tenants for each separately
 
 **Acceptance Criteria:**
 
-- [ ] Landlord can have multiple Households
-- [ ] Each household has its own platform address: `unit042@soralia.org`, `unit043@soralia.org`, etc.
-- [ ] Landlord can add different occupants to each household
-- [ ] Landlord sees all households in their dashboard
-- [ ] Occupants of one property cannot see other properties
+- [ ] ⏳ Landlord can have multiple Households
+- [ ] ⏳ Each household has its own platform address: `unit042@soralia.org`, `unit043@soralia.org`, etc.
+- [ ] ⏳ Landlord can add different occupants to each household
+- [ ] ⏳ Landlord sees all households in their dashboard
+- [ ] ⏳ Occupants of one property cannot see other properties
 
 **Data Model Note**:
 
@@ -590,12 +590,12 @@ But I don't have a household or property
 
 **Acceptance Criteria:**
 
-- [ ] Board member registers without property details
-- [ ] Gets Premium Seat with platform address: `name@soralia.org`
-- [ ] Seat type: MEMBER (not RESIDENT)
-- [ ] Can access board-only content and discussions
-- [ ] Can be marked as complimentary (no charge)
-- [ ] Can still appear in directory (as board member, not resident)
+- [ ] ⏳ Board member registers without property details
+- [ ] ⏳ Gets Premium Seat with platform address: `name@soralia.org`
+- [ ] ⏳ Seat type: MEMBER (not RESIDENT)
+- [ ] ⏳ Can access board-only content and discussions
+- [ ] ⏳ Can be marked as complimentary (no charge)
+- [ ] ⏳ Can still appear in directory (as board member, not resident)
 
 ---
 
@@ -619,17 +619,17 @@ But my access expires when the mandate ends
 
 **Acceptance Criteria:**
 
-- [ ] Agent registers as a platform user with AGENT role
-- [ ] Agent can request access to a landlord's household
-- [ ] Landlord must approve agent access (with expiry date)
-- [ ] Agent can view household dashboard when access is active
-- [ ] Agent can add new occupant profiles (for new tenants)
-- [ ] Agent can remove occupant profiles (for evicted/moving tenants)
-- [ ] Agent can see move-in/move-out dates
-- [ ] Agent access automatically expires after mandate end date
-- [ ] Agent cannot change ownership or primary settings
-- [ ] Agent cannot access occupant private data (messages, etc.)
-- [ ] Agent appears in household audit log
+- [ ] ⏳ Agent registers as a platform user with AGENT role
+- [ ] ⏳ Agent can request access to a landlord's household
+- [ ] ⏳ Landlord must approve agent access (with expiry date)
+- [ ] ⏳ Agent can view household dashboard when access is active
+- [ ] ⏳ Agent can add new occupant profiles (for new tenants)
+- [ ] ⏳ Agent can remove occupant profiles (for evicted/moving tenants)
+- [ ] ⏳ Agent can see move-in/move-out dates
+- [ ] ⏳ Agent access automatically expires after mandate end date
+- [ ] ⏳ Agent cannot change ownership or primary settings
+- [ ] ⏳ Agent cannot access occupant private data (messages, etc.)
+- [ ] ⏳ Agent appears in household audit log
 
 **Agent Capabilities by Permission Level**:
 
@@ -681,13 +681,13 @@ And the tenant's data is archived (for compliance)
 
 **Acceptance Criteria:**
 
-- [ ] Agent can select profile to remove
-- [ ] Agent must select reason: "eviction", "move-out", "lease-ended"
-- [ ] Profile is archived with removal reason and date
-- [ ] Tenant's platform address is deactivated
-- [ ] Tenant cannot log in (if they had independent login via upgrade)
-- [ ] Removal is logged in household audit trail
-- [ ] Landlord receives notification of removal
+- [ ] ⏳ Agent can select profile to remove
+- [ ] ⏳ Agent must select reason: "eviction", "move-out", "lease-ended"
+- [ ] ⏳ Profile is archived with removal reason and date
+- [ ] ⏳ Tenant's platform address is deactivated
+- [ ] ⏳ Tenant cannot log in (if they had independent login via upgrade)
+- [ ] ⏳ Removal is logged in household audit trail
+- [ ] ⏳ Landlord receives notification of removal
 
 ---
 
@@ -711,14 +711,14 @@ And they can immediately access community features
 
 **Acceptance Criteria:**
 
-- [ ] Agent enters tenant details: name, email, lease start date
-- [ ] System generates profile address: `name.unitXXX@soralia.org`
-- [ ] Agent can set up profile immediately or send invitation
-- [ ] Tenant receives email with setup link
-- [ ] Tenant can customize display name, avatar, interests
-- [ ] Tenant appears on household card immediately
-- [ ] Agent can add notes about tenant (internal, not visible to tenant)
-- [ ] Lease duration tracked for upgrade eligibility (1 year)
+- [ ] ⏳ Agent enters tenant details: name, email, lease start date
+- [ ] ⏳ System generates profile address: `name.unitXXX@soralia.org`
+- [ ] ⏳ Agent can set up profile immediately or send invitation
+- [ ] ⏳ Tenant receives email with setup link
+- [ ] ⏳ Tenant can customize display name, avatar, interests
+- [ ] ⏳ Tenant appears on household card immediately
+- [ ] ⏳ Agent can add notes about tenant (internal, not visible to tenant)
+- [ ] ⏳ Lease duration tracked for upgrade eligibility (1 year)
 
 ---
 
@@ -741,12 +741,12 @@ And I can quickly switch between properties
 
 **Acceptance Criteria:**
 
-- [ ] Agent sees list of all authorized households
-- [ ] Each household shows: address, current occupants, access expiry
-- [ ] Agent can filter by: property, status, access expiry soon
-- [ ] Agent can see upcoming move-ins/move-outs
-- [ ] Agent gets reminders before access expires
-- [ ] Agent can request access renewal from landlord
+- [ ] ⏳ Agent sees list of all authorized households
+- [ ] ⏳ Each household shows: address, current occupants, access expiry
+- [ ] ⏳ Agent can filter by: property, status, access expiry soon
+- [ ] ⏳ Agent can see upcoming move-ins/move-outs
+- [ ] ⏳ Agent gets reminders before access expires
+- [ ] ⏳ Agent can request access renewal from landlord
 
 ---
 

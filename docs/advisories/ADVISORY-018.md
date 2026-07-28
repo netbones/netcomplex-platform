@@ -344,14 +344,14 @@ Confirm with DavDev whether `soralia.netbones.co.za` is the only production tena
 ## 9. Done Criteria
 
 - [ ] `app.netbones.co.za` renders the `(platform)` route group — platform home, not Soralia tenant
-- [ ] `soralia.netbones.co.za` continues to render the Soralia tenant site correctly
-- [ ] Response header `x-plane: platform` present on all requests to `app.netbones.co.za`
-- [ ] Response header `x-plane: tenant` and `x-tenant-slug: soralia` present on all requests to `soralia.netbones.co.za`
-- [ ] Platform login flow functional on `app.netbones.co.za`
-- [ ] Tenant login flow functional on `soralia.netbones.co.za`
-- [ ] `vercel.json` committed to repository root
-- [ ] Debug headers removed
-- [ ] Both domains show Valid Configuration in Vercel dashboard
+- [ ] ⏳ `soralia.netbones.co.za` continues to render the Soralia tenant site correctly
+- [ ] ⏳ Response header `x-plane: platform` present on all requests to `app.netbones.co.za`
+- [ ] ⏳ Response header `x-plane: tenant` and `x-tenant-slug: soralia` present on all requests to `soralia.netbones.co.za`
+- [ ] ⏳ Platform login flow functional on `app.netbones.co.za`
+- [ ] ⏳ Tenant login flow functional on `soralia.netbones.co.za`
+- [ ] ⏳ `vercel.json` committed to repository root
+- [ ] ⏳ Debug headers removed
+- [ ] ⏳ Both domains show Valid Configuration in Vercel dashboard
 
 ---
 

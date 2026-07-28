@@ -529,20 +529,20 @@ The following BD issues were logged at the ADVISORY-026 G4 scope boundary (2026-
 
 ## 10. Done Criteria
 
-- [ ] `prisma migrate status` shows no drift after Phase 1 migration
-- [ ] New sign-up creates `user.role = USER` in the database
-- [ ] Invitation acceptance promotes `user.role` to the role encoded in the invitation (non-PROVIDER paths)
-- [ ] Invitation acceptance with `role: PROVIDER` creates `ServiceProvider{PENDING}` + `ProviderVerification{PROBATION}`, does **not** set `user.role = PROVIDER`
-- [ ] Provider self-registration creates same stub rows, does **not** set `user.role = PROVIDER`
-- [ ] Provider approval sets `user.role = PROVIDER` and `ProviderVerification.status = VERIFIED` atomically in a transaction
-- [ ] Provider dashboard is inaccessible to `USER`-staged accounts
-- [ ] `Property.platformAddress` has `@unique` constraint in DB (`\d "Property"` confirms)
-- [ ] `StandardSeat`, `SoloSeat`, `PremiumSeat` have `status` and `archivedAt` columns
-- [ ] Cross-table address guard function exists and is called in seat-creation paths
+- [ ] ⏳ `prisma migrate status` shows no drift after Phase 1 migration
+- [ ] ⏳ New sign-up creates `user.role = USER` in the database
+- [ ] ⏳ Invitation acceptance promotes `user.role` to the role encoded in the invitation (non-PROVIDER paths)
+- [ ] ⏳ Invitation acceptance with `role: PROVIDER` creates `ServiceProvider{PENDING}` + `ProviderVerification{PROBATION}`, does **not** set `user.role = PROVIDER`
+- [ ] ⏳ Provider self-registration creates same stub rows, does **not** set `user.role = PROVIDER`
+- [ ] ⏳ Provider approval sets `user.role = PROVIDER` and `ProviderVerification.status = VERIFIED` atomically in a transaction
+- [ ] ⏳ Provider dashboard is inaccessible to `USER`-staged accounts
+- [ ] ⏳ `Property.platformAddress` has `@unique` constraint in DB (`\d "Property"` confirms)
+- [ ] ⏳ `StandardSeat`, `SoloSeat`, `PremiumSeat` have `status` and `archivedAt` columns
+- [ ] ⏳ Cross-table address guard function exists and is called in seat-creation paths
 - [ ] G5 callsite review documented — no unintended breakage from `USER` introduction
-- [ ] G9 SubscriptionTier threshold source confirmed and used in stub creation
-- [ ] All auth tests pass: `pnpm test src/test/auth*`
-- [ ] BD `5z3g` closed
+- [ ] ⏳ G9 SubscriptionTier threshold source confirmed and used in stub creation
+- [ ] ⏳ All auth tests pass: `pnpm test src/test/auth*`
+- [ ] ⏳ BD `5z3g` closed
 
 ---
 

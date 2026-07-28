@@ -27,22 +27,22 @@ The Premium Seat agent marketplace enables property investors to connect with pr
 
 ### 🔄 In Progress
 
-- [ ] Agent verification workflow
-- [ ] Commission tracking system
-- [ ] Agent-investor messaging integration
-- [ ] Property listing publish/unpublish functionality
-- [ ] Agent rating and review system
+- [ ] ⏳ Agent verification workflow
+- [ ] ⏳ Commission tracking system
+- [ ] ⏳ Agent-investor messaging integration
+- [ ] ⏳ Property listing publish/unpublish functionality
+- [ ] ⏳ Agent rating and review system
 
 ### 📋 Planned
 
-- [ ] Agent onboarding flow
-- [ ] Premium Seat upgrade prompts and pricing
-- [ ] Agent performance analytics
-- [ ] Commission payment processing
-- [ ] Agent specialization matching
-- [ ] Property listing analytics
-- [ ] Agent blacklist/blocking functionality
-- [ ] Integration with external real estate platforms
+- [ ] ⏳ Agent onboarding flow
+- [ ] ⏳ Premium Seat upgrade prompts and pricing
+- [ ] ⏳ Agent performance analytics
+- [ ] ⏳ Commission payment processing
+- [ ] ⏳ Agent specialization matching
+- [ ] ⏳ Property listing analytics
+- [ ] ⏳ Agent blacklist/blocking functionality
+- [ ] ⏳ Integration with external real estate platforms
 
 ## Business Model
 
@@ -144,20 +144,20 @@ PremiumPortfolioWidget
 
 ### Before Launch
 
-- [ ] Agent verification process implemented
-- [ ] Commission tracking and payment integration
-- [ ] End-to-end testing of agent-investor connections
-- [ ] Mobile responsiveness for all components
-- [ ] Performance optimization for large portfolios
-- [ ] Security audit of agent access controls
+- [ ] ⏳ Agent verification process implemented
+- [ ] ⏳ Commission tracking and payment integration
+- [ ] ⏳ End-to-end testing of agent-investor connections
+- [ ] ⏳ Mobile responsiveness for all components
+- [ ] ⏳ Performance optimization for large portfolios
+- [ ] ⏳ Security audit of agent access controls
 
 ### Success Metrics
 
-- [ ] Premium Seat conversion rate
-- [ ] Agent marketplace engagement
-- [ ] Average deal size through platform
-- [ ] Agent retention and satisfaction
-- [ ] Platform commission revenue
+- [ ] ⏳ Premium Seat conversion rate
+- [ ] ⏳ Agent marketplace engagement
+- [ ] ⏳ Average deal size through platform
+- [ ] ⏳ Agent retention and satisfaction
+- [ ] ⏳ Platform commission revenue
 
 ## Risks & Mitigations
 

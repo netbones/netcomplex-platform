@@ -590,12 +590,12 @@ invalidation. (Current approach: client-side `invalidate()` call after admin mut
 
 ## 10. Done Criteria (advisory-level)
 
-- [ ] Phase A: All gated routes have consistent server gate calls.
-- [ ] Phase E: Soralia seed is `PREMIUM`. PlatformModule seed has `defaultEnabled: true` for PREMIUM modules. Development database updated.
-- [ ] Phase B: `GET /api/gate/context` returns correct module map. Unit test passes.
-- [ ] Phase C: `useGateContext()` returns `false` (default-deny) before hydration, correct value after. Store cleared on sign-out.
-- [ ] Phase D: Domain cards grey out gated modules. `ModuleGateWall` renders `GatedFeaturePage` for gated routes. No flash.
-- [ ] GUIDE.md updated with gate rules section.
-- [ ] HOLISTIC.md updated: Soralia dev tier risk logged as launch gate item.
-- [ ] `pnpm typecheck`, `pnpm lint`, `pnpm build` pass on all phases.
+- [ ] ⏳ Phase A: All gated routes have consistent server gate calls.
+- [ ] ⏳ Phase E: Soralia seed is `PREMIUM`. PlatformModule seed has `defaultEnabled: true` for PREMIUM modules. Development database updated.
+- [ ] ⏳ Phase B: `GET /api/gate/context` returns correct module map. Unit test passes.
+- [ ] ⏳ Phase C: `useGateContext()` returns `false` (default-deny) before hydration, correct value after. Store cleared on sign-out.
+- [ ] ⏳ Phase D: Domain cards grey out gated modules. `ModuleGateWall` renders `GatedFeaturePage` for gated routes. No flash.
+- [ ] ⏳ GUIDE.md updated with gate rules section.
+- [ ] ⏳ HOLISTIC.md updated: Soralia dev tier risk logged as launch gate item.
+- [ ] ⏳ `pnpm typecheck`, `pnpm lint`, `pnpm build` pass on all phases.
 - [ ] No 403 is ever seen by an end user for a gated feature — the gate wall intercepts before form interaction.

@@ -755,20 +755,20 @@ No changes from SUPPLEMENTAL Phase B. Translate route migrates to `getAiProvider
 
 ## 16. Done Criteria (Supplemental 2 additions)
 
-- [ ] `PlatformAiTierQuota` seeded with all 3 tiers
-- [ ] `AiCapabilityCost` seeded with all 4 capabilities
-- [ ] `checkQuota()` returns `{ allowed: false }` when `tokensUsed >= tokensAllotted` (HARD_STOP)
-- [ ] `recordUsage()` creates an `AiUsageEvent` record on every call (success and failure)
+- [ ] ⏳ `PlatformAiTierQuota` seeded with all 3 tiers
+- [ ] ⏳ `AiCapabilityCost` seeded with all 4 capabilities
+- [ ] ⏳ `checkQuota()` returns `{ allowed: false }` when `tokensUsed >= tokensAllotted` (HARD_STOP)
+- [ ] ⏳ `recordUsage()` creates an `AiUsageEvent` record on every call (success and failure)
 - [ ] `TenantAiUsage` monthly record is idempotent — calling `getOrCreateUsage()` twice returns same record
-- [ ] Platform admin `/api/admin/platform/ai-pool/usage` returns all tenants for a billing month
-- [ ] Platform admin can override a tenant quota via `/api/admin/platform/ai-pool/override`
-- [ ] `admin-ai-usage` widget renders token bar + breakdown for tenant admins
-- [ ] `admin-ai-usage` widget not visible to RESIDENT role
-- [ ] 80% quota notification fires exactly once per month per tenant (not on every call above 80%)
-- [ ] Cron `/api/cron/ai-pool-rollover` settles previous month records; new records created lazily
-- [ ] `PLATFORM_ANTHROPIC_KEY` not present in any committed file; only in Vercel env
-- [ ] `getAiProvider()` returns `NullProvider` when `PLATFORM_ANTHROPIC_KEY` and `PLATFORM_OPENAI_KEY` are both absent
-- [ ] All prior SUPPLEMENTAL done criteria remain valid except the 3 removed items (key storage, key route, key UI)
+- [ ] ⏳ Platform admin `/api/admin/platform/ai-pool/usage` returns all tenants for a billing month
+- [ ] ⏳ Platform admin can override a tenant quota via `/api/admin/platform/ai-pool/override`
+- [ ] ⏳ `admin-ai-usage` widget renders token bar + breakdown for tenant admins
+- [ ] ⏳ `admin-ai-usage` widget not visible to RESIDENT role
+- [ ] ⏳ 80% quota notification fires exactly once per month per tenant (not on every call above 80%)
+- [ ] ⏳ Cron `/api/cron/ai-pool-rollover` settles previous month records; new records created lazily
+- [ ] ⏳ `PLATFORM_ANTHROPIC_KEY` not present in any committed file; only in Vercel env
+- [ ] ⏳ `getAiProvider()` returns `NullProvider` when `PLATFORM_ANTHROPIC_KEY` and `PLATFORM_OPENAI_KEY` are both absent
+- [ ] ⏳ All prior SUPPLEMENTAL done criteria remain valid except the 3 removed items (key storage, key route, key UI)
 
 ---
 

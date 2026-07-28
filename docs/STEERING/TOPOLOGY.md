@@ -206,25 +206,25 @@ Migrating from `EventEmitter` → Outbox happens incrementally. Until the dispat
 
 ### 6.1 Catalog status taxonomy
 
-| Status | Meaning | CI |
-|---|---|---|
-| `active` | has producer AND consumer | ✓ |
-| `future` | declared in type union but in `FUTURE_EVENTS` waiver set (e.g. `merit.recognized`) | ✓ |
-| `unconsumed` | has producer(s) but no consumer — silent drops in dispatcher | ⚠ fail |
+| Status       | Meaning                                                                            | CI     |
+| ------------ | ---------------------------------------------------------------------------------- | ------ |
+| `active`     | has producer AND consumer                                                          | ✓      |
+| `future`     | declared in type union but in `FUTURE_EVENTS` waiver set (e.g. `merit.recognized`) | ✓      |
+| `unconsumed` | has producer(s) but no consumer — silent drops in dispatcher                       | ⚠ fail |
 
 Run `pnpm events:check` to regenerate and validate locally; the CI step `events-contract` enforces it on every PR.
 
 ## 7. Migration steps (ordered)
 
-1. **Stop the bleeding (bd-q0x8 — DONE):** register the achievement listener at a guaranteed server boot point. Implemented via `src/instrumentation.ts` `register()` (node runtime) importing `@shared/api/achievements`, so `onEvent` handlers run on every lambda cold start. Verified lint-clean.
-2. **Add the outbox + dead-letter tables** (migration) carrying the envelope fields; add an `emitDomainEvent(type, payload, ctx)` that writes to outbox (atomic with the business write) and, interim, still calls the in-process bus for same-request handlers. **(bd-8lus — DONE)**
-3. **Build the Outbox Dispatcher** (cron worker) that reads the registry and fans out to `registerHandler` consumers. **(bd-8lus — DONE)**
-4. **Port listeners** from `onEvent` to `registerHandler`. Achievement listener wired to both. **(bd-8lus — DONE)**
-5. **Wrap Realtime** in `lib/realtime.ts` with typed, namespaced channels; migrate existing `postgres_changes`/`broadcast` call sites. **(DONE)**
-6. **Replace the `page-flags-updated` CustomEvent** with the Zustand bus (Lane C). **(DONE)**
-7. **Add the CI event-contract check + auto-generated catalog** (§6). **(DONE)**
-8. **Secure the `payload` webhook** (HMAC + replay window + idempotency) so it can safely `emitDomainEvent`. **(DONE)**
-9. **Reserve Lane D** in docs; no implementation. **(DONE)**
+1. ✅ **Stop the bleeding (bd-q0x8 — DONE):** register the achievement listener at a guaranteed server boot point. Implemented via `src/instrumentation.ts` `register()` (node runtime) importing `@shared/api/achievements`, so `onEvent` handlers run on every lambda cold start. Verified lint-clean.
+2. ✅ **Add the outbox + dead-letter tables** (migration) carrying the envelope fields; add an `emitDomainEvent(type, payload, ctx)` that writes to outbox (atomic with the business write) and, interim, still calls the in-process bus for same-request handlers. **(bd-8lus — DONE)**
+3. ✅ **Build the Outbox Dispatcher** (cron worker) that reads the registry and fans out to `registerHandler` consumers. **(bd-8lus — DONE)**
+4. ✅ **Port listeners** from `onEvent` to `registerHandler`. Achievement listener wired to both. **(bd-8lus — DONE)**
+5. ✅ **Wrap Realtime** in `lib/realtime.ts` with typed, namespaced channels; migrate existing `postgres_changes`/`broadcast` call sites. **(DONE)**
+6. ✅ **Replace the `page-flags-updated` CustomEvent** with the Zustand bus (Lane C). **(DONE)**
+7. ✅ **Add the CI event-contract check + auto-generated catalog** (§6). **(DONE)**
+8. ✅ **Secure the `payload` webhook** (HMAC + replay window + idempotency) so it can safely `emitDomainEvent`. **(DONE)**
+9. ✅ **Reserve Lane D** in docs; no implementation. **(DONE)**
 
 ## 8. What we are explicitly NOT doing (ADVISORY-033 §12)
 

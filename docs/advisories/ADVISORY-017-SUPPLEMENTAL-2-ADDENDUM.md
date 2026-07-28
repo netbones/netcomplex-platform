@@ -168,10 +168,10 @@ src/shared/api/ai/
 **Append to SUPPLEMENTAL-2 Section 16 done criteria:**
 
 ```
-- [ ] `pricing.ts` exports `estimateCostUSD`; spot-check passes:
+- [ ] ⏳ `pricing.ts` exports `estimateCostUSD`; spot-check passes:
       estimateCostUSD('anthropic', 'claude-haiku-4-5', 1000, 500) === 0.00280
-- [ ] `AiUsageEvent` rows contain non-zero `estimatedCostUSD` for successful calls
-- [ ] `AiUsageEvent.estimatedCostUSD` is 0 for calls where provider/model is unknown
+- [ ] ⏳ `AiUsageEvent` rows contain non-zero `estimatedCostUSD` for successful calls
+- [ ] ⏳ `AiUsageEvent.estimatedCostUSD` is 0 for calls where provider/model is unknown
       (verify via unit test with unknown model string — must not throw)
 ```
 
@@ -290,7 +290,7 @@ beyond accepting the updated options type.
 **Append to SUPPLEMENTAL-2 Section 16 done criteria:**
 
 ```
-- [ ] `AiCompletionOptions.capability` is non-optional in the TypeScript interface;
+- [ ] ⏳ `AiCompletionOptions.capability` is non-optional in the TypeScript interface;
       `npm run typecheck` fails if any callsite omits it (verify by temporarily
       removing `capability` from the dispute route call — expect a type error)
 - [ ] No `AiUsageEvent` rows exist with `capability = 'unknown'` after Phase A′ smoke test

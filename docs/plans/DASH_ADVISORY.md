@@ -260,8 +260,8 @@ The SpaceLauncher (in-dashboard sidebar) and MobileSpaceBar (bottom nav) are cor
 
 ## Checklist Before Execution
 
-- [ ] Confirm Phase 11 (admin-announcements widget) is complete or handle A10
-- [ ] Clarify MyHomeSpace data sources (A2) before 30-04 starts
-- [ ] Add `viewport-fit=cover` to root layout.tsx (A3 prerequisite)
-- [ ] Extract `TAB_TO_SPACE_MAP` constant before 30-02 Task 2 (A5)
-- [ ] Verify `getBurgerSections()` won't surface space nav-registry entries in public nav
+- [ ] ⏳ Confirm Phase 11 (admin-announcements widget) is complete or handle A10
+- [ ] ⏳ Clarify MyHomeSpace data sources (A2) before 30-04 starts
+- [ ] ⏳ Add `viewport-fit=cover` to root layout.tsx (A3 prerequisite)
+- [ ] ⏳ Extract `TAB_TO_SPACE_MAP` constant before 30-02 Task 2 (A5)
+- [ ] ⏳ Verify `getBurgerSections()` won't surface space nav-registry entries in public nav

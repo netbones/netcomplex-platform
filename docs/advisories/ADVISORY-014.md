@@ -328,11 +328,11 @@ databaseHooks: {
 
 ### Phase 2 Pre-conditions
 
-- [ ] Phase 1 is verified working in production
-- [ ] Better Auth version in use confirms `databaseHooks` API signature
+- [ ] ⏳ Phase 1 is verified working in production
+- [ ] ⏳ Better Auth version in use confirms `databaseHooks` API signature
       (check: `node_modules/better-auth/package.json` version)
-- [ ] DavDev confirms `better_auth_role` column name is acceptable
-- [ ] DavDev provides list of users currently in `adminUserIds` to verify
+- [ ] ⏳ DavDev confirms `better_auth_role` column name is acceptable
+- [ ] ⏳ DavDev provides list of users currently in `adminUserIds` to verify
       they all have `isPlatformAdmin = true` (data integrity check before cutover)
 
 **GATE G2 — DavDev approval required before Phase 2 execution begins.**
@@ -356,17 +356,17 @@ databaseHooks: {
 
 ### Phase 1
 
-- [ ] `banned`, `banReason`, `banExpires` present in `prisma/schema.prisma`
-- [ ] Migration applied, Drizzle schema regenerated
-- [ ] `admin()` plugin present in `auth.ts` with non-empty `adminUserIds`
-- [ ] `adminClient()` confirmed present in `auth-client.ts`
+- [ ] ⏳ `banned`, `banReason`, `banExpires` present in `prisma/schema.prisma`
+- [ ] ⏳ Migration applied, Drizzle schema regenerated
+- [ ] ⏳ `admin()` plugin present in `auth.ts` with non-empty `adminUserIds`
+- [ ] ⏳ `adminClient()` confirmed present in `auth-client.ts`
 - [ ] Impersonation round-trip tested: start → session shows `impersonatedBy` → stop
-- [ ] HOLISTIC.md updated with Phase 2 debt note
+- [ ] ⏳ HOLISTIC.md updated with Phase 2 debt note
 
 ### Phase 2 (separate approval cycle)
 
-- [ ] `better_auth_role` column added to schema
-- [ ] Hook syncs `isPlatformAdmin` changes to `better_auth_role`
-- [ ] `adminUserIds` removed from config
-- [ ] All current platform admins verified to have `isPlatformAdmin = true`
-- [ ] Impersonation round-trip re-verified after cutover
+- [ ] ⏳ `better_auth_role` column added to schema
+- [ ] ⏳ Hook syncs `isPlatformAdmin` changes to `better_auth_role`
+- [ ] ⏳ `adminUserIds` removed from config
+- [ ] ⏳ All current platform admins verified to have `isPlatformAdmin = true`
+- [ ] ⏳ Impersonation round-trip re-verified after cutover

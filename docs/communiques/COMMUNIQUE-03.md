@@ -195,33 +195,33 @@ During active development (pre-launch), the Soralia tenant should be `PREMIUM` t
 
 ### Phase A — Audit & normalize gate usage
 
-- [ ] Identify every API route and page that checks a module gate
-- [ ] Ensure all routes use either `canAccess()` or `assertModuleEnabled()` consistently
+- [ ] ⏳ Identify every API route and page that checks a module gate
+- [ ] ⏳ Ensure all routes use either `canAccess()` or `assertModuleEnabled()` consistently
 - [ ] Remove bare `requireAnyPermission()` calls for module-gated routes (permission ≠ availability)
 
 ### Phase B — Gate context endpoint
 
-- [ ] Implement `GET /api/gate/context` returning module availability map
-- [ ] Add Zustand store for gate context with session-scoped caching
-- [ ] Hydrate on app shell mount
+- [ ] ⏳ Implement `GET /api/gate/context` returning module availability map
+- [ ] ⏳ Add Zustand store for gate context with session-scoped caching
+- [ ] ⏳ Hydrate on app shell mount
 
 ### Phase C — Domain card gating
 
-- [ ] Audit all domain card components in services and admin dashboards
-- [ ] Each card reads gate context; greys out when `false`
-- [ ] Add tooltip component for gated cards
+- [ ] ⏳ Audit all domain card components in services and admin dashboards
+- [ ] ⏳ Each card reads gate context; greys out when `false`
+- [ ] ⏳ Add tooltip component for gated cards
 
 ### Phase D — Page-level wall
 
 - [ ] Create `<FeatureGateWall>` component — renders upsell/interstitial when module is `false`
-- [ ] Wrap every gated page with `<FeatureGateWall>`
-- [ ] Remove per-page 403 handling
+- [ ] ⏳ Wrap every gated page with `<FeatureGateWall>`
+- [ ] ⏳ Remove per-page 403 handling
 
 ### Phase E — Soralia tier resolution
 
-- [ ] Decide: dev tier = PREMIUM, or STANDARD + TenantModule overrides
-- [ ] Apply to seed data and/or database
-- [ ] Document the decision in ADR-022 or a new ADR
+- [ ] ⏳ Decide: dev tier = PREMIUM, or STANDARD + TenantModule overrides
+- [ ] ⏳ Apply to seed data and/or database
+- [ ] ⏳ Document the decision in ADR-022 or a new ADR
 
 ---
 

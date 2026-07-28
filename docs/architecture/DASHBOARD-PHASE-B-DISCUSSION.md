@@ -236,7 +236,7 @@ One addition to Governance will be needed: a section on **Workspace Navigation**
 
 To proceed to Phase B planning:
 
-- [ ] Confirm mobile slot decision (question 1 above)
-- [ ] Confirm space/module gating approach (question 2)
-- [ ] Confirm transition strategy — feature flag or in-place (question 5)
-- [ ] Confirm Phase A is complete and stable before B1 begins
+- [ ] ⏳ Confirm mobile slot decision (question 1 above)
+- [ ] ⏳ Confirm space/module gating approach (question 2)
+- [ ] ⏳ Confirm transition strategy — feature flag or in-place (question 5)
+- [ ] ⏳ Confirm Phase A is complete and stable before B1 begins

@@ -291,11 +291,11 @@ grep -rl "Notification" src/shared/api/ src/entities/ 2>/dev/null | head -5
 
 - [x] ✅ Discovery checklist (Section 5) run and results reported before any code written
 - [x] ✅ Decision gates G1–G4 explicitly confirmed by DavDev (2026-06-23)
-- [ ] Event emitter ships without altering response shape/latency of existing routes
-- [ ] 4 new Prisma models added, `prisma generate` run, Drizzle schema verified
-- [ ] Zero changes to `BehaviorRecord` model or Merits-related code paths
-- [ ] Tenant-scoped: all new tables carry `tenantId`, all queries filtered (no new entries to the `e0w` tenant-filter-gap list)
-- [ ] Widget registered via `widgets.ts` convention; no header/burger/page navigation changes (Navigation Governance compliant)
-- [ ] Admin can enable/disable per tenant; historical unlocks preserved on disable
-- [ ] `pnpm typecheck`, `pnpm lint`, `pnpm fsd:check` pass
+- [ ] ⏳ Event emitter ships without altering response shape/latency of existing routes
+- [ ] ⏳ 4 new Prisma models added, `prisma generate` run, Drizzle schema verified
+- [ ] ⏳ Zero changes to `BehaviorRecord` model or Merits-related code paths
+- [ ] ⏳ Tenant-scoped: all new tables carry `tenantId`, all queries filtered (no new entries to the `e0w` tenant-filter-gap list)
+- [ ] ⏳ Widget registered via `widgets.ts` convention; no header/burger/page navigation changes (Navigation Governance compliant)
+- [ ] ⏳ Admin can enable/disable per tenant; historical unlocks preserved on disable
+- [ ] ⏳ `pnpm typecheck`, `pnpm lint`, `pnpm fsd:check` pass
 - [ ] ADR entry added if event-bus infrastructure is judged ADR-worthy (recommend yes — this is a new architectural pattern, not routine implementation)

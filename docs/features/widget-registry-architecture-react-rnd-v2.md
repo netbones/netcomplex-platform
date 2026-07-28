@@ -948,61 +948,61 @@ Use this list in code review for any PR that touches the dashboard or widget sys
 
 **Registry**
 
-- [ ] Every widget has a unique `id` in kebab-case
+- [ ] ⏳ Every widget has a unique `id` in kebab-case
 - [ ] Every widget has a `version` in semver format — even if migrations aren't written yet
-- [ ] Every widget has an `icon` (Lucide component) and `category`
+- [ ] ⏳ Every widget has an `icon` (Lucide component) and `category`
 - [ ] All registrations are in `registry/widgets.ts` — nowhere else
-- [ ] No file imports a widget component directly (except `registry/widgets.ts`)
+- [ ] ⏳ No file imports a widget component directly (except `registry/widgets.ts`)
 
 **Loading**
 
 - [ ] All widgets use `React.lazy()` — no eager imports in `WidgetRenderer`
-- [ ] All widgets declare a `loader` function alongside `component`
-- [ ] Named exports use `.then(m => ({ default: m.WidgetName }))` with `React.lazy`
+- [ ] ⏳ All widgets declare a `loader` function alongside `component`
+- [ ] ⏳ Named exports use `.then(m => ({ default: m.WidgetName }))` with `React.lazy`
 
 **`WidgetRenderer`**
 
-- [ ] All widget renders go through `<WidgetRenderer layout={...} userRole={...} />`
-- [ ] No widget component is rendered directly in layout or page code
-- [ ] `WidgetRenderer` wraps every widget in `ErrorBoundary` and `Suspense`
-- [ ] `WidgetPermissionGate` is applied inside `WidgetRenderer` (not just at add-widget time)
-- [ ] `resolveConfig` is called in `WidgetRenderer` before passing config to the widget
+- [ ] ⏳ All widget renders go through `<WidgetRenderer layout={...} userRole={...} />`
+- [ ] ⏳ No widget component is rendered directly in layout or page code
+- [ ] ⏳ `WidgetRenderer` wraps every widget in `ErrorBoundary` and `Suspense`
+- [ ] ⏳ `WidgetPermissionGate` is applied inside `WidgetRenderer` (not just at add-widget time)
+- [ ] ⏳ `resolveConfig` is called in `WidgetRenderer` before passing config to the widget
 
 **`WidgetContainer` / react-rnd**
 
 - [ ] `<Rnd>` is only used in `WidgetContainer` — never in widget components or pages
-- [ ] `minWidth`, `minHeight`, `maxWidth`, `maxHeight` are converted from manifest grid units, not hardcoded
-- [ ] `onResizeStop` uses `ref.offsetWidth` / `ref.offsetHeight`, **not** `ref.style.width` / `ref.style.height`
-- [ ] `onResizeStop` spreads the `position` argument into the state update (handles top/left-edge resize)
-- [ ] `disableDragging` and `enableResizing` are both gated on `isEditing`
-- [ ] Canvas container (`DashboardGrid` desktop) has `position: relative`
-- [ ] `dragHandleClassName` is set without a leading dot
+- [ ] ⏳ `minWidth`, `minHeight`, `maxWidth`, `maxHeight` are converted from manifest grid units, not hardcoded
+- [ ] ⏳ `onResizeStop` uses `ref.offsetWidth` / `ref.offsetHeight`, **not** `ref.style.width` / `ref.style.height`
+- [ ] ⏳ `onResizeStop` spreads the `position` argument into the state update (handles top/left-edge resize)
+- [ ] ⏳ `disableDragging` and `enableResizing` are both gated on `isEditing`
+- [ ] ⏳ Canvas container (`DashboardGrid` desktop) has `position: relative`
+- [ ] ⏳ `dragHandleClassName` is set without a leading dot
 
 **Widget components**
 
-- [ ] `'use client'` directive at the top of every widget file
+- [ ] ⏳ `'use client'` directive at the top of every widget file
 - [ ] Widget handles `collapsed` prop — compact summary when `collapsed === true`
 - [ ] Overflow/concertina CSS pattern applied: `h-full overflow-hidden` → `flex-1 min-h-0 overflow-y-auto`
-- [ ] Data fetching uses `useSuspenseQuery` (not `useQuery`) to work with the Suspense boundary
+- [ ] ⏳ Data fetching uses `useSuspenseQuery` (not `useQuery`) to work with the Suspense boundary
 
 **Mobile**
 
 - [ ] `useIsMobile` used via `DashboardGrid` — never call it in widget components
-- [ ] Widget renders identically in `WidgetContainer` (desktop) and `MobileWidgetCard` (mobile)
-- [ ] Test at 320px, 768px, and 1024px breakpoints
+- [ ] ⏳ Widget renders identically in `WidgetContainer` (desktop) and `MobileWidgetCard` (mobile)
+- [ ] ⏳ Test at 320px, 768px, and 1024px breakpoints
 
 **Layout data**
 
 - [ ] Layout uses grid units (`x`, `y`, `width`, `height`) — never raw pixel values
-- [ ] Layout contains `widgetId` strings, not component references
-- [ ] Each placed widget has a unique `id` (instance ID)
-- [ ] `collapsed` is stored on `WidgetLayout`
-- [ ] `configVersion` is stored alongside `config`
+- [ ] ⏳ Layout contains `widgetId` strings, not component references
+- [ ] ⏳ Each placed widget has a unique `id` (instance ID)
+- [ ] ⏳ `collapsed` is stored on `WidgetLayout`
+- [ ] ⏳ `configVersion` is stored alongside `config`
 
 **Migrations**
 
-- [ ] Any config schema change bumps the widget `version`
-- [ ] Any breaking config change includes a `migrations` entry for the previous version
+- [ ] ⏳ Any config schema change bumps the widget `version`
+- [ ] ⏳ Any breaking config change includes a `migrations` entry for the previous version
 
 ---
 

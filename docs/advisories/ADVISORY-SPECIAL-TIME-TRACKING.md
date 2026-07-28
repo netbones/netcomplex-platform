@@ -301,7 +301,7 @@ find . -maxdepth 2 -iname "*.agent*" -o -iname "*session*log*" 2>/dev/null | gre
 - [x] ✅ `AGENTS.md` updated with the "Time & Cost Attribution" section
 - [x] ✅ `scripts/summarize-time-log.ts` runs and produces `docs/reports/TIME_SUMMARY.md`
 - [x] ✅ GSD `PLAN.md` template includes `bd_refs` frontmatter field
-- [ ] DavDev has logged at least one real session end-to-end to validate the workflow
+- [ ] ⏳ DavDev has logged at least one real session end-to-end to validate the workflow
 
 ---
 

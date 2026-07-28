@@ -154,13 +154,13 @@ grep -rni "soralia village" src --include="*.tsx" --include="*.ts" -l
 
 ## 8. Done Criteria
 
-- [ ] `grep -rni "soralia village" src/shared/ui/Header.tsx src/shared/ui/Footer.tsx src/shared/ui/MapContent.tsx` returns zero hits.
-- [ ] `grep -rni "soralia" public/locales/**/*.json` returns zero hits for brand-identity strings (excluding any intentionally tenant-neutral sample/seed fixtures, which should be clearly commented as such).
-- [ ] Soralia Village and Soralia Heights render visibly distinct Header, Footer, and Map on the same build.
-- [ ] All 4 locale trees (`en`, `af`, `xh`, `zu`) have parity on any restructured keys.
-- [ ] `scripts/audit-tenant-isolation.ts` passes clean post-change.
-- [ ] `Setting` rows exist for both tenants for every new key introduced (`branding.tagline`, `branding.footer_copy`, `branding.social_links`, `map.center`).
-- [ ] No fallback path renders Soralia Village's specific data for a tenant lacking configured `Setting` values.
+- [ ] ⏳ `grep -rni "soralia village" src/shared/ui/Header.tsx src/shared/ui/Footer.tsx src/shared/ui/MapContent.tsx` returns zero hits.
+- [ ] ⏳ `grep -rni "soralia" public/locales/**/*.json` returns zero hits for brand-identity strings (excluding any intentionally tenant-neutral sample/seed fixtures, which should be clearly commented as such).
+- [ ] ⏳ Soralia Village and Soralia Heights render visibly distinct Header, Footer, and Map on the same build.
+- [ ] ⏳ All 4 locale trees (`en`, `af`, `xh`, `zu`) have parity on any restructured keys.
+- [ ] ⏳ `scripts/audit-tenant-isolation.ts` passes clean post-change.
+- [ ] ⏳ `Setting` rows exist for both tenants for every new key introduced (`branding.tagline`, `branding.footer_copy`, `branding.social_links`, `map.center`).
+- [ ] ⏳ No fallback path renders Soralia Village's specific data for a tenant lacking configured `Setting` values.
 
 ## 9. Decision Gates
 

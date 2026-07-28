@@ -209,14 +209,14 @@ Scaffold `src/entities/education/` (self-contained, following the `entities/book
 
 ## Done Criteria
 
-- [ ] Discovery checklist run in full, no unresolved drift or collisions
-- [ ] Migration applied; `prisma generate` run; Drizzle schema files confirmed present for `Bursary`, `BursaryField`, `ResourceMediaType`, `BursaryStatus`
-- [ ] `Resource` extension fields confirmed nullable/non-breaking; existing row count unchanged
-- [ ] `BursaryField` seeded with starter taxonomy (pending seed-timing decision)
-- [ ] `education` key present and consistent across `PlatformModule`, `FeatureRegistry`, `PlatformPageFlags`
-- [ ] `entities/education` slice scaffolded with `index.server.ts` sub-barrel
-- [ ] `scripts/audit-tenant-isolation.ts` updated to include `Bursary` and `BursaryField`
-- [ ] No orphaned `Bursary.fieldId` references post-migration (spot-check query)
+- [ ] ⏳ Discovery checklist run in full, no unresolved drift or collisions
+- [ ] ⏳ Migration applied; `prisma generate` run; Drizzle schema files confirmed present for `Bursary`, `BursaryField`, `ResourceMediaType`, `BursaryStatus`
+- [ ] ⏳ `Resource` extension fields confirmed nullable/non-breaking; existing row count unchanged
+- [ ] ⏳ `BursaryField` seeded with starter taxonomy (pending seed-timing decision)
+- [ ] ⏳ `education` key present and consistent across `PlatformModule`, `FeatureRegistry`, `PlatformPageFlags`
+- [ ] ⏳ `entities/education` slice scaffolded with `index.server.ts` sub-barrel
+- [ ] ⏳ `scripts/audit-tenant-isolation.ts` updated to include `Bursary` and `BursaryField`
+- [ ] ⏳ No orphaned `Bursary.fieldId` references post-migration (spot-check query)
 
 ## Related
 

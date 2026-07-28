@@ -70,7 +70,7 @@ Route Mapping:
 - [x] ✅ Create StandardSeat links for property owners (3 created)
 - [x] ✅ Migrate homeImage from User to Household
 - [x] ✅ Create SoloSeat for BOARD members (1 created - Sarah Mitchell, complimentary)
-- [ ] Create Profile records for existing RENTER users (0 created - no matching households)
+- [ ] ⏳ Create Profile records for existing RENTER users (0 created - no matching households)
 
 **Known Gaps**:
 
@@ -130,10 +130,10 @@ Route Mapping:
 
 **Status**: Pending
 
-- [ ] Add "My Households" section to `/dashboard`
-- [ ] Add household management UI (`/unit/[id]/manage`)
-- [ ] Add agent dashboard section (if user.role = AGENT)
-- [ ] Deprecate legacy user management in `/admin/users`
+- [ ] ⏳ Add "My Households" section to `/dashboard`
+- [ ] ⏳ Add household management UI (`/unit/[id]/manage`)
+- [ ] ⏳ Add agent dashboard section (if user.role = AGENT)
+- [ ] ⏳ Deprecate legacy user management in `/admin/users`
 
 ---
 

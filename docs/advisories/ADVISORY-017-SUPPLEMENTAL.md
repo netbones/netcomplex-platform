@@ -563,20 +563,20 @@ grep -n "translate" src/app/api/translate/route.ts 2>/dev/null | head -20
 
 ## 15. Done Criteria (Supplemental)
 
-- [ ] `AI_SETTINGS_ENCRYPTION_KEY` in `.env.example` with instruction comment
-- [ ] `encryptKey` / `decryptKey` round-trips cleanly in unit test
-- [ ] `getAiProvider(tenantId)` returns `NullProvider` when module absent or key missing
-- [ ] `getAiProvider(tenantId)` returns `AnthropicProvider` when Anthropic configured
+- [ ] ⏳ `AI_SETTINGS_ENCRYPTION_KEY` in `.env.example` with instruction comment
+- [ ] ⏳ `encryptKey` / `decryptKey` round-trips cleanly in unit test
+- [ ] ⏳ `getAiProvider(tenantId)` returns `NullProvider` when module absent or key missing
+- [ ] ⏳ `getAiProvider(tenantId)` returns `AnthropicProvider` when Anthropic configured
 - [ ] `NullProvider.complete()` returns `{ text: '', provider: 'null' }` — never throws
-- [ ] `POST /api/admin/ai-provider/key` stores encrypted value; raw key not recoverable from DB alone
-- [ ] `GET /api/admin/ai-provider/status` returns `{ anthropicConfigured: true }` not the key
-- [ ] `POST /api/admin/ai-provider/test` returns latency and provider name on success
+- [ ] ⏳ `POST /api/admin/ai-provider/key` stores encrypted value; raw key not recoverable from DB alone
+- [ ] ⏳ `GET /api/admin/ai-provider/status` returns `{ anthropicConfigured: true }` not the key
+- [ ] ⏳ `POST /api/admin/ai-provider/test` returns latency and provider name on success
 - [ ] `translate/route.ts` uses `getAiProvider` — no direct OpenAI SDK import remaining
-- [ ] `LocaleAwareEditor.tsx` renders degraded state when translation returns 503
-- [ ] Dispute intake wizard renders 3 steps (not 4) when `ai.disputes.frivolityScreen` is false
+- [ ] ⏳ `LocaleAwareEditor.tsx` renders degraded state when translation returns 503
+- [ ] ⏳ Dispute intake wizard renders 3 steps (not 4) when `ai.disputes.frivolityScreen` is false
 - [ ] `intake-screen/route.ts` returns 503 when capability disabled — does not call AI
-- [ ] `steiger` passes with no new violations
-- [ ] `npm run typecheck` passes
+- [ ] ⏳ `steiger` passes with no new violations
+- [ ] ⏳ `npm run typecheck` passes
 - [ ] `npm run lint` passes — no `logger` calls containing raw `apiKey` variable
 
 ---

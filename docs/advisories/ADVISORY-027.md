@@ -168,12 +168,12 @@ would require its own numbered advisory if priorities change later.
 
 ## 8. Done Criteria
 
-- [ ] G0 resolved: advisory number confirmed against external register
-- [ ] G1 resolved: DavDev concurs Clusters A and B are documented-debt, not consolidation candidates
-- [ ] G2 resolved: Conflict Register entries C8/C9 approved and added
-- [ ] G3 resolved: `TenantPayment.deletedAt` fix approved as separate, immediately-actionable BD issue
-- [ ] BD issue `soralia-village-sioz` closed with reference to this advisory
-- [ ] `docs/tech-debt-register.md` updated to reflect the accepted-debt disposition (if DavDev wants it tracked there in addition to the Conflict Register)
+- [ ] ⏳ G0 resolved: advisory number confirmed against external register
+- [ ] ⏳ G1 resolved: DavDev concurs Clusters A and B are documented-debt, not consolidation candidates
+- [ ] ⏳ G2 resolved: Conflict Register entries C8/C9 approved and added
+- [ ] ⏳ G3 resolved: `TenantPayment.deletedAt` fix approved as separate, immediately-actionable BD issue
+- [ ] ⏳ BD issue `soralia-village-sioz` closed with reference to this advisory
+- [ ] ⏳ `docs/tech-debt-register.md` updated to reflect the accepted-debt disposition (if DavDev wants it tracked there in addition to the Conflict Register)
 
 ---
 

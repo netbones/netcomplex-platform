@@ -155,7 +155,7 @@ This converts a discipline convention into a CI gate that will catch future viol
 
 Before the agent begins implementation, the following must be verified. These are mandatory discovery tasks — do not skip.
 
-- [ ] **Audit the 105 files.** Grep all files currently importing via the patched deep-path exceptions. Separate them into two lists: (a) importing server-only symbols, and (b) importing client-safe symbols via deep path for other reasons. List (b) may represent pre-existing FSD violations of a different kind that should not be silently absorbed into the `server.ts` fix.
+- [ ] ⏳ **Audit the 105 files.** Grep all files currently importing via the patched deep-path exceptions. Separate them into two lists: (a) importing server-only symbols, and (b) importing client-safe symbols via deep path for other reasons. List (b) may represent pre-existing FSD violations of a different kind that should not be silently absorbed into the `server.ts` fix.
 
   ```bash
   grep -r "from '@entities/tenant/api/" src/ --include="*.ts" --include="*.tsx" -l
@@ -163,7 +163,7 @@ Before the agent begins implementation, the following must be verified. These ar
   # Repeat per slice
   ```
 
-- [ ] **Confirm which `@features/*` barrels are affected.** Run the same grep for features.
+- [ ] ⏳ **Confirm which `@features/*` barrels are affected.** Run the same grep for features.
 
   ```bash
   grep -rn "server-only\|next/headers\|next/cache" src/features/ --include="*.ts" -l
@@ -171,9 +171,9 @@ Before the agent begins implementation, the following must be verified. These ar
 
 - [ ] **Read each affected slice's current `index.ts`** before writing `server.ts`. Do not infer barrel contents from the tree — barrel exports may differ from what the files actually re-export.
 
-- [ ] **Confirm Steiger allow list syntax** by reading `steiger.config.js` line 74 and surrounding context before editing. Match the exact format of the `@api/server` entry.
+- [ ] ⏳ **Confirm Steiger allow list syntax** by reading `steiger.config.js` line 74 and surrounding context before editing. Match the exact format of the `@api/server` entry.
 
-- [ ] **Confirm ESLint exception syntax** by reading `eslint.config.js` before editing. The band-aid exceptions must be removed cleanly, not commented out.
+- [ ] ⏳ **Confirm ESLint exception syntax** by reading `eslint.config.js` before editing. The band-aid exceptions must be removed cleanly, not commented out.
 
 - [ ] **Verify no widget barrels are affected.** If any widget barrel imports server-only code, flag it to DavDev before proceeding — that requires a different fix.
 
@@ -255,15 +255,15 @@ Document the architectural principle in `docs/STEERING/ADR.md`:
 
 ## Done Criteria
 
-- [ ] `server.ts` barrels exist for all five affected entity slices
-- [ ] `@entities/*/server` is in the Steiger allow list
-- [ ] Band-aid ESLint `no-restricted-imports` exceptions are removed
-- [ ] All ~105 files import server-only symbols from `@entities/<slice>/server` (not deep paths)
-- [ ] `pnpm typecheck` passes clean
-- [ ] `pnpm lint` passes clean (zero Steiger violations, zero ESLint violations)
-- [ ] `pnpm build` passes clean
-- [ ] ADR-024 is written and committed
-- [ ] `ADVISORY-008.md` is copied to `docs/advisories/ADVISORY-008.md`
+- [ ] ⏳ `server.ts` barrels exist for all five affected entity slices
+- [ ] ⏳ `@entities/*/server` is in the Steiger allow list
+- [ ] ⏳ Band-aid ESLint `no-restricted-imports` exceptions are removed
+- [ ] ⏳ All ~105 files import server-only symbols from `@entities/<slice>/server` (not deep paths)
+- [ ] ⏳ `pnpm typecheck` passes clean
+- [ ] ⏳ `pnpm lint` passes clean (zero Steiger violations, zero ESLint violations)
+- [ ] ⏳ `pnpm build` passes clean
+- [ ] ⏳ ADR-024 is written and committed
+- [ ] ⏳ `ADVISORY-008.md` is copied to `docs/advisories/ADVISORY-008.md`
 
 ---
 

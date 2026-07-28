@@ -836,36 +836,36 @@ Use for any PR touching the widget system:
 **Registry**
 
 - [ ] Widget registered in `registry/widgets.ts` only — no other file calls `register()`
-- [ ] `id` is kebab-case and matches no existing widget ID
-- [ ] `version` is semver (starts at `'1.0.0'`)
-- [ ] `author` is set (`'internal'` or `'netcomplex-premium'`)
-- [ ] `icon` is a Lucide component, not a string class name
-- [ ] `component` uses `React.lazy()` with named export `.then()` pattern
-- [ ] `loader` mirrors the same import path
-- [ ] `featureFlag` set if widget is tenant-gated
-- [ ] `premium: true` set if widget requires paid plan
+- [ ] ⏳ `id` is kebab-case and matches no existing widget ID
+- [ ] ⏳ `version` is semver (starts at `'1.0.0'`)
+- [ ] ⏳ `author` is set (`'internal'` or `'netcomplex-premium'`)
+- [ ] ⏳ `icon` is a Lucide component, not a string class name
+- [ ] ⏳ `component` uses `React.lazy()` with named export `.then()` pattern
+- [ ] ⏳ `loader` mirrors the same import path
+- [ ] ⏳ `featureFlag` set if widget is tenant-gated
+- [ ] ⏳ `premium: true` set if widget requires paid plan
 
 **Widget component**
 
-- [ ] `'use client'` at top of file
-- [ ] Named export (not default export)
+- [ ] ⏳ `'use client'` at top of file
+- [ ] ⏳ Named export (not default export)
 - [ ] `tenantId` sourced from `useTenantContext()` — never from `withTenant()` or props
-- [ ] `tenantId` included in `queryKey` array
-- [ ] `useSuspenseQuery` used (not `useQuery`)
-- [ ] `collapsed?: boolean` prop handled
+- [ ] ⏳ `tenantId` included in `queryKey` array
+- [ ] ⏳ `useSuspenseQuery` used (not `useQuery`)
+- [ ] ⏳ `collapsed?: boolean` prop handled
 - [ ] Overflow pattern: `h-full overflow-hidden` → `flex flex-col` → `flex-1 min-h-0 overflow-y-auto`
 - [ ] No `ErrorBoundary` or `Suspense` inside the component — these are in `WidgetRenderer`
 
 **Layout data**
 
 - [ ] Layout stored per `tenantId` + `userId` — never global
-- [ ] `configVersion` stored alongside `config`
+- [ ] ⏳ `configVersion` stored alongside `config`
 - [ ] Grid units only in position/size fields — no raw pixel values
 
 **Migrations**
 
-- [ ] Any config schema change bumps `version`
-- [ ] Breaking config change has a `migrations` entry for the previous version
+- [ ] ⏳ Any config schema change bumps `version`
+- [ ] ⏳ Breaking config change has a `migrations` entry for the previous version
 
 ---
 

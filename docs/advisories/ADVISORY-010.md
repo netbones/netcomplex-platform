@@ -104,7 +104,7 @@ Vercel Function
 
 The agent must complete and report back on every item below before making any change. Do not infer — verify.
 
-- [ ] Print the current `DATABASE_URL` host/port pattern (password masked) from the Vercel Production environment:
+- [ ] ⏳ Print the current `DATABASE_URL` host/port pattern (password masked) from the Vercel Production environment:
 
   ```bash
   echo "$DATABASE_URL" | sed -E 's#(:)[^:@]+(@)#\1****\2#'
@@ -112,7 +112,7 @@ The agent must complete and report back on every item below before making any ch
 
   Confirm: direct host (`db.<project>.supabase.co:5432`) vs pooler host (`...pooler.supabase.com`).
 
-- [ ] Paste the client/pool instantiation block from `src/shared/api/db.ts` (look for `postgres(`, `new Pool(`, or `drizzle(` calls and any `max` / `idleTimeoutMillis` / `connectionTimeoutMillis` config).
+- [ ] ⏳ Paste the client/pool instantiation block from `src/shared/api/db.ts` (look for `postgres(`, `new Pool(`, or `drizzle(` calls and any `max` / `idleTimeoutMillis` / `connectionTimeoutMillis` config).
 
   ```bash
   sed -n '1,80p' src/shared/api/db.ts
@@ -130,7 +130,7 @@ The agent must complete and report back on every item below before making any ch
   sed -n '1,120p' src/shared/api/auth.ts
   ```
 
-- [ ] Confirm `runWithRLS()` in `db.ts` sets RLS context (`SET LOCAL` or equivalent) strictly within a single transaction per call, with no reliance on session-level state surviving across separate `db.query()` calls. This determines whether transaction-mode pooling is safe to adopt without breaking RLS.
+- [ ] ⏳ Confirm `runWithRLS()` in `db.ts` sets RLS context (`SET LOCAL` or equivalent) strictly within a single transaction per call, with no reliance on session-level state surviving across separate `db.query()` calls. This determines whether transaction-mode pooling is safe to adopt without breaking RLS.
 
   ```bash
   grep -n "runWithRLS\|SET LOCAL\|getRLSContext" src/shared/api/db.ts
@@ -138,7 +138,7 @@ The agent must complete and report back on every item below before making any ch
 
 - [ ] Pull the Supabase connection-count graph for the incident window (manual — dashboard screenshot or export) and record peak concurrent connections vs. the project's connection limit.
 
-- [ ] Check status.supabase.com for the incident timestamp window.
+- [ ] ⏳ Check status.supabase.com for the incident timestamp window.
 
 - [ ] **STOP AND ESCALATE to DavDev** if discovery shows the pooler is already correctly configured, the pool is already bounded, the connection-count graph shows comfortable headroom, AND status.supabase.com shows no incident. That combination falsifies H1–H4 as currently ranked and requires fresh diagnosis before any Phase 1 change is made.
 
@@ -179,8 +179,8 @@ The agent must complete and report back on every item below before making any ch
 
 ## 9. Done Criteria
 
-- [ ] Zero new "Connection terminated" errors in Pino/Vercel logs over 24h of normal production traffic post-fix
-- [ ] Supabase connection-count graph stays comfortably under the project ceiling during peak hours
-- [ ] PostHog shows no (or near-zero) `db.connection_error` events post-deploy
-- [ ] `runWithRLS()` test suite passes against the pooled connection
-- [ ] DavDev sign-off on staging verification before production cutover
+- [ ] ⏳ Zero new "Connection terminated" errors in Pino/Vercel logs over 24h of normal production traffic post-fix
+- [ ] ⏳ Supabase connection-count graph stays comfortably under the project ceiling during peak hours
+- [ ] ⏳ PostHog shows no (or near-zero) `db.connection_error` events post-deploy
+- [ ] ⏳ `runWithRLS()` test suite passes against the pooled connection
+- [ ] ⏳ DavDev sign-off on staging verification before production cutover

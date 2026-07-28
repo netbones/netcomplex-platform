@@ -105,12 +105,12 @@ Don't use Better Auth's admin plugin at all. Write a custom API endpoint that cr
 
 Implementation checklist for Option A:
 
-- [ ] Add `admin()` to server plugins in `auth.ts` with `adminUserIds`
-- [ ] Add `customSyntheticUser` to `emailAndPassword` config
-- [ ] Verify `banned`/`banReason`/`banExpires` columns exist in DB
-- [ ] Verify `impersonatedBy` exists on session table (already confirmed)
+- [ ] ⏳ Add `admin()` to server plugins in `auth.ts` with `adminUserIds`
+- [ ] ⏳ Add `customSyntheticUser` to `emailAndPassword` config
+- [ ] ⏳ Verify `banned`/`banReason`/`banExpires` columns exist in DB
+- [ ] ⏳ Verify `impersonatedBy` exists on session table (already confirmed)
 - [ ] Test impersonation: admin logs in → `POST /api/auth/admin/impersonate-user`
-- [ ] Test stop: `POST /api/auth/admin/stop-impersonating`
+- [ ] ⏳ Test stop: `POST /api/auth/admin/stop-impersonating`
 
 ## 6. Related
 

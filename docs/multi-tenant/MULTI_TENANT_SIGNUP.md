@@ -248,12 +248,12 @@ export const auth = betterAuth({
 
 For subdomain-based sign-up:
 
-- [ ] Ensure middleware extracts tenant from subdomain
-- [ ] Add `x-tenant-id` header for API routes
-- [ ] Update sign-up form to read tenant from headers
-- [ ] Handle email uniqueness per tenant (not global)
-- [ ] Test with local subdomain (e.g., `soralia.localhost:3000`)
-- [ ] Configure DNS/wildcard domain in Vercel
+- [ ] ⏳ Ensure middleware extracts tenant from subdomain
+- [ ] ⏳ Add `x-tenant-id` header for API routes
+- [ ] ⏳ Update sign-up form to read tenant from headers
+- [ ] ⏳ Handle email uniqueness per tenant (not global)
+- [ ] ⏳ Test with local subdomain (e.g., `soralia.localhost:3000`)
+- [ ] ⏳ Configure DNS/wildcard domain in Vercel
 
 ---
 

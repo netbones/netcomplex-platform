@@ -271,32 +271,32 @@ enum TenantTier {
 
 ### Phase 1: Platform Foundation (Weeks 1-3)
 
-- [ ] Tenant model and CRUD
-- [ ] Middleware tenant extraction
-- [ ] Tenant context in API routes
-- [ ] Tenant-specific auth sessions
-- [ ] Basic tenant configuration
+- [ ] ⏳ Tenant model and CRUD
+- [ ] ⏳ Middleware tenant extraction
+- [ ] ⏳ Tenant context in API routes
+- [ ] ⏳ Tenant-specific auth sessions
+- [ ] ⏳ Basic tenant configuration
 
 ### Phase 2: Module System (Weeks 4-6)
 
-- [ ] Module registry definition
-- [ ] Feature flag integration
-- [ ] Tier-based gating
-- [ ] Module configuration UI
+- [ ] ⏳ Module registry definition
+- [ ] ⏳ Feature flag integration
+- [ ] ⏳ Tier-based gating
+- [ ] ⏳ Module configuration UI
 
 ### Phase 3: Migration (Weeks 7-8)
 
-- [ ] Migrate Soralia to tenant model
-- [ ] Add tenantId to existing tables
-- [ ] Update API routes for tenant context
-- [ ] Verify all features work per tenant
+- [ ] ⏳ Migrate Soralia to tenant model
+- [ ] ⏳ Add tenantId to existing tables
+- [ ] ⏳ Update API routes for tenant context
+- [ ] ⏳ Verify all features work per tenant
 
 ### Phase 4: Platform Admin (Weeks 9-10)
 
-- [ ] Tenant provisioning UI
-- [ ] Tier management
-- [ ] Billing interface placeholder
-- [ ] Platform analytics
+- [ ] ⏳ Tenant provisioning UI
+- [ ] ⏳ Tier management
+- [ ] ⏳ Billing interface placeholder
+- [ ] ⏳ Platform analytics
 
 ---
 
@@ -304,24 +304,24 @@ enum TenantTier {
 
 ### Platform Level
 
-- [ ] Multiple tenants can exist with isolated data
-- [ ] Tenant identified by subdomain or path slug
-- [ ] Feature flags enable/disable modules per tenant
-- [ ] Tier restricts access to premium features
+- [ ] ⏳ Multiple tenants can exist with isolated data
+- [ ] ⏳ Tenant identified by subdomain or path slug
+- [ ] ⏳ Feature flags enable/disable modules per tenant
+- [ ] ⏳ Tier restricts access to premium features
 
 ### Soralia Village (Anchor)
 
-- [ ] Existing features work with tenant isolation
-- [ ] All current functionality preserved
-- [ ] Multi-property view for premium seats
-- [ ] Module enablement matches Pro-Max tier (full platform access)
+- [ ] ⏳ Existing features work with tenant isolation
+- [ ] ⏳ All current functionality preserved
+- [ ] ⏳ Multi-property view for premium seats
+- [ ] ⏳ Module enablement matches Pro-Max tier (full platform access)
 
 ### Technical
 
-- [ ] API routes extract tenant context
-- [ ] Auth session includes tenant info
-- [ ] Database queries filtered by tenant
-- [ ] Storage buckets per tenant
+- [ ] ⏳ API routes extract tenant context
+- [ ] ⏳ Auth session includes tenant info
+- [ ] ⏳ Database queries filtered by tenant
+- [ ] ⏳ Storage buckets per tenant
 
 ---
 

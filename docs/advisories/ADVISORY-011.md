@@ -154,9 +154,9 @@ function getDb() {
 
 ## 8. Done Criteria
 
-- [ ] `DATABASE_URL` confirmed to be the Supavisor/pgbouncer pooled connection string in production
-- [ ] Precedence fix deployed; zero new "Connection terminated" errors over 24h of normal production traffic
-- [ ] Supabase connection-count graph stays comfortably under the project ceiling during peak hours
+- [ ] ⏳ `DATABASE_URL` confirmed to be the Supavisor/pgbouncer pooled connection string in production
+- [ ] ⏳ Precedence fix deployed; zero new "Connection terminated" errors over 24h of normal production traffic
+- [ ] ⏳ Supabase connection-count graph stays comfortably under the project ceiling during peak hours
 - [ ] Retry/backoff and observability (Phases 2–3) landed
 - [ ] Separate BD issue filed for the `sslmode=no-verify` → proper CA verification follow-up
-- [ ] DavDev sign-off on staging verification before/after production cutover
+- [ ] ⏳ DavDev sign-off on staging verification before/after production cutover

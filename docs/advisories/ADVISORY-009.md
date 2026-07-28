@@ -226,7 +226,7 @@ Several of these (`features/booking`, `features/chat`, `widgets/booking`, `widge
 
 Before the agent begins, the following must be verified. These are mandatory discovery tasks — do not skip.
 
-- [ ] **Check installed version of `@feature-sliced/steiger-plugin`** and confirm it is not already 0.6.0.
+- [ ] ⏳ **Check installed version of `@feature-sliced/steiger-plugin`** and confirm it is not already 0.6.0.
 
   ```bash
   cat package.json | grep steiger
@@ -236,7 +236,7 @@ Before the agent begins, the following must be verified. These are mandatory dis
 
 - [ ] **Read `tsconfig.json` paths section in full** before adding new aliases. Confirm the existing alias format and whether `@entities/tenant` is already aliased. Do not assume — the tree does not show tsconfig contents.
 
-- [ ] **Check `next.config.mjs`** for any webpack alias or module resolution overrides that would conflict with new tsconfig paths.
+- [ ] ⏳ **Check `next.config.mjs`** for any webpack alias or module resolution overrides that would conflict with new tsconfig paths.
 
 - [ ] **After upgrading, run Steiger before making any other changes** and capture the full output. Compare violation count to the pre-upgrade baseline (327 warnings). If the upgrade alone resolves the `@api/server` and `@entities/*/server` violations, the remaining work is the 9 genuine violations only — do not proceed with tsconfig alias work if it is unnecessary.
 
@@ -253,7 +253,7 @@ Before the agent begins, the following must be verified. These are mandatory dis
   cat node_modules/@feature-sliced/steiger-plugin/README.md | grep -A 20 "indexFileName"
   ```
 
-- [ ] **Verify `db` and `auth-utils` are re-exported from `@api/server`** before updating the 9 consumer files.
+- [ ] ⏳ **Verify `db` and `auth-utils` are re-exported from `@api/server`** before updating the 9 consumer files.
 
   ```bash
   grep -n "db\|auth-utils" src/shared/api/server/index.ts
@@ -348,16 +348,16 @@ All of `typecheck`, `lint`, and `build` must pass clean.
 
 ## Done Criteria
 
-- [ ] `@feature-sliced/steiger-plugin` is at version 0.6.0 or later
+- [ ] ⏳ `@feature-sliced/steiger-plugin` is at version 0.6.0 or later
 - [ ] `fsd/no-public-api-sidestep` entry in `steiger.config.js` is a bare severity string — no options object
-- [ ] `@api/server`, `@api/client`, `@api/shared`, `@entities/*/server` violations are at zero
-- [ ] The 9 genuine violations (`@/shared/api/db`, `@/shared/api/auth-utils`) are resolved
-- [ ] `fsd/insignificant-slice` (15 warnings) is logged as a BD issue for follow-on audit
+- [ ] ⏳ `@api/server`, `@api/client`, `@api/shared`, `@entities/*/server` violations are at zero
+- [ ] ⏳ The 9 genuine violations (`@/shared/api/db`, `@/shared/api/auth-utils`) are resolved
+- [ ] ⏳ `fsd/insignificant-slice` (15 warnings) is logged as a BD issue for follow-on audit
 - [ ] `pnpm steiger src/` total violations ≤ 15 (insignificant slices only)
-- [ ] `pnpm typecheck` passes clean
-- [ ] `pnpm lint` passes clean
-- [ ] `pnpm build` passes clean
-- [ ] `ADVISORY-009.md` is copied to `docs/advisories/ADVISORY-009.md`
+- [ ] ⏳ `pnpm typecheck` passes clean
+- [ ] ⏳ `pnpm lint` passes clean
+- [ ] ⏳ `pnpm build` passes clean
+- [ ] ⏳ `ADVISORY-009.md` is copied to `docs/advisories/ADVISORY-009.md`
 
 ---
 

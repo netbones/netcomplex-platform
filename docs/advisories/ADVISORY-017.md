@@ -828,19 +828,19 @@ ls src/ | grep -i pdf || grep -r "pdf" src/shared/api/ | head -5
 
 ## 19. Done Criteria
 
-- [ ] `prisma migrate status` shows new migration applied cleanly
-- [ ] `npx prisma generate` completes without errors; `src/db/schema/` contains `dispute-cases.ts`, `dispute-events.ts`, `dispute-messages.ts`, `dispute-evidence.ts`, `dispute-notifications.ts`
-- [ ] `steiger` passes with no new violations
-- [ ] `npm run typecheck` passes
-- [ ] `npm run lint` passes
-- [ ] `POST /api/disputes` creates a DRAFT with correct `coolingOffEndsAt`
-- [ ] `POST /api/disputes/[id]/submit` rejects with 423 before cooling-off expires; succeeds after
-- [ ] `POST /api/disputes/intake-screen` returns `toneScore`, `likelyFrivolous`, `deEscalationTip`
-- [ ] `GET /api/disputes/[id]/csos-export` returns a PDF containing all 6 sections
-- [ ] `my-disputes` widget renders in dashboard home space when `disputes` module enabled
-- [ ] `admin-disputes` widget hidden for RESIDENT role; visible for BOARD/ADMIN
-- [ ] Mediation thread: RESIDENT cannot see `isInternal: true` messages
-- [ ] A `DisputeCase` with `deletedAt` set is not returned by any list query but is returned by the CSOS export route
+- [ ] ⏳ `prisma migrate status` shows new migration applied cleanly
+- [ ] ⏳ `npx prisma generate` completes without errors; `src/db/schema/` contains `dispute-cases.ts`, `dispute-events.ts`, `dispute-messages.ts`, `dispute-evidence.ts`, `dispute-notifications.ts`
+- [ ] ⏳ `steiger` passes with no new violations
+- [ ] ⏳ `npm run typecheck` passes
+- [ ] ⏳ `npm run lint` passes
+- [ ] ⏳ `POST /api/disputes` creates a DRAFT with correct `coolingOffEndsAt`
+- [ ] ⏳ `POST /api/disputes/[id]/submit` rejects with 423 before cooling-off expires; succeeds after
+- [ ] ⏳ `POST /api/disputes/intake-screen` returns `toneScore`, `likelyFrivolous`, `deEscalationTip`
+- [ ] ⏳ `GET /api/disputes/[id]/csos-export` returns a PDF containing all 6 sections
+- [ ] ⏳ `my-disputes` widget renders in dashboard home space when `disputes` module enabled
+- [ ] ⏳ `admin-disputes` widget hidden for RESIDENT role; visible for BOARD/ADMIN
+- [ ] ⏳ Mediation thread: RESIDENT cannot see `isInternal: true` messages
+- [ ] ⏳ A `DisputeCase` with `deletedAt` set is not returned by any list query but is returned by the CSOS export route
 
 ---
 

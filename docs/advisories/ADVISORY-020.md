@@ -89,26 +89,26 @@ If item 5 returns any rows, **STOP-AND-ESCALATE to DavDev** before proceeding �
 
 Plan 02 hasn't run yet, so this is a plan-document edit, not a code edit.
 
-- [ ] Update `46.2-02-PLAN.md` Task 1 `<behavior>` and method list: `reserve()` signature becomes `reserve(address, tenantId, kind, opts?)`.
-- [ ] Add `generate()` as `static` in the class structure description (not an instance method).
-- [ ] Add `lookupByOwnerInSeats(userId, tenantId)` to Task 1's method list, `must_haves.truths`, and `min_lines` artifact description.
-- [ ] Add a 7th must-have truth: `'reserve() and AddressService methods are safe to call inside an externally-supplied db.transaction(tx) and use tx for all queries when provided'`.
+- [ ] ⏳ Update `46.2-02-PLAN.md` Task 1 `<behavior>` and method list: `reserve()` signature becomes `reserve(address, tenantId, kind, opts?)`.
+- [ ] ⏳ Add `generate()` as `static` in the class structure description (not an instance method).
+- [ ] ⏳ Add `lookupByOwnerInSeats(userId, tenantId)` to Task 1's method list, `must_haves.truths`, and `min_lines` artifact description.
+- [ ] ⏳ Add a 7th must-have truth: `'reserve() and AddressService methods are safe to call inside an externally-supplied db.transaction(tx) and use tx for all queries when provided'`.
 
 **STOP-AND-ESCALATE** if `AddressService` constructor pattern (`tx ?? db`) cannot accept a transaction-scoped Drizzle client cleanly — confirm against `src/server/payments/paystack.ts`'s transaction usage before assuming this works.
 
 ### Phase B — Patch Plan 01 (schema + migration) before execution
 
-- [ ] Add `PROPERTY` to `AddressOwnerType` enum definition in Task 1.
-- [ ] Change Property backfill (`Step 4`) from `ownerType='SYSTEM'` to `ownerType='PROPERTY'`.
-- [ ] Replace Step 7 ("document as known behavior") with a **blocking pre-flight check**: the migration script (or a `pre-migrate.sql` / a Node script run by `npx prisma migrate dev`'s `--create-only` + manual gate) must run the Discovery Checklist item 5 query and abort non-zero if any rows return.
+- [ ] ⏳ Add `PROPERTY` to `AddressOwnerType` enum definition in Task 1.
+- [ ] ⏳ Change Property backfill (`Step 4`) from `ownerType='SYSTEM'` to `ownerType='PROPERTY'`.
+- [ ] ⏳ Replace Step 7 ("document as known behavior") with a **blocking pre-flight check**: the migration script (or a `pre-migrate.sql` / a Node script run by `npx prisma migrate dev`'s `--create-only` + manual gate) must run the Discovery Checklist item 5 query and abort non-zero if any rows return.
 - [ ] Remove hardcoded `'@soralia.org'` from any migration SQL; replace with `tenant.slug || '.' || COALESCE(tenant."customDomain", 'netbones.co.za')` or the resolver found in Discovery Checklist item 4 — confirm exact column/format before writing SQL.
-- [ ] Add to `<verify>`: the orphan-FK check query from RESEARCH.md Risk 2, run automatically post-migration, non-zero exit if any table reports `missing_fk > 0`.
+- [ ] ⏳ Add to `<verify>`: the orphan-FK check query from RESEARCH.md Risk 2, run automatically post-migration, non-zero exit if any table reports `missing_fk > 0`.
 
 ### Phase C — Patch Plan 03 (route integration) before execution
 
-- [ ] Wrap `AddressService.reserve()` + seat insert + `addressId` update in `db.transaction(async (tx) => {...})` in `src/app/api/seats/route.ts`, `src/app/api/premium/portfolio/route.ts`, and the tRPC premium procedure. Pass `tx` into `new AddressService(tx)`.
-- [ ] Update all `reserve()` call sites to match Plan 02's corrected signature (Phase A).
-- [ ] Update seed script to call `AddressService.generate(...)` statically, matching Phase A.
+- [ ] ⏳ Wrap `AddressService.reserve()` + seat insert + `addressId` update in `db.transaction(async (tx) => {...})` in `src/app/api/seats/route.ts`, `src/app/api/premium/portfolio/route.ts`, and the tRPC premium procedure. Pass `tx` into `new AddressService(tx)`.
+- [ ] ⏳ Update all `reserve()` call sites to match Plan 02's corrected signature (Phase A).
+- [ ] ⏳ Update seed script to call `AddressService.generate(...)` statically, matching Phase A.
 - [ ] Re-number threat IDs `T-46.2-01` through `T-46.2-NN` sequentially across all three plans (single phase-level register) — purely cosmetic, do last.
 
 ### Phase D — Execute corrected plans in original order (01 → 02 → 03)
@@ -129,11 +129,11 @@ No change to the original wave/dependency structure — it was correct, only the
 ## 8. Done Criteria
 
 - [ ] Discovery Checklist items 1–6 run and results recorded in the Plan 01 execution summary.
-- [ ] If item 5 returned rows: DavDev has confirmed a merge strategy before Phase D begins.
-- [ ] `46.2-02-PLAN.md` updated per Phase A, committed before Plan 01 execution starts.
-- [ ] `46.2-01-PLAN.md` updated per Phase B (enum, backfill domain, blocking pre-flight, orphan-FK verify) before `npx prisma migrate dev` is run.
-- [ ] `46.2-03-PLAN.md` updated per Phase C before route changes are made.
-- [ ] All three plans re-pass their own `<verify>` blocks after edits.
+- [ ] ⏳ If item 5 returned rows: DavDev has confirmed a merge strategy before Phase D begins.
+- [ ] ⏳ `46.2-02-PLAN.md` updated per Phase A, committed before Plan 01 execution starts.
+- [ ] ⏳ `46.2-01-PLAN.md` updated per Phase B (enum, backfill domain, blocking pre-flight, orphan-FK verify) before `npx prisma migrate dev` is run.
+- [ ] ⏳ `46.2-03-PLAN.md` updated per Phase C before route changes are made.
+- [ ] ⏳ All three plans re-pass their own `<verify>` blocks after edits.
 - [ ] Threat ID renumbering (Phase C, last item) complete — cosmetic, non-blocking for execution.
 
 ---

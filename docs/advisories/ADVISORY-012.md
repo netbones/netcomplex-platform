@@ -246,13 +246,13 @@ Phases 1–3 are mechanical and low-risk; apply before any agent run. Phase 4 is
 
 ## 8. Done Criteria
 
-- [ ] `prisma/schema.prisma` validates (`npx prisma validate`) with three named relations on `BehaviorRecord` and matching back-relation arrays on `user`
-- [ ] `src/db/schema/behavior-*` files are generator-produced, not hand-authored ahead of generation
-- [ ] `DEFAULT_TIER_THRESHOLDS` includes `WATCHLIST`, and its TDD test passes
-- [ ] Merits constants, helpers, and `StandingBadge` live under `src/entities/merit/`, consistent with `booking`/`content`/`event`/`maintenance`/`service`
+- [ ] ⏳ `prisma/schema.prisma` validates (`npx prisma validate`) with three named relations on `BehaviorRecord` and matching back-relation arrays on `user`
+- [ ] ⏳ `src/db/schema/behavior-*` files are generator-produced, not hand-authored ahead of generation
+- [ ] ⏳ `DEFAULT_TIER_THRESHOLDS` includes `WATCHLIST`, and its TDD test passes
+- [ ] ⏳ Merits constants, helpers, and `StandingBadge` live under `src/entities/merit/`, consistent with `booking`/`content`/`event`/`maintenance`/`service`
 - [ ] Gating approach for merits (legacy `hasPermission` vs. `canAccess()`) is an explicit, recorded decision — not a silent default
 - [ ] `ADMIN_DOMAINS` registration for `merits` is preceded by ≥2 widget registrations in `widgets.ts`, per `NAVIGATION_GOVERNANCE.md`
-- [ ] Resident notification on new behavior record, and admin notification (or explicit deferral with a tracked BD issue) on `SUSPENSION_RECOMMENDATION`, is either implemented or explicitly deferred with a tracked issue ID
-- [ ] Threat model sensitivity rating for standing scores / public badges carries explicit POPIA reasoning
-- [ ] `tdd="true"` tasks have matching `*.test.ts` files in `files_modified`, and `<verify>` blocks include `pnpm lint`
-- [ ] `45-02-PLAN.md` and `45-03-PLAN.md` are updated in place to reflect all of the above before being handed to the execution agent
+- [ ] ⏳ Resident notification on new behavior record, and admin notification (or explicit deferral with a tracked BD issue) on `SUSPENSION_RECOMMENDATION`, is either implemented or explicitly deferred with a tracked issue ID
+- [ ] ⏳ Threat model sensitivity rating for standing scores / public badges carries explicit POPIA reasoning
+- [ ] ⏳ `tdd="true"` tasks have matching `*.test.ts` files in `files_modified`, and `<verify>` blocks include `pnpm lint`
+- [ ] ⏳ `45-02-PLAN.md` and `45-03-PLAN.md` are updated in place to reflect all of the above before being handed to the execution agent

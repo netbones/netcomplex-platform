@@ -49,4 +49,4 @@ None — state persisted via settings JSON.
 ## Open Issues
 
 - [ ] **Tab → Space migration incomplete** — `widget-store.ts` still uses `tabId` keys; `admin-config.ts` has `DashboardTab[]` type (Phase 31 will resolve)
-- [ ] Phase 38 (ServicesLayer + MessagesLayer) planned but not started
+- [ ] ⏳ Phase 38 (ServicesLayer + MessagesLayer) planned but not started

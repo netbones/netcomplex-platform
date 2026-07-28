@@ -182,68 +182,68 @@ A practical, opinionated checklist derived from the eight chapters above. Use it
 
 ## 1. Shared API Client
 
-- [ ] A single HTTP client owns base URL, auth headers, and error normalization
-- [ ] No component or feature imports `fetch` directly for app traffic
-- [ ] Tooling choice is consistent (do not mix `fetch` and `axios` in the same layer)
-- [ ] Token refresh / 401 retry lives in the client, not in call sites
-- [ ] Base path (e.g. `/api/v2`) is configurable in one place
+- [ ] ⏳ A single HTTP client owns base URL, auth headers, and error normalization
+- [ ] ⏳ No component or feature imports `fetch` directly for app traffic
+- [ ] ⏳ Tooling choice is consistent (do not mix `fetch` and `axios` in the same layer)
+- [ ] ⏳ Token refresh / 401 retry lives in the client, not in call sites
+- [ ] ⏳ Base path (e.g. `/api/v2`) is configurable in one place
 
 ## 2. API Layer & Fetch Functions
 
-- [ ] Every endpoint is wrapped in a named function inside an API module
-- [ ] Endpoint paths, HTTP verbs, and query/body shapes are hidden from UI
-- [ ] API functions return the cleaned payload, not `Response` objects
-- [ ] Same fetch function is reusable across server components, client components, and tests
-- [ ] API functions never call into UI-only code (no `useState`, no JSX)
+- [ ] ⏳ Every endpoint is wrapped in a named function inside an API module
+- [ ] ⏳ Endpoint paths, HTTP verbs, and query/body shapes are hidden from UI
+- [ ] ⏳ API functions return the cleaned payload, not `Response` objects
+- [ ] ⏳ Same fetch function is reusable across server components, client components, and tests
+- [ ] ⏳ API functions never call into UI-only code (no `useState`, no JSX)
 
 ## 3. API Layer & Data Transformations
 
-- [ ] Raw response shapes (`response.data.included[0].attributes`) never reach the UI
-- [ ] Multi-type includes (e.g. mixed `users` and `images`) are split inside the API layer
-- [ ] Request bodies are normalized at the boundary (e.g. `FormData` building for uploads)
-- [ ] Storage / serialization details (S3 vs Supabase vs R2) are hidden from components
-- [ ] Transformation helpers are pure functions, easy to unit test in isolation
+- [ ] ⏳ Raw response shapes (`response.data.included[0].attributes`) never reach the UI
+- [ ] ⏳ Multi-type includes (e.g. mixed `users` and `images`) are split inside the API layer
+- [ ] ⏳ Request bodies are normalized at the boundary (e.g. `FormData` building for uploads)
+- [ ] ⏳ Storage / serialization details (S3 vs Supabase vs R2) are hidden from components
+- [ ] ⏳ Transformation helpers are pure functions, easy to unit test in isolation
 
 ## 4. Domain Entities & DTOs
 
-- [ ] Each domain has exactly one canonical TypeScript type consumed by the UI
-- [ ] API-specific shapes (DTOs) are isolated to the API/infrastructure layer
+- [ ] ⏳ Each domain has exactly one canonical TypeScript type consumed by the UI
+- [ ] ⏳ API-specific shapes (DTOs) are isolated to the API/infrastructure layer
 - [ ] Transformer functions map DTO → Domain (not Domain → DTO)
-- [ ] No `*.attributes.*` or `*.included.*` leakage in components
-- [ ] Domain types are framework-agnostic (no `NextRequest`, no `JSX.Element`)
+- [ ] ⏳ No `*.attributes.*` or `*.included.*` leakage in components
+- [ ] ⏳ Domain types are framework-agnostic (no `NextRequest`, no `JSX.Element`)
 
 ## 5. Infrastructure Services & Dependency Injection
 
-- [ ] Stateful or multi-step backend interactions live in service classes/modules
-- [ ] Services receive their dependencies (db client, http client) via constructor or factory
-- [ ] Services can be instantiated in tests without booting the full app
-- [ ] Singleton instances are exported from a single barrel, not re-created on import
-- [ ] Simple single-call fetches do not get an unnecessary service wrapper
+- [ ] ⏳ Stateful or multi-step backend interactions live in service classes/modules
+- [ ] ⏳ Services receive their dependencies (db client, http client) via constructor or factory
+- [ ] ⏳ Services can be instantiated in tests without booting the full app
+- [ ] ⏳ Singleton instances are exported from a single barrel, not re-created on import
+- [ ] ⏳ Simple single-call fetches do not get an unnecessary service wrapper
 
 ## 6. Business Logic Separation
 
-- [ ] Submit handlers in components delegate to a custom hook or action
-- [ ] Validation, orchestration, and branching live outside the JSX tree
-- [ ] Custom hooks accept their dependencies (services) as parameters when they have side effects
-- [ ] Unit tests cover business logic without rendering components
-- [ ] No "fat component" >200 lines mixing form state, API calls, and business rules
+- [ ] ⏳ Submit handlers in components delegate to a custom hook or action
+- [ ] ⏳ Validation, orchestration, and branching live outside the JSX tree
+- [ ] ⏳ Custom hooks accept their dependencies (services) as parameters when they have side effects
+- [ ] ⏳ Unit tests cover business logic without rendering components
+- [ ] ⏳ No "fat component" >200 lines mixing form state, API calls, and business rules
 
 ## 7. Domain Logic
 
-- [ ] Pure helper functions live in the domain layer (e.g. `canUserViewRequest`, `getTicketPriority`)
-- [ ] Domain helpers accept primitive inputs and return primitive or domain-typed outputs
-- [ ] No React imports inside the domain layer
-- [ ] Lookup-by-id, validation, and business rules are searchable by feature
-- [ ] Domain helpers are unit tested without mocks
+- [ ] ⏳ Pure helper functions live in the domain layer (e.g. `canUserViewRequest`, `getTicketPriority`)
+- [ ] ⏳ Domain helpers accept primitive inputs and return primitive or domain-typed outputs
+- [ ] ⏳ No React imports inside the domain layer
+- [ ] ⏳ Lookup-by-id, validation, and business rules are searchable by feature
+- [ ] ⏳ Domain helpers are unit tested without mocks
 
 ## 8. React Query (TanStack Query)
 
-- [ ] Every server-state read goes through `useQuery` / `useSuspenseQuery`
-- [ ] Every server-state write goes through `useMutation`
-- [ ] No `useState` + `useEffect` + `fetch` for data that lives on the server
-- [ ] Query keys are co-located with the feature's API module
-- [ ] Cache invalidation is wired to mutations (no stale-after-write bugs)
-- [ ] Loading, error, and success states come from the hook, not from local booleans
+- [ ] ⏳ Every server-state read goes through `useQuery` / `useSuspenseQuery`
+- [ ] ⏳ Every server-state write goes through `useMutation`
+- [ ] ⏳ No `useState` + `useEffect` + `fetch` for data that lives on the server
+- [ ] ⏳ Query keys are co-located with the feature's API module
+- [ ] ⏳ Cache invalidation is wired to mutations (no stale-after-write bugs)
+- [ ] ⏳ Loading, error, and success states come from the hook, not from local booleans
 
 ---
 

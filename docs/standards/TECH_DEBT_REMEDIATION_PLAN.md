@@ -62,9 +62,9 @@ A comprehensive codebase review identified critical security vulnerabilities, pe
 
 **Action Items:**
 
-- [ ] Convert dashboard page to server components
-- [ ] Convert directory page to server components
-- [ ] Convert groups page to server components
+- [ ] ⏳ Convert dashboard page to server components
+- [ ] ⏳ Convert directory page to server components
+- [ ] ⏳ Convert groups page to server components
 
 **Success Criteria:**
 
@@ -103,7 +103,7 @@ A comprehensive codebase review identified critical security vulnerabilities, pe
   - [x] ✅ Settings page (forms, preferences)
   - [x] ✅ Resident profile pages (complex data display)
   - [x] ✅ Services/Resources/Interest/Conservation pages
-- [ ] Skip error boundaries for static pages (Terms, Privacy, Guidelines)
+- [ ] ⏳ Skip error boundaries for static pages (Terms, Privacy, Guidelines)
 
 **Success Criteria:**
 
@@ -182,9 +182,9 @@ A comprehensive codebase review identified critical security vulnerabilities, pe
 **Action Items:**
 
 - [x] ✅ Split dashboard component into smaller pieces
-- [ ] Add error boundaries to all components
-- [ ] Implement consistent error handling patterns
-- [ ] Add React.memo and useMemo optimizations
+- [ ] ⏳ Add error boundaries to all components
+- [ ] ⏳ Implement consistent error handling patterns
+- [ ] ⏳ Add React.memo and useMemo optimizations
 
 **Success Criteria:**
 
@@ -206,10 +206,10 @@ A comprehensive codebase review identified critical security vulnerabilities, pe
 
 **Action Items:**
 
-- [ ] Enhance ESLint with comprehensive rules
-- [ ] Add TypeScript-specific linting
-- [ ] Implement accessibility rules
-- [ ] Add Prettier integration
+- [ ] ⏳ Enhance ESLint with comprehensive rules
+- [ ] ⏳ Add TypeScript-specific linting
+- [ ] ⏳ Implement accessibility rules
+- [ ] ⏳ Add Prettier integration
 
 **Success Criteria:**
 
@@ -233,10 +233,10 @@ A comprehensive codebase review identified critical security vulnerabilities, pe
 
 **Action Items:**
 
-- [ ] Remove unused variables and functions
-- [ ] Clean up console.log statements
-- [ ] Remove dead code
-- [ ] Implement proper logging framework
+- [ ] ⏳ Remove unused variables and functions
+- [ ] ⏳ Clean up console.log statements
+- [ ] ⏳ Remove dead code
+- [ ] ⏳ Implement proper logging framework
 
 **Success Criteria:**
 
@@ -258,10 +258,10 @@ A comprehensive codebase review identified critical security vulnerabilities, pe
 
 **Action Items:**
 
-- [ ] Implement performance monitoring
-- [ ] Add error tracking (Sentry/LogRocket)
-- [ ] Set up Core Web Vitals tracking
-- [ ] Add performance budgets
+- [ ] ⏳ Implement performance monitoring
+- [ ] ⏳ Add error tracking (Sentry/LogRocket)
+- [ ] ⏳ Set up Core Web Vitals tracking
+- [ ] ⏳ Add performance budgets
 
 **Success Criteria:**
 
@@ -273,27 +273,27 @@ A comprehensive codebase review identified critical security vulnerabilities, pe
 
 ### Week 1: Security & Critical Fixes
 
-- [ ] Complete all CRITICAL security items
-- [ ] Fix build performance issues
-- [ ] Deploy emergency security patches
+- [ ] ⏳ Complete all CRITICAL security items
+- [ ] ⏳ Fix build performance issues
+- [ ] ⏳ Deploy emergency security patches
 
 ### Week 2: Type Safety & Data Model
 
-- [ ] Implement comprehensive type safety
-- [ ] Clean up data model and migrations
-- [ ] Update API contracts
+- [ ] ⏳ Implement comprehensive type safety
+- [ ] ⏳ Clean up data model and migrations
+- [ ] ⏳ Update API contracts
 
 ### Weeks 3-4: Architecture & Quality
 
-- [ ] Component refactoring
-- [ ] Configuration improvements
-- [ ] Error handling enhancements
+- [ ] ⏳ Component refactoring
+- [ ] ⏳ Configuration improvements
+- [ ] ⏳ Error handling enhancements
 
 ### Ongoing: Monitoring & Cleanup
 
-- [ ] Performance monitoring implementation
-- [ ] Code cleanup tasks
-- [ ] Documentation updates
+- [ ] ⏳ Performance monitoring implementation
+- [ ] ⏳ Code cleanup tasks
+- [ ] ⏳ Documentation updates
 
 ## Success Metrics
 
@@ -349,17 +349,17 @@ A comprehensive codebase review identified critical security vulnerabilities, pe
 
 ### Weekly Checkpoints
 
-- [ ] Security fixes completed and tested
-- [ ] Build performance issues resolved
-- [ ] Type safety violations addressed
-- [ ] Code quality metrics improving
+- [ ] ⏳ Security fixes completed and tested
+- [ ] ⏳ Build performance issues resolved
+- [ ] ⏳ Type safety violations addressed
+- [ ] ⏳ Code quality metrics improving
 
 ### Monthly Reviews
 
-- [ ] Overall progress against timeline
-- [ ] Quality metrics trending positively
-- [ ] Team feedback and blockers
-- [ ] Stakeholder updates
+- [ ] ⏳ Overall progress against timeline
+- [ ] ⏳ Quality metrics trending positively
+- [ ] ⏳ Team feedback and blockers
+- [ ] ⏳ Stakeholder updates
 
 ### Integration with Issue Tracking
 
@@ -395,11 +395,11 @@ This plan integrates with the project's beads (bd) issue tracking system:
 - [x] ✅ Create streaming dashboard components with static shell + dynamic holes
 - [x] ✅ Audit library Edge Runtime compatibility (completed - not compatible)
 - [x] ✅ Created Edge-compatible health check route for testing
-- [ ] Verify Supabase region matches Vercel deployment region
-- [ ] Migrate lightweight API routes to Edge Runtime (blocked by dependencies)
-- [ ] Monitor and optimize memory allocation in Vercel dashboard
-- [ ] Set up spend management alerts (50%/75%/100%)
-- [ ] Implement automatic scaling limits to prevent overruns
+- [ ] ⏳ Verify Supabase region matches Vercel deployment region
+- [ ] ⏳ Migrate lightweight API routes to Edge Runtime (blocked by dependencies)
+- [ ] ⏳ Monitor and optimize memory allocation in Vercel dashboard
+- [ ] ⏳ Set up spend management alerts (50%/75%/100%)
+- [ ] ⏳ Implement automatic scaling limits to prevent overruns
 
 **Success Criteria:**
 

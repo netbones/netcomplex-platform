@@ -924,17 +924,17 @@ Agents MUST NOT:
 
 Before merging API work:
 
-- [ ] Tenant isolation verified
-- [ ] Validation added
-- [ ] Authorization enforced
-- [ ] Response envelope compliant
-- [ ] Error codes standardized
-- [ ] DTO mapping implemented
-- [ ] OpenAPI updated
-- [ ] CI validation passes
-- [ ] Tests added
-- [ ] Logs added
-- [ ] Feature gating verified
+- [ ] ⏳ Tenant isolation verified
+- [ ] ⏳ Validation added
+- [ ] ⏳ Authorization enforced
+- [ ] ⏳ Response envelope compliant
+- [ ] ⏳ Error codes standardized
+- [ ] ⏳ DTO mapping implemented
+- [ ] ⏳ OpenAPI updated
+- [ ] ⏳ CI validation passes
+- [ ] ⏳ Tests added
+- [ ] ⏳ Logs added
+- [ ] ⏳ Feature gating verified
 
 ---
 

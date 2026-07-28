@@ -168,19 +168,19 @@ Cache the tenant lookup (Vercel KV or Redis) for performance.
 
 ### Data Migration Script (run once)
 
-- [ ] Create a "NetComplex" platform tenant
-- [ ] Create a tenant record for "Soralia Village"
-- [ ] Update all existing rows with tenantId
+- [ ] ⏳ Create a "NetComplex" platform tenant
+- [ ] ⏳ Create a tenant record for "Soralia Village"
+- [ ] ⏳ Update all existing rows with tenantId
 
 ### Auth Migration
 
-- [ ] Existing users become members of the Soralia Village organization
-- [ ] Add organization switcher
+- [ ] ⏳ Existing users become members of the Soralia Village organization
+- [ ] ⏳ Add organization switcher
 
 ### UI Changes
 
-- [ ] Replace hard-coded "Soralia Village" text/logos with dynamic tenant values
-- [ ] Add super-admin section for managing all tenants
+- [ ] ⏳ Replace hard-coded "Soralia Village" text/logos with dynamic tenant values
+- [ ] ⏳ Add super-admin section for managing all tenants
 - [ ] On platform marketing site: show signup → create organization → set branding
 
 ### Routes & Domains

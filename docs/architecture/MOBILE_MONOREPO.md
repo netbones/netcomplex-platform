@@ -929,14 +929,14 @@ jobs:
 
 **Pre-submission checklist**:
 
-- [ ] Privacy policy URL (already on web)
-- [ ] Terms of service (already on web)
-- [ ] App icon (1024x1024 + all required sizes)
-- [ ] Screenshots (6.7" iPhone + 7" tablet for iOS; phone + tablet for Android)
-- [ ] Data collection disclosure (App Store Connect / Play Console)
-- [ ] Encryption compliance (App Store: export compliance; if using HTTPS only, exempt)
-- [ ] Age rating questionnaire
-- [ ] Beta testing group (TestFlight external testers / Play Store internal testers)
+- [ ] ⏳ Privacy policy URL (already on web)
+- [ ] ⏳ Terms of service (already on web)
+- [ ] ⏳ App icon (1024x1024 + all required sizes)
+- [ ] ⏳ Screenshots (6.7" iPhone + 7" tablet for iOS; phone + tablet for Android)
+- [ ] ⏳ Data collection disclosure (App Store Connect / Play Console)
+- [ ] ⏳ Encryption compliance (App Store: export compliance; if using HTTPS only, exempt)
+- [ ] ⏳ Age rating questionnaire
+- [ ] ⏳ Beta testing group (TestFlight external testers / Play Store internal testers)
 
 ---
 

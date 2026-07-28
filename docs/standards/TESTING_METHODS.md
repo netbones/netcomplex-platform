@@ -922,29 +922,29 @@ export default defineConfig({
 
 ### Functional Testing
 
-- [ ] User registration and login
-- [ ] Directory browsing and filtering
-- [ ] Resident profile viewing
-- [ ] Service marketplace browsing
-- [ ] Agent marketplace functionality
-- [ ] Chat message sending/receiving
-- [ ] Admin moderation tools
-- [ ] Mobile responsiveness
+- [ ] ⏳ User registration and login
+- [ ] ⏳ Directory browsing and filtering
+- [ ] ⏳ Resident profile viewing
+- [ ] ⏳ Service marketplace browsing
+- [ ] ⏳ Agent marketplace functionality
+- [ ] ⏳ Chat message sending/receiving
+- [ ] ⏳ Admin moderation tools
+- [ ] ⏳ Mobile responsiveness
 
 ### Usability Testing
 
-- [ ] Intuitive navigation
-- [ ] Clear visual hierarchy
-- [ ] Helpful error messages
-- [ ] Loading states
-- [ ] Form validation feedback
+- [ ] ⏳ Intuitive navigation
+- [ ] ⏳ Clear visual hierarchy
+- [ ] ⏳ Helpful error messages
+- [ ] ⏳ Loading states
+- [ ] ⏳ Form validation feedback
 
 ### Performance Testing
 
-- [ ] Page load times < 3 seconds
-- [ ] Smooth scrolling and animations
-- [ ] Image loading optimization
-- [ ] Database query performance
+- [ ] ⏳ Page load times < 3 seconds
+- [ ] ⏳ Smooth scrolling and animations
+- [ ] ⏳ Image loading optimization
+- [ ] ⏳ Database query performance
 
 ## 12. Test Data Management
 
