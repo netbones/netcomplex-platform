@@ -53,7 +53,7 @@ Check this register before assigning a new advisory number to avoid collisions.
 | 33  | ADVISORY-033.md                                | ADVISORY.md                                                                  | Advisory                                |
 | 34  | ADVISORY-034-platform-identity-layer.md        | Introduce a Platform Identity Layer                                          | Proposed                                |
 | 34a | ADVISORY-034-SUPPLEMENTAL-1.md                 | SignatureProvider / CredentialType Overlap (MeetingProxy)                    | Proposed                                |
-| 35  | ADVISORY-35.md                                 | Comment System — Threaded Comments, Voting & Moderation                      | All 4 phases complete — shipped         |
+| 35  | ADVISORY-035.md                                | Comment System — Threaded Comments, Voting & Moderation                      | All 4 phases complete — shipped         |
 | 36  | ADVISORY-036.md                                | Useful Patterns from Tamagui Takeout                                         | Guidance                                |
 
 ## Special / Non-Numeric
