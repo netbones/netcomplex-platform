@@ -56,6 +56,42 @@ vi.mock('next/headers', () => ({
   ),
 }));
 
+vi.mock('@/shared/api/auth-utils', () => ({
+  requireAuth: vi.fn(async (_request: Request) => {
+    const session = mocks.sessionResult;
+    if (!session) {
+      return {
+        success: false as const,
+        response: new Response(
+          JSON.stringify({
+            success: false,
+            error: { code: 'AUTH_REQUIRED', message: 'Authentication required' },
+          }),
+          { status: 401, headers: { 'Content-Type': 'application/json' } }
+        ),
+      };
+    }
+    const roleMap: Record<string, string> = {
+      'user-resident': 'RESIDENT',
+      'user-board': 'BOARD',
+      'user-admin': 'ADMIN',
+      'user-committee': 'COMMITTEE',
+      'user-other': 'RESIDENT',
+    };
+    const userId = session.user.id;
+    return {
+      success: true as const,
+      data: {
+        session: { user: { id: userId, email: 'test@test.com', name: 'Test', image: null } },
+        userId,
+        role: roleMap[userId] || 'RESIDENT',
+        tenantId: 'test-tenant-id',
+        suspension: null,
+      },
+    };
+  }),
+}));
+
 // ── Supabase mock ──
 vi.mock('@supabase/supabase-js', () => ({
   createClient: vi.fn(() => ({
@@ -206,7 +242,7 @@ vi.mock('@api/server', () => ({
 
 vi.mock('@entities/tenant/server', () => ({
   withTenant: vi.fn(() => Promise.resolve(mocks.tenantResult)),
-  assertModuleEnabled: vi.fn(() => Promise.resolve()),
+  assertModuleEnabled: vi.fn(() => Promise.resolve(null)),
 }));
 
 vi.mock('@entities/dispute', async () => {
@@ -233,6 +269,13 @@ vi.mock('@shared/lib', () => ({
   apiLogger: { error: vi.fn(), warn: vi.fn() },
   logger: { error: vi.fn(), warn: vi.fn() },
   createComponentLogger: vi.fn(() => ({ error: vi.fn(), warn: vi.fn() })),
+  createLogger: vi.fn(() => ({
+    error: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+  })),
+  broadcastDisputeMessage: vi.fn(),
 }));
 
 // ── TASK 1: Mediation Thread Routes ──
@@ -385,11 +428,11 @@ describe('Dispute Messages — [id]/messages/route.ts', () => {
         params: Promise.resolve({ id: 'dispute-1' }),
       } as { params: Promise<{ id: string }> });
       expect(res.status).toBe(201);
-      expect(mocks.supabaseChannelSend).toHaveBeenCalledWith({
-        type: 'broadcast',
-        event: 'new-mediation-message',
-        payload: expect.objectContaining({ disputeId: 'dispute-1' }),
-      });
+      const { broadcastDisputeMessage } = await import('@shared/lib');
+      expect(broadcastDisputeMessage).toHaveBeenCalledWith(
+        'dispute-1',
+        expect.objectContaining({ disputeId: 'dispute-1' })
+      );
     });
   });
 

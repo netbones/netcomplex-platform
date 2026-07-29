@@ -50,6 +50,33 @@ const mocks = vi.hoisted(() => ({
   },
 }));
 
+vi.mock('@/shared/api/auth-utils', () => ({
+  requireAuth: vi.fn(async (_request: Request) => {
+    if (!mocks.authSession) {
+      return {
+        success: false as const,
+        response: new Response(
+          JSON.stringify({
+            success: false,
+            error: { code: 'AUTH_REQUIRED', message: 'Authentication required' },
+          }),
+          { status: 401, headers: { 'Content-Type': 'application/json' } }
+        ),
+      };
+    }
+    return {
+      success: true as const,
+      data: {
+        userId: mocks.authSession.user.id,
+        role: mocks.userRole,
+        tenantId: 'test-tenant-id',
+        session: { user: { id: mocks.authSession.user.id } },
+        suspension: null,
+      },
+    };
+  }),
+}));
+
 vi.mock('@api/server', () => ({
   db: mocks.dbMock,
   auth: {
@@ -133,6 +160,18 @@ vi.mock('@shared/lib', () => ({
     info: vi.fn(),
     warn: vi.fn(),
     error: vi.fn(),
+  })),
+  createLogger: vi.fn(() => ({
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+    child: vi.fn(() => ({
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+      debug: vi.fn(),
+    })),
   })),
 }));
 

@@ -4,6 +4,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 vi.mock('server-only', () => ({}));
 
 const mocks = vi.hoisted(() => ({
+  sessionData: null as { userId: string; role: string } | null,
   getSessionAndRole: vi.fn(),
   dbMock: { execute: vi.fn() },
   apiSuccess: vi.fn((data: unknown, _meta?: unknown, status = 200) =>
@@ -22,6 +23,30 @@ const mocks = vi.hoisted(() => ({
     Response.json({ success: false, error: { code, message } }, { status })
   ),
   tenantResult: { tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' },
+}));
+
+vi.mock('@/shared/api/auth-utils', () => ({
+  requireAuth: vi.fn(async (_request: Request) => {
+    if (!mocks.sessionData) {
+      return {
+        success: false as const,
+        response: Response.json(
+          { success: false, error: { code: 'AUTH_REQUIRED', message: 'Authentication required' } },
+          { status: 401, headers: { 'content-type': 'application/json' } }
+        ),
+      };
+    }
+    return {
+      success: true as const,
+      data: {
+        userId: mocks.sessionData.userId,
+        role: mocks.sessionData.role,
+        tenantId: 'test-tenant-id',
+        session: { user: { id: mocks.sessionData.userId } },
+        suspension: null,
+      },
+    };
+  }),
 }));
 
 vi.mock('@api/server', () => ({
@@ -44,6 +69,7 @@ vi.mock('@entities/tenant/server', () => ({
 
 vi.mock('@shared/lib', () => ({
   createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn() }),
+  createLogger: vi.fn(() => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() })),
 }));
 
 import { POST } from '@/app/api/conversations/find/route';
@@ -58,7 +84,7 @@ const AUTH_DATA = {
 describe('POST /api/conversations/find', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.getSessionAndRole.mockResolvedValue(AUTH_DATA);
+    mocks.sessionData = { userId: AUTH_DATA.userId, role: AUTH_DATA.role };
     mocks.tenantResult = { tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' };
     mocks.dbMock.execute.mockResolvedValue({ rows: [] });
   });
@@ -68,7 +94,7 @@ describe('POST /api/conversations/find', () => {
   });
 
   it('returns 401 without auth', async () => {
-    mocks.getSessionAndRole.mockResolvedValue(null);
+    mocks.sessionData = null;
 
     const res = await POST(
       new Request('http://localhost/api/conversations/find', {

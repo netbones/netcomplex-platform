@@ -62,6 +62,36 @@ vi.mock('next/headers', () => ({
   ),
 }));
 
+vi.mock('@/shared/api/auth-utils', () => ({
+  requireAuth: vi.fn(async (_request: Request) => {
+    const session = mocks.sessionResult;
+    if (!session) {
+      return {
+        success: false as const,
+        response: new Response(
+          JSON.stringify({
+            success: false,
+            error: { code: 'AUTH_REQUIRED', message: 'Authentication required' },
+          }),
+          { status: 401, headers: { 'Content-Type': 'application/json' } }
+        ),
+      };
+    }
+    return {
+      success: true as const,
+      data: {
+        session: {
+          user: { id: session.user.id, email: 'test@test.com', name: 'Test', image: null },
+        },
+        userId: session.user.id,
+        role: 'RESIDENT',
+        tenantId: 'test-tenant-id',
+        suspension: null,
+      },
+    };
+  }),
+}));
+
 vi.mock('@api/server', () => ({
   auth: { api: { getSession: vi.fn(() => Promise.resolve(mocks.sessionResult)) } },
   db: mocks.dbMock,
@@ -71,6 +101,7 @@ vi.mock('@api/server', () => ({
   users: {},
   notDeleted: vi.fn(() => true),
   guardSuspension: vi.fn(() => null),
+  rateLimitByUser: vi.fn(() => Promise.resolve(null)),
   apiSuccess: vi.fn(
     (data: unknown) =>
       new Response(JSON.stringify({ success: true, data }), {
@@ -194,6 +225,7 @@ vi.mock('@shared/lib', () => ({
   }),
   apiLogger: { error: vi.fn() },
   createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
+  createLogger: vi.fn(() => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() })),
 }));
 
 // Pre-warm route imports to avoid i18n timeout on first test

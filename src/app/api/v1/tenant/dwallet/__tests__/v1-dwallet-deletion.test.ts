@@ -48,6 +48,33 @@ const mocks = vi.hoisted(() => ({
 const jsonResponse = (data: unknown, status: number) =>
   new Response(JSON.stringify(data), { status, headers: { 'content-type': 'application/json' } });
 
+vi.mock('@/shared/api/auth-utils', () => ({
+  requireAuth: vi.fn(async (_request: Request) => {
+    if (!mocks.sessionResult) {
+      return {
+        success: false as const,
+        response: new Response(
+          JSON.stringify({
+            success: false,
+            error: { code: 'AUTH_REQUIRED', message: 'Authentication required' },
+          }),
+          { status: 401, headers: { 'Content-Type': 'application/json' } }
+        ),
+      };
+    }
+    return {
+      success: true as const,
+      data: {
+        userId: mocks.sessionResult.userId,
+        role: 'RESIDENT',
+        tenantId: 'test-tenant-id',
+        session: { user: { id: mocks.sessionResult.user.id } },
+        suspension: null,
+      },
+    };
+  }),
+}));
+
 vi.mock('@api/server', () => ({
   db: mocks.dbMock,
   auth: { api: { getSession: vi.fn(() => Promise.resolve(mocks.sessionResult)) } },
@@ -95,6 +122,7 @@ vi.mock('@entities/dwallet/server', () => ({
 
 vi.mock('@shared/lib', () => ({
   createComponentLogger: () => mocks.logger,
+  createLogger: () => mocks.logger,
 }));
 
 import { POST } from '@/app/api/v1/tenant/dwallet/deletion-request/route';
