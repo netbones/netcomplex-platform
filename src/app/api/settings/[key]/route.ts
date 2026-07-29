@@ -6,19 +6,17 @@ import {
   apiInternalError,
   apiNotFound,
   apiSuccess,
-  apiUnauthorized,
   writeAuditLog,
   rateLimitByUser,
   revalidateAdminChanges,
-  getSessionAndRole,
   now,
-  guardSuspension,
 } from '@api/server';
 
-import { eq, and } from 'drizzle-orm';
-import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
+import { requireAuth } from '@/shared/api/auth-utils';
 
-import { hasPermission } from '@shared/lib';
+import { eq, and } from 'drizzle-orm';
+import { withTenant } from '@entities/tenant/server';
+
 import { requireAssistScope } from '@entities/tenant/server';
 import { apiLogger } from '@shared/lib';
 import { validateSettingValue } from '@shared/lib/settings/validation';
@@ -67,20 +65,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ key:
  * @deprecated Use trpc.settings.upsertSetting instead.
  */
 export async function PATCH(request: Request, { params }: { params: Promise<{ key: string }> }) {
-  const authData = await getSessionAndRole(request);
-
-  if (!authData) {
-    return apiUnauthorized();
-  }
-  const guard = guardSuspension(authData);
-  if (guard) return guard;
-
-  const moduleCheck = await assertModuleEnabled('settings');
-  if (moduleCheck) return moduleCheck;
-
-  if (!hasPermission(authData.role, 'admin')) {
-    return apiForbidden('admin permission required');
-  }
+  const auth = await requireAuth(request, { permission: 'admin' });
+  if (!auth.success) return auth.response;
+  const authData = auth.data;
 
   // AssistSession scope guard: metadata-scoped staff can only read, not modify content/users/settings
   const scopeError = await requireAssistScope(request, 'full');
@@ -150,18 +137,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ ke
  * @deprecated Use trpc.settings.deleteSetting instead.
  */
 export async function DELETE(request: Request, { params }: { params: Promise<{ key: string }> }) {
-  const authData = await getSessionAndRole(request);
-
-  if (!authData) {
-    return apiUnauthorized();
-  }
-
-  const moduleCheck = await assertModuleEnabled('settings');
-  if (moduleCheck) return moduleCheck;
-
-  if (!hasPermission(authData.role, 'admin')) {
-    return apiForbidden('admin permission required');
-  }
+  const auth = await requireAuth(request, { permission: 'admin' });
+  if (!auth.success) return auth.response;
+  const authData = auth.data;
 
   const scopeError = await requireAssistScope(request, 'full');
   if (scopeError) return scopeError;

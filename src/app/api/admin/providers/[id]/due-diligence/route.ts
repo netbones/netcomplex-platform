@@ -3,21 +3,18 @@ import { z } from 'zod';
 
 import {
   apiError,
-  apiUnauthorized,
   apiInternalError,
   apiNotFound,
   apiSuccess,
   db,
-  getSessionAndRole,
-  guardSuspension,
   notDeleted,
-  requireAnyPermission,
   serviceProviders,
   writeAuditLog,
   providerDueDiligenceWorkflows,
   providerDueDiligenceItems,
 } from '@api/server';
-import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
+import { withTenant } from '@entities/tenant/server';
+import { requireAuth } from '@/shared/api/auth-utils';
 import { getProviderDueDiligenceSnapshot, upsertProviderVerification } from '@shared/api';
 import { logError } from '@shared/lib';
 
@@ -38,18 +35,8 @@ export const maxDuration = 8;
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const moduleCheck = await assertModuleEnabled('providers');
-    if (moduleCheck) return moduleCheck;
-
-    const authError = await requireAnyPermission(['providers']);
-    if (authError) {
-      return authError;
-    }
-
-    const auth = await getSessionAndRole(request);
-    if (!auth) return apiUnauthorized();
-    const guard = guardSuspension(auth);
-    if (guard) return guard;
+    const auth = await requireAuth(request, { permission: 'admin' });
+    if (!auth.success) return auth.response;
     const parsed = dueDiligenceSaveSchema.safeParse(await request.json());
     if (!parsed.success) {
       return apiError('VALIDATION_ERROR', 'Validation failed', 400, parsed.error.flatten());
@@ -123,7 +110,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
             .set({
               status: item.status as 'PENDING' | 'APPROVED' | 'REJECTED',
               notes: item.notes ?? undefined,
-              reviewedBy: auth.userId,
+              reviewedBy: auth.data.userId,
               reviewedAt: new Date(),
               updatedAt: new Date(),
             })
@@ -135,7 +122,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
             itemKey: item.key,
             status: item.status as 'PENDING' | 'APPROVED' | 'REJECTED',
             notes: item.notes ?? undefined,
-            reviewedBy: auth.userId,
+            reviewedBy: auth.data.userId,
             reviewedAt: new Date(),
             createdAt: new Date(),
             updatedAt: new Date(),
@@ -163,7 +150,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
           itemKey: item.key,
           status: item.status as 'PENDING' | 'APPROVED' | 'REJECTED',
           notes: item.notes ?? undefined,
-          reviewedBy: auth.userId,
+          reviewedBy: auth.data.userId,
           reviewedAt: new Date(),
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -180,19 +167,17 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       dueDiligenceItems: items.map(i => ({ key: i.key, status: i.status, notes: i.notes })),
     });
 
-    if (auth) {
-      writeAuditLog({
-        action: 'PROVIDER_DUE_DILIGENCE_UPDATED',
-        actorId: auth.userId,
-        tenantId,
-        targetId: provider.id,
-        details: {
-          items,
-          allApproved,
-          workflowStatus,
-        },
-      });
-    }
+    writeAuditLog({
+      action: 'PROVIDER_DUE_DILIGENCE_UPDATED',
+      actorId: auth.data.userId,
+      tenantId,
+      targetId: provider.id,
+      details: {
+        items,
+        allApproved,
+        workflowStatus,
+      },
+    });
 
     const dueDiligence = await getProviderDueDiligenceSnapshot(
       tenantId,

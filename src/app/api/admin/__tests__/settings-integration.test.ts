@@ -25,6 +25,45 @@ const mocks = vi.hoisted(() => ({
   requireTenantRLS: vi.fn(),
 }));
 
+vi.mock('@/shared/api/auth-utils', () => ({
+  requireAuth: vi.fn(async (_request: Request, opts?: { permission?: string }) => {
+    const session = await mocks.getSessionAndRole();
+    if (!session) {
+      return {
+        success: false as const,
+        response: new Response(
+          JSON.stringify({
+            success: false,
+            error: { code: 'AUTH_REQUIRED', message: 'Authentication required' },
+          }),
+          { status: 401, headers: { 'Content-Type': 'application/json' } }
+        ),
+      };
+    }
+    if (opts?.permission && !mocks.hasPermission(session.role, opts.permission)) {
+      return {
+        success: false as const,
+        response: new Response(
+          JSON.stringify({
+            success: false,
+            error: { code: 'FORBIDDEN', message: 'Insufficient permissions' },
+          }),
+          { status: 403, headers: { 'Content-Type': 'application/json' } }
+        ),
+      };
+    }
+    return {
+      success: true as const,
+      data: {
+        session: { user: { id: session.userId, email: '', name: '', image: null } },
+        userId: session.userId,
+        role: session.role,
+        suspension: null,
+      },
+    };
+  }),
+}));
+
 vi.mock('@api/server', async () => {
   const { NextResponse } = await import('next/server');
   return {
@@ -84,6 +123,12 @@ vi.mock('@entities/tenant/server', () => ({
 vi.mock('@shared/lib', () => ({
   hasPermission: (...args: unknown[]) => mocks.hasPermission(...args),
   createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn() }),
+  createLogger: vi.fn(() => ({
+    error: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+  })),
 }));
 
 vi.mock('next/cache', () => ({

@@ -31,6 +31,38 @@ const mocks = vi.hoisted(() => ({
 }));
 
 // Mock api/server — consolidated: auth, db, users, revalidation, and all API response helpers
+vi.mock('@/shared/api/auth-utils', () => ({
+  requireAuth: vi.fn(async (_request: Request, opts?: { permission?: string }) => {
+    if (!mocks.sessionResult) {
+      return {
+        success: false as const,
+        response: new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 }),
+      };
+    }
+    if (opts?.permission) {
+      const role = 'ADMIN';
+      const allowed =
+        opts.permission === 'requests' ? role === 'ADMIN' || role === 'MANAGER' : false;
+      if (!allowed) {
+        return {
+          success: false as const,
+          response: new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403 }),
+        };
+      }
+    }
+    return {
+      success: true as const,
+      data: {
+        userId: mocks.sessionResult.user.id,
+        role: 'ADMIN',
+        tenantId: 'test-tenant-id',
+        session: { user: { id: mocks.sessionResult.user.id } },
+        suspension: null,
+      },
+    };
+  }),
+}));
+
 vi.mock('@api/server', () => ({
   CACHE_TAGS: { SETTINGS: 'settings' },
   auth: {
@@ -169,6 +201,7 @@ vi.mock('@shared/lib', () => ({
     return false;
   }),
   createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn() }),
+  createLogger: vi.fn(() => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() })),
 }));
 
 import { GET, POST } from '@/app/api/maintenance/route';

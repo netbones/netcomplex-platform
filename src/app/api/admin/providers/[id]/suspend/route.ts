@@ -3,20 +3,17 @@ import { z } from 'zod';
 
 import {
   apiError,
-  apiUnauthorized,
   apiInternalError,
   apiNotFound,
   apiSuccess,
   db,
-  getSessionAndRole,
-  guardSuspension,
   notDeleted,
   now,
-  requireAnyPermission,
   serviceProviders,
   writeAuditLog,
 } from '@api/server';
-import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
+import { withTenant } from '@entities/tenant/server';
+import { requireAuth } from '@/shared/api/auth-utils';
 import { getProviderDueDiligenceSnapshot, upsertProviderVerification } from '@shared/api';
 import { logError } from '@shared/lib';
 
@@ -30,18 +27,8 @@ const suspendProviderSchema = z.object({
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const moduleCheck = await assertModuleEnabled('providers');
-    if (moduleCheck) return moduleCheck;
-
-    const authError = await requireAnyPermission(['providers']);
-    if (authError) {
-      return authError;
-    }
-
-    const auth = await getSessionAndRole(request);
-    if (!auth) return apiUnauthorized();
-    const guard = guardSuspension(auth);
-    if (guard) return guard;
+    const auth = await requireAuth(request, { permission: 'admin' });
+    if (!auth.success) return auth.response;
     const parsed = suspendProviderSchema.safeParse(await request.json());
     if (!parsed.success) {
       return apiError('VALIDATION_ERROR', 'Validation failed', 400, parsed.error.flatten());
@@ -87,15 +74,13 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       endDate: action === 'REINSTATE' ? null : now(),
     });
 
-    if (auth) {
-      writeAuditLog({
-        action: action === 'REINSTATE' ? 'PROVIDER_REINSTATED' : 'PROVIDER_SUSPENDED',
-        actorId: auth.userId,
-        tenantId,
-        targetId: provider.id,
-        details: { action, notes, restoreStatus: parsed.data.restoreStatus ?? null },
-      });
-    }
+    writeAuditLog({
+      action: action === 'REINSTATE' ? 'PROVIDER_REINSTATED' : 'PROVIDER_SUSPENDED',
+      actorId: auth.data.userId,
+      tenantId,
+      targetId: provider.id,
+      details: { action, notes, restoreStatus: parsed.data.restoreStatus ?? null },
+    });
 
     const dueDiligence = await getProviderDueDiligenceSnapshot(tenantId, provider.id, nextStatus);
 

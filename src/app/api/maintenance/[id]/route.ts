@@ -10,19 +10,18 @@ import {
   agentAccesses,
   revalidateDashboard,
   apiSuccess,
-  apiUnauthorized,
   apiForbidden,
   apiNotFound,
   now,
   withErrorHandler,
-  getSessionAndRole,
-  guardSuspension,
 } from '@api/server';
+
+import { requireAuth } from '@/shared/api/auth-utils';
 
 import { hasPermission } from '@shared/lib';
 import { eq, and } from 'drizzle-orm';
 
-import { withTenant, assertModuleEnabled } from '@entities/tenant/server';
+import { withTenant } from '@entities/tenant/server';
 import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
@@ -48,14 +47,9 @@ export const GET = withErrorHandler(
 
     const { tenantId } = await withTenant();
 
-    const authData = await getSessionAndRole(request);
-    if (!authData) {
-      return apiUnauthorized();
-    }
-    const guard = guardSuspension(authData);
-    if (guard) return guard;
-    const featureCheck = await assertModuleEnabled('maintenance');
-    if (featureCheck) return featureCheck;
+    const auth = await requireAuth(request, { module: 'maintenance' });
+    if (!auth.success) return auth.response;
+    const authData = auth.data;
 
     const canViewAll = hasPermission(authData.role, 'requests');
 
@@ -169,15 +163,9 @@ export const PATCH = withErrorHandler(
 
     const { tenantId } = await withTenant();
 
-    const authData = await getSessionAndRole(request);
-    if (!authData) {
-      return apiUnauthorized();
-    }
-
-    const canViewAll = hasPermission(authData.role, 'requests');
-    if (!canViewAll) {
-      return apiForbidden();
-    }
+    const auth = await requireAuth(request, { permission: 'requests', module: 'maintenance' });
+    if (!auth.success) return auth.response;
+    const authData = auth.data;
 
     const body = await request.json();
 
@@ -504,15 +492,9 @@ export const DELETE = withErrorHandler(
 
     const { tenantId } = await withTenant();
 
-    const authData = await getSessionAndRole(request);
-    if (!authData) {
-      return apiUnauthorized();
-    }
-
-    const canViewAll = hasPermission(authData.role, 'requests');
-    if (!canViewAll) {
-      return apiForbidden();
-    }
+    const auth = await requireAuth(request, { permission: 'requests', module: 'maintenance' });
+    if (!auth.success) return auth.response;
+    const authData = auth.data;
 
     // Soft-delete the maintenance request with tenant check
     await db

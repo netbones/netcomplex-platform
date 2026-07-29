@@ -37,6 +37,45 @@ vi.mock('@entities/booking/server', () => ({
 
 vi.mock('@entities/booking', () => ({}));
 
+vi.mock('@/shared/api/auth-utils', () => ({
+  requireAuth: vi.fn(async (_request: Request, _opts?: { permission?: string }) => {
+    const session = mocks.sessionRole;
+    if (!session) {
+      return {
+        success: false as const,
+        response: new Response(
+          JSON.stringify({
+            success: false,
+            error: { code: 'AUTH_REQUIRED', message: 'Authentication required' },
+          }),
+          { status: 401, headers: { 'Content-Type': 'application/json' } }
+        ),
+      };
+    }
+    if (session.role !== 'ADMIN') {
+      return {
+        success: false as const,
+        response: new Response(
+          JSON.stringify({
+            success: false,
+            error: { code: 'FORBIDDEN', message: 'Insufficient permissions' },
+          }),
+          { status: 403, headers: { 'Content-Type': 'application/json' } }
+        ),
+      };
+    }
+    return {
+      success: true as const,
+      data: {
+        session: { user: { id: session.userId, email: '', name: '', image: null } },
+        userId: session.userId,
+        role: session.role,
+        suspension: null,
+      },
+    };
+  }),
+}));
+
 vi.mock('@api/server', async () => {
   const { NextResponse } = await import('next/server');
   return {
@@ -80,6 +119,12 @@ vi.mock('@shared/lib', async importOriginal => {
   return {
     ...actual,
     createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn() }),
+    createLogger: vi.fn(() => ({
+      error: vi.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+      debug: vi.fn(),
+    })),
     isAdmin: (role: string) => role === 'ADMIN',
     hasPermission: (role: string, ..._args: unknown[]) => role === 'ADMIN',
   };

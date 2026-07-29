@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
-import { getSessionAndRole, apiSuccess, apiError, guardSuspension } from '@api/server';
+import { apiSuccess, apiError } from '@api/server';
+import { requireAuth } from '@/shared/api/auth-utils';
 import { withTenant } from '@entities/tenant/server';
 import { resolveRoutingType } from '@entities/maintenance/server';
 
@@ -11,11 +12,10 @@ export const maxDuration = 5;
  * Lightweight — no PII, no financials. Read-only, session required.
  */
 export async function GET(request: NextRequest) {
+  const auth = await requireAuth(request, { module: 'maintenance' });
+  if (!auth.success) return auth.response;
+
   const { tenantId } = await withTenant();
-  const authData = await getSessionAndRole(request);
-  if (!authData) return apiError('UNAUTHORIZED', 'Authentication required', 401);
-  const guard = guardSuspension(authData);
-  if (guard) return guard;
 
   const { searchParams } = new URL(request.url);
   const propertyId = searchParams.get('propertyId');

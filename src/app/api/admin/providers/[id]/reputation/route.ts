@@ -3,22 +3,19 @@ import { z } from 'zod';
 
 import {
   apiError,
-  apiUnauthorized,
   apiInternalError,
   apiNotFound,
   apiSuccess,
   db,
-  getSessionAndRole,
-  guardSuspension,
   notDeleted,
   now,
   providerMerits,
   providerReputations,
-  requireAnyPermission,
   serviceProviders,
   writeAuditLog,
 } from '@api/server';
-import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
+import { withTenant } from '@entities/tenant/server';
+import { requireAuth } from '@/shared/api/auth-utils';
 import { getProviderReputationSnapshot } from '@shared/api';
 import { logError } from '@shared/lib';
 import { createId } from '@shared/lib/id';
@@ -33,18 +30,8 @@ const providerReputationAdjustmentSchema = z.object({
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const moduleCheck = await assertModuleEnabled('providers');
-    if (moduleCheck) return moduleCheck;
-
-    const authError = await requireAnyPermission(['providers']);
-    if (authError) {
-      return authError;
-    }
-
-    const auth = await getSessionAndRole(request);
-    if (!auth) return apiUnauthorized();
-    const guard = guardSuspension(auth);
-    if (guard) return guard;
+    const auth = await requireAuth(request, { permission: 'admin' });
+    if (!auth.success) return auth.response;
     const parsed = providerReputationAdjustmentSchema.safeParse(await request.json());
     if (!parsed.success) {
       return apiError('VALIDATION_ERROR', 'Validation failed', 400, parsed.error.flatten());
@@ -123,25 +110,23 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         meritType: 'REFERENCE',
         points: delta,
         description: `Manual reputation adjustment: ${parsed.data.reason}`,
-        referenceId: auth?.userId ?? null,
+        referenceId: auth.data.userId,
         createdAt: timestamp,
       });
     }
 
-    if (auth) {
-      writeAuditLog({
-        action: 'PROVIDER_REPUTATION_ADJUSTED',
-        actorId: auth.userId,
-        tenantId,
-        targetId: provider.id,
-        details: {
-          reason: parsed.data.reason,
-          baseScore,
-          nextTotalScore,
-          delta,
-        },
-      });
-    }
+    writeAuditLog({
+      action: 'PROVIDER_REPUTATION_ADJUSTED',
+      actorId: auth.data.userId,
+      tenantId,
+      targetId: provider.id,
+      details: {
+        reason: parsed.data.reason,
+        baseScore,
+        nextTotalScore,
+        delta,
+      },
+    });
 
     const snapshot = await getProviderReputationSnapshot(tenantId, provider.id);
 

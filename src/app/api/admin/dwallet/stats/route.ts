@@ -1,18 +1,14 @@
 import {
   apiSuccess,
-  apiUnauthorized,
-  apiForbidden,
   apiInternalError,
   withErrorHandler,
-  getSessionAndRole,
   db,
   dWallets,
   dataConsents,
   payoutRequests,
   walletTransactions,
-  guardSuspension,
 } from '@api/server';
-import { hasPermission } from '@shared/lib';
+import { requireAuth } from '@/shared/api/auth-utils';
 import { createComponentLogger } from '@shared/lib';
 import { withTenant } from '@entities/tenant/server';
 import { eq, and, gte, sql, count, countDistinct, sum } from 'drizzle-orm';
@@ -33,12 +29,8 @@ const logger = createComponentLogger('admin-dwallet-stats');
  * CONSTRAINT 5: Never returns individual balances, consent choices, or transaction details.
  */
 export const GET = withErrorHandler(async (request: Request) => {
-  const sessionData = await getSessionAndRole(request);
-  if (!sessionData) return apiUnauthorized();
-  const guard = guardSuspension(sessionData);
-  if (guard) return guard;
-
-  if (!hasPermission(sessionData.role, 'admin')) return apiForbidden();
+  const auth = await requireAuth(request, { permission: 'admin' });
+  if (!auth.success) return auth.response;
 
   try {
     const { tenantId } = await withTenant();

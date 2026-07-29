@@ -9,20 +9,19 @@ import {
   households,
   apiPaginated,
   apiCreated,
-  apiForbidden,
-  apiUnauthorized,
   now,
   withErrorHandler,
   getSessionAndRole,
-  guardSuspension,
 } from '@api/server';
+
+import { requireAuth } from '@/shared/api/auth-utils';
 
 import { hasPermission } from '@shared/lib';
 
 import { eq, and, or, asc, ilike, count, ne, sql, inArray } from 'drizzle-orm';
 
 import type { SQL } from 'drizzle-orm';
-import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
+import { withTenant } from '@entities/tenant/server';
 import { toUserDTO } from '@api/server';
 import { createId } from '@shared/lib/id';
 export const maxDuration = 8;
@@ -196,13 +195,9 @@ export const GET = withErrorHandler(async (request: Request) => {
  * @deprecated Use trpc.identity.createProfile instead.
  */
 export const POST = withErrorHandler(async (request: Request) => {
-  const authData = await getSessionAndRole(request);
-  if (!authData) return apiUnauthorized();
-  const guard = guardSuspension(authData);
-  if (guard) return guard;
-  const featureCheck = await assertModuleEnabled('users');
-  if (featureCheck) return featureCheck;
-  if (!hasPermission(authData.role, 'users')) return apiForbidden();
+  const auth = await requireAuth(request, { permission: 'users' });
+  if (!auth.success) return auth.response;
+  const authData = auth.data;
 
   const body = await request.json();
   const ts = now();

@@ -1,14 +1,7 @@
 import { NextRequest } from 'next/server';
 import { eq, and } from 'drizzle-orm';
-import {
-  getSessionAndRole,
-  runWithRLS,
-  requireTenantRLS,
-  apiSuccess,
-  apiInternalError,
-  apiUnauthorized,
-  guardSuspension,
-} from '@api/server';
+import { runWithRLS, requireTenantRLS, apiSuccess, apiInternalError } from '@api/server';
+import { requireAuth } from '@/shared/api/auth-utils';
 import { achievementDefinitions } from '@schema/achievement-definitions';
 import { tenantAchievements } from '@schema/tenant-achievements';
 import { userAchievementProgresses } from '@schema/user-achievement-progresses';
@@ -23,10 +16,8 @@ const log = createComponentLogger('achievements-progress-api');
  */
 export async function GET(request: NextRequest) {
   try {
-    const sessionRole = await getSessionAndRole();
-    if (!sessionRole) return apiUnauthorized();
-    const guard = guardSuspension(sessionRole);
-    if (guard) return guard;
+    const auth = await requireAuth(request);
+    if (!auth.success) return auth.response;
 
     const rls = await requireTenantRLS(request);
     if (!rls.ok) return rls.response;
@@ -56,7 +47,7 @@ export async function GET(request: NextRequest) {
         )
         .where(
           and(
-            eq(userAchievementProgresses.userId, sessionRole.userId),
+            eq(userAchievementProgresses.userId, auth.data.userId),
             eq(userAchievementProgresses.tenantId, tenantId)
           )
         );

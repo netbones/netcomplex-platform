@@ -14,6 +14,34 @@ const mocks = vi.hoisted(() => ({
   },
 }));
 
+vi.mock('@/shared/api/auth-utils', () => ({
+  requireAuth: vi.fn(async () => {
+    const session = await mocks.getSessionAndRole();
+    if (!session) {
+      return {
+        success: false as const,
+        response: new Response(
+          JSON.stringify({
+            success: false,
+            error: { code: 'AUTH_REQUIRED', message: 'Authentication required' },
+          }),
+          { status: 401, headers: { 'Content-Type': 'application/json' } }
+        ),
+      };
+    }
+    return {
+      success: true as const,
+      data: {
+        session: { user: { id: session.userId, email: '', name: '', image: null } },
+        userId: session.userId,
+        role: session.role,
+        tenantId: 'test-tenant-id',
+        suspension: null,
+      },
+    };
+  }),
+}));
+
 vi.mock('@api/server', async () => {
   const { NextResponse } = await import('next/server');
   return {
@@ -29,6 +57,7 @@ vi.mock('@api/server', async () => {
     getSessionAndRole: (...args: unknown[]) => mocks.getSessionAndRole(...args),
     notDeleted: vi.fn(() => true),
     guardSuspension: vi.fn(() => null),
+    rateLimitByUser: vi.fn(() => Promise.resolve(null)),
     CACHE_TAGS: {},
     now: () => new Date(),
     withErrorHandler: (handler: any) => handler,
@@ -64,11 +93,11 @@ describe('Groups Members API', () => {
     mocks.dbMock.select.mockReturnValue(makeSelectChain([]));
     mocks.dbMock.insert.mockReturnValue(makeInsertChain([{ id: 'mem-1' }]));
     mocks.dbMock.delete.mockReturnValue(makeDeleteChain());
-  mocks.dbMock.update.mockReturnValue({
-    set: vi.fn(() => ({
-      where: vi.fn(() => Promise.resolve()),
-    })),
-  });
+    mocks.dbMock.update.mockReturnValue({
+      set: vi.fn(() => ({
+        where: vi.fn(() => Promise.resolve()),
+      })),
+    });
   });
 
   afterEach(() => {

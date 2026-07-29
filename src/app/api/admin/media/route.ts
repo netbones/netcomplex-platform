@@ -3,28 +3,21 @@ import {
   uploadTenantImage,
   listTenantImages,
   deleteTenantImage,
-  getSessionAndRole,
   apiError,
   apiSuccess,
-  apiUnauthorized,
-  apiForbidden,
   apiInternalError,
   rateLimitByUser,
-  guardSuspension,
 } from '@api/server';
-import { hasPermission } from '@shared/lib';
+import { requireAuth } from '@/shared/api/auth-utils';
 import { withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
 
 export const maxDuration = 8;
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const authData = await getSessionAndRole();
-    if (!authData) return apiUnauthorized();
-    const guard = guardSuspension(authData);
-    if (guard) return guard;
-    if (!hasPermission(authData.role, 'admin')) return apiForbidden();
+    const auth = await requireAuth(request, { permission: 'admin' });
+    if (!auth.success) return auth.response;
 
     const { tenantId } = await withTenant();
     const images = await listTenantImages(tenantId);
@@ -37,11 +30,13 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const authData = await getSessionAndRole(request);
-    if (!authData) return apiUnauthorized();
-    if (!hasPermission(authData.role, 'admin')) return apiForbidden();
+    const auth = await requireAuth(request, { permission: 'admin' });
+    if (!auth.success) return auth.response;
 
-    const rateLimit = await rateLimitByUser(authData.userId, { windowMs: 60_000, maxRequests: 10 });
+    const rateLimit = await rateLimitByUser(auth.data.userId, {
+      windowMs: 60_000,
+      maxRequests: 10,
+    });
     if (rateLimit) return rateLimit;
 
     const { tenantId } = await withTenant();
@@ -68,9 +63,8 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const authData = await getSessionAndRole(request);
-    if (!authData) return apiUnauthorized();
-    if (!hasPermission(authData.role, 'admin')) return apiForbidden();
+    const auth = await requireAuth(request, { permission: 'admin' });
+    if (!auth.success) return auth.response;
 
     const { searchParams } = new URL(request.url);
     const key = searchParams.get('key');

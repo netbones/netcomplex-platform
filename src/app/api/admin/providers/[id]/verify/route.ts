@@ -2,20 +2,17 @@ import { and, eq } from 'drizzle-orm';
 
 import {
   apiError,
-  apiUnauthorized,
   apiInternalError,
   apiNotFound,
   apiSuccess,
   db,
-  getSessionAndRole,
-  guardSuspension,
   notDeleted,
   providerVerifications,
-  requireAnyPermission,
   serviceProviders,
   writeAuditLog,
 } from '@api/server';
-import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
+import { withTenant } from '@entities/tenant/server';
+import { requireAuth } from '@/shared/api/auth-utils';
 import { getProviderDueDiligenceSnapshot, activateProvider } from '@shared/api';
 import { logError } from '@shared/lib';
 import { providerReviewApprovalSchema } from '@shared/lib/providers';
@@ -27,18 +24,8 @@ export const maxDuration = 8;
  */
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const moduleCheck = await assertModuleEnabled('providers');
-    if (moduleCheck) return moduleCheck;
-
-    const authError = await requireAnyPermission(['providers']);
-    if (authError) {
-      return authError;
-    }
-
-    const auth = await getSessionAndRole(request);
-    if (!auth) return apiUnauthorized();
-    const guard = guardSuspension(auth);
-    if (guard) return guard;
+    const auth = await requireAuth(request, { permission: 'admin' });
+    if (!auth.success) return auth.response;
     const parsed = providerReviewApprovalSchema.safeParse(await request.json());
     if (!parsed.success) {
       return apiError('VALIDATION_ERROR', 'Validation failed', 400, parsed.error.flatten());
@@ -72,15 +59,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       await activateProvider(tx, provider.id, provider.userId, notes);
     });
 
-    if (auth) {
-      writeAuditLog({
-        action: 'PROVIDER_APPROVED',
-        actorId: auth.userId,
-        tenantId,
-        targetId: provider.id,
-        details: { method: 'verify', notes },
-      });
-    }
+    writeAuditLog({
+      action: 'PROVIDER_APPROVED',
+      actorId: auth.data.userId,
+      tenantId,
+      targetId: provider.id,
+      details: { method: 'verify', notes },
+    });
 
     const [verification] = await db
       .select()

@@ -2,21 +2,18 @@ import { NextRequest } from 'next/server';
 import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
 import {
-  getSessionAndRole,
-  guardSuspension,
   runWithRLS,
   requireTenantRLS,
   apiSuccess,
   apiError,
-  apiForbidden,
-  apiUnauthorized,
   apiInternalError,
   writeAuditLog,
   rateLimitByUser,
 } from '@api/server';
+import { requireAuth } from '@/shared/api/auth-utils';
 import { achievementDefinitions } from '@schema/achievement-definitions';
 import { tenantAchievements } from '@schema/tenant-achievements';
-import { hasPermission, createComponentLogger } from '@shared/lib';
+import { createComponentLogger } from '@shared/lib';
 import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
@@ -34,13 +31,10 @@ const patchBodySchema = z.object({
  */
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const sessionRole = await getSessionAndRole();
-    if (!sessionRole) return apiUnauthorized();
-    const guard = guardSuspension(sessionRole);
-    if (guard) return guard;
-    if (!hasPermission(sessionRole.role, 'admin')) return apiForbidden();
+    const auth = await requireAuth(request, { permission: 'admin' });
+    if (!auth.success) return auth.response;
 
-    const rateLimit = await rateLimitByUser(sessionRole.userId, {
+    const rateLimit = await rateLimitByUser(auth.data.userId, {
       windowMs: 60_000,
       maxRequests: 20,
     });
@@ -109,7 +103,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
       writeAuditLog({
         action: 'ACHIEVEMENT_CONFIG_CHANGED',
-        actorId: sessionRole.userId,
+        actorId: auth.data.userId,
         tenantId,
         details: { definitionId, changes: parsed.data },
       });

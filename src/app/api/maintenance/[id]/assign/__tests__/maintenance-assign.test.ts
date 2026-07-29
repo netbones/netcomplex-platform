@@ -67,6 +67,42 @@ const mocks = vi.hoisted(() => ({
   ),
 }));
 
+vi.mock('@/shared/api/auth-utils', () => ({
+  requireAuth: vi.fn(async (_request: Request, opts?: { permission?: string }) => {
+    if (!mocks.sessionResult) {
+      return {
+        success: false as const,
+        response: new Response(
+          JSON.stringify({
+            success: false,
+            error: { code: 'AUTH_REQUIRED', message: 'Authentication required' },
+          }),
+          { status: 401, headers: { 'Content-Type': 'application/json' } }
+        ),
+      };
+    }
+    if (opts?.permission && !mocks.hasPermission('ADMIN', opts.permission)) {
+      return {
+        success: false as const,
+        response: new Response(
+          JSON.stringify({ success: false, error: { code: 'FORBIDDEN', message: 'Forbidden' } }),
+          { status: 403, headers: { 'Content-Type': 'application/json' } }
+        ),
+      };
+    }
+    return {
+      success: true as const,
+      data: {
+        userId: mocks.sessionResult.user.id,
+        role: 'ADMIN',
+        tenantId: 'test-tenant-id',
+        session: { user: { id: mocks.sessionResult.user.id } },
+        suspension: null,
+      },
+    };
+  }),
+}));
+
 vi.mock('@api/server', async () => {
   const { NextResponse } = await import('next/server');
   return {
@@ -159,6 +195,12 @@ vi.mock('@entities/tenant/server', () => ({
 vi.mock('@shared/lib', () => ({
   hasPermission: (...args: Parameters<typeof mocks.hasPermission>) => mocks.hasPermission(...args),
   createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn() }),
+  createLogger: vi.fn(() => ({
+    error: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+  })),
 }));
 
 import { POST } from '@/app/api/maintenance/[id]/assign/route';

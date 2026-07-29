@@ -3,18 +3,16 @@ import { and, desc, eq, isNull, or } from 'drizzle-orm';
 import {
   apiForbidden,
   apiSuccess,
-  apiUnauthorized,
   db,
   notDeleted,
   providerVerifications,
   serviceProviders,
-  guardSuspension,
 } from '@api/server';
-import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
+import { withTenant } from '@entities/tenant/server';
+import { requireAuth } from '@/shared/api/auth-utils';
 import {
   getProviderDueDiligenceSnapshot,
   getProviderLegalAgreementStatus,
-  getSessionAndRole,
   type ProviderVerificationStatus,
 } from '@shared/api';
 
@@ -25,17 +23,10 @@ function canReviewProviders(role: string): boolean {
 }
 
 export async function GET(request: Request) {
-  const auth = await getSessionAndRole(request);
-  if (!auth) {
-    return apiUnauthorized();
-  }
-  const guard = guardSuspension(auth);
-  if (guard) return guard;
+  const auth = await requireAuth(request, { permission: 'admin' });
+  if (!auth.success) return auth.response;
 
-  const moduleCheck = await assertModuleEnabled('providers');
-  if (moduleCheck) return moduleCheck;
-
-  if (!canReviewProviders(auth.role)) {
+  if (!canReviewProviders(auth.data.role)) {
     return apiForbidden('Board or admin access required');
   }
 

@@ -1,18 +1,14 @@
 import {
   apiSuccess,
   apiCreated,
-  apiUnauthorized,
-  apiForbidden,
   apiConflict,
   apiInternalError,
   withErrorHandler,
-  getSessionAndRole,
   db,
   dataRevenueStreams,
   now,
-  guardSuspension,
 } from '@api/server';
-import { hasPermission } from '@shared/lib';
+import { requireAuth } from '@/shared/api/auth-utils';
 import { createComponentLogger } from '@shared/lib';
 import { withTenant } from '@entities/tenant/server';
 import { streamConfigSchema } from '@entities/dwallet';
@@ -29,12 +25,8 @@ const logger = createComponentLogger('admin-dwallet-streams');
  * Lists all DataRevenueStream config for the tenant (active + inactive).
  */
 export const GET = withErrorHandler(async (request: Request) => {
-  const sessionData = await getSessionAndRole(request);
-  if (!sessionData) return apiUnauthorized();
-  const guard = guardSuspension(sessionData);
-  if (guard) return guard;
-
-  if (!hasPermission(sessionData.role, 'admin')) return apiForbidden();
+  const auth = await requireAuth(request, { permission: 'admin' });
+  if (!auth.success) return auth.response;
 
   try {
     const { tenantId } = await withTenant();
@@ -58,10 +50,8 @@ export const GET = withErrorHandler(async (request: Request) => {
  * Enforces uniqueness on (tenantId, key) via pre-insert check.
  */
 export const POST = withErrorHandler(async (request: Request) => {
-  const sessionData = await getSessionAndRole(request);
-  if (!sessionData) return apiUnauthorized();
-
-  if (!hasPermission(sessionData.role, 'admin')) return apiForbidden();
+  const auth = await requireAuth(request, { permission: 'admin' });
+  if (!auth.success) return auth.response;
 
   try {
     const { tenantId } = await withTenant();

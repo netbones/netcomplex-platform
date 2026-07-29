@@ -5,21 +5,16 @@ import {
   apiForbidden,
   apiNotFound,
   apiSuccess,
-  apiUnauthorized,
   db,
   notDeleted,
   now,
   sendEmail,
   serviceProviders,
   writeAuditLog,
-  guardSuspension,
 } from '@api/server';
-import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
-import {
-  getProviderDueDiligenceSnapshot,
-  getSessionAndRole,
-  upsertProviderVerification,
-} from '@shared/api';
+import { withTenant } from '@entities/tenant/server';
+import { requireAuth } from '@/shared/api/auth-utils';
+import { getProviderDueDiligenceSnapshot, upsertProviderVerification } from '@shared/api';
 import { providerReviewRejectionSchema } from '@shared/lib/providers';
 
 export const maxDuration = 8;
@@ -29,17 +24,10 @@ function canReviewProviders(role: string): boolean {
 }
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const auth = await getSessionAndRole(request);
-  if (!auth) {
-    return apiUnauthorized();
-  }
-  const guard = guardSuspension(auth);
-  if (guard) return guard;
+  const auth = await requireAuth(request, { permission: 'admin' });
+  if (!auth.success) return auth.response;
 
-  const moduleCheck = await assertModuleEnabled('providers');
-  if (moduleCheck) return moduleCheck;
-
-  if (!canReviewProviders(auth.role)) {
+  if (!canReviewProviders(auth.data.role)) {
     return apiForbidden('Board or admin access required');
   }
 
@@ -87,7 +75,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   writeAuditLog({
     action: 'PROVIDER_REJECTED',
-    actorId: auth.userId,
+    actorId: auth.data.userId,
     tenantId,
     targetId: provider.id,
     details: { reason: parsed.data.reason, mappedStatus: 'SUSPENDED' },

@@ -5,19 +5,19 @@ import {
   revalidateContent,
   apiForbidden,
   apiSuccess,
-  apiUnauthorized,
   apiNotFound,
   notDeleted,
   apiGone,
   now,
   withErrorHandler,
   getSessionAndRole,
-  guardSuspension,
 } from '@api/server';
+
+import { requireAuth } from '@/shared/api/auth-utils';
 
 import { eq, desc, and } from 'drizzle-orm';
 
-import { withTenant, assertModuleEnabled } from '@entities/tenant/server';
+import { withTenant } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
 import { createId } from '@shared/lib/id';
 
@@ -126,19 +126,9 @@ export const GET = withErrorHandler(
 export const PATCH = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;
-    const authData = await getSessionAndRole(request);
-
-    if (!authData) {
-      return apiUnauthorized();
-    }
-    const guard = guardSuspension(authData);
-    if (guard) return guard;
-    const featureCheck = await assertModuleEnabled('resources');
-    if (featureCheck) return featureCheck;
-
-    if (!hasPermission(authData.role, 'content')) {
-      return apiForbidden();
-    }
+    const auth = await requireAuth(request, { permission: 'content', module: 'resources' });
+    if (!auth.success) return auth.response;
+    const authData = auth.data;
 
     // Enforce tenant isolation
     const { tenantId } = await withTenant();
@@ -203,15 +193,9 @@ export const PATCH = withErrorHandler(
 export const DELETE = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;
-    const authData = await getSessionAndRole(request);
-
-    if (!authData) {
-      return apiUnauthorized();
-    }
-
-    if (!hasPermission(authData.role, 'admin')) {
-      return apiForbidden();
-    }
+    const auth = await requireAuth(request, { permission: 'admin' });
+    if (!auth.success) return auth.response;
+    const authData = auth.data;
 
     // Enforce tenant isolation
     const { tenantId } = await withTenant();

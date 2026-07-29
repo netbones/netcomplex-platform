@@ -1,18 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import {
-  auth,
-  apiUnauthorized,
   apiForbidden,
   apiNotFound,
   apiInternalError,
   db,
-  users,
   tenantAiUsages,
   tenants,
-  getSessionAndRole,
-  guardSuspension,
 } from '@api/server';
 import { requirePlatformAdmin, withTenant } from '@entities/tenant/server';
+import { requireAuth } from '@/shared/api/auth-utils';
 import { tenantInvoices } from '@schema/tenant-invoices';
 import { eq, and } from 'drizzle-orm';
 import { buildOverageInvoicePdf } from '@shared/api/ai/build-overage-invoice-pdf';
@@ -21,7 +17,6 @@ import { getTierQuota } from '@shared/api/ai/pool';
 
 export const maxDuration = 8;
 
-/** Get session and role from request headers (inline pattern per dispute export route). */
 /**
  * GET /api/admin/platform/billing/invoices/[id]/pdf
  *
@@ -39,10 +34,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   if (platformGuard !== null) {
     // Not platform admin — try tenant-scoped access
-    const authData = await getSessionAndRole(request);
-    if (!authData) return apiUnauthorized();
-    const guard = guardSuspension(authData);
-    if (guard) return guard;
+    const tenantAuth = await requireAuth(request, { permission: 'admin' });
+    if (!tenantAuth.success) return tenantAuth.response;
 
     const { tenantId } = await withTenant();
     allowedTenantId = tenantId;

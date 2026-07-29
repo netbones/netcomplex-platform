@@ -45,6 +45,33 @@ const mocks = vi.hoisted(() => ({
   ),
 }));
 
+vi.mock('@/shared/api/auth-utils', () => ({
+  requireAuth: vi.fn(async (_request: Request) => {
+    if (!mocks.sessionResult) {
+      return {
+        success: false as const,
+        response: new Response(
+          JSON.stringify({
+            success: false,
+            error: { code: 'AUTH_REQUIRED', message: 'Authentication required' },
+          }),
+          { status: 401, headers: { 'Content-Type': 'application/json' } }
+        ),
+      };
+    }
+    return {
+      success: true as const,
+      data: {
+        session: { user: { id: mocks.sessionResult.user.id, email: '', name: '', image: null } },
+        userId: mocks.sessionResult.user.id,
+        role: mocks.mockRole,
+        tenantId: mocks.tenantResult.tenantId,
+        suspension: null,
+      },
+    };
+  }),
+}));
+
 vi.mock('@api/server', () => ({
   auth: {
     api: {
@@ -84,6 +111,7 @@ vi.mock('@api/server', () => ({
 
 vi.mock('@entities/tenant/server', () => ({
   withTenant: () => Promise.resolve(mocks.tenantResult),
+  assertModuleEnabled: vi.fn(() => Promise.resolve(null)),
 }));
 
 vi.mock('@shared/lib', () => ({
@@ -94,6 +122,7 @@ vi.mock('@shared/lib', () => ({
     return false;
   },
   createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
+  createLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
 }));
 
 import { POST } from '@/app/api/surveys/[id]/sections/reorder/route';

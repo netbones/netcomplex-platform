@@ -52,6 +52,34 @@ const mocks = vi.hoisted(() => ({
   ),
 }));
 
+vi.mock('@/shared/api/auth-utils', () => ({
+  requireAuth: vi.fn(async () => {
+    if (!mocks.sessionResult) {
+      return {
+        success: false as const,
+        response: new Response(
+          JSON.stringify({
+            success: false,
+            error: { code: 'AUTH_REQUIRED', message: 'Authentication required' },
+          }),
+          { status: 401, headers: { 'Content-Type': 'application/json' } }
+        ),
+      };
+    }
+    const userId = mocks.sessionResult.user.id;
+    return {
+      success: true as const,
+      data: {
+        session: { user: { id: userId, email: '', name: '', image: null } },
+        userId,
+        role: 'RESIDENT',
+        tenantId: 'test-tenant-id',
+        suspension: null,
+      },
+    };
+  }),
+}));
+
 vi.mock('@api/server', () => ({
   db: mocks.dbMock,
   groupMembershipRequests: {
@@ -79,12 +107,14 @@ vi.mock('@api/server', () => ({
 
 vi.mock('@entities/tenant/server', () => ({
   withTenant: () => Promise.resolve(mocks.tenantResult),
+  assertModuleEnabled: vi.fn(() => Promise.resolve(null)),
 }));
 
 vi.mock('@shared/lib', () => ({
   hasPermission: (...args: any[]) => mocks.hasPermission(...args),
   apiLogger: { error: vi.fn(), info: vi.fn(), warn: vi.fn() },
   createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
+  createLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
 }));
 
 import { GET } from '@/app/api/groups/membership-requests/route';
@@ -132,8 +162,7 @@ describe('GET /api/groups/membership-requests', () => {
       mocks.sessionResult = { user: { id: 'user-1' } };
       mocks.hasPermission.mockReturnValue(true);
 
-      mocks.dbMock.select
-        .mockReturnValueOnce(makeSelectChain([]));
+      mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([]));
 
       const response = await GET(makeReq());
       expect(response.status).toBe(200);
@@ -158,29 +187,27 @@ describe('GET /api/groups/membership-requests', () => {
         },
       ];
 
-      mocks.dbMock.select
-        .mockReturnValueOnce(makeSelectChain(requests));
- 
+      mocks.dbMock.select.mockReturnValueOnce(makeSelectChain(requests));
+
       const response = await GET(makeReq());
       expect(response.status).toBe(200);
- 
+
       const body = await response.json();
       expect(body.data.requests).toHaveLength(1);
       expect(body.data.requests[0].status).toBe('PENDING');
     });
- 
+
     it('filters by status=ALL to return all statuses', async () => {
       mocks.sessionResult = { user: { id: 'user-1' } };
       mocks.hasPermission.mockReturnValue(true);
- 
+
       const requests = [
         { id: 'req-1', status: 'PENDING', user: null, group: null },
         { id: 'req-2', status: 'APPROVED', user: null, group: null },
         { id: 'req-3', status: 'REJECTED', user: null, group: null },
       ];
- 
-      mocks.dbMock.select
-        .mockReturnValueOnce(makeSelectChain(requests));
+
+      mocks.dbMock.select.mockReturnValueOnce(makeSelectChain(requests));
 
       const response = await GET(
         makeReq('http://localhost:3000/api/groups/membership-requests?status=ALL')
@@ -195,21 +222,20 @@ describe('GET /api/groups/membership-requests', () => {
       mocks.sessionResult = { user: { id: 'user-1' } };
       mocks.hasPermission.mockReturnValue(true);
 
-      mocks.dbMock.select
-        .mockReturnValueOnce(
-          makeSelectChain([
-            {
-              id: 'req-1',
-              userId: 'user-2',
-              groupId: 'g-1',
-              status: 'PENDING',
-              message: null,
-              createdAt: new Date(),
-              user: { name: 'Bob', email: 'bob@test.com' },
-              group: { name: 'Book Club', accessType: 'OPEN' },
-            },
-          ])
-        );
+      mocks.dbMock.select.mockReturnValueOnce(
+        makeSelectChain([
+          {
+            id: 'req-1',
+            userId: 'user-2',
+            groupId: 'g-1',
+            status: 'PENDING',
+            message: null,
+            createdAt: new Date(),
+            user: { name: 'Bob', email: 'bob@test.com' },
+            group: { name: 'Book Club', accessType: 'OPEN' },
+          },
+        ])
+      );
 
       const response = await GET(
         makeReq('http://localhost:3000/api/groups/membership-requests?groupId=g-1')
@@ -224,22 +250,21 @@ describe('GET /api/groups/membership-requests', () => {
       mocks.sessionResult = { user: { id: 'user-1' } };
       mocks.hasPermission.mockReturnValue(true);
 
-      mocks.dbMock.select
-        .mockReturnValueOnce(
-          makeSelectChain([
-            {
-              id: 'req-1',
-              userId: 'user-2',
-              groupId: 'g-1',
-              status: 'PENDING',
-              message: 'Please add me',
-              createdAt: new Date(),
-              user: { name: 'Bob', email: 'bob@test.com' },
-              group: { name: 'Book Club', accessType: 'OPEN' },
-            },
-          ])
-        );
- 
+      mocks.dbMock.select.mockReturnValueOnce(
+        makeSelectChain([
+          {
+            id: 'req-1',
+            userId: 'user-2',
+            groupId: 'g-1',
+            status: 'PENDING',
+            message: 'Please add me',
+            createdAt: new Date(),
+            user: { name: 'Bob', email: 'bob@test.com' },
+            group: { name: 'Book Club', accessType: 'OPEN' },
+          },
+        ])
+      );
+
       const response = await GET(
         makeReq('http://localhost:3000/api/groups/membership-requests?status=PENDING&groupId=g-1')
       );
@@ -266,9 +291,8 @@ describe('GET /api/groups/membership-requests', () => {
         },
       ];
 
-      mocks.dbMock.select
-        .mockReturnValueOnce(makeSelectChain(requests));
- 
+      mocks.dbMock.select.mockReturnValueOnce(makeSelectChain(requests));
+
       const response = await GET(makeReq());
       const body = await response.json();
       const req = body.data.requests[0];
@@ -298,9 +322,8 @@ describe('GET /api/groups/membership-requests', () => {
         },
       ];
 
-      mocks.dbMock.select
-        .mockReturnValueOnce(makeSelectChain(requests));
- 
+      mocks.dbMock.select.mockReturnValueOnce(makeSelectChain(requests));
+
       const response = await GET(makeReq());
       const body = await response.json();
       expect(body.data.requests[0].user).toBeNull();
@@ -311,9 +334,8 @@ describe('GET /api/groups/membership-requests', () => {
       mocks.sessionResult = { user: { id: 'user-1' } };
       mocks.hasPermission.mockReturnValue(true);
 
-      mocks.dbMock.select
-        .mockReturnValueOnce(makeSelectChain([]));
- 
+      mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([]));
+
       const response = await GET(makeReq());
       const body = await response.json();
       expect(body.data.requests).toEqual([]);
@@ -340,9 +362,8 @@ describe('GET /api/groups/membership-requests', () => {
         },
       ];
 
-      mocks.dbMock.select
-        .mockReturnValueOnce(makeSelectChain(requests));
- 
+      mocks.dbMock.select.mockReturnValueOnce(makeSelectChain(requests));
+
       const response = await GET(makeReq());
       const body = await response.json();
       // Make sure both requests come back (ordering is hard to verify with chain mocks)
@@ -355,11 +376,10 @@ describe('GET /api/groups/membership-requests', () => {
       mocks.sessionResult = { user: { id: 'user-1' } };
       mocks.hasPermission.mockReturnValue(true);
 
-      mocks.dbMock.select
-        .mockReturnValueOnce(makeSelectChain([]));
- 
+      mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([]));
+
       await GET(makeReq());
- 
+
       // The main query's where clause includes tenantId condition
       const selectChain = mocks.dbMock.select.mock.results[0]?.value;
       expect(selectChain).toBeDefined();

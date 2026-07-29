@@ -1,11 +1,8 @@
 import {
   apiSuccess,
   apiError,
-  apiUnauthorized,
-  apiForbidden,
   apiInternalError,
   withErrorHandler,
-  getSessionAndRole,
   db,
   dataConsents,
   dataRevenueStreams,
@@ -14,9 +11,8 @@ import {
   walletTransactions,
   now,
   revalidateDashboard,
-  guardSuspension,
 } from '@api/server';
-import { hasPermission } from '@shared/lib';
+import { requireAuth } from '@/shared/api/auth-utils';
 import { createComponentLogger } from '@shared/lib';
 import { withTenant } from '@entities/tenant/server';
 import { batchSchema } from '@entities/dwallet';
@@ -33,12 +29,8 @@ const logger = createComponentLogger('admin-dwallet-batches');
  * Lists all DataShareBatch records for the tenant, ordered by createdAt desc.
  */
 export const GET = withErrorHandler(async (request: Request) => {
-  const sessionData = await getSessionAndRole(request);
-  if (!sessionData) return apiUnauthorized();
-  const guard = guardSuspension(sessionData);
-  if (guard) return guard;
-
-  if (!hasPermission(sessionData.role, 'admin')) return apiForbidden();
+  const auth = await requireAuth(request, { permission: 'admin' });
+  if (!auth.success) return auth.response;
 
   try {
     const { tenantId } = await withTenant();
@@ -65,10 +57,8 @@ export const GET = withErrorHandler(async (request: Request) => {
  * CONSTRAINT 4: All credits succeed atomically or none do (no partial credits).
  */
 export const POST = withErrorHandler(async (request: Request) => {
-  const sessionData = await getSessionAndRole(request);
-  if (!sessionData) return apiUnauthorized();
-
-  if (!hasPermission(sessionData.role, 'admin')) return apiForbidden();
+  const auth = await requireAuth(request, { permission: 'admin' });
+  if (!auth.success) return auth.response;
 
   try {
     const { tenantId } = await withTenant();
@@ -180,7 +170,7 @@ export const POST = withErrorHandler(async (request: Request) => {
           participantCount: optedInWalletIds.length,
           status: 'COMPLETED',
           processedAt: now(),
-          processedBy: sessionData.userId,
+          processedBy: auth.data.userId,
           createdAt: now(),
         });
       });

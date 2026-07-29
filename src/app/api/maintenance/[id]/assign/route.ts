@@ -4,25 +4,21 @@ import {
   maintenanceTeams,
   serviceProviders,
   requestHistories,
-  requireAnyPermission,
   apiSuccess,
-  apiUnauthorized,
   apiNotFound,
   apiError,
-  apiForbidden,
   now,
   revalidateDashboard,
   withErrorHandler,
   maintenanceTeamMembers,
   notifications,
   emitEvent,
-  getSessionAndRole,
-  guardSuspension,
 } from '@api/server';
 
-import { withTenant, assertModuleEnabled } from '@entities/tenant/server';
+import { requireAuth } from '@/shared/api/auth-utils';
 
-import { hasPermission } from '@shared/lib';
+import { withTenant } from '@entities/tenant/server';
+
 import { eq, and } from 'drizzle-orm';
 import { createId } from '@shared/lib/id';
 
@@ -41,24 +37,11 @@ export const maxDuration = 8;
 export const POST = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;
-    const authError = await requireAnyPermission(['requests']);
-    if (authError) return authError;
+    const auth = await requireAuth(request, { permission: 'requests', module: 'maintenance' });
+    if (!auth.success) return auth.response;
+    const authData = auth.data;
 
     const { tenantId } = await withTenant();
-
-    const authData = await getSessionAndRole(request);
-    if (!authData) {
-      return apiUnauthorized();
-    }
-    const guard = guardSuspension(authData);
-    if (guard) return guard;
-    const featureCheck = await assertModuleEnabled('maintenance');
-    if (featureCheck) return featureCheck;
-
-    const canViewAll = hasPermission(authData.role, 'requests');
-    if (!canViewAll) {
-      return apiForbidden();
-    }
 
     // Verify the request belongs to this tenant
     const [existing] = await db

@@ -3,19 +3,15 @@ import {
   maintenanceRequests,
   users,
   apiSuccess,
-  apiUnauthorized,
-  apiForbidden,
   apiNotFound,
   sendEmail,
   withErrorHandler,
-  getSessionAndRole,
-  guardSuspension,
 } from '@api/server';
 
-import { hasPermission } from '@shared/lib';
+import { requireAuth } from '@/shared/api/auth-utils';
 
 import { eq, and } from 'drizzle-orm';
-import { withTenant, assertModuleEnabled } from '@entities/tenant/server';
+import { withTenant } from '@entities/tenant/server';
 
 import { createLogger } from '@shared/lib';
 
@@ -29,19 +25,8 @@ export const POST = withErrorHandler(
     const { tenantId, tenantSlug } = await withTenant();
     const tenantName = tenantSlug || 'Netcomplex';
 
-    const authData = await getSessionAndRole(request);
-    if (!authData) {
-      return apiUnauthorized();
-    }
-    const guard = guardSuspension(authData);
-    if (guard) return guard;
-    const featureCheck = await assertModuleEnabled('maintenance');
-    if (featureCheck) return featureCheck;
-
-    const canViewAll = hasPermission(authData.role, 'requests');
-    if (!canViewAll) {
-      return apiForbidden();
-    }
+    const auth = await requireAuth(request, { permission: 'requests', module: 'maintenance' });
+    if (!auth.success) return auth.response;
 
     const [mr] = await db
       .select()

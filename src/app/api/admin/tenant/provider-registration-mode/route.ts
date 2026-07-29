@@ -5,18 +5,16 @@ import {
   apiForbidden,
   apiInternalError,
   apiSuccess,
-  apiUnauthorized,
   CACHE_TAGS,
-  getSessionAndRole,
   writeAuditLog,
   rateLimitByUser,
-  guardSuspension,
 } from '@api/server';
 import { withTenant } from '@entities/tenant/server';
 import {
   getProviderRegistrationModeImpl,
   setProviderRegistrationMode,
 } from '@entities/tenant/server';
+import { requireAuth } from '@/shared/api/auth-utils';
 import { providerRegistrationModeSchema } from '@shared/lib/providers';
 
 export const maxDuration = 8;
@@ -26,14 +24,10 @@ function canManageMode(role: string): boolean {
 }
 
 export async function GET(request: Request) {
-  const auth = await getSessionAndRole(request);
-  if (!auth) {
-    return apiUnauthorized();
-  }
-  const guard = guardSuspension(auth);
-  if (guard) return guard;
+  const auth = await requireAuth(request, { permission: 'admin' });
+  if (!auth.success) return auth.response;
 
-  if (!canManageMode(auth.role)) {
+  if (!canManageMode(auth.data.role)) {
     return apiForbidden('Board or admin access required');
   }
 
@@ -53,16 +47,14 @@ export async function GET(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const auth = await getSessionAndRole(request);
-  if (!auth) {
-    return apiUnauthorized();
-  }
+  const auth = await requireAuth(request, { permission: 'admin' });
+  if (!auth.success) return auth.response;
 
-  if (!canManageMode(auth.role)) {
+  if (!canManageMode(auth.data.role)) {
     return apiForbidden('Board or admin access required');
   }
 
-  const rateLimit = await rateLimitByUser(auth.userId, { windowMs: 60_000, maxRequests: 10 });
+  const rateLimit = await rateLimitByUser(auth.data.userId, { windowMs: 60_000, maxRequests: 10 });
   if (rateLimit) return rateLimit;
 
   const body = (await request.json()) as { mode?: string };
@@ -83,7 +75,7 @@ export async function PATCH(request: Request) {
 
   writeAuditLog({
     action: 'PROVIDER_REGISTRATION_MODE_CHANGED',
-    actorId: auth.userId,
+    actorId: auth.data.userId,
     tenantId,
     details: { oldValue: previousMode, newValue: parsed.data },
   });

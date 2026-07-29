@@ -1,20 +1,16 @@
 import {
   apiSuccess,
   apiError,
-  apiUnauthorized,
-  apiForbidden,
   apiNotFound,
   apiInternalError,
   withErrorHandler,
-  getSessionAndRole,
   db,
   payoutRequests,
   dWallets,
   walletTransactions,
   now,
-  guardSuspension,
 } from '@api/server';
-import { hasPermission } from '@shared/lib';
+import { requireAuth } from '@/shared/api/auth-utils';
 import { createComponentLogger } from '@shared/lib';
 import { withTenant } from '@entities/tenant/server';
 import { payoutStatusSchema } from '@entities/dwallet';
@@ -45,12 +41,8 @@ const logger = createComponentLogger('admin-dwallet-payout');
  */
 export const PATCH = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
-    const sessionData = await getSessionAndRole(request);
-    if (!sessionData) return apiUnauthorized();
-    const guard = guardSuspension(sessionData);
-    if (guard) return guard;
-
-    if (!hasPermission(sessionData.role, 'admin')) return apiForbidden();
+    const auth = await requireAuth(request, { permission: 'admin' });
+    if (!auth.success) return auth.response;
 
     const { id: payoutId } = await params;
 
@@ -134,7 +126,7 @@ export const PATCH = withErrorHandler(
             .set({
               status: 'COMPLETED',
               processedAt: timestamp,
-              processedBy: sessionData.userId,
+              processedBy: auth.data.userId,
               updatedAt: timestamp,
               notes: notes ?? null,
             } as never)
@@ -145,7 +137,7 @@ export const PATCH = withErrorHandler(
           {
             event: 'payout_completed',
             payoutId,
-            processedBy: sessionData.userId,
+            processedBy: auth.data.userId,
             tenantId,
           },
           'Payout marked COMPLETED'
@@ -157,7 +149,7 @@ export const PATCH = withErrorHandler(
           .set({
             status: 'REJECTED',
             processedAt: timestamp,
-            processedBy: sessionData.userId,
+            processedBy: auth.data.userId,
             updatedAt: timestamp,
             notes: notes ?? null,
           } as never)
@@ -167,7 +159,7 @@ export const PATCH = withErrorHandler(
           {
             event: 'payout_rejected',
             payoutId,
-            processedBy: sessionData.userId,
+            processedBy: auth.data.userId,
             tenantId,
           },
           'Payout marked REJECTED'

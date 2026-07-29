@@ -3,19 +3,16 @@ import { z } from 'zod';
 
 import {
   apiError,
-  apiUnauthorized,
   apiInternalError,
   apiNotFound,
   apiSuccess,
   db,
   paymentTransactions,
-  requireAnyPermission,
   writeAuditLog,
-  getSessionAndRole,
-  guardSuspension,
 } from '@api/server';
 import { refundProviderTransaction } from '@shared/api';
-import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
+import { withTenant } from '@entities/tenant/server';
+import { requireAuth } from '@/shared/api/auth-utils';
 import { logError } from '@shared/lib';
 import { decimalToNumber } from '@shared/lib/providers';
 import { getRefundableAmount } from '@shared/lib/providers';
@@ -29,18 +26,8 @@ const refundRequestSchema = z.object({
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const moduleCheck = await assertModuleEnabled('providers');
-    if (moduleCheck) return moduleCheck;
-
-    const authError = await requireAnyPermission(['providers']);
-    if (authError) {
-      return authError;
-    }
-
-    const auth = await getSessionAndRole(request);
-    if (!auth) return apiUnauthorized();
-    const guard = guardSuspension(auth);
-    if (guard) return guard;
+    const auth = await requireAuth(request, { permission: 'admin' });
+    if (!auth.success) return auth.response;
     const parsed = refundRequestSchema.safeParse(await request.json());
     if (!parsed.success) {
       return apiError('VALIDATION_ERROR', 'Validation failed', 400, parsed.error.flatten());
@@ -89,23 +76,21 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       return apiError('VALIDATION_ERROR', result.message, result.status);
     }
 
-    if (auth) {
-      writeAuditLog({
-        action: 'PROVIDER_REFUND_REVIEWED',
-        actorId: auth.userId,
-        tenantId,
-        targetId: transaction.id,
-        details: {
-          gateway: transaction.gateway,
-          requestedAmount,
-          maxRefundable,
-          reason: parsed.data.reason,
-          processingMode: 'GATEWAY_EXECUTED',
-          refundReference: result.data.refundReference,
-          refundedStatus: result.data.status,
-        },
-      });
-    }
+    writeAuditLog({
+      action: 'PROVIDER_REFUND_REVIEWED',
+      actorId: auth.data.userId,
+      tenantId,
+      targetId: transaction.id,
+      details: {
+        gateway: transaction.gateway,
+        requestedAmount,
+        maxRefundable,
+        reason: parsed.data.reason,
+        processingMode: 'GATEWAY_EXECUTED',
+        refundReference: result.data.refundReference,
+        refundedStatus: result.data.status,
+      },
+    });
 
     return apiSuccess(result.data);
   } catch (error) {

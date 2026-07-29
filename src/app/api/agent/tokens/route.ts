@@ -2,17 +2,8 @@ import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { eq, desc } from 'drizzle-orm';
 
-import {
-  db,
-  users,
-  apiSuccess,
-  apiUnauthorized,
-  apiForbidden,
-  apiNotFound,
-  apiValidationError,
-  getSessionAndRole,
-  guardSuspension,
-} from '@api/server';
+import { db, users, apiSuccess, apiForbidden, apiNotFound, apiValidationError } from '@api/server';
+import { requireAuth } from '@/shared/api/auth-utils';
 import { withTenant } from '@entities/tenant/server';
 import { agentTokens } from '@schema/agent-tokens';
 import { signAgentToken, hashToken } from '@shared/lib/agent-token';
@@ -46,10 +37,8 @@ const createTokenSchema = z.object({
 export async function POST(request: NextRequest) {
   const { tenantId } = await withTenant();
 
-  const session = await getSessionAndRole(request);
-  if (!session) return apiUnauthorized();
-  const guard = guardSuspension(session);
-  if (guard) return guard;
+  const auth = await requireAuth(request);
+  if (!auth.success) return auth.response;
 
   const body = await request.json();
   const parsed = createTokenSchema.safeParse(body);
@@ -63,7 +52,7 @@ export async function POST(request: NextRequest) {
   const [issuingUser] = await db
     .select({ id: users.id, role: users.role })
     .from(users)
-    .where(eq(users.id, session.userId))
+    .where(eq(users.id, auth.data.userId))
     .limit(1);
 
   if (!issuingUser || !['ADMIN', 'BOARD'].includes(issuingUser.role ?? '')) {
@@ -101,7 +90,7 @@ export async function POST(request: NextRequest) {
     id: tokenId,
     tenantId,
     agentId,
-    issuedById: session.userId,
+    issuedById: auth.data.userId,
     accessId: accessId ?? null,
     name,
     tokenHash: tokenHashValue,
@@ -124,10 +113,10 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  const { tenantId } = await withTenant();
+  const auth = await requireAuth(request);
+  if (!auth.success) return auth.response;
 
-  const session = await getSessionAndRole(request);
-  if (!session) return apiUnauthorized();
+  const { tenantId } = await withTenant();
 
   const tokens = await db
     .select({

@@ -1,7 +1,6 @@
 import {
   apiSuccess,
   apiCreated,
-  apiUnauthorized,
   apiInternalError,
   apiValidationError,
   apiForbidden,
@@ -10,9 +9,9 @@ import {
   emitEvent,
   notifications,
   residentDelegations,
-  getSessionAndRole,
-  guardSuspension,
 } from '@api/server';
+
+import { requireAuth } from '@/shared/api/auth-utils';
 
 import { hasPermission } from '@shared/lib';
 import { maintenanceRequestSchema } from '@entities/maintenance';
@@ -20,7 +19,7 @@ import { maintenanceRequestSchema } from '@entities/maintenance';
 import { apiLogger } from '@shared/lib';
 
 import { eq, and, isNull } from 'drizzle-orm';
-import { withTenant, assertModuleEnabled } from '@entities/tenant/server';
+import { withTenant } from '@entities/tenant/server';
 import {
   listMaintenanceRequests,
   createMaintenanceRequest,
@@ -45,15 +44,9 @@ export const maxDuration = 8;
  * @deprecated Use `trpc.maintenance.listRequests` instead
  */
 export async function GET(request: Request) {
-  const authData = await getSessionAndRole(request);
-
-  if (!authData) {
-    return apiUnauthorized();
-  }
-  const guard = guardSuspension(authData);
-  if (guard) return guard;
-  const featureCheck = await assertModuleEnabled('maintenance');
-  if (featureCheck) return featureCheck;
+  const auth = await requireAuth(request, { module: 'maintenance' });
+  if (!auth.success) return auth.response;
+  const authData = auth.data;
 
   const canViewAll = hasPermission(authData.role, 'requests');
 
@@ -115,11 +108,9 @@ export async function GET(request: Request) {
  * @deprecated Use `trpc.maintenance.createRequest` instead
  */
 export async function POST(request: Request) {
-  const authData = await getSessionAndRole(request);
-
-  if (!authData) {
-    return apiUnauthorized();
-  }
+  const auth = await requireAuth(request, { module: 'maintenance' });
+  if (!auth.success) return auth.response;
+  const authData = auth.data;
 
   try {
     const body = await request.json();

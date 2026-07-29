@@ -5,22 +5,18 @@ import {
   type PlatformPageFlags,
 } from '@entities/tenant/server';
 import {
-  getSessionAndRole,
-  guardSuspension,
   runWithRLS,
   requireTenantRLS,
   apiError,
-  apiForbidden,
-  apiUnauthorized,
   apiSuccess,
   apiInternalError,
   writeAuditLog,
   rateLimitByUser,
   CACHE_TAGS,
 } from '@api/server';
+import { requireAuth } from '@/shared/api/auth-utils';
 import { revalidateTag } from 'next/cache';
 
-import { hasPermission } from '@shared/lib';
 import { createComponentLogger } from '@shared/lib';
 
 export const maxDuration = 8;
@@ -66,13 +62,10 @@ const VALID_KEYS: (keyof PlatformPageFlags)[] = [
 
 export async function POST(request: NextRequest) {
   try {
-    const sessionRole = await getSessionAndRole();
-    if (!sessionRole) return apiUnauthorized();
-    const guard = guardSuspension(sessionRole);
-    if (guard) return guard;
-    if (!hasPermission(sessionRole.role, 'admin')) return apiForbidden();
+    const sessionRole = await requireAuth(request, { permission: 'admin' });
+    if (!sessionRole.success) return sessionRole.response;
 
-    const rateLimit = await rateLimitByUser(sessionRole.userId, {
+    const rateLimit = await rateLimitByUser(sessionRole.data.userId, {
       windowMs: 60_000,
       maxRequests: 10,
     });
@@ -102,7 +95,7 @@ export async function POST(request: NextRequest) {
     if (result.success) {
       writeAuditLog({
         action: 'SETTINGS_CHANGED',
-        actorId: sessionRole.userId,
+        actorId: sessionRole.data.userId,
         tenantId,
         details: { key, oldValue: result.oldValue, newValue: value, method: 'POST' },
       });
@@ -119,13 +112,10 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const sessionRole = await getSessionAndRole();
-    if (!sessionRole) return apiUnauthorized();
-    const guard = guardSuspension(sessionRole);
-    if (guard) return guard;
-    if (!hasPermission(sessionRole.role, 'admin')) return apiForbidden();
+    const sessionRole = await requireAuth(request, { permission: 'admin' });
+    if (!sessionRole.success) return sessionRole.response;
 
-    const rateLimit = await rateLimitByUser(sessionRole.userId, {
+    const rateLimit = await rateLimitByUser(sessionRole.data.userId, {
       windowMs: 60_000,
       maxRequests: 10,
     });
@@ -170,7 +160,7 @@ export async function PUT(request: NextRequest) {
     for (const change of changes) {
       writeAuditLog({
         action: 'SETTINGS_CHANGED',
-        actorId: sessionRole.userId,
+        actorId: sessionRole.data.userId,
         tenantId,
         details: { ...change, method: 'PUT' },
       });

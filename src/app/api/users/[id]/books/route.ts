@@ -1,13 +1,6 @@
-import {
-  db,
-  users,
-  apiSuccess,
-  apiNotFound,
-  apiUnauthorized,
-  getSessionAndRole,
-  withErrorHandler,
-  guardSuspension,
-} from '@api/server';
+import { db, users, apiSuccess, apiNotFound, apiUnauthorized, withErrorHandler } from '@api/server';
+
+import { requireAuth } from '@/shared/api/auth-utils';
 
 import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
@@ -19,10 +12,9 @@ export const maxDuration = 8;
  */
 export const GET = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
-    const authData = await getSessionAndRole(request);
-    if (!authData) return apiUnauthorized();
-    const guard = guardSuspension(authData);
-    if (guard) return guard;
+    const auth = await requireAuth(request);
+    if (!auth.success) return auth.response;
+    const authData = auth.data;
 
     const { id } = await params;
 
@@ -49,8 +41,9 @@ export const GET = withErrorHandler(
 
 export const POST = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
-    const authData = await getSessionAndRole(request);
-    if (!authData) return apiUnauthorized();
+    const auth = await requireAuth(request);
+    if (!auth.success) return auth.response;
+    const authData = auth.data;
 
     const { id } = await params;
 
