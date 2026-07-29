@@ -23,7 +23,7 @@ function canReviewProviders(role: string): boolean {
 }
 
 export async function GET(request: Request) {
-  const auth = await requireAuth(request, { permission: 'admin' });
+  const auth = await requireAuth(request);
   if (!auth.success) return auth.response;
 
   if (!canReviewProviders(auth.data.role)) {

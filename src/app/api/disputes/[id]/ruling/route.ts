@@ -24,9 +24,6 @@ import { requireAuth } from '@/shared/api/auth-utils';
 export const maxDuration = 8;
 
 /**
- * Retrieves session and role from the request for API routes.
- */
-/**
  * POST /api/disputes/[id]/ruling — issue formal ruling.
  * BOARD/ADMIN only. Validates canTransition() before accepting,
  * sets rulingDescription and rulingIssuedAt, transitions to FORMAL_RULING,

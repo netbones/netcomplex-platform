@@ -32,9 +32,8 @@ const surveyCreateSchema = z.object({
 export const maxDuration = 8;
 /** @deprecated Use `trpc.surveys.listSurveys` instead */
 export const GET = withErrorHandler(async (request: Request) => {
-  const authResult = await requireAuth(request);
-  if (!authResult.success) return authResult.response;
-  const authData = authResult.data;
+  const auth = await requireAuth(request);
+  if (!auth.success) return auth.response;
   const featureCheck = await assertModuleEnabled('surveys');
   if (featureCheck) return featureCheck;
 
@@ -90,15 +89,14 @@ export const GET = withErrorHandler(async (request: Request) => {
 
 /** @deprecated Use `trpc.surveys.createSurvey` instead */
 export const POST = withErrorHandler(async (request: Request) => {
-  const authResult = await requireAuth(request);
-  if (!authResult.success) return authResult.response;
-  const authData = authResult.data;
+  const auth = await requireAuth(request);
+  if (!auth.success) return auth.response;
 
-  if (!hasPermission(authData.role, 'content')) {
+  if (!hasPermission(auth.data.role, 'content')) {
     return apiForbidden();
   }
 
-  const rateLimit = await rateLimitByUser(authData.userId, {
+  const rateLimit = await rateLimitByUser(auth.data.userId, {
     windowMs: 60_000,
     maxRequests: 10,
   });

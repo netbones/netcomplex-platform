@@ -24,9 +24,6 @@ import { createId } from '@shared/lib/id';
 export const maxDuration = 8;
 
 /**
- * Retrieves session and role from the request for API routes.
- */
-/**
  * Checks if a user owns any property in the tenant.
  */
 async function checkUserOwnsProperty(userId: string, tenantId: string): Promise<boolean> {

@@ -21,11 +21,6 @@ import { defaultLanguage } from '@shared/lib';
 export const maxDuration = 8;
 
 /**
- * Retrieves session and role from the request for API routes.
- * @param request - Incoming HTTP request
- * @returns Session data with user ID and role, or null if not authenticated
- */
-/**
  * GET /api/content - List content/announcements
  * @query category - Filter by NEWS, ANNOUNCEMENT, EVENT, or BLOG
  * @query published - Filter by published status (true/false)

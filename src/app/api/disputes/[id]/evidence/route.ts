@@ -25,9 +25,6 @@ import { requireAuth } from '@/shared/api/auth-utils';
 export const maxDuration = 8;
 
 /**
- * Retrieves session and role from the request for API routes.
- */
-/**
  * POST /api/disputes/[id]/evidence — upload evidence file.
  * Uses uploadImage() for S3 storage, inserts DisputeEvidence row,
  * and logs EVIDENCE_ADDED event.

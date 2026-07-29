@@ -34,7 +34,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   if (platformGuard !== null) {
     // Not platform admin — try tenant-scoped access
-    const tenantAuth = await requireAuth(request, { permission: 'admin' });
+    const tenantAuth = await requireAuth(request);
     if (!tenantAuth.success) return tenantAuth.response;
 
     const { tenantId } = await withTenant();

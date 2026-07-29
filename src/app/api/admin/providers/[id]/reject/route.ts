@@ -24,7 +24,7 @@ function canReviewProviders(role: string): boolean {
 }
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const auth = await requireAuth(request, { permission: 'admin' });
+  const auth = await requireAuth(request);
   if (!auth.success) return auth.response;
 
   if (!canReviewProviders(auth.data.role)) {

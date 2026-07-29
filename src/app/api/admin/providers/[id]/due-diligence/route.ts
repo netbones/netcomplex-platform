@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 import {
   apiError,
+  apiForbidden,
   apiInternalError,
   apiNotFound,
   apiSuccess,
@@ -16,7 +17,7 @@ import {
 import { withTenant } from '@entities/tenant/server';
 import { requireAuth } from '@/shared/api/auth-utils';
 import { getProviderDueDiligenceSnapshot, upsertProviderVerification } from '@shared/api';
-import { logError } from '@shared/lib';
+import { hasPermission, logError } from '@shared/lib';
 
 const dueDiligenceItemSchema = z.object({
   key: z.string(),
@@ -35,8 +36,11 @@ export const maxDuration = 8;
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const auth = await requireAuth(request, { permission: 'admin' });
+    const auth = await requireAuth(request);
     if (!auth.success) return auth.response;
+    if (!hasPermission(auth.data.role, 'providers')) {
+      return apiForbidden('Board or admin access required');
+    }
     const parsed = dueDiligenceSaveSchema.safeParse(await request.json());
     if (!parsed.success) {
       return apiError('VALIDATION_ERROR', 'Validation failed', 400, parsed.error.flatten());

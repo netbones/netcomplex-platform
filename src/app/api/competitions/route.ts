@@ -21,11 +21,6 @@ import { createId } from '@shared/lib/id';
 export const maxDuration = 8;
 
 /**
- * Retrieves session and role from the request for API routes.
- * @param request - Incoming HTTP request
- * @returns Session data with user ID and role, or null if not authenticated
- */
-/**
  * GET /api/competitions - List all competitions for the tenant
  * Returns competitions ordered by startDate descending.
  * Query params:

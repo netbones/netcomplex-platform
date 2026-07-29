@@ -14,9 +14,9 @@ import {
 import { bookingSchema } from '@entities/booking';
 import { toBookingDTO } from '@api/server';
 
-import { apiLogger } from '@shared/lib';
+import { apiLogger, hasPermission } from '@shared/lib';
 
-import { withTenant } from '@entities/tenant/server';
+import { withTenant, assertModuleEnabled } from '@entities/tenant/server';
 import {
   listBookings,
   validateFacility,
@@ -27,11 +27,6 @@ import {
 // Limit execution time to 8 seconds for booking operations
 export const maxDuration = 8;
 
-/**
- * Retrieves session and role from the request for API routes.
- * @param request - Incoming HTTP request
- * @returns Session data with user ID and role, or null if not authenticated
- */
 /** getTenantFacilities moved to @entities/booking */
 
 /**
@@ -42,9 +37,11 @@ export const maxDuration = 8;
  * @deprecated Use `trpc.bookings.listBookings` instead
  */
 export async function GET(request: Request) {
-  const auth = await requireAuth(request, { permission: 'bookings', module: 'bookings' });
+  const auth = await requireAuth(request);
   if (!auth.success) return auth.response;
-  const canViewAll = true;
+  const featureCheck = await assertModuleEnabled('bookings');
+  if (featureCheck) return featureCheck;
+  const canViewAll = hasPermission(auth.data.role, 'bookings');
 
   const { searchParams } = new URL(request.url);
   const facility = searchParams.get('facility');
@@ -95,8 +92,10 @@ export async function GET(request: Request) {
  * @deprecated Use `trpc.bookings.createBooking` instead
  */
 export async function POST(request: Request) {
-  const auth = await requireAuth(request, { module: 'bookings' });
+  const auth = await requireAuth(request);
   if (!auth.success) return auth.response;
+  const featureCheck = await assertModuleEnabled('bookings');
+  if (featureCheck) return featureCheck;
 
   const rateLimit = await rateLimitByUser(auth.data.userId, {
     windowMs: 60_000,

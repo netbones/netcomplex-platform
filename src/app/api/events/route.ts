@@ -20,11 +20,6 @@ import { createId } from '@shared/lib/id';
 export const maxDuration = 8;
 
 /**
- * Retrieves session and role from the request for API routes.
- * @param request - Incoming HTTP request
- * @returns Session data with user ID and role, or null if not authenticated
- */
-/**
  * Enriches an event list with attendee info and registration status.
  */
 async function enrichWithAttendees(events: Array<Record<string, unknown>>, userId: string) {

@@ -32,11 +32,6 @@ import { createId } from '@shared/lib/id';
 export const maxDuration = 8;
 
 /**
- * Retrieves session and role from the request for API routes.
- * @param request - Incoming HTTP request
- * @returns Session data with user ID and role, or null if not authenticated
- */
-/**
  * GET /api/maintenance - List maintenance requests
  * Admins see all requests, residents see only their own
  * @query status - Filter by any of the 7 statuses

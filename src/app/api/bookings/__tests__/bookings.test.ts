@@ -36,6 +36,35 @@ const mocks = vi.hoisted(() => ({
   apiLogger: { error: vi.fn(), info: vi.fn(), warn: vi.fn() },
 }));
 
+vi.mock('@/shared/api/auth-utils', () => ({
+  requireAuth: vi.fn(async () => {
+    if (!mocks.sessionResult) {
+      return {
+        success: false as const,
+        response: new Response(
+          JSON.stringify({
+            success: false,
+            error: { code: 'AUTH_REQUIRED', message: 'Authentication required' },
+          }),
+          { status: 401, headers: { 'Content-Type': 'application/json' } }
+        ),
+      };
+    }
+    return {
+      success: true as const,
+      data: {
+        userId: mocks.sessionResult.user.id,
+        role: mocks.mockRole,
+        tenantId: 'test-tenant-id',
+        session: {
+          user: { id: mocks.sessionResult.user.id, email: 'test@test.com', name: 'Test' },
+        },
+        suspension: null,
+      },
+    };
+  }),
+}));
+
 vi.mock('@api/server', async () => {
   const { NextResponse } = await import('next/server');
   return {
@@ -44,25 +73,14 @@ vi.mock('@api/server', async () => {
         getSession: () => Promise.resolve(mocks.sessionResult),
       },
     },
-    getSessionAndRole: vi.fn(() => {
-      if (!mocks.sessionResult) return Promise.resolve(null);
-      return Promise.resolve({
-        session: {
-          user: { id: mocks.sessionResult.user.id, email: 'test@test.com', name: 'Test' },
-        },
-        userId: mocks.sessionResult.user.id,
-        role: mocks.mockRole,
-        suspension: null,
-      });
-    }),
     notDeleted: vi.fn(() => true),
-    guardSuspension: vi.fn(() => null),
     db: mocks.dbMock,
     users: { id: 'id', role: 'role', name: 'name' },
     toBookingDTO: mocks.toBookingDTO,
     revalidateDashboard: mocks.revalidateDashboard,
     emitEvent: vi.fn(),
     now: () => new Date('2026-06-21T12:00:00Z'),
+    rateLimitByUser: vi.fn(() => Promise.resolve(null)),
     CACHE_TAGS: { SETTINGS: 'settings' },
     apiSuccess: (data: unknown, _meta?: unknown, status = 200, init?: ResponseInit) =>
       NextResponse.json({ success: true, data }, { status, ...(init || {}) }) as any,
@@ -97,6 +115,7 @@ vi.mock('@shared/lib', () => ({
   },
   apiLogger: mocks.apiLogger,
   createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
+  createLogger: vi.fn(() => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() })),
 }));
 
 vi.mock('@entities/booking', () => ({

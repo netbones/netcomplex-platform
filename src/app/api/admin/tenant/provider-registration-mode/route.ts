@@ -24,7 +24,7 @@ function canManageMode(role: string): boolean {
 }
 
 export async function GET(request: Request) {
-  const auth = await requireAuth(request, { permission: 'admin' });
+  const auth = await requireAuth(request);
   if (!auth.success) return auth.response;
 
   if (!canManageMode(auth.data.role)) {
@@ -47,7 +47,7 @@ export async function GET(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const auth = await requireAuth(request, { permission: 'admin' });
+  const auth = await requireAuth(request);
   if (!auth.success) return auth.response;
 
   if (!canManageMode(auth.data.role)) {

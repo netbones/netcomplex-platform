@@ -26,9 +26,6 @@ import { requireAuth } from '@/shared/api/auth-utils';
 export const maxDuration = 8;
 
 /**
- * Retrieves session and role from the request for API routes.
- */
-/**
  * GET /api/disputes/[id]/messages — list mediation messages with visibility filtering.
  * Parties see only non-internal messages; moderators see all messages.
  * @deprecated Use trpc.disputes.listDisputeMessages instead.
