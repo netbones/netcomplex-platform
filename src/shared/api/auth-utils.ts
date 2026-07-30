@@ -3,6 +3,7 @@ import { hasPermission, canManageOwnGroupOnly, Permission, ModuleKey } from '@sh
 import { db, users, platformSuspensions } from './db';
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
+import { cache } from 'react';
 import { eq, and } from 'drizzle-orm';
 import { apiUnauthorized, apiForbidden, apiSuspendedUser } from './api-response';
 
@@ -41,9 +42,18 @@ export interface AuthOptions {
 }
 
 export async function getSessionAndRole(request?: Request): Promise<SessionAndRole | null> {
-  const session = await auth.api.getSession({
-    headers: request?.headers ?? (await headers()),
-  });
+  if (request) {
+    return getSessionAndRoleFromHeaders(request.headers);
+  }
+  // Server-component / layout path: rely on headers() (request-scoped via
+  // AsyncLocalStorage) and a React `cache()` wrapper so layout+sidebar+header
+  //+content pay for one resolution pass instead of four. ADVISORY-037 Layer 1.
+  const headersList = await headers();
+  return getSessionAndRoleFromHeadersCached(headersList);
+}
+
+async function getSessionAndRoleFromHeaders(headerList: Headers): Promise<SessionAndRole | null> {
+  const session = await auth.api.getSession({ headers: headerList });
 
   if (!session?.user?.id) {
     return null;
@@ -65,6 +75,10 @@ export async function getSessionAndRole(request?: Request): Promise<SessionAndRo
     suspension: suspensionInfo,
   };
 }
+
+// React request-scope memoization — dedupes the read across the render tree
+// when no explicit Request is supplied (the server-component path).
+const getSessionAndRoleFromHeadersCached = cache(getSessionAndRoleFromHeaders);
 
 /**
  * Unified suspension check — shared by REST (auth-utils) and tRPC (trpc/server).

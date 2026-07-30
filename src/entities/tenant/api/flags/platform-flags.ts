@@ -63,6 +63,11 @@ export async function getPlatformPageFlagsImpl(tenantId: string): Promise<Platfo
   }
 }
 
+// `unstable_cache` auto-append the serialized args (`tenantId`) into the
+// cache key, so the static `keyParts` only need a stable namespace.
+// See ADVISORY-037 Reality Audit §Layer 2 — the original audit flagged a
+// cross-tenant-leak risk here based on the `keyParts` array; verified the
+// arg is auto-hashed by Next 15 (same pattern as `getTenantById/Slug/Domain`).
 export const getPlatformPageFlags = unstable_cache(
   getPlatformPageFlagsImpl,
   ['platform-page-flags'],

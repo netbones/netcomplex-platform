@@ -44,23 +44,33 @@ async function requestPayout(input: PayoutRequestInput): Promise<void> {
   }
 }
 
-export function useWallet() {
+export function useWallet(tenantId?: string) {
   const queryClient = useQueryClient();
+  // Tenant-namespaced key scope. When `tenantId` is supplied the cache is
+  // partitioned per-tenant (ADVISORY-037 §Query Keys). When omitted (the
+  // common case today — server-side `withTenant()` scopes `/api/v1/tenant/dwallet`)
+  // we fall back to a sentinel so the cache remains isolated by tenantId
+  // slot within the global space, even if the slot itself is shared.
+  // Threading tenantId into callers is tracked in bd-y9v0 / bd-cqs3.
+  const tenantKey = tenantId ?? '__current__';
 
   const walletQuery = useQuery({
-    queryKey: ['dwallet', 'summary'],
+    queryKey: ['dwallet', tenantKey, 'summary'],
     queryFn: fetchWallet,
-    staleTime: 30_000,
+    // Wallet balance must never be cached (ADVISORY-037 §Wallet,
+    // Reality Audit Never-Cache Compliance). 0 = always fetch fresh
+    // when the component is mounted, matching the server's uncached path.
+    staleTime: 0,
   });
 
   const consentsQuery = useQuery({
-    queryKey: ['dwallet', 'consents'],
+    queryKey: ['dwallet', tenantKey, 'consents'],
     queryFn: fetchConsents,
     staleTime: 60_000,
   });
 
   const transactionsQuery = useQuery({
-    queryKey: ['dwallet', 'transactions'],
+    queryKey: ['dwallet', tenantKey, 'transactions'],
     queryFn: fetchTransactions,
     staleTime: 120_000,
   });

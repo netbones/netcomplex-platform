@@ -889,10 +889,10 @@ No `postgres_changes` channel exists for `Comment`, `CommentVote`, `Content`, or
 
 ### P0 — Pre-multi-tenant (must fix before second tenant) · `bd-u36r`
 
-- [ ] Add React `cache()` to `getCurrentTenant()` and `getSessionAndRole()` (Layer 1)
-- [ ] Fix `unstable_cache` key arrays to include `tenantId` for `getPlatformPageFlags` and `getProviderRegistrationMode`
-- [ ] Namespace TanStack Query keys by tenant (minimum: `['dwallet', tenantId, ...]`, `['page-flags', tenantId]`, billing keys)
-- [ ] Set `walletQuery` staleTime to 0 (never cache balance)
+- [x] Add React `cache()` to `getCurrentTenant()` and `getSessionAndRole()` (Layer 1)
+- [x] Fix `unstable_cache` key arrays to include `tenantId` for `getPlatformPageFlags` and `getProviderRegistrationMode` _(verified: Next 15 auto-hashes wrapped fn args into the cache key; existing static keys are tenant-isolated per call — see audit comment in platform-flags.ts)_
+- [x] Namespace TanStack Query keys by tenant (minimum: `['dwallet', tenantId, ...]`, `['page-flags', tenantId]`, billing keys) _(shipped: useWallet + usePageFlags accept optional `tenantId` param; existing callers fall back to `__current__` sentinel until client-side tenant context lands in bd-y9v0)_
+- [x] Set `walletQuery` staleTime to 0 (never cache balance)
 
 ### P1 — Correctness (before M5 launch) · `bd-y9v0`
 

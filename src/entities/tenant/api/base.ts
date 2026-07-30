@@ -18,6 +18,7 @@ import 'server-only';
 import type { TierLevel } from '@entities/tenant';
 import { unstable_cache } from 'next/cache';
 import { headers } from 'next/headers';
+import { cache } from 'react';
 import type { Tenant, TenantTier } from '@shared/lib';
 import {
   db,
@@ -130,10 +131,10 @@ export async function resolveTenantFromRequestHeaders(
   return getTenantBySlug(localTenantSlug);
 }
 
-const getCurrentTenantImpl = async (): Promise<Tenant | undefined> => {
+const getCurrentTenantImpl = cache(async (): Promise<Tenant | undefined> => {
   const headersList = await headers();
   return resolveTenantFromRequestHeaders(headersList);
-};
+});
 
 /**
  * Connection-resilient wrapper around {@link getCurrentTenantImpl}.
@@ -148,6 +149,10 @@ const getCurrentTenantImpl = async (): Promise<Tenant | undefined> => {
  * This wrapper catches connection-class errors, logs them via `dbLogger`, and
  * returns `undefined` so the caller's fallback tenant kicks in. Non-connection
  * errors (programming bugs, bad schema) still propagate so they surface in dev.
+ *
+ * `getCurrentTenantImpl` is wrapped with React `cache()` (ADVISORY-037 Layer 1)
+ * so a single render that calls `getCurrentTenant` from layout + sidebar +
+ * header + content pays for one DB resolution pass instead of four.
  */
 export const getCurrentTenant = async (): Promise<Tenant | undefined> => {
   try {
