@@ -14,12 +14,13 @@
 
 ## Summary by Priority
 
-| Priority | Open  | Focus                                               |
-| -------- | ----- | --------------------------------------------------- |
-| **P1**   | **2** | **Onboarding refactor, Request-Scope Engine**       |
-| P2       | 8     | Platform hardening, ticketing, Provider Platform    |
-| P3       | 29    | API debt, Provider Platform gaps, RLS, analytics    |
-| P4       | 5     | G4 tenant-neutral, OpenAPI, barrel, settings export |
+| Priority | Open  | Focus                                                      |
+| -------- | ----- | ---------------------------------------------------------- |
+| **P0**   | **1** | **ADVISORY-037 caching remediation — pre-M6 multi-tenant** |
+| **P1**   | **3** | **Onboarding refactor, Request-Scope Engine, caching**     |
+| P2       | 9     | Platform hardening, ticketing, Provider Platform, caching  |
+| P3       | 30    | API debt, Provider Platform gaps, RLS, analytics, caching  |
+| P4       | 5     | G4 tenant-neutral, OpenAPI, barrel, settings export        |
 
 ## Summary by Status
 
@@ -36,6 +37,23 @@
 | ------ | ---- | -------------------------------------------------------------------------------- | ------ |
 | `bawf` | task | Onboarding refactor: defer tenant provisioning until post-verification (GSD)     | ○      |
 | `63pl` | task | ADR-027: Request-Scope Engine — advisor review + feature-branch Phase 0/1A/1B/1C | ○      |
+
+---
+
+---
+
+## ADVISORY-037 — Caching Remediation (Reality Audit 2026-07-30)
+
+Source: `docs/advisories/ADVISORY-037.md` §Reality Audit — Codebase State.
+
+| ID     | Priority | Type | Title                                                                                             | Tier                |
+| ------ | -------- | ---- | ------------------------------------------------------------------------------------------------- | ------------------- |
+| `u36r` | P0       | task | Caching remediation — React cache(), tenant-scoped unstable_cache keys, wallet balance no-cache   | P0 pre-multi-tenant |
+| `y9v0` | P1       | task | Caching remediation — chat realtime wiring, tag-based invalidation, content mutation invalidation | P1 correctness      |
+| `cqs3` | P2       | task | Caching remediation — differentiated staleTime, dead code removal, comment realtime channel       | P2 performance      |
+| `4f6w` | P3       | task | Caching remediation — use cache directive, Redis, observability (M6+)                             | P3 future           |
+
+Audit evidence in the advisory. Cross-cutting with `z76s` (platform hardening) and `57d` (RLS) when those GSD phases run.
 
 ---
 

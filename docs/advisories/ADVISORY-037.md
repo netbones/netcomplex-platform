@@ -885,28 +885,30 @@ No `postgres_changes` channel exists for `Comment`, `CommentVote`, `Content`, or
 
 ## Remediation Priorities
 
-### P0 — Pre-multi-tenant (must fix before second tenant)
+> Each tier is tracked as a BD issue. Mark items complete in BD, not here — this list reflects the audit snapshot.
+
+### P0 — Pre-multi-tenant (must fix before second tenant) · `bd-u36r`
 
 - [ ] Add React `cache()` to `getCurrentTenant()` and `getSessionAndRole()` (Layer 1)
 - [ ] Fix `unstable_cache` key arrays to include `tenantId` for `getPlatformPageFlags` and `getProviderRegistrationMode`
 - [ ] Namespace TanStack Query keys by tenant (minimum: `['dwallet', tenantId, ...]`, `['page-flags', tenantId]`, billing keys)
 - [ ] Set `walletQuery` staleTime to 0 (never cache balance)
 
-### P1 — Correctness (before M5 launch)
+### P1 — Correctness (before M5 launch) · `bd-y9v0`
 
 - [ ] Wire `subscribeChatMessages` into the main `/messages` page
 - [ ] Add `revalidateTag` calls to `revalidateDashboard()`, `revalidateDirectory()`, `revalidateContent()` helpers
 - [ ] Wire `revalidateTag('tenant-lookup')` into tenant admin mutation routes
 - [ ] Add `revalidatePath` or `invalidateQueries` to content like/comment/vote mutations
 
-### P2 — Performance (post-launch)
+### P2 — Performance (post-launch) · `bd-cqs3`
 
 - [ ] Implement differentiated TanStack staleTime per data class (directory 10min, notifications 30s, community 60s, etc.)
 - [ ] Remove dead wrappers (`getDashboardStats`, `getStaticStats`, `getUserContent`) or wire them into server components
 - [ ] Remove or implement `revalidateUserData` and `revalidateGate`
 - [ ] Add `postgres_changes` channel for `Comment` and `CommentVote` tables
 
-### P3 — Future (M6+)
+### P3 — Future (M6+) · `bd-4f6w`
 
 - [ ] Evaluate `"use cache"` directive when Next.js stabilizes it
 - [ ] Redis/Valkey for distributed server cache
