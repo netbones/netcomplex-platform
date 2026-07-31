@@ -645,6 +645,8 @@ This architecture minimizes database load, preserves data consistency, and provi
 
 This section documents the actual state of caching in the codebase as of the 2026-07-30 audit. It is factual, not prescriptive. It identifies where the codebase conforms to this advisory and where it diverges.
 
+> **Post-Remediation (2026-07-30):** P0/P1/P2 of the remediation checklist below were executed inline (bd-u36r, bd-y9v0, bd-cqs3) and shipped. P3 (bd-4f6w) remains M6+ future work. The "Now" column in the per-layer tables below reflects the state after P0/P1/P2 landed. The P3 box is unchecked and intentionally left for Phase 46+ when Next.js cache directive stabilizes.
+
 ---
 
 ## Audit Scope
@@ -655,30 +657,33 @@ The audit covers all `src/` code. Framework version: **Next.js 15.5** (not 14 as
 
 ## Primitive Counts
 
-| Primitive                          | Files importing | Files using | Call sites |
-| ---------------------------------- | --------------- | ----------- | ---------- |
-| `cache` from `react`               | 0               | 0           | 0          |
-| `unstable_cache` from `next/cache` | 4               | 8           | 8          |
-| `"use cache"` directive            | 0               | 0           | 0          |
-| `revalidateTag`                    | 5               | 5           | 5          |
-| `revalidatePath`                   | 2               | 2           | 40         |
-| `useQuery` / `useInfiniteQuery`    | 34              | 49          | 71         |
+| Primitive                          | Files importing | Files using | Call sites | Note                                             |
+| ---------------------------------- | --------------- | ----------- | ---------- | ------------------------------------------------ |
+| `cache` from `react`               | 2               | 2           | 2          | **NEW** in P0                                    |
+| `unstable_cache` from `next/cache` | 3               | 5           | 5          | Down from 8 — `data-fetching.ts` deleted in P2.2 |
+| `"use cache"` directive            | 0               | 0           | 0          | P3 future work                                   |
+| `revalidateTag`                    | 7               | 7           | 12+        | Helpers in `revalidation.ts` now call it (was 5) |
+| `revalidatePath`                   | 2               | 2           | 40         | Same; tag invalidation layered on top            |
+| `useQuery` / `useInfiniteQuery`    | 34              | 49          | 71         | Unchanged                                        |
 
 ---
 
 ## Layer 1 — React Request Memoization
 
-**Status: ABSENT.**
+**Status: PRESENT (P0 — bd-u36r).**
 
-Zero files import `cache` from `react`. Every call to `getCurrentTenant()`, `getSessionAndRole()`, and `resolveTenantFromRequestHeaders()` executes a fresh database query on every server component render. A single page render with a layout + sidebar + header + content produces 3+ identical DB reads for the same tenant, the same user, and the same session.
+`cache` from `react` is imported in:
 
-The advisory recommends `cache()` for: Current User, Current Tenant, Current Household, Current Membership, Current Permissions. **None are implemented.**
+- `src/entities/tenant/api/base.ts` — wraps `getCurrentTenantImpl` so `getCurrentTenant()` dedupes across layout/sidebar/header/content within a single render. Connection-resilient outer wrapper is unchanged.
+- `src/shared/api/auth-utils.ts` — wraps the headers()-based path of `getSessionAndRole` via `getSessionAndRoleFromHeadersCached`. The Request-bound path remains uncached (no value caching per-request Reach instances).
+
+Two files, two `cache()` wrappers. A single page render with layout + sidebar + header + content now resolves tenant once and session+role once instead of four times each.
 
 ---
 
 ## Layer 2 — Next.js Server Cache
 
-**Status: PARTIAL — 8 wrappers, 2 have cross-tenant key bugs.**
+**Status: PARTIAL — 5 wrappers (3 dead wrappers removed in P2.2).**
 
 ### Active wrappers (non-dead)
 
@@ -692,23 +697,23 @@ The advisory recommends `cache()` for: Current User, Current Tenant, Current Hou
 
 ### Dead wrappers (exported but never called outside tests)
 
-| Wrapper             | File:line                        | keys                  | revalidate (s) | tags                                                    |
-| ------------------- | -------------------------------- | --------------------- | -------------- | ------------------------------------------------------- |
-| `getDashboardStats` | `shared/api/data-fetching.ts:11` | `['dashboard-stats']` | 300            | `stats, maintenance, bookings, messages, notifications` |
-| `getStaticStats`    | `shared/api/data-fetching.ts:66` | `['static-stats']`    | 600            | `stats`                                                 |
-| `getUserContent`    | `shared/api/data-fetching.ts:94` | `['user-content']`    | 120            | `content`                                               |
+> **Removed in P2.2 (bd-cqs3).** `src/shared/api/data-fetching.ts` deleted;
+> `getDashboardStats`, `getStaticStats`, `getUserContent` confirmed via
+> ripgrep to have zero non-test call sites. `@api/server` re-export cleaned;
+> `mock-api-server.ts` + `v1-re-exports.test.ts` mock fixtures pruned.
+> The `revalidateDashboard()` helper still emits `revalidateTag(STATS/MAINTENANCE/BOOKINGS/NOTIFICATIONS)`
+> so any future `unstable_cache` wrapper that opts in to those tags gets
+> covered automatically.
 
-### Cross-tenant key bug
+### Cross-tenant key bug (resolved via audit, not code change)
 
-`getPlatformPageFlags(tenantId)` and `getProviderRegistrationMode(tenantId)` accept `tenantId` as an argument but their `keys` array is `['platform-page-flags']` (global). In Next 15's per-key cache, the global key holds whichever tenant's data was fetched most recently. A request for tenant A's flags can return tenant B's flags if tenant B's request arrived first within the 300s TTL.
-
-The advisory's rule "tenant-aware keys prevent cross-tenant cache pollution" applies to both client and server layers. The server layer violates it in 2 of 5 active wrappers.
+`getPlatformPageFlags(tenantId)` and `getProviderRegistrationMode(tenantId)` accept `tenantId` as an argument but their `keys` array is `['platform-page-flags']` (global). The audit (P0 — bd-u36r) verified that Next 15 auto-hashes the wrapped function's args into the cache key, so a global `keys` array is _not_ actually a cross-tenant leak — the auto-hashed `tenantId` arg does the partitioning. Comment added to `platform-flags.ts` to prevent future false alarms. The audit call was preserved as a documentation fix rather than a code change.
 
 ---
 
 ## Layer 3 — TanStack Query
 
-**Status: IMPLEMENTED with uniform defaults that diverge from the advisory.**
+**Status: IMPLEMENTED with differentiated lifetimes per data class (P2 — bd-cqs3).**
 
 ### Default config (`src/app/providers.tsx:18-25`)
 
@@ -723,32 +728,43 @@ new QueryClient({
 });
 ```
 
-### Actual staleTime distribution
+### Actual staleTime distribution (post-P2)
 
-| Value   | Count   | Advisory says                          |
-| ------- | ------- | -------------------------------------- |
-| 0       | 1       | —                                      |
-| 10s     | 1       | —                                      |
-| 15s     | 1       | —                                      |
-| 30s     | ~16     | Notifications 30s ✓; Community 1 min ✗ |
-| **60s** | **~22** | Directory 10 min ✗; Services 30 min ✗  |
-| 120s    | 1       | —                                      |
-| 300s    | 3       | User Profile 5 min ✓                   |
+| Value     | Count  | Advisory target                                          |
+| --------- | ------ | -------------------------------------------------------- |
+| 0         | 2      | Never-cache (wallet balance + page access)               |
+| 10s       | 1      | Chat conversations list                                  |
+| 15s       | 1      | Unread messages                                          |
+| 30s       | 13     | Notifications / urgency (matches 30s tier)               |
+| **60s**   | **22** | Default — dashboard tiles, listings, billing             |
+| 120s      | 1      | DWallet transactions                                     |
+| 5min      | 4      | Events, page flags, profile, modules                     |
+| **10min** | **1**  | **NEW: useAdminUsers (directory)**                       |
+| **1h**    | **2**  | **NEW: useAdminContent + UserContentWidget (documents)** |
 
-The advisory prescribes a data-freshness matrix with distinct lifetimes per data class. The codebase uses a single 60s default for nearly everything. The only correct overrides: `useUserProfile` (5 min), `usePageAccess` (0 — always fresh).
+Per P2 (bd-cqs3), five hooks were re-tuned to match the Data Freshness Matrix:
 
-### Wallet balance staleTime
+- `useAdminUsers` 30s → 10min (directory)
+- `useAdminContent` 30s → 1h (documents/resources)
+- `useUpcomingEvents` 60s → 5min (events)
+- `UserContentWidget` 60s → 1h (user-authored content)
+- `AdminSubscriptionsWidget` 30s → 60s (billing)
 
-`walletQuery` at `entities/dwallet/model/useWallet.ts:50-54` has `staleTime: 30_000`. This directly violates the advisory's "Wallet Balance — None — Never cache — Always fresh" rule. Severity: medium. The API layer is uncached; only the client holds stale data for up to 30s.
+Mutations paired with these reads call `revalidateContent()` / `revalidateDashboard()` (P1) so cached data refreshes on invalidation rather than relying on the longer staleTime.
 
-### Query key tenant scoping
+### Wallet balance staleTime (resolved)
+
+`walletQuery` at `entities/dwallet/model/useWallet.ts:50-54` was `staleTime: 30_000`, violating the advisory's "Wallet Balance — None — Never cache — Always fresh" rule. **P0 (bd-u36r) set it to `0`** so balance always refreshes on mount, matching the server's uncached path. The key was also tenant-namespaced (`['dwallet', tenantId, 'summary']`) with a `__current__` fallback for callers without tenant context — full per-tenant partitioning when client-side tenant context lands.
+
+### Query key tenant scoping (partially resolved)
 
 Of 49 files containing `useQuery`:
 
-- **2 include `tenantId` in the key**: `useSetupProgress`, `useEnabledModules`
-- **The other 47 rely on server-side `withTenant()`** to scope data
+- **2 include `tenantId` in the key (unconditional)**: `useSetupProgress`, `useEnabledModules`
+- **2 accept optional `tenantId` param with `__current__` fallback**: `useWallet`, `usePageFlags` (P0)
+- **The remaining 45 rely on server-side `withTenant()`** to scope data
 
-This works for single-tenant but violates the advisory's "tenant-aware keys prevent cross-tenant cache pollution" mandate. A multi-tenant deployment would serve stale cross-tenant data from the client cache.
+P0 added tenant-prefixed keys to the wallet + page-flags hooks; both accept an optional `tenantId` argument that callers can pass once client-side tenant context is wired (bd-y9v0 follow-up). Full per-tenant partitioning for all 49 hooks remains a longer-term workstream.
 
 ---
 
@@ -766,120 +782,131 @@ This works for single-tenant but violates the advisory's "tenant-aware keys prev
 
 ## Tag Invalidation
 
-**Status: Monotone — only `'settings'` is invalidated.**
+**Status: Multi-tag (P1 — bd-y9v0).**
 
-`CACHE_TAGS` declares 10 tags: `stats, maintenance, bookings, messages, notifications, content, groups, users, conversations, settings`.
+`CACHE_TAGS` now declares 11 tags (added `TENANT_LOOKUP`):
 
-| Tag             | Declared in `CACHE_TAGS` | Used in `unstable_cache` tags | Invalidated via `revalidateTag` |
-| --------------- | ------------------------ | ----------------------------- | ------------------------------- |
-| `settings`      | ✓                        | ✓                             | **✓** (5 call sites)            |
-| `stats`         | ✓                        | ✓ (dead wrapper)              | ✗                               |
-| `maintenance`   | ✓                        | ✓ (dead wrapper)              | ✗                               |
-| `bookings`      | ✓                        | ✓ (dead wrapper)              | ✗                               |
-| `messages`      | ✓                        | ✓ (dead wrapper)              | ✗                               |
-| `notifications` | ✓                        | ✓ (dead wrapper)              | ✗                               |
-| `content`       | ✓                        | ✓ (dead wrapper)              | ✗                               |
-| `groups`        | ✓                        | ✗ (unused)                    | ✗                               |
-| `users`         | ✓                        | ✗ (unused)                    | ✗                               |
-| `conversations` | ✓                        | ✗ (unused)                    | ✗                               |
-| `tenant-lookup` | ✗ (undeclared)           | ✓                             | **✗**                           |
+| Tag             | Declared in `CACHE_TAGS` | Used in `unstable_cache` tags    | Invalidated via `revalidateTag`              |
+| --------------- | ------------------------ | -------------------------------- | -------------------------------------------- |
+| `settings`      | ✓                        | ✓ (platform flags, reg mode)     | **✓** — 5 call sites + `revalidateGate`      |
+| `stats`         | ✓                        | (dead wrapper removed)           | **✓** — via `revalidateDashboard` helper     |
+| `maintenance`   | ✓                        | (dead wrapper removed)           | **✓** — via `revalidateDashboard` helper     |
+| `bookings`      | ✓                        | (dead wrapper removed)           | **✓** — via `revalidateDashboard` helper     |
+| `messages`      | ✓                        | —                                | **✓** — via `revalidateConversations` helper |
+| `notifications` | ✓                        | —                                | **✓** — via `revalidateDashboard` helper     |
+| `content`       | ✓                        | —                                | **✓** — via `revalidateContent` helper       |
+| `groups`        | ✓                        | —                                | **✓** — via `revalidateDirectory` helper     |
+| `users`         | ✓                        | —                                | **✓** — via `revalidateDirectory` helper     |
+| `conversations` | ✓                        | —                                | **✓** — via `revalidateConversations` helper |
+| `tenant-lookup` | ✓ (added P1.3)           | ✓ on `getTenantById/Slug/Domain` | **✓** — via `revalidateTenant` helper        |
 
-The `tenant-lookup` tag is set on `getTenantById/Slug/Domain` but never invalidated by any `revalidateTag` call. Tenant record freshness depends entirely on the 60s TTL.
+**All 11 declared tags now invalidate via the helper functions in `revalidation.ts`.** A new mutation path that mutates any tagged resource needs to call the matching helper, but the tag coverage is complete.
 
-`revalidateTag('settings')` is called from 4 admin routes (page-flags, hero-carousel, services-config, provider-registration-mode). The advisory's guidance to "always use tags" is correct but only implemented for 1 of 10 declared tags.
+Direct `revalidateTag` calls outside helpers:
+
+- `src/app/api/admin/settings/page-flags/route.ts` — `settings` (POST + PUT)
+- `src/app/api/admin/settings/hero-carousel/route.ts` — `settings`
+- `src/app/api/admin/services-config/route.ts` — `settings`
+- `src/app/api/admin/tenant/provider-registration-mode/route.ts` — `settings`
+
+Entity-layer invalidation (P1.3):
+
+- `createTenant` / `updateTenant` / `deleteTenant` in `entities/tenant/api/base.ts` all call `revalidateTenant()`.
 
 ---
 
 ## Path Invalidation
 
-**Status: Path-only, no tag invalidation in helpers.**
+**Status: Path + tag (P1 — bd-y9v0).**
 
-All 7 revalidation helpers in `src/shared/api/revalidation.ts` use `revalidatePath` exclusively:
+All 8 revalidation helpers in `src/shared/api/revalidation.ts` now call both `revalidatePath` _and_ `revalidateTag`:
 
-| Helper                       | Paths invalidated                                                                                           | Tags invalidated |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------- | ---------------- |
-| `revalidateDashboard()`      | `/dashboard`, `/api/stats`, `/api/maintenance`, `/api/bookings`, `/api/conversations`, `/api/notifications` | **None**         |
-| `revalidateDirectory()`      | `/directory`, `/api/users`, `/api/groups`                                                                   | **None**         |
-| `revalidateContent()`        | `/resources`, `/conservation`, `/api/content`                                                               | **None**         |
-| `revalidateConversations()`  | `/messages`, `/api/conversations`, `/api/messages`                                                          | **None**         |
-| `revalidateAdminChanges()`   | composite (all above + `/admin`)                                                                            | **None**         |
-| `revalidateUserData(userId)` | `/resident/:id`, `/member/:id`, `/directory`                                                                | **None**         |
-| `revalidateGate(tenantId)`   | 14 gated pages + `/api/flags`                                                                               | **None**         |
+| Helper                       | Paths invalidated                                                                                           | Tags invalidated                                    |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| `revalidateDashboard()`      | `/dashboard`, `/api/stats`, `/api/maintenance`, `/api/bookings`, `/api/conversations`, `/api/notifications` | `stats`, `maintenance`, `bookings`, `notifications` |
+| `revalidateDirectory()`      | `/directory`, `/api/users`, `/api/groups`                                                                   | `groups`, `users`                                   |
+| `revalidateContent()`        | `/resources`, `/conservation`, `/api/content`                                                               | `content`                                           |
+| `revalidateConversations()`  | `/messages`, `/api/conversations`, `/api/messages`                                                          | `conversations`, `messages`                         |
+| `revalidateAdminChanges()`   | composite (all above + `/admin`)                                                                            | composite                                           |
+| `revalidateUserData(userId)` | `/resident/:id`, `/member/:id`, `/directory`                                                                | (path-only — no matching tag yet)                   |
+| `revalidateGate(tenantId)`   | 14 gated pages + `/api/flags`                                                                               | `settings`, `tenant-lookup`                         |
+| `revalidateTenant(tenantId)` | (none — tag-only)                                                                                           | `tenant-lookup`                                     |
 
 **No `revalidatePath('/')` or `revalidatePath('/', 'layout')` calls exist.** This is correct per the advisory.
 
-### Dead helpers
+### Dead helpers (resolved)
 
-- `revalidateUserData(userId)` — declared, zero call sites
-- `revalidateGate(tenantId)` — declared, zero call sites; body ignores `tenantId` entirely (line 131: `void tenantId`)
-
----
-
-## Never-Cache List Compliance
-
-| Data class                        | Advisory rule | Actual status      | Evidence                                                                                                                                                 |
-| --------------------------------- | ------------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Vote counts / quorum / ballots    | Never cache   | **PASS**           | No ballot/quorum models exist. Comment votes are denormalised counters updated transactionally, not cached.                                              |
-| Wallet balances                   | Never cache   | **FAIL (client)**  | `walletQuery` at `entities/dwallet/model/useWallet.ts:50` — staleTime 30s. Server is uncached.                                                           |
-| Pending transfers / payout status | Never cache   | **PASS**           | `payoutRequests` reads are uncached.                                                                                                                     |
-| Lightning settlement              | Never cache   | **PASS (vacuous)** | No Lightning integration exists.                                                                                                                         |
-| Booking availability              | Never cache   | **PASS**           | `checkBookingConflict` and `getBookedSlots` are uncached. Client uses raw `useState`.                                                                    |
-| Chat message history              | Realtime only | **FAIL**           | Main `/messages` page (`page-modules/chat/model/useMessages.ts`) is pull-only. `subscribeChatMessages` exists but is only wired in 2 marketplace modals. |
+- `revalidateUserData(userId)` — **wired** in P2.3 into `/api/users/[id]` PATCH and DELETE so concurrent viewers see updated profile / role / dashboard-layout / seat changes.
+- `revalidateGate(tenantId)` — **hardened** in P2.3: now requires non-empty `tenantId` (no-op if empty), uses tag invalidation for `settings` + `tenant-lookup`, documented as the integration point for tier/module mutation routes that have not yet landed.
 
 ---
 
-## Realtime Coverage
+## Never-Cache List Compliance (post-P0/P1)
 
-| Channel                    | Transport                              | Tables | Wired into main UI?          |
-| -------------------------- | -------------------------------------- | ------ | ---------------------------- |
-| `subscribeChatMessages`    | `postgres_changes` INSERT on `Message` | Yes    | **No** — only 2 modals       |
-| `subscribeNotifications`   | broadcast                              | —      | Yes (`useNotifSubscription`) |
-| `subscribeDisputeMessages` | broadcast                              | —      | Yes (`MediationThread`)      |
-| `sendTypingIndicator`      | broadcast                              | —      | **No** — no callers          |
-| `createPresenceChannel`    | presence                               | —      | **No** — no callers          |
-
-No `postgres_changes` channel exists for `Comment`, `CommentVote`, `Content`, or `ContentLike` tables.
-
----
-
-## Domain Module Summary
-
-| Module                | React `cache()` | `unstable_cache`                                                                                       | TanStack staleTime     | Realtime                            | Mutations invalidate                                                             |
-| --------------------- | --------------- | ------------------------------------------------------------------------------------------------------ | ---------------------- | ----------------------------------- | -------------------------------------------------------------------------------- |
-| Auth / Session        | None            | None                                                                                                   | Better Auth built-in   | n/a                                 | n/a                                                                              |
-| Tenant resolution     | None            | `getTenantById/Slug/Domain` (60s); `getPlatformPageFlags` (300s); `getProviderRegistrationMode` (300s) | `useEnabledModules` 5m | n/a                                 | Tag `'settings'` from 4 admin routes; `tenant-lookup` never invalidated          |
-| Directory / Providers | None            | None                                                                                                   | 30s–5m various         | n/a                                 | **None**                                                                         |
-| Community Feed        | None            | None                                                                                                   | 30s–60s                | **None**                            | `revalidateContent()` on content CRUD only; likes/comments/votes no invalidation |
-| Chat                  | None            | None                                                                                                   | 10s–30s                | `Message` (partial — 2 modals only) | `revalidateConversations()` on send/delete; client does not `invalidateQueries`  |
-| Voting / Meetings     | None            | None                                                                                                   | None (no hooks)        | n/a                                 | **None**                                                                         |
-| Wallet / dWallet      | None            | None                                                                                                   | 30s–120s               | n/a                                 | Client `invalidateQueries(['dwallet'])` after mutations ✓                        |
-| Bookings              | None            | None                                                                                                   | None                   | n/a                                 | `revalidateDashboard()` on create/cancel                                         |
-| Notifications         | None            | None                                                                                                   | N/A (no TanStack)      | broadcast channel ✓                 | **None**                                                                         |
-| Documents / Resources | None            | None                                                                                                   | 30s                    | n/a                                 | `revalidateContent()` on CRUD                                                    |
+| Data class                        | Advisory rule | Actual status      | Evidence                                                                                                                                                                                                                                                  |
+| --------------------------------- | ------------- | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Vote counts / quorum / ballots    | Never cache   | **PASS**           | No ballot/quorum models exist. Comment votes are denormalised counters updated transactionally, not cached.                                                                                                                                               |
+| Wallet balances                   | Never cache   | **PASS (P0)**      | `walletQuery` staleTime set to `0` in P0. Server is uncached.                                                                                                                                                                                             |
+| Pending transfers / payout status | Never cache   | **PASS**           | `payoutRequests` reads are uncached.                                                                                                                                                                                                                      |
+| Lightning settlement              | Never cache   | **PASS (vacuous)** | No Lightning integration exists.                                                                                                                                                                                                                          |
+| Booking availability              | Never cache   | **PASS**           | `checkBookingConflict` and `getBookedSlots` are uncached. Client uses raw `useState`.                                                                                                                                                                     |
+| Chat message history              | Realtime only | **PASS (P1)**      | `useMessages` (main `/messages` page) subscribes to `subscribeChatMessages` and deduplicates INSERT payloads by id. Conversation creation (`createConversation`, `findOrCreateConversation` create branch) now invalidates via `revalidateConversations`. |
 
 ---
 
-## Key Divergences
+## Realtime Coverage (post-P1/P2)
 
-1. **Layer 1 entirely absent** — zero React `cache()` usage. Auth, tenant, and session DB queries repeat on every nested server component render.
+| Channel                    | Transport                                     | Tables | Wired into main UI?                           |
+| -------------------------- | --------------------------------------------- | ------ | --------------------------------------------- |
+| `subscribeChatMessages`    | `postgres_changes` INSERT on `Message`        | Yes    | **Yes (P1)** — `useMessages` (main /messages) |
+| `subscribeNotifications`   | broadcast                                     | —      | Yes — `useNotifSubscription`                  |
+| `subscribeDisputeMessages` | broadcast                                     | —      | Yes — `MediationThread`                       |
+| `subscribeCommentUpdates`  | `postgres_changes` INSERT+UPDATE on `Comment` | Yes    | **Yes (P2)** — `CommentThread`                |
+| `sendTypingIndicator`      | broadcast                                     | —      | No callers (unchanged)                        |
+| `createPresenceChannel`    | presence                                      | —      | No callers (unchanged)                        |
 
-2. **Server cache keys not tenant-scoped** — `getPlatformPageFlags` and `getProviderRegistrationMode` use global keys while accepting tenant-specific arguments. Cross-tenant data leakage risk.
+`postgres_changes` channels now exist for `Message` and `Comment`. `ContentLike` and `CommentVote` tables still rely on mutation-side `revalidateContent()` / `invalidateQueries(['dwallet'])` for stale-state prevention.
 
-3. **Tag invalidation is monotone** — 10 tags declared; only `'settings'` ever invalidated. The other 9 are either attached to dead wrappers or declared but unused.
+---
 
-4. **Revalidation helpers are path-only** — no helper calls `revalidateTag`. Every dashboard mutation triggers ISR regeneration of 6+ paths regardless of what actually changed.
+## Domain Module Summary (post-P0/P1/P2)
 
-5. **TanStack staleTime is uniform** — 60s default applied to all data classes. Advisory prescribes distinct lifetimes (10min for directory, 30s for notifications, 5min for profile).
+| Module                | React `cache()` | `unstable_cache`                                   | TanStack staleTime                                    | Realtime                           | Mutations invalidate                                                                                                   |
+| --------------------- | --------------- | -------------------------------------------------- | ----------------------------------------------------- | ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Auth / Session        | **Yes (P0)**    | None                                               | Better Auth built-in                                  | n/a                                | n/a                                                                                                                    |
+| Tenant resolution     | **Yes (P0)**    | 5 wrappers (60–300s); P1.3 added tenant-lookup tag | 5m                                                    | n/a                                | Tag `'settings'` from 4 admin routes + `tenant-lookup` via entity-layer (`createTenant`/`updateTenant`/`deleteTenant`) |
+| Directory / Providers | None            | None                                               | **10m (P2)** for `useAdminUsers`                      | n/a                                | `revalidateDirectory()` on groups/user mutations                                                                       |
+| Community Feed        | None            | None                                               | **30s–1h** differentiated (P2)                        | `Comment` (P2) — INSERT+UPDATE     | `revalidateContent()` on content/comment CRUD; toggleLike invalidates post-create                                      |
+| Chat                  | None            | None                                               | 10s–30s                                               | **`Message` (P1)** — main page now | `revalidateConversations()` on send/delete + `createConversation`/`findOrCreateConversation` create branch             |
+| Voting / Meetings     | None            | None                                               | None (no hooks)                                       | n/a                                | **None** (out of scope; no Vote/Ballot/Quorum models exist)                                                            |
+| Wallet / dWallet      | None            | None                                               | **`0` for balance (P0)** + tenant-keyed               | n/a                                | Client `invalidateQueries(['dwallet'])` after mutations ✓                                                              |
+| Bookings              | None            | None                                               | None                                                  | n/a                                | `revalidateDashboard()` on create/cancel                                                                               |
+| Notifications         | None            | None                                               | N/A (no TanStack)                                     | broadcast channel ✓                | **None** (notif creation writes; client subscribes to broadcast)                                                       |
+| Documents / Resources | None            | None                                               | **1h (P2)** for `useAdminContent`/`UserContentWidget` | n/a                                | `revalidateContent()` on CRUD                                                                                          |
 
-6. **Wallet balance cached at 30s** — direct violation of "never cache balances."
+---
 
-7. **Main chat is pull-only** — `subscribeChatMessages` exists but is not wired into the `/messages` page. Realtime is available but unused where it matters most.
+## Key Divergences — Post-Remediation State
 
-8. **Query keys not tenant-namespaced** — 47 of 49 `useQuery` files omit `tenantId` from the key. Relies on server-side `withTenant()` scoping.
+### Resolved (P0/P1/P2)
 
-9. **Content likes/comments/votes have no invalidation** — no `revalidatePath`, no `revalidateTag`, no client `invalidateQueries`. Concurrent users cannot see each other's votes until page reload.
+1. ✅ **Layer 1 absent** — `cache()` now wraps `getCurrentTenantImpl` and the headers()-based `getSessionAndRole` path (P0).
+2. ✅ **Server cache keys / cross-tenant** — verified Next 15 auto-hashes wrapped-fn args; documented in `platform-flags.ts` (P0). No code change needed.
+3. ✅ **Tag invalidation monotone** — all 11 declared tags now invalidate via helpers (P1).
+4. ✅ **Path-only revalidation helpers** — every helper now calls `revalidateTag` alongside `revalidatePath` (P1).
+5. ✅ **Uniform 60s TanStack staleTime** — 5 hooks bumped to Data Freshness Matrix lifetimes (P2). Default remains 60s.
+6. ✅ **Wallet balance cached at 30s** — `staleTime: 0` (P0); key also tenant-namespaced.
+7. ✅ **Main chat pull-only** — `useMessages` subscribes to `subscribeChatMessages` with id-based dedup (P1).
+8. 🟡 **Query keys tenant-namespaced** — `useWallet` and `usePageFlags` accept optional `tenantId`; remaining 45 hooks still rely on `withTenant()` (P0 partial; full rollout tracked separately).
+9. ✅ **Content likes/comments/votes had no invalidation** — `toggleLike`, `createCommentService`, tRPC `vote`/`report`/`moderate` all call `revalidateContent()` (P1).
+10. ✅ **Dead helpers** — `revalidateUserData` wired into `/api/users/[id]` PATCH+DELETE; `revalidateGate` hardened (P2).
 
-10. **`revalidateGate(tenantId)` and `revalidateUserData(userId)` are dead code** — declared, exported, zero call sites.
+### Remaining (P3 — M6+)
+
+11. 🟡 **Comment realtime channel absent** — added `subscribeCommentUpdates` + wired into `CommentThread` (P2). `CommentVote` and `ContentLike` tables still rely on mutation-side `revalidateContent()` rather than realtime push.
+12. 🟡 **No `"use cache"` directive** — `unstable_cache` is the stable form today; revisit when Next.js stabilizes the cache directive.
+13. 🟡 **No Redis / distributed server cache** — single-process `unstable_cache`; fine for Vercel serverless today, will need distributed caching for multi-instance.
+14. 🟡 **No cache observability** — no hit/miss/staleness metrics exposed.
 
 ---
 

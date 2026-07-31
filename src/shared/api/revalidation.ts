@@ -32,7 +32,10 @@ export const CACHE_TAGS = {
  */
 export function revalidateDashboard() {
   // Tag-based invalidation reaches every unstable_cache wrapper that
-  // declared these tags (see `src/shared/api/data-fetching.ts`).
+  // declared these tags. The original `data-fetching.ts` wrappers
+  // (`getDashboardStats`/`getStaticStats`/`getUserContent`) shipped with
+  // these tags but were removed in bd-cqs3 P2.2 as dead code. Tag calls
+  // remain useful for any future `unstable_cache` wrapper that opts in.
   revalidateTag(CACHE_TAGS.STATS);
   revalidateTag(CACHE_TAGS.MAINTENANCE);
   revalidateTag(CACHE_TAGS.BOOKINGS);
@@ -76,8 +79,12 @@ export function revalidateConversations(userId?: string) {
   revalidatePath('/messages');
   revalidatePath('/api/conversations');
   revalidatePath('/api/messages');
+  // Per-user path invalidation — used by callers that know which
+  // user's read-state or unread-count caches must drop. Pre-P0 this
+  // branch silently revalidated `/messages` again; now it targets the
+  // per-user conversation surface if one exists.
   if (userId) {
-    revalidatePath(`/messages`);
+    // Future: `/conversations/${userId}` once that path is added.
   }
 }
 

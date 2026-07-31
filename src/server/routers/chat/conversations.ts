@@ -12,6 +12,7 @@ import {
   desc,
   inArray,
   sql,
+  revalidateConversations,
 } from './shared';
 import { createId } from '@shared/lib/id';
 
@@ -265,6 +266,10 @@ export const conversationProcedures = {
         .leftJoin(users, eq(conversationParticipants.userId, users.id))
         .where(eq(conversationParticipants.conversationId, conversationId));
 
+      // ADVISORY-037 — invalidate conversation list caches so the
+      // /messages page reflects the new conversation on next render.
+      revalidateConversations(ctx.userId);
+
       return {
         ...createdConversation!,
         participants,
@@ -311,6 +316,11 @@ export const conversationProcedures = {
       if (validConversation) {
         return { conversation: validConversation };
       }
+
+      // ADVISORY-037 — invalidate conversation list caches when a new
+      // conversation is created. The branch above (existing found) skips
+      // invalidation since nothing changed.
+      revalidateConversations(ctx.userId);
 
       const conversationId = createId();
       await db.insert(conversations).values({
