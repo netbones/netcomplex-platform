@@ -903,10 +903,10 @@ No `postgres_changes` channel exists for `Comment`, `CommentVote`, `Content`, or
 
 ### P2 — Performance (post-launch) · `bd-cqs3`
 
-- [ ] Implement differentiated TanStack staleTime per data class (directory 10min, notifications 30s, community 60s, etc.)
-- [ ] Remove dead wrappers (`getDashboardStats`, `getStaticStats`, `getUserContent`) or wire them into server components
-- [ ] Remove or implement `revalidateUserData` and `revalidateGate`
-- [ ] Add `postgres_changes` channel for `Comment` and `CommentVote` tables
+- [x] Implement differentiated TanStack staleTime per data class (directory 10min, notifications 30s, community 60s, etc.) _(5 hooks updated: useAdminUsers 30s→10min, useAdminContent 30s→1h, useUpcomingEvents 60s→5min, UserContentWidget 60s→1h, AdminSubscriptionsWidget 30s→60s)_
+- [x] Remove dead wrappers (`getDashboardStats`, `getStaticStats`, `getUserContent`) or wire them into server components _(deleted: data-fetching.ts + re-export cleanup; mock fixtures cleaned)_
+- [x] Remove or implement `revalidateUserData` and `revalidateGate` _(revalidateUserData wired into /api/users/[id] PATCH+DELETE; revalidateGate now requires non-empty tenantId and uses tag invalidation)_
+- [x] Add `postgres_changes` channel for `Comment` and `CommentVote` tables _(subscribeCommentUpdates covers INSERT + UPDATE; wired into CommentThread with refetch)_
 
 ### P3 — Future (M6+) · `bd-4f6w`
 

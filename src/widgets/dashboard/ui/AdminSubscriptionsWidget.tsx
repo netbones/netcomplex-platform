@@ -46,7 +46,12 @@ export function AdminSubscriptionsWidget() {
       status: statusFilter !== 'All' ? statusFilter.toUpperCase() : undefined,
       search: debouncedSearch || undefined,
     },
-    { staleTime: 30_000 }
+    {
+      // ADVISORY-037 §Data Freshness Matrix — billing/subscription data
+      // sits between notifications (30s) and directory (10min). 60s keeps
+      // the widget responsive without thrashing on every remount.
+      staleTime: 60_000,
+    }
   );
 
   const subscriptions = data?.data ?? [];

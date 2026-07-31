@@ -32,7 +32,9 @@ export function createApiServerMocks(overrides: Record<string, unknown> = {}) {
       insert: vi.fn(),
       update: vi.fn(),
       delete: vi.fn(),
-      transaction: vi.fn((fn: (tx: unknown) => Promise<void>) => fn({ select: vi.fn(), insert: vi.fn(), update: vi.fn(), delete: vi.fn() })),
+      transaction: vi.fn((fn: (tx: unknown) => Promise<void>) =>
+        fn({ select: vi.fn(), insert: vi.fn(), update: vi.fn(), delete: vi.fn() })
+      ),
       ...((overrides.db ?? {}) as Record<string, unknown>),
     },
     runWithRLS: vi.fn(),
@@ -174,11 +176,6 @@ export function createApiServerMocks(overrides: Record<string, unknown> = {}) {
     // --- supabase ---
     supabase: {},
 
-    // --- data fetching ---
-    getDashboardStats: vi.fn(() => Promise.resolve({})),
-    getStaticStats: vi.fn(() => Promise.resolve({})),
-    getUserContent: vi.fn(() => Promise.resolve([])),
-
     // --- storage ---
     uploadImage: vi.fn(),
     listUserImages: vi.fn(),
@@ -242,7 +239,10 @@ export function createApiServerMocks(overrides: Record<string, unknown> = {}) {
     toEnvelope: vi.fn((data: unknown) => ({ success: true, data })),
     toEnvelopeSchema: vi.fn((schema: unknown) => schema),
     toPaginatedEnvelope: vi.fn((data: unknown, meta: unknown) => ({ success: true, data, meta })),
-    toErrorEnvelope: vi.fn((code: string, message: string) => ({ success: false, error: { code, message } })),
+    toErrorEnvelope: vi.fn((code: string, message: string) => ({
+      success: false,
+      error: { code, message },
+    })),
     tRPCCodeToCanonical: vi.fn((code: string) => code),
 
     // --- address service ---

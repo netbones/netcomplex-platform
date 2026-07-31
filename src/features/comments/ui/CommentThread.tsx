@@ -1,12 +1,13 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { MessageCircle, Loader2 } from 'lucide-react';
 import { trpc } from '@api/client';
 import { cn } from '@/shared/lib/utils';
 import type { CommentDetailDTO } from '@entities/comment';
 import { CommentItem } from '@entities/comment';
 import { CommentForm } from '@entities/comment';
+import { subscribeCommentUpdates } from '@shared/lib';
 
 export interface CommentThreadProps {
   contentId: string;
@@ -41,6 +42,15 @@ export function CommentThread({ contentId, className, maxDepth = 8 }: CommentThr
   }, [data]);
 
   const totalCount = useMemo(() => countComments(comments), [comments]);
+
+  // ADVISORY-037 P2.4 — subscribe to live comment row changes so new comments,
+  // replies, status transitions (PUBLISHED ↔ FLAGGED ↔ REMOVED), and
+  // denormalised vote-counter updates land without manual refetch.
+  useEffect(() => {
+    return subscribeCommentUpdates(contentId, () => {
+      void refetch();
+    });
+  }, [contentId, refetch]);
 
   return (
     <section aria-label="Comments" className={cn('flex flex-col gap-4', className)}>

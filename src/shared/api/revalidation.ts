@@ -116,14 +116,21 @@ export function revalidateUserData(userId: string) {
  * - Module install/uninstall (onboarding or settings)
  * - Page flag toggle (admin settings UI)
  *
- * Uses revalidatePath() for consistency with the rest of this file.
- * Phase 1 is additive — this is the integration point for future
- * tier/module/flag mutation routes.
+ * Status: integration point for tier/module/flag mutation routes that have
+ * not yet landed. Wired by Phase 2 (`revalidateGate(tenantId)`) when those
+ * routes ship. Until then, the helper still does meaningful work: tag-based
+ * invalidation reaches any `unstable_cache` wrapper that declared
+ * `CACHE_TAGS.SETTINGS` or `CACHE_TAGS.TENANT_LOOKUP` regardless of static
+ * keyParts, and the broad path sweep covers ISR'd gated pages.
  *
- * @param tenantId - The tenant whose gate state changed (currently unused;
- *                   included for forward-compat with per-tenant caching)
+ * `tenantId` is required (no-op if empty) — Phase 2 will use it to scope
+ * per-tenant ISR paths once unstable_cache keys are tenant-partitioned
+ * (planned in bd-cqs3 follow-up).
+ *
+ * @param tenantId - The tenant whose gate state changed. Required.
  */
 export function revalidateGate(tenantId: string): void {
+  if (!tenantId) return;
   // Tag invalidation reaches platform flags (settings tag) and tenant
   // resolution (tenant-lookup tag — added in bd-y9v0 P1.3).
   revalidateTag(CACHE_TAGS.SETTINGS);
@@ -146,9 +153,6 @@ export function revalidateGate(tenantId: string): void {
   revalidatePath('/groups');
   revalidatePath('/services');
   revalidatePath('/messages');
-
-  // Suppress unused parameter warning — used in Phase 2 for per-tenant targeting
-  void tenantId;
 }
 
 /**

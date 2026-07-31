@@ -20,6 +20,7 @@ import {
   AddressValidationError,
   apiConflict,
   apiError,
+  revalidateUserData,
 } from '@api/server';
 
 import { eq, and, desc } from 'drizzle-orm';
@@ -397,6 +398,12 @@ export const PATCH = withErrorHandler(
       });
     }
 
+    // ADVISORY-037 P2.3 — wire revalidateUserData into user PATCH. Profile,
+    // role, dashboard layout, and seat mutations all invalidate the user-
+    // specific paths (/resident/:id, /member/:id, /directory) so concurrent
+    // viewers see the updated state.
+    revalidateUserData(id);
+
     let updatedSeat: { type: string; platformAddress: string } | null = null;
 
     if (body.platformAddress !== undefined) {
@@ -490,6 +497,8 @@ export const DELETE = withErrorHandler(
     if (!deleted) {
       return apiNotFound('User not found');
     }
+
+    revalidateUserData(id);
 
     return apiSuccess({ success: true });
   }

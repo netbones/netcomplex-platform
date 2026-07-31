@@ -157,7 +157,6 @@ export type { RateLimitConfig } from '../rate-limit';
 export { writeAuditLog } from '../audit-log';
 export type { AuditAction, AuditLogEntry } from '../audit-log';
 export { supabase } from '../supabase';
-export { getDashboardStats, getStaticStats, getUserContent } from '../data-fetching';
 export {
   uploadImage,
   listUserImages,

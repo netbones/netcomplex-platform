@@ -24,6 +24,9 @@ export function useUpcomingEvents() {
   return useQuery<UpcomingEvent[]>({
     queryKey: ['events', 'upcoming'],
     queryFn: fetchUpcomingEvents,
-    staleTime: 60_000,
+    // ADVISORY-037 §Data Freshness Matrix — Events: 5min. Bumped from 60s;
+    // RSVP mutations should call revalidateEvents() once that helper lands
+    // (currently revalidateDashboard() covers the /dashboard widget path).
+    staleTime: 5 * 60 * 1000,
   });
 }

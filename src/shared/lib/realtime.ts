@@ -45,6 +45,70 @@ export async function broadcastChatMessage(
   });
 }
 
+// ─── Comments ──────────────────────────────────────────────────────────
+
+/**
+ * Subscribe to live `Comment` row changes for a single post.
+ *
+ * Listens for both `INSERT` (new top-level comments + replies) and
+ * `UPDATE` (status transitions: PUBLISHED → FLAGGED → REMOVED/DELETED,
+ * plus denormalised vote counter changes from `voteOnComment`).
+ *
+ * ADVISORY-037 P2.4 — without this channel, `useComments` is pull-only and
+ * concurrent viewers see stale counts/status until manual refetch.
+ *
+ * Usage:
+ *   useEffect(() => {
+ *     return subscribeCommentUpdates(contentId, payload => {
+ *       // payload.event === 'INSERT' | 'UPDATE'
+ *       // payload.row is the raw comment row (Prisma column shape)
+ *       // payload.old is the pre-image for UPDATE events (Supabase typing)
+ *     });
+ *   }, [contentId]);
+ *
+ * @returns unsubscribe function — caller MUST invoke on cleanup
+ */
+export function subscribeCommentUpdates(
+  contentId: string,
+  onChange: (payload: {
+    event: 'INSERT' | 'UPDATE';
+    row: Record<string, unknown>;
+    old?: Record<string, unknown>;
+  }) => void
+): () => void {
+  const channel = supabase
+    .channel(`comments:${contentId}`)
+    .on(
+      'postgres_changes',
+      {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'Comment',
+        filter: `contentId=eq.${contentId}`,
+      },
+      payload => onChange({ event: 'INSERT', row: payload.new as Record<string, unknown> })
+    )
+    .on(
+      'postgres_changes',
+      {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'Comment',
+        filter: `contentId=eq.${contentId}`,
+      },
+      payload =>
+        onChange({
+          event: 'UPDATE',
+          row: payload.new as Record<string, unknown>,
+          old: payload.old as Record<string, unknown>,
+        })
+    )
+    .subscribe();
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}
+
 // ─── Typing ────────────────────────────────────────────────────────────
 
 export function sendTypingIndicator(

@@ -32,7 +32,13 @@ export function UserContentWidget() {
   const { data: session } = authClient.useSession();
   const { data, isLoading } = trpc.content.listContent.useQuery(
     { authorId: session?.user?.id, locale: i18n.language },
-    { staleTime: 60_000, enabled: !!session?.user?.id }
+    {
+      // ADVISORY-037 §Data Freshness Matrix — Documents / Resources: 1h.
+      // User-authored content is cache-friendly; mutations invalidate via
+      // revalidateContent() (bd-y9v0).
+      staleTime: 60 * 60 * 1000,
+      enabled: !!session?.user?.id,
+    }
   );
   const content = (data?.data ?? []) as unknown as ContentItem[];
 

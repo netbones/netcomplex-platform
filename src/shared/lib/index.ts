@@ -50,6 +50,7 @@ export {
   broadcastNotification,
   subscribeDisputeMessages,
   broadcastDisputeMessage,
+  subscribeCommentUpdates,
 } from './realtime';
 // NOTE: agent-token utils are server-only (db dependency).
 // Server: import { signAgentToken, hashToken, ... } from '@shared/lib/agent-token'
