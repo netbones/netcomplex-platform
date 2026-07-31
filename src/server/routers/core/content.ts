@@ -513,15 +513,18 @@ export const contentRouter = router({
         })
         .where(and(eq(contents.id, input.id), eq(contents.tenantId, tenantId)));
 
-      const auditAction = input.moderationStatus === 'PUBLISHED'
-        ? 'PUBLISHED'
-        : input.moderationStatus === 'UNPUBLISHED'
-          ? 'UNPUBLISHED'
-          : input.moderationStatus === 'FLAGGED'
-            ? 'FLAGGED'
-            : 'UPDATED';
+      const auditAction =
+        input.moderationStatus === 'PUBLISHED'
+          ? 'PUBLISHED'
+          : input.moderationStatus === 'UNPUBLISHED'
+            ? 'UNPUBLISHED'
+            : input.moderationStatus === 'FLAGGED'
+              ? 'FLAGGED'
+              : 'UPDATED';
 
-      await insertAuditLog(input.id, auditAction, ctx.userId, { moderationStatus: input.moderationStatus });
+      await insertAuditLog(input.id, auditAction, ctx.userId, {
+        moderationStatus: input.moderationStatus,
+      });
 
       revalidateContent();
 
@@ -670,6 +673,10 @@ export const contentRouter = router({
         .update(contentLikes)
         .set({ deletedAt: now() })
         .where(eq(contentLikes.id, existing.id));
+      // ADVISORY-037 P1 — toggleLike had no invalidation; concurrent users
+      // could not see each other's likes until page reload. revalidateContent()
+      // now invalidates the ISR'd content routes + the 'content' cache tag.
+      revalidateContent();
       return toEnvelope({ liked: false });
     }
 
@@ -680,6 +687,8 @@ export const contentRouter = router({
       userId: ctx.userId,
       createdAt: now(),
     });
+
+    revalidateContent();
 
     return toEnvelope({ liked: true });
   }),

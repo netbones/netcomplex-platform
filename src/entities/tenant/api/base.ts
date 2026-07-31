@@ -60,6 +60,7 @@ import {
 } from '@api/server';
 import { createId } from '@shared/lib/id';
 import { dbLogger } from '@shared/lib';
+import { revalidateTenant } from '@api/server';
 
 export type { Tenant };
 
@@ -365,6 +366,10 @@ export async function createTenant(data: {
     await setTenantFeatureFlags(tenant.id, flags);
   }
 
+  // Invalidate tenant-lookup cache so subsequent resolutions see the new
+  // tenant immediately rather than waiting for the 60s unstable_cache TTL.
+  revalidateTenant(tenant.id);
+
   return tenant;
 }
 
@@ -385,11 +390,20 @@ export async function updateTenant(
   if (featureFlags) {
     await setTenantFeatureFlags(id, featureFlags as Record<string, boolean>);
   }
+
+  // Invalidate tenant-lookup cache so resolution staleness is bounded by
+  // tag invalidation rather than the 60s unstable_cache TTL alone.
+  revalidateTenant(id);
+
   return toTenant(result[0]);
 }
 
 export async function deleteTenant(id: string): Promise<void> {
   await db.delete(tenants).where(eq(tenants.id, id));
+
+  // Invalidate tenant-lookup cache so the deleted tenant is no longer
+  // returned from cached resolvers.
+  revalidateTenant(id);
 }
 
 export function drizzleTenantFilter<T>(tenantId: string, conditions: T[]): T[] {

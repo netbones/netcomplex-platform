@@ -8,6 +8,7 @@ import {
   tenantProcedure,
   privilegedProcedure,
   toEnvelope,
+  revalidateContent,
 } from '@api/server';
 import { commentDto } from '@api/server';
 import { TRPCError } from '@trpc/server';
@@ -134,6 +135,11 @@ export const commentsRouter = router({
         });
       });
 
+      // ADVISORY-037 P1 — vote mutation had no invalidation; concurrent users
+      // could not see score changes until page reload. revalidateContent()
+      // runs after the tx commits so cached comment trees refresh.
+      revalidateContent();
+
       return toEnvelope({ success: true });
     }),
 
@@ -168,6 +174,11 @@ export const commentsRouter = router({
         note: input.note,
       });
 
+      // ADVISORY-037 P1 — a report can auto-flag the comment at the
+      // configured threshold, which mutates the comment row. Without
+      // invalidation the flagged status was invisible until page reload.
+      revalidateContent();
+
       return toEnvelope({ id: reportId });
     }),
 
@@ -187,6 +198,11 @@ export const commentsRouter = router({
         reportId: input.reportId,
         resolution: input.resolution,
       });
+
+      // ADVISORY-037 P1 — moderation mutates comment status (PUBLISHED →
+      // FLAGGED/REMOVED/DELETED). Without invalidation the comment tree
+      // served stale state to concurrent readers until page reload.
+      revalidateContent();
 
       return toEnvelope({ success: true });
     }),

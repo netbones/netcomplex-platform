@@ -149,6 +149,7 @@ export {
   revalidateAdminChanges,
   revalidateUserData,
   revalidateGate,
+  revalidateTenant,
 } from '../revalidation';
 export { CACHE_TAGS } from '../revalidation';
 export { rateLimitByKey, rateLimitByIP, rateLimitByUser, DEFAULT_RATE_LIMITS } from '../rate-limit';

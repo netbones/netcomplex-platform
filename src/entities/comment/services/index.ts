@@ -1,6 +1,7 @@
 import { and, eq, isNull, sql, count, desc } from 'drizzle-orm';
 import { db, comments, commentVotes, commentReports, settings, users } from '@api/server';
 import { createId } from '@shared/lib/id';
+import { revalidateContent } from '@api/server';
 
 const DEFAULT_AUTO_FLAG_THRESHOLD = 3;
 
@@ -140,6 +141,10 @@ export async function createCommentService(
     createdAt: now,
     updatedAt: now,
   });
+  // ADVISORY-037 P1 — comment creation had no invalidation; concurrent users
+  // saw stale comment counts until page reload. revalidateContent() now
+  // refreshes /resources + /api/content + the 'content' cache tag.
+  revalidateContent();
   return id;
 }
 

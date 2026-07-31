@@ -896,10 +896,10 @@ No `postgres_changes` channel exists for `Comment`, `CommentVote`, `Content`, or
 
 ### P1 — Correctness (before M5 launch) · `bd-y9v0`
 
-- [ ] Wire `subscribeChatMessages` into the main `/messages` page
-- [ ] Add `revalidateTag` calls to `revalidateDashboard()`, `revalidateDirectory()`, `revalidateContent()` helpers
-- [ ] Wire `revalidateTag('tenant-lookup')` into tenant admin mutation routes
-- [ ] Add `revalidatePath` or `invalidateQueries` to content like/comment/vote mutations
+- [x] Wire `subscribeChatMessages` into the main `/messages` page
+- [x] Add `revalidateTag` calls to `revalidateDashboard()`, `revalidateDirectory()`, `revalidateContent()` helpers
+- [x] Wire `revalidateTag('tenant-lookup')` into tenant admin mutation routes
+- [x] Add `revalidatePath` or `invalidateQueries` to content like/comment/vote mutations
 
 ### P2 — Performance (post-launch) · `bd-cqs3`
 

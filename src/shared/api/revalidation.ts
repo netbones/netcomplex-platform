@@ -1,7 +1,11 @@
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 
-// Note: Using revalidatePath for on-demand cache invalidation
-// This immediately invalidates ISR caches for specific paths
+// Note: Path-based revalidation continues to handle ISR pathological cases
+// (renderer/edge caches that don't see tag invalidation), but tag-based
+// invalidation is now the primary mechanism per ADVISORY-037 §Cache
+// Invalidation Reality Audit (P1 — bd-y9v0). Tag calls reach any
+// `unstable_cache` wrapper that declared the matching tag in its `tags`
+// array, regardless of static `keyParts`.
 
 /**
  * On-Demand Revalidation utilities for ISR pages
@@ -20,13 +24,20 @@ export const CACHE_TAGS = {
   USERS: 'users',
   CONVERSATIONS: 'conversations',
   SETTINGS: 'settings',
+  TENANT_LOOKUP: 'tenant-lookup',
 } as const;
 
 /**
  * Revalidate dashboard-related caches when data changes
  */
 export function revalidateDashboard() {
-  // Revalidate by path for immediate cache invalidation
+  // Tag-based invalidation reaches every unstable_cache wrapper that
+  // declared these tags (see `src/shared/api/data-fetching.ts`).
+  revalidateTag(CACHE_TAGS.STATS);
+  revalidateTag(CACHE_TAGS.MAINTENANCE);
+  revalidateTag(CACHE_TAGS.BOOKINGS);
+  revalidateTag(CACHE_TAGS.NOTIFICATIONS);
+  // Path invalidation covers ISR'd routes that aren't tag-attached yet.
   revalidatePath('/dashboard');
   revalidatePath('/api/stats');
   revalidatePath('/api/maintenance');
@@ -39,6 +50,8 @@ export function revalidateDashboard() {
  * Revalidate directory-related caches
  */
 export function revalidateDirectory() {
+  revalidateTag(CACHE_TAGS.GROUPS);
+  revalidateTag(CACHE_TAGS.USERS);
   revalidatePath('/directory');
   revalidatePath('/api/users');
   revalidatePath('/api/groups');
@@ -48,6 +61,7 @@ export function revalidateDirectory() {
  * Revalidate content-related caches
  */
 export function revalidateContent() {
+  revalidateTag(CACHE_TAGS.CONTENT);
   revalidatePath('/resources');
   revalidatePath('/conservation');
   revalidatePath('/api/content');
@@ -57,6 +71,8 @@ export function revalidateContent() {
  * Revalidate conversation caches
  */
 export function revalidateConversations(userId?: string) {
+  revalidateTag(CACHE_TAGS.CONVERSATIONS);
+  revalidateTag(CACHE_TAGS.MESSAGES);
   revalidatePath('/messages');
   revalidatePath('/api/conversations');
   revalidatePath('/api/messages');
@@ -108,6 +124,10 @@ export function revalidateUserData(userId: string) {
  *                   included for forward-compat with per-tenant caching)
  */
 export function revalidateGate(tenantId: string): void {
+  // Tag invalidation reaches platform flags (settings tag) and tenant
+  // resolution (tenant-lookup tag — added in bd-y9v0 P1.3).
+  revalidateTag(CACHE_TAGS.SETTINGS);
+  revalidateTag(CACHE_TAGS.TENANT_LOOKUP);
   // Invalidate flag endpoint (carries platform flags used by Layer 3)
   revalidatePath('/api/flags');
 
@@ -128,5 +148,21 @@ export function revalidateGate(tenantId: string): void {
   revalidatePath('/messages');
 
   // Suppress unused parameter warning — used in Phase 2 for per-tenant targeting
+  void tenantId;
+}
+
+/**
+ * Revalidate tenant record caches.
+ * Wired into tenant admin mutation routes in bd-y9v0 P1.3 — the
+ * `tenant-lookup` tag is set on `getTenantById/Slug/Domain` (base.ts:216-241)
+ * but was never invalidated before this helper shipped. Until now, only the
+ * 60s unstable_cache TTL protected tenant record freshness.
+ *
+ * @param tenantId - The tenant whose record changed (kept for forward-compat
+ *                   once unstable_cache keys are tenant-partitioned).
+ */
+export function revalidateTenant(tenantId?: string): void {
+  revalidateTag(CACHE_TAGS.TENANT_LOOKUP);
+  // Suppress unused parameter warning — documented in Phase 2 plan.
   void tenantId;
 }
