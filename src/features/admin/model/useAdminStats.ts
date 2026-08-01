@@ -1,6 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { apiGet } from '@/shared/api/http-client';
 
 export interface AdminStats {
   totalUsers: number;
@@ -10,37 +11,25 @@ export interface AdminStats {
 }
 
 async function fetchAdminStats(): Promise<AdminStats> {
-  const [usersRes, requestsRes, groupsRes, contentRes] = await Promise.all([
-    fetch('/api/users'),
-    fetch('/api/maintenance'),
-    fetch('/api/groups'),
-    fetch('/api/content'),
+  const [users, requests, content] = await Promise.all([
+    apiGet<unknown[]>('/api/users'),
+    apiGet<unknown[]>('/api/maintenance'),
+    apiGet<unknown[]>('/api/content'),
   ]);
-  const [users, requests, groups, content] = await Promise.all([
-    usersRes.json(),
-    requestsRes.json(),
-    groupsRes.json(),
-    contentRes.json(),
-  ]);
-  const extractData = (res: unknown): unknown => (res as { data?: unknown })?.data ?? res;
 
-  const count = (res: unknown): number => {
-    const v = extractData(res);
-    if (Array.isArray(v)) return v.length;
-    const meta = (res as { meta?: { total?: number } })?.meta;
-    if (meta?.total !== undefined) return meta.total;
-    return (
-      (v as { total?: number; count?: number })?.total ??
-      (v as { total?: number; count?: number })?.count ??
-      0
-    );
+  const count = (
+    result: { data: unknown; meta?: Record<string, unknown> },
+    fallback: number
+  ): number => {
+    if (result.meta?.total !== undefined) return result.meta.total as number;
+    return Array.isArray(result.data) ? result.data.length : fallback;
   };
 
   return {
-    totalUsers: count(users),
-    activeRequests: count(requests),
-    totalGroups: count(groups),
-    totalContent: count(content),
+    totalUsers: count(users, 0),
+    activeRequests: count(requests, 0),
+    totalGroups: 0, // /api/groups does not exist as a REST route; groups are tRPC-only
+    totalContent: count(content, 0),
   };
 }
 

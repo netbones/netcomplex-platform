@@ -1,7 +1,12 @@
 'use client';
 
 import { authClient } from './auth-client';
-import type { ApiSuccessResponse, ApiErrorResponse } from './api-response';
+import type { ApiErrorResponse } from './api-response';
+
+export interface ApiResult<T> {
+  data: T;
+  meta?: Record<string, unknown>;
+}
 
 export class ApiClientError extends Error {
   constructor(
@@ -32,12 +37,18 @@ async function getRequestId(): Promise<string | undefined> {
   }
 }
 
+interface ApiEnvelope<T> {
+  success: true;
+  data: T;
+  meta?: Record<string, unknown>;
+}
+
 async function request<T>(
   method: string,
   path: string,
   body?: unknown,
   params?: Record<string, string>
-): Promise<T> {
+): Promise<ApiResult<T>> {
   const url = new URL(path, window.location.origin);
   if (params) {
     Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
@@ -73,36 +84,37 @@ async function request<T>(
   }
 
   if (res.status === 204) {
-    return undefined as unknown as T;
+    return { data: undefined as unknown as T };
   }
 
-  const json = (await res.json()) as ApiSuccessResponse<T> | T;
+  const json = (await res.json()) as ApiEnvelope<T> | T;
 
   if (
     json &&
     typeof json === 'object' &&
     'success' in json &&
     'data' in json &&
-    (json as ApiSuccessResponse<T>).success === true
+    json.success === true
   ) {
-    return (json as ApiSuccessResponse<T>).data;
+    const envelope = json as ApiEnvelope<T>;
+    return { data: envelope.data, meta: envelope.meta };
   }
 
-  return json as T;
+  return { data: json as T };
 }
 
-export function apiGet<T>(path: string, params?: Record<string, string>): Promise<T> {
+export function apiGet<T>(path: string, params?: Record<string, string>): Promise<ApiResult<T>> {
   return request<T>('GET', path, undefined, params);
 }
 
-export function apiPost<T>(path: string, body?: unknown): Promise<T> {
+export function apiPost<T>(path: string, body?: unknown): Promise<ApiResult<T>> {
   return request<T>('POST', path, body);
 }
 
-export function apiPatch<T>(path: string, body?: unknown): Promise<T> {
+export function apiPatch<T>(path: string, body?: unknown): Promise<ApiResult<T>> {
   return request<T>('PATCH', path, body);
 }
 
-export function apiDelete<T>(path: string): Promise<T> {
+export function apiDelete<T>(path: string): Promise<ApiResult<T>> {
   return request<T>('DELETE', path);
 }
