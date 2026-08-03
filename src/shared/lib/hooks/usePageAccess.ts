@@ -21,6 +21,7 @@ import { useSession } from '@api/client';
 import type { SpaceId, SpaceDefinition } from '@widgets/dashboard';
 import type { PlatformPageFlags } from '@shared/lib';
 import { filterSpaces } from '@widgets/dashboard';
+import { apiGet } from '@/shared/api/http-client';
 
 // ── Types ────────────────────────────────────────────────────────
 
@@ -69,6 +70,19 @@ export interface PageAccessResult {
  *
  * @param agentToken - Optional agent bearer token for agent callers
  */
+interface PageAccessQueryResult {
+  spaces: SpaceId[];
+  pages: string[];
+  features: string[];
+  agent: {
+    scope: string[];
+    expiresAt: string | null;
+    tokenId?: string;
+    delegationId?: string | null;
+  } | null;
+  resolvedAt: string;
+}
+
 export function usePageAccess(agentToken?: string): PageAccessResult {
   const { data: session } = useSession();
   const hasSession = !!session?.user?.id;
@@ -78,33 +92,11 @@ export function usePageAccess(agentToken?: string): PageAccessResult {
     isLoading,
     error: queryError,
     refetch,
-  } = useQuery<{
-    spaces: SpaceId[];
-    pages: string[];
-    features: string[];
-    agent: {
-      scope: string[];
-      expiresAt: string | null;
-      tokenId?: string;
-      delegationId?: string | null;
-    } | null;
-    resolvedAt: string;
-  }>({
+  } = useQuery<PageAccessQueryResult>({
     queryKey: ['pageAccess', session?.user?.id ?? 'anonymous', agentToken ?? ''],
     queryFn: async () => {
-      const url = new URL('/api/access', window.location.origin);
-      if (agentToken) {
-        url.searchParams.set('caller', 'agent');
-        url.searchParams.set('token', agentToken);
-      }
-      const res = await fetch(url.toString());
-      if (!res.ok) {
-        throw new Error(`/api/access returned ${res.status}`);
-      }
-      const body = await res.json();
-      // Handle both apiSuccess envelope and direct body shapes
-      const payload = body?.data ?? body;
-      return payload;
+      const params = agentToken ? { caller: 'agent', token: agentToken } : undefined;
+      return (await apiGet<PageAccessQueryResult>('/api/access', params)).data;
     },
     enabled: hasSession || !!agentToken,
     staleTime: 0,

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { logError } from '@shared/lib';
+import { apiGet } from '@/shared/api/http-client';
 
 /** Contact information interface for various departments */
 interface ContactSettings {
@@ -36,10 +37,9 @@ export function useContactSettings() {
   useEffect(() => {
     if (!mounted) return;
 
-    fetch('/api/settings/contact')
-      .then(res => res.json())
-      .then(data => {
-        if (Object.keys(data).length > 0) {
+    apiGet<Record<string, string>>('/api/settings/contact')
+      .then(({ data }) => {
+        if (data && Object.keys(data).length > 0) {
           setContacts(prev => ({ ...prev, ...data }));
         }
       })

@@ -1,6 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { apiGet } from '@/shared/api/http-client';
 import type { PlatformPageFlags } from '../types';
 
 const FLAGS_URL = '/api/flags';
@@ -21,10 +22,8 @@ export function usePageFlags(tenantId?: string) {
   } = useQuery<PlatformPageFlags>({
     queryKey: ['page-flags', tenantId ?? CURRENT_TENANT_KEY],
     queryFn: async () => {
-      const res = await fetch(FLAGS_URL, { cache: 'no-cache' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const body = await res.json();
-      return (body?.data?.flags ?? body?.flags ?? body) as PlatformPageFlags;
+      const { data } = await apiGet<unknown>(FLAGS_URL);
+      return (data as { flags?: PlatformPageFlags } | null)?.flags ?? (data as PlatformPageFlags);
     },
     staleTime: 5 * 60 * 1000,
   });

@@ -1,13 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
+import { apiGet } from '@/shared/api/http-client';
 
 export function useUserProfile(userId: string | undefined) {
   return useQuery({
     queryKey: ['user-profile', userId],
-    queryFn: async () => {
-      const res = await fetch(`/api/users/${userId!}`);
-      if (!res.ok) throw new Error('Failed to fetch user profile');
-      return res.json();
-    },
+    queryFn: async () => (await apiGet(`/api/users/${userId!}`)).data,
     enabled: !!userId,
     staleTime: 5 * 60 * 1000,
   });

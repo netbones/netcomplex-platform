@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { logError } from '@shared/lib';
+import { apiGet } from '@/shared/api/http-client';
 
 interface MapCenter {
   lat: number;
@@ -21,16 +22,13 @@ interface MapSettings {
 }
 
 interface SettingResponse {
-  data: {
-    key: string;
-    value: string | null;
-  };
+  key: string;
+  value: string | null;
 }
 
 async function fetchSetting(key: string): Promise<string | null> {
-  const res = await fetch(`/api/settings/${key}`);
-  const envelope: SettingResponse = await res.json();
-  return envelope?.data?.value ?? null;
+  const { data } = await apiGet<SettingResponse>(`/api/settings/${key}`);
+  return data?.value ?? null;
 }
 
 export function useMapSettings(): MapSettings {

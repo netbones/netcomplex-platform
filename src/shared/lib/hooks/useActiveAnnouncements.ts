@@ -1,9 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
+import { apiGet } from '@/shared/api/http-client';
 
 export function useActiveAnnouncements() {
   return useQuery({
     queryKey: ['announcements', 'active'],
-    queryFn: () => fetch('/api/announcements?active=true&limit=5').then(r => r.json()),
+    queryFn: async () => (await apiGet('/api/announcements?active=true&limit=5')).data,
     staleTime: 30_000,
   });
 }
