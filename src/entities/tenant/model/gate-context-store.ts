@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { apiGet } from '@/shared/api/http-client';
 
 interface GateContextState {
   modules: Record<string, boolean>;
@@ -14,9 +15,7 @@ export const useGateContextStore = create<GateContextState>()((set, get) => ({
   hydrate: async () => {
     if (get().hydrated) return;
     try {
-      const res = await fetch('/api/gate/context');
-      if (!res.ok) return;
-      const data = await res.json();
+      const { data } = await apiGet<{ modules?: Record<string, boolean> }>('/api/gate/context');
       set({ modules: data.modules ?? {}, hydrated: true });
     } catch {
       // leave hydrated: false — default-deny on failure

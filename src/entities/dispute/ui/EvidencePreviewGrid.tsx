@@ -6,6 +6,7 @@ import { EvidenceUploadZone } from './EvidenceUploadZone';
 import Image from 'next/image';
 import { LoadingSkeleton } from '@shared/ui';
 import { formatDate } from '@shared/lib/format-date';
+import { apiGet, apiDelete } from '@/shared/api/http-client';
 
 interface EvidencePreviewGridProps {
   disputeId: string;
@@ -27,6 +28,11 @@ function FileIcon({ fileType }: { fileType: string }) {
   );
 }
 
+interface DisputeEvidencePayload {
+  evidence?: DisputeEvidenceDTO[];
+  evidences?: DisputeEvidenceDTO[];
+}
+
 export function EvidencePreviewGrid({ disputeId, userId }: EvidencePreviewGridProps) {
   const [evidence, setEvidence] = useState<DisputeEvidenceDTO[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,11 +41,8 @@ export function EvidencePreviewGrid({ disputeId, userId }: EvidencePreviewGridPr
 
   const fetchEvidence = async () => {
     try {
-      const res = await fetch(`/api/disputes/${disputeId}`);
-      if (!res.ok) return;
-      const json = await res.json();
-      const data = json.data ?? json;
-      const ev = data.evidence ?? data.evidences ?? [];
+      const { data } = await apiGet<DisputeEvidencePayload>(`/api/disputes/${disputeId}`);
+      const ev = data?.evidence ?? data?.evidences ?? [];
       setEvidence(Array.isArray(ev) ? ev : []);
     } catch {
       // silently fail
@@ -54,10 +57,7 @@ export function EvidencePreviewGrid({ disputeId, userId }: EvidencePreviewGridPr
 
   const handleRemove = async (evidenceId: string, _fileName: string) => {
     try {
-      const res = await fetch(`/api/disputes/${disputeId}/evidence/${evidenceId}`, {
-        method: 'DELETE',
-      });
-      if (!res.ok) throw new Error('Failed to remove');
+      await apiDelete(`/api/disputes/${disputeId}/evidence/${evidenceId}`);
       setEvidence(prev => prev.filter(e => e.id !== evidenceId));
     } catch {
       // silently fail - UI state already optimistic

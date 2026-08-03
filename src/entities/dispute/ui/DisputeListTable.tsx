@@ -9,6 +9,7 @@ import { SeverityIndicator } from './SeverityIndicator';
 import { LoadingSkeleton } from '@shared/ui';
 import Link from 'next/link';
 import { formatDate } from '@shared/lib';
+import { apiGet, ApiClientError } from '@/shared/api/http-client';
 
 /* ── Helpers ───────────────────────────────────────────── */
 
@@ -39,20 +40,14 @@ export function DisputeListTable() {
       if (categoryFilter !== 'all') params.set('category', categoryFilter);
       if (search) params.set('search', search);
 
-      const res = await fetch(`/api/disputes?${params}`);
-      if (!res.ok) {
-        if (res.status === 403) {
-          setError("You don't have permission to view disputes.");
-          setDisputes([]);
-          return;
-        }
-        throw new Error(`Failed to fetch disputes: ${res.status}`);
-      }
-      const json = await res.json();
-      const data = json.data ?? json;
+      const { data } = await apiGet<DisputeCaseDTO[]>(`/api/disputes?${params}`);
       setDisputes(Array.isArray(data) ? data : []);
-    } catch {
-      setError('Failed to load disputes. Please try again.');
+    } catch (err) {
+      if (err instanceof ApiClientError && err.statusCode === 403) {
+        setError("You don't have permission to view disputes.");
+      } else {
+        setError('Failed to load disputes. Please try again.');
+      }
       setDisputes([]);
     } finally {
       setLoading(false);

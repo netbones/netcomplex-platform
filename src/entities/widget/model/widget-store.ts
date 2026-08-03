@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createComponentLogger } from '@shared/lib';
 import { getDefaultLayout } from './default-layouts';
+import { apiGet, apiPatch } from '@/shared/api/http-client';
 
 const log = createComponentLogger('WidgetStore');
 
@@ -246,15 +247,8 @@ export const useWidgetStore = create<WidgetStore>()(
        */
       hydrateFromServer: async (userId: string) => {
         try {
-          const response = await fetch(`/api/users/${userId}`);
-          if (!response.ok) {
-            log.error({ status: response.status }, 'Failed to fetch user for widget hydration');
-            set({ isHydratedFromDb: true });
-            return;
-          }
-
-          const userData = await response.json();
-          const dashboardLayout = userData.dashboardLayout;
+          const { data } = await apiGet<{ dashboardLayout?: unknown }>(`/api/users/${userId}`);
+          const dashboardLayout = data?.dashboardLayout;
 
           if (dashboardLayout) {
             // Server is source of truth — merge with localStorage, server wins on conflict
@@ -289,15 +283,7 @@ export const useWidgetStore = create<WidgetStore>()(
 
         try {
           const dashboardLayout = JSON.stringify({ layouts, userWidgets });
-          const response = await fetch(`/api/users/${userId}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ dashboardLayout }),
-          });
-
-          if (!response.ok) {
-            throw new Error(`Failed to save layout: ${response.status}`);
-          }
+          await apiPatch(`/api/users/${userId}`, { dashboardLayout });
         } catch (err) {
           log.error({ err }, 'Failed to save to DB');
         }

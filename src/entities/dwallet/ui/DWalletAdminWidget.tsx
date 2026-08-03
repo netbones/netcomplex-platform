@@ -17,6 +17,7 @@ import { ManageStreams } from './admin/ManageStreams';
 import { DistributionForm } from './admin/DistributionForm';
 import { PayoutsTable } from './admin/PayoutsTable';
 import { BatchesList } from './admin/BatchesList';
+import { apiPost } from '@/shared/api/http-client';
 
 function DWalletAdminWidgetContent() {
   const { tx } = useSafeTranslation('admin');
@@ -81,12 +82,7 @@ function DWalletAdminWidgetContent() {
     }) => {
       setIsSubmittingBatch(true);
       try {
-        const res = await fetch('/api/admin/dwallet/batches', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-        });
-        if (!res.ok) throw new Error('Distribution failed');
+        await apiPost('/api/admin/dwallet/batches', data);
         setShowDistributionForm(false);
         const [s, p, b] = await Promise.all([fetchAdminStats(), fetchPayouts(), fetchBatches()]);
         setStats(s);

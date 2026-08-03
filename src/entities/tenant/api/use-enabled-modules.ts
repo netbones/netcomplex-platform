@@ -6,14 +6,13 @@
 
 import { useQuery } from '@tanstack/react-query';
 import type { TenantModuleConfig } from '@shared/lib';
+import { apiGet } from '@/shared/api/http-client';
 
 async function fetchEnabledModules(tenantId: string): Promise<Record<string, TenantModuleConfig>> {
-  const res = await fetch(`/api/tenants/${tenantId}/modules`);
-  if (!res.ok) {
-    throw new Error('Failed to fetch modules');
-  }
-  const body = await res.json();
-  return body?.data ?? body;
+  const { data } = await apiGet<Record<string, TenantModuleConfig>>(
+    `/api/tenants/${tenantId}/modules`
+  );
+  return data;
 }
 
 export function useEnabledModules(tenantId: string) {

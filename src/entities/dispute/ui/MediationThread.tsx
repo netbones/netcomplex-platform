@@ -6,6 +6,7 @@ import { MediationMessageBubble } from './MediationMessageBubble';
 import { subscribeDisputeMessages } from '@shared/lib';
 import { LoadingSkeleton } from '@shared/ui';
 import { toast } from 'sonner';
+import { apiGet, apiPost } from '@/shared/api/http-client';
 
 interface MediationThreadProps {
   disputeId: string;
@@ -35,10 +36,7 @@ export function MediationThread({ disputeId, userRole, userId }: MediationThread
   /* ── Fetch messages ─────────────────────────────────── */
   const fetchMessages = useCallback(async () => {
     try {
-      const res = await fetch(`/api/disputes/${disputeId}/messages`);
-      if (!res.ok) throw new Error(`Failed to load messages: ${res.status}`);
-      const json = await res.json();
-      const data = json.data ?? json;
+      const { data } = await apiGet<DisputeMessageDTO[]>(`/api/disputes/${disputeId}/messages`);
       setMessages(Array.isArray(data) ? data : []);
     } catch {
       setError('Failed to load messages.');
@@ -88,15 +86,7 @@ export function MediationThread({ disputeId, userRole, userId }: MediationThread
 
     setSending(true);
     try {
-      const res = await fetch(`/api/disputes/${disputeId}/messages`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: trimmed, isInternal }),
-      });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error?.message || `Failed to send: ${res.status}`);
-      }
+      await apiPost(`/api/disputes/${disputeId}/messages`, { content: trimmed, isInternal });
       setNewContent('');
       setIsInternal(false);
     } catch (err) {

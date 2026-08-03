@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { createComponentLogger } from '@shared/lib';
+import { apiGet } from '@/shared/api/http-client';
 
 const log = createComponentLogger('BookingTimeSlots');
 
@@ -38,13 +39,10 @@ export function BookingTimeSlots({ facility, date, onSelect }: BookingTimeSlotsP
   const fetchAvailability = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(
+      const { data } = await apiGet<{ bookedSlots?: BookedSlot[] }>(
         `/api/bookings/availability?facility=${encodeURIComponent(facility)}&date=${date}`
       );
-      if (res.ok) {
-        const body = await res.json();
-        setBookedSlots(body?.data?.bookedSlots ?? []);
-      }
+      setBookedSlots(data?.bookedSlots ?? []);
     } catch (err) {
       log.error({}, 'Failed to fetch facility availability', err);
     } finally {

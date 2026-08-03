@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { LoadingSkeleton } from '@shared/ui';
+import { apiPost, ApiClientError } from '@/shared/api/http-client';
 
 interface AIFrivolityCheckPanelProps {
   disputeId: string;
@@ -27,31 +28,11 @@ export function AIFrivolityCheckPanel({ disputeId, description }: AIFrivolityChe
     setErrorMessage('');
 
     try {
-      const res = await fetch('/api/disputes/intake-screen', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ description, disputeId }),
+      const { data } = await apiPost<IntakeResult>('/api/disputes/intake-screen', {
+        description,
+        disputeId,
       });
 
-      if (res.status === 429) {
-        setState('quota');
-        return;
-      }
-
-      if (res.status === 503) {
-        setState('error');
-        setErrorMessage('AI dispute screening is currently unavailable. You can still proceed.');
-        return;
-      }
-
-      if (!res.ok) {
-        setState('error');
-        setErrorMessage('AI screening is currently unavailable. You can still proceed.');
-        return;
-      }
-
-      const json = await res.json();
-      const data = json.data ?? json;
       setResult({
         toneScore: data.toneScore ?? 0,
         likelyFrivolous: data.likelyFrivolous ?? false,
@@ -59,9 +40,13 @@ export function AIFrivolityCheckPanel({ disputeId, description }: AIFrivolityChe
         deEscalationTip: data.deEscalationTip ?? null,
       });
       setState('result');
-    } catch {
-      setState('error');
-      setErrorMessage('AI screening is currently unavailable. You can still proceed.');
+    } catch (err) {
+      if (err instanceof ApiClientError && err.statusCode === 429) {
+        setState('quota');
+      } else {
+        setState('error');
+        setErrorMessage('AI screening is currently unavailable. You can still proceed.');
+      }
     }
   };
 
