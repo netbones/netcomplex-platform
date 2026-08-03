@@ -13,6 +13,8 @@ import { ConversationList } from './ConversationList';
 import { ConversationDetail } from './ConversationDetail';
 import { CreateConversationModal } from '@features/chat';
 import type { ConversationListItem } from '@entities/chat';
+import type { Message } from '../model/useMessages';
+import { apiPost } from '@/shared/api/http-client';
 
 const log = createComponentLogger('MessagesPage');
 
@@ -54,27 +56,18 @@ export function MessagesPage({ initialConversationId }: MessagesPageProps) {
     if (!text.trim() || !selectedConversation) return;
 
     try {
-      const res = await fetch('/api/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          conversationId: selectedConversation,
-          content: text,
-          type: 'TEXT' as const,
-        }),
+      const { data } = await apiPost<Message>('/api/messages', {
+        conversationId: selectedConversation,
+        content: text,
+        type: 'TEXT' as const,
       });
-
-      if (res.ok) {
-        const json = await res.json();
-        const sentMessage = json?.data ?? json;
-        setMessages(prev => [
-          ...prev,
-          {
-            ...sentMessage,
-            sender: { id: currentUserId, name: currentUserName, avatar: null },
-          },
-        ]);
-      }
+      setMessages(prev => [
+        ...prev,
+        {
+          ...data,
+          sender: { id: currentUserId, name: currentUserName, avatar: null },
+        },
+      ]);
     } catch (error) {
       log.error({}, 'Failed to send message', error);
     }

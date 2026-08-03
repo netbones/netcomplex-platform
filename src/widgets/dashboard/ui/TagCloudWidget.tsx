@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useApiToast } from '@shared/lib/hooks';
 import { useLanguage } from '@shared/lib/hooks/useSafeTranslation';
+import { apiGet } from '@/shared/api/http-client';
 
 /*
  * TAG CLOUD WIDGET
@@ -46,7 +47,7 @@ export function TagCloudWidget({ widgetId: _widgetId, authorId }: TagCloudWidget
 
   const fetchUserTags = () => {
     apiFetch(
-      globalThis.fetch(buildApiUrl()).then(res => res.json() as Promise<unknown>),
+      apiGet<unknown>(buildApiUrl()).then(res => res.data),
       {
         error: 'Failed to fetch user tags',
         onSuccess: (data: unknown) => {

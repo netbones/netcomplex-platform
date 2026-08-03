@@ -21,6 +21,7 @@ import { common, createLowlight } from 'lowlight';
 import { useEffect, useCallback, useState, useRef } from 'react';
 import { toast } from 'sonner';
 import { Tooltip, TooltipTrigger, TooltipContent } from './tooltip';
+import { apiGet } from '@/shared/api/http-client';
 
 import {
   AlignCenter,
@@ -260,16 +261,17 @@ export function RichTextEditor({
     }
   };
 
-  const openMediaLibrary = () => {
+  const openMediaLibrary = async () => {
     setLoadingMedia(true);
     setShowMediaLib(true);
-    fetch('/api/media')
-      .then(res => res.json())
-      .then(data => {
-        setMediaImages(data.images || []);
-      })
-      .catch(() => toast.error('Failed to load media'))
-      .finally(() => setLoadingMedia(false));
+    try {
+      const { data } = await apiGet<{ images: string[] }>('/api/media');
+      setMediaImages(data.images || []);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to load media');
+    } finally {
+      setLoadingMedia(false);
+    }
   };
 
   const insertFromMediaLib = (url: string) => {

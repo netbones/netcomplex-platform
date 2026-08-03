@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toastPromise, ToastMsg } from '@shared/lib/hooks';
 import { adminEventSchema, type AdminEventFormData } from '@entities/event';
+import { apiPatch, apiPost, apiDelete } from '@/shared/api/http-client';
 
 interface EventFormProps {
   redirectPath?: string;
@@ -80,23 +81,15 @@ export function EventForm({ redirectPath = '/admin/events', initialData }: Event
   const onSubmit = async (data: AdminEventFormData) => {
     await toastPromise(
       (async () => {
-        const method = isEditing ? 'PATCH' : 'POST';
-        const url = isEditing ? `/api/events/${initialData.id}` : '/api/events';
-
         const body = {
           ...data,
           image: data.image || null,
         };
 
-        const res = await fetch(url, {
-          method,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-        });
-
-        if (!res.ok) {
-          const error = await res.json();
-          throw new Error(error.error || ToastMsg.failedToSave('event'));
+        if (isEditing) {
+          await apiPatch(`/api/events/${initialData.id}`, body);
+        } else {
+          await apiPost('/api/events', body);
         }
 
         router.push(redirectPath);
@@ -116,11 +109,7 @@ export function EventForm({ redirectPath = '/admin/events', initialData }: Event
 
     await toastPromise(
       (async () => {
-        const res = await fetch(`/api/events/${initialData.id}`, { method: 'DELETE' });
-        if (!res.ok) {
-          const error = await res.json();
-          throw new Error(error.error || ToastMsg.failedToDelete('event'));
-        }
+        await apiDelete(`/api/events/${initialData.id}`);
         router.push(redirectPath);
         router.refresh();
       })(),

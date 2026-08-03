@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { groupSchema, type GroupFormData } from '@entities/content';
 import { createComponentLogger } from '@shared/lib';
+import { apiPatch, apiPost } from '@/shared/api/http-client';
 
 const log = createComponentLogger('GroupForm');
 
@@ -43,19 +44,13 @@ export function GroupForm({ initialData }: GroupFormProps) {
 
   const onSubmit = async (data: GroupFormData) => {
     try {
-      const method = initialData?.id ? 'PATCH' : 'POST';
-      const url = initialData?.id ? `/api/groups/${initialData.id}` : '/api/groups';
-
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-
-      if (res.ok) {
-        router.push('/admin/groups');
-        router.refresh();
+      if (initialData?.id) {
+        await apiPatch(`/api/groups/${initialData.id}`, data);
+      } else {
+        await apiPost('/api/groups', data);
       }
+      router.push('/admin/groups');
+      router.refresh();
     } catch (error) {
       log.error({}, 'Error saving group', error);
     }

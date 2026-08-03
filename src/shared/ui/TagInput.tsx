@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { createComponentLogger } from '@shared/lib';
+import { apiGet } from '@/shared/api/http-client';
 
 import { X } from 'lucide-react';
 const log = createComponentLogger('TagInput');
@@ -30,17 +31,10 @@ export function TagInput({
   useEffect(() => {
     const loadUserTags = async () => {
       try {
-        // Get user's previous tags from their content
-        const response = await fetch('/api/user/tags');
-        if (response.ok) {
-          const body = await response.json();
-          // Unwrap canonical apiSuccess envelope
-          const data = body?.data ?? body;
-          const tagList = data?.tags ?? [];
-          // Filter out tags already used in current content
-          const availableSuggestions = tagList.filter((tag: string) => !tags.includes(tag));
-          setSuggestions(availableSuggestions);
-        }
+        const { data } = await apiGet<{ tags: string[] }>('/api/user/tags');
+        const tagList = data?.tags ?? [];
+        const availableSuggestions = tagList.filter(tag => !tags.includes(tag));
+        setSuggestions(availableSuggestions);
       } catch (error) {
         log.error({}, 'Failed to load tag suggestions', error);
       }

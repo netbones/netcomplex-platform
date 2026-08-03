@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Shield, AlertTriangle, Check, Clock, X, Plus } from 'lucide-react';
+import { apiGet } from '@/shared/api/http-client';
 
 interface CommunityMerit {
   id: string;
@@ -42,9 +43,8 @@ export function MeritsListPage() {
   const [, setError] = useState('');
 
   useEffect(() => {
-    fetch('/api/merits?limit=50')
-      .then(res => res.json())
-      .then(data => setRecords(data.data || []))
+    apiGet<CommunityMerit[]>('/api/merits?limit=50')
+      .then(({ data }) => setRecords(data || []))
       .catch(() => setError('Failed to load behavior records'))
       .finally(() => setLoading(false));
   }, []);

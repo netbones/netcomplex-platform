@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Shield, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { BEHAVIOR_POINTS } from '@entities/merit';
+import { apiPost, ApiClientError } from '@/shared/api/http-client';
 
 const BEHAVIOR_TYPES = [
   { value: 'MERIT', label: 'Merit', points: BEHAVIOR_POINTS.MERIT, type: 'recognition' as const },
@@ -51,25 +52,20 @@ export function MeritEntryForm() {
     setError('');
     setLoading(true);
     try {
-      const res = await fetch('/api/merits', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId,
-          behaviorType,
-          category,
-          reason,
-          description: description || undefined,
-        }),
+      await apiPost('/api/merits', {
+        userId,
+        behaviorType,
+        category,
+        reason,
+        description: description || undefined,
       });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        setError(data.error?.message || 'Failed to create record');
+      router.push('/admin/merits');
+    } catch (err) {
+      if (err instanceof ApiClientError) {
+        setError(err.message || 'Failed to create record');
       } else {
-        router.push('/admin/merits');
+        setError('An unexpected error occurred');
       }
-    } catch {
-      setError('An unexpected error occurred');
     } finally {
       setLoading(false);
     }

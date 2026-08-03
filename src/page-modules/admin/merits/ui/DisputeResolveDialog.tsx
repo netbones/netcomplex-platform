@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Check, X, AlertTriangle } from 'lucide-react';
+import { apiPost, ApiClientError } from '@/shared/api/http-client';
 
 interface DisputeResolveDialogProps {
   recordId: string;
@@ -31,19 +32,14 @@ export function DisputeResolveDialog({
     setLoading(true);
     setError('');
     try {
-      const res = await fetch(`/api/merits/${recordId}/resolve`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ verdict }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        setError(data.error?.message || 'Failed to resolve dispute');
+      await apiPost(`/api/merits/${recordId}/resolve`, { verdict });
+      onResolved();
+    } catch (err) {
+      if (err instanceof ApiClientError) {
+        setError(err.message || 'Failed to resolve dispute');
       } else {
-        onResolved();
+        setError('An unexpected error occurred');
       }
-    } catch {
-      setError('An unexpected error occurred');
     } finally {
       setLoading(false);
     }

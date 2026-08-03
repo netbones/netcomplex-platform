@@ -5,6 +5,7 @@ import { ErrorBoundary } from '@shared/ui';
 import { createComponentLogger, emitBusEvent } from '@shared/lib';
 import { type PlatformPageFlags, HEADER_LINK_IDS } from '@shared/lib';
 import { DEFAULT_PAGE_FLAGS } from '@shared/lib/settings/defaults';
+import { apiGet, apiPost } from '@/shared/api/http-client';
 
 import { CheckCircle, Leaf } from 'lucide-react';
 const log = createComponentLogger('PageSettingsWidget');
@@ -24,12 +25,8 @@ export function PageSettingsWidget({ initialFlags }: PageFlagsWidgetProps) {
   useEffect(() => {
     async function fetchFlags() {
       try {
-        const res = await fetch('/api/admin/settings/page-flags');
-        if (res.ok) {
-          const body = await res.json();
-          const data = body?.data ?? body;
-          setFlags(prev => ({ ...prev, ...data }));
-        }
+        const { data } = await apiGet<Partial<PlatformPageFlags>>('/api/admin/settings/page-flags');
+        setFlags(prev => ({ ...prev, ...data }));
       } catch (err) {
         log.error({}, 'Failed to fetch page flags', err);
       } finally {
@@ -45,24 +42,15 @@ export function PageSettingsWidget({ initialFlags }: PageFlagsWidgetProps) {
     setError(null);
 
     try {
-      const res = await fetch('/api/admin/settings/page-flags', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key, value }),
-      });
+      await apiPost('/api/admin/settings/page-flags', { key, value });
 
-      if (res.ok) {
-        setFlags(prev => ({ ...prev, [key]: value }));
-        emitBusEvent('page-flags-updated');
-        setSaved(true);
-        setTimeout(() => setSaved(false), 2000);
-      } else {
-        const body = await res.json().catch(() => ({}));
-        setError(body?.error?.message || body?.message || `Failed to save ${key}`);
-      }
+      setFlags(prev => ({ ...prev, [key]: value }));
+      emitBusEvent('page-flags-updated');
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
     } catch (err) {
       log.error({}, 'Failed to update flag', err);
-      setError('Network error — try again');
+      setError(err instanceof Error ? err.message : 'Network error — try again');
     } finally {
       setSavingKeys(prev => {
         const next = new Set(prev);

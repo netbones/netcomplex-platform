@@ -9,6 +9,7 @@ import { SERVICE_MARKETPLACE_CATEGORIES } from '@entities/service';
 import Image from 'next/image';
 import { createComponentLogger } from '@shared/lib';
 import { Plus, MessageSquare, Briefcase, Clock, ExternalLink } from 'lucide-react';
+import { apiGet, apiPost } from '@/shared/api/http-client';
 
 const log = createComponentLogger('MyServicesManager');
 
@@ -102,19 +103,21 @@ export function MyServicesManager() {
     setLoading(true);
     try {
       const [listingsRes, inquiriesRes, personalRes] = await Promise.all([
-        fetch(`/api/community-services/listings?providerId=${session?.user?.id}&limit=50`),
-        fetch(`/api/community-services/provider/inquiries/${session?.user?.id}`),
-        fetch(`/api/community-services/inquiries?inquirerId=${session?.user?.id}`),
+        apiGet<{ listings?: ServiceListing[] }>(
+          `/api/community-services/listings?providerId=${session?.user?.id}&limit=50`
+        ),
+        apiGet<{ inquiries?: ServiceInquiry[] }>(
+          `/api/community-services/provider/inquiries/${session?.user?.id}`
+        ),
+        apiGet<{ inquiries?: Record<string, unknown>[] }>(
+          `/api/community-services/inquiries?inquirerId=${session?.user?.id}`
+        ),
       ]);
 
-      const listingsData = await listingsRes.json();
-      const inquiriesData = await inquiriesRes.json();
-      const personalData = await personalRes.json();
-
-      setListings(listingsData?.data?.listings ?? []);
-      setInquiries(inquiriesData?.data?.inquiries ?? []);
+      setListings(listingsRes.data?.listings ?? []);
+      setInquiries(inquiriesRes.data?.inquiries ?? []);
       setPersonalInquiries(
-        (personalData?.data?.inquiries ?? []).map((i: Record<string, unknown>) => {
+        (personalRes.data?.inquiries ?? []).map((i: Record<string, unknown>) => {
           const rawTitle = (i.listing as Record<string, string> | undefined)?.title;
           const listingTitle =
             rawTitle && typeof rawTitle === 'object'
@@ -125,7 +128,7 @@ export function MyServicesManager() {
             providerId: (i.provider as Record<string, string> | undefined)?.id,
             providerName: (i.provider as Record<string, string> | undefined)?.name,
             listingTitle,
-          };
+          } as PersonalInquiry;
         })
       );
     } catch (err) {
@@ -183,18 +186,19 @@ export function MyServicesManager() {
       };
 
       const isEdit = !!editingId;
-      const url = isEdit
-        ? `/api/community-services/listings/${editingId}`
-        : '/api/community-services/listings';
-      const method = isEdit ? 'PUT' : 'POST';
+      if (isEdit) {
+        const res = await fetch(`/api/community-services/listings/${editingId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
 
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-
-      if (res.ok) {
+        if (res.ok) {
+          resetForm();
+          fetchData();
+        }
+      } else {
+        await apiPost('/api/community-services/listings', body);
         resetForm();
         fetchData();
       }

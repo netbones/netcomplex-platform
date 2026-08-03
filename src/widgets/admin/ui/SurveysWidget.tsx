@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ErrorBoundary } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
+import { apiGet } from '@/shared/api/http-client';
 
 import { AlertCircle, BarChart3, HelpCircle, Plus, Reply } from 'lucide-react';
 const log = createComponentLogger('SurveysWidget');
@@ -26,12 +27,8 @@ export function SurveysWidget() {
   useEffect(() => {
     async function fetchSurveys() {
       try {
-        const response = await fetch('/api/surveys');
-        if (!response.ok) {
-          throw new Error(`Failed to fetch surveys: ${response.status}`);
-        }
-        const body = await response.json();
-        setSurveys(body?.data ?? body);
+        const { data } = await apiGet<SurveyItem[]>('/api/surveys');
+        setSurveys(data ?? []);
       } catch (err) {
         log.error({ operation: 'fetchSurveys' }, 'Failed to fetch surveys', err);
         setError('Failed to load surveys');
@@ -43,20 +40,18 @@ export function SurveysWidget() {
     fetchSurveys();
   }, []);
 
-  const handleRetry = () => {
+  const handleRetry = async () => {
     setLoading(true);
     setError(null);
-    fetch('/api/surveys')
-      .then(res => {
-        if (!res.ok) throw new Error(`Failed to fetch surveys: ${res.status}`);
-        return res.json();
-      })
-      .then(body => setSurveys(body?.data ?? body))
-      .catch(err => {
-        log.error({ operation: 'retryFetch' }, 'Failed to retry fetch surveys', err);
-        setError('Failed to load surveys');
-      })
-      .finally(() => setLoading(false));
+    try {
+      const { data } = await apiGet<SurveyItem[]>('/api/surveys');
+      setSurveys(data ?? []);
+    } catch (err) {
+      log.error({ operation: 'retryFetch' }, 'Failed to retry fetch surveys', err);
+      setError('Failed to load surveys');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const statusColors: Record<string, string> = {

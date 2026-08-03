@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { Tooltip, TooltipTrigger, TooltipContent } from './tooltip';
 import { authClient } from '@api/client';
 import { createComponentLogger } from '@shared/lib';
+import { apiDelete, apiGet } from '@/shared/api/http-client';
 
 import {
   ChevronLeft,
@@ -55,8 +56,7 @@ export function MediaLibrary({
 
   const fetchImages = async () => {
     try {
-      const res = await fetch('/api/media');
-      const data = await res.json();
+      const { data } = await apiGet<{ images: MediaItem[] }>('/api/media');
       setImages(data.images || []);
     } catch (e) {
       log.error({}, 'Failed to fetch images', e);
@@ -101,19 +101,11 @@ export function MediaLibrary({
     if (!confirm('Delete this image?')) return;
 
     try {
-      const res = await fetch(`/api/media?key=${encodeURIComponent(key)}`, {
-        method: 'DELETE',
-      });
-
-      if (res.ok) {
-        setImages(images.filter(img => img.key !== key));
-        toast.success('Image deleted');
-      } else {
-        const error = await res.json();
-        toast.error(error.error || 'Failed to delete');
-      }
-    } catch {
-      toast.error('Failed to delete image');
+      await apiDelete(`/api/media?key=${encodeURIComponent(key)}`);
+      setImages(images.filter(img => img.key !== key));
+      toast.success('Image deleted');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to delete image');
     }
   };
 

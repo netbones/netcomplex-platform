@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { authClient } from '@api/client';
 import { ErrorBoundary } from '@shared/ui';
 import { useApiToast } from '@shared/lib/hooks';
+import { apiGet } from '@/shared/api/http-client';
 
 import { Briefcase, Star } from 'lucide-react';
 interface ServiceListing {
@@ -26,9 +27,9 @@ export function MyServicesWidget() {
     if (!session?.user?.id) return;
 
     apiFetch(
-      globalThis
-        .fetch(`/api/community-services/listings?providerId=${session.user.id}&limit=5`)
-        .then(res => res.json() as Promise<{ listings?: ServiceListing[] }>),
+      apiGet<{ listings?: ServiceListing[] }>(
+        `/api/community-services/listings?providerId=${session.user.id}&limit=5`
+      ).then(res => res.data),
       {
         error: 'Failed to fetch my services',
         onSuccess: (data: { listings?: ServiceListing[] }) => setServices(data.listings || []),

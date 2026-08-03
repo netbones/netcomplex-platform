@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toastPromise, ToastMsg } from '@shared/lib/hooks';
 import { adminCompetitionSchema, type AdminCompetitionFormData } from '@entities/event';
+import { apiDelete, apiPatch, apiPost } from '@/shared/api/http-client';
 
 interface CompetitionFormProps {
   initialData?: {
@@ -94,9 +95,6 @@ export function CompetitionForm({ initialData }: CompetitionFormProps) {
   const onSubmit = async (data: AdminCompetitionFormData) => {
     await toastPromise(
       (async () => {
-        const method = isEditing ? 'PATCH' : 'POST';
-        const url = isEditing ? `/api/competitions/${initialData.id}` : '/api/competitions';
-
         const body = {
           ...data,
           description: data.description || null,
@@ -109,15 +107,10 @@ export function CompetitionForm({ initialData }: CompetitionFormProps) {
           maxParticipants: data.maxParticipants || null,
         };
 
-        const res = await fetch(url, {
-          method,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-        });
-
-        if (!res.ok) {
-          const error = await res.json();
-          throw new Error(error.error || ToastMsg.failedToSave('competition'));
+        if (isEditing) {
+          await apiPatch(`/api/competitions/${initialData.id}`, body);
+        } else {
+          await apiPost('/api/competitions', body);
         }
 
         router.push('/admin/competitions');
@@ -137,11 +130,7 @@ export function CompetitionForm({ initialData }: CompetitionFormProps) {
 
     await toastPromise(
       (async () => {
-        const res = await fetch(`/api/competitions/${initialData.id}`, { method: 'DELETE' });
-        if (!res.ok) {
-          const error = await res.json();
-          throw new Error(error.error || ToastMsg.failedToDelete('competition'));
-        }
+        await apiDelete(`/api/competitions/${initialData.id}`);
         router.push('/admin/competitions');
         router.refresh();
       })(),

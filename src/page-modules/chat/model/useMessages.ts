@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { createComponentLogger } from '@shared/lib';
 import { subscribeChatMessages } from '@shared/lib';
+import { apiGet } from '@/shared/api/http-client';
 
 const log = createComponentLogger('useMessages');
 
@@ -49,10 +50,8 @@ export function useMessages(conversationId: string | null) {
     async function fetchMessages() {
       setMessagesLoading(true);
       try {
-        const res = await fetch(`/api/messages?conversationId=${conversationId}`);
-        if (!res.ok) throw new Error(`Messages API ${res.status}`);
-        const data = await res.json();
-        setMessages(data?.data ?? data);
+        const { data } = await apiGet<Message[]>(`/api/messages?conversationId=${conversationId}`);
+        setMessages(data ?? []);
       } catch (error) {
         log.error({}, 'Failed to fetch messages', error);
       } finally {

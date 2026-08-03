@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { X, Image as ImageIcon, Upload } from 'lucide-react';
 import { toast } from 'sonner';
+import { apiGet } from '@/shared/api/http-client';
 
 interface HeaderImagePickerProps {
   open: boolean;
@@ -21,9 +22,8 @@ interface MediaItem {
 }
 
 async function fetchMyImages(): Promise<MediaItem[]> {
-  const r = await fetch('/api/media');
-  const d = await r.json();
-  return d.data?.images || d.images || [];
+  const { data } = await apiGet<{ images: MediaItem[] }>('/api/media');
+  return data.images || [];
 }
 
 async function uploadMyImage(file: File): Promise<{ url: string; key: string }> {
@@ -56,9 +56,8 @@ export function HeaderImagePicker({
   const loadImages = () => {
     setLoading(true);
     Promise.all([
-      fetch('/api/admin/media')
-        .then(r => r.json())
-        .then(d => setSystemImages(d.data?.images || d.images || []))
+      apiGet<{ images: MediaItem[] }>('/api/admin/media')
+        .then(({ data }) => setSystemImages(data.images || []))
         .catch(() => {}),
       fetchMyImages()
         .then(setMyImages)

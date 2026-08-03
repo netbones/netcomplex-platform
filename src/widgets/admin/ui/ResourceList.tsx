@@ -5,6 +5,7 @@ import React from 'react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { ToastMsg } from '@shared/lib/hooks';
+import { apiDelete, apiGet, apiPost } from '@/shared/api/http-client';
 
 import {
   ChevronDown,
@@ -104,11 +105,8 @@ export function ResourceList() {
       if (categoryFilter) params.set('category', categoryFilter);
       if (visibilityFilter) params.set('visibility', visibilityFilter);
 
-      const res = await fetch(`/api/resources?${params.toString()}`);
-      if (res.ok) {
-        const body = await res.json();
-        setResources(body?.data ?? body);
-      }
+      const { data } = await apiGet<Resource[]>(`/api/resources?${params.toString()}`);
+      setResources(data);
     } catch {
       toast.error(ToastMsg.failedToLoad('resources'));
     } finally {
@@ -128,11 +126,8 @@ export function ResourceList() {
     setExpandedId(resource.id);
     if (!expandedDetails[resource.id]) {
       try {
-        const res = await fetch(`/api/resources/${resource.id}`);
-        if (res.ok) {
-          const body = await res.json();
-          setExpandedDetails(prev => ({ ...prev, [resource.id]: body?.data ?? body }));
-        }
+        const { data } = await apiGet<Resource>(`/api/resources/${resource.id}`);
+        setExpandedDetails(prev => ({ ...prev, [resource.id]: data }));
       } catch {
         toast.error(ToastMsg.failedToLoad('resource details'));
       }
@@ -141,7 +136,7 @@ export function ResourceList() {
 
   const handleDownload = async (resource: Resource) => {
     try {
-      await fetch(`/api/resources/${resource.id}/download`, { method: 'POST' });
+      await apiPost(`/api/resources/${resource.id}/download`);
       setExpandedDetails(prev => {
         const current = prev[resource.id];
         if (!current) return prev;
@@ -165,13 +160,9 @@ export function ResourceList() {
 
   const handleDelete = async (id: string) => {
     try {
-      const res = await fetch(`/api/resources/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        toast.success(ToastMsg.deleted('Resource'));
-        setResources(prev => prev.filter(r => r.id !== id));
-      } else {
-        toast.error(ToastMsg.failedToDelete('resource'));
-      }
+      await apiDelete(`/api/resources/${id}`);
+      toast.success(ToastMsg.deleted('Resource'));
+      setResources(prev => prev.filter(r => r.id !== id));
     } catch {
       toast.error(ToastMsg.failedToDelete('resource'));
     }

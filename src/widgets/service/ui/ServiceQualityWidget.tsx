@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createComponentLogger } from '@shared/lib';
+import { apiGet } from '@/shared/api/http-client';
 
 import { CheckCircle, Shield } from 'lucide-react';
 const log = createComponentLogger('ServiceQualityWidget');
@@ -23,23 +24,20 @@ export function ServiceQualityWidget() {
   useEffect(() => {
     async function fetchAlerts() {
       try {
-        const res = await fetch('/api/community-services/listings?featured=true&limit=5');
-        if (res.ok) {
-          const data = await res.json();
-          const listings = data.listings || [];
-          const qualityAlerts: QualityAlert[] = listings
-            .filter((l: { rating?: number }) => l.rating && l.rating < 3)
-            .map(
-              (l: { id: string; title: string; provider: { name: string }; rating: number }) => ({
-                id: l.id,
-                type: 'LOW_RATING' as const,
-                listing: { id: l.id, title: l.title },
-                provider: { name: l.provider?.name || 'Unknown' },
-                details: `Low rating: ${l.rating}/5`,
-              })
-            );
-          setAlerts(qualityAlerts);
-        }
+        const { data } = await apiGet<{ listings?: ServiceListing[] }>(
+          '/api/community-services/listings?featured=true&limit=5'
+        );
+        const listings = data.listings || [];
+        const qualityAlerts: QualityAlert[] = listings
+          .filter((l: { rating?: number }) => l.rating && l.rating < 3)
+          .map((l: { id: string; title: string; provider: { name: string }; rating: number }) => ({
+            id: l.id,
+            type: 'LOW_RATING' as const,
+            listing: { id: l.id, title: l.title },
+            provider: { name: l.provider?.name || 'Unknown' },
+            details: `Low rating: ${l.rating}/5`,
+          }));
+        setAlerts(qualityAlerts);
       } catch (err) {
         log.error({}, 'Failed to fetch quality alerts', err);
       } finally {

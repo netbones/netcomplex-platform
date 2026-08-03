@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createComponentLogger } from '@shared/lib';
 import { TrendingUp } from 'lucide-react';
+import { apiGet } from '@/shared/api/http-client';
 
 const log = createComponentLogger('MarketplaceAnalyticsWidget');
 
@@ -21,17 +22,16 @@ export function MarketplaceAnalyticsWidget() {
     async function fetchStats() {
       try {
         const [listingsRes, inquiriesRes] = await Promise.all([
-          fetch('/api/community-services/listings?limit=1'),
-          fetch('/api/community-services/inquiries?status=PENDING'),
+          apiGet<{ pagination?: { total?: number } }>('/api/community-services/listings?limit=1'),
+          apiGet<{ pagination?: { total?: number } }>(
+            '/api/community-services/inquiries?status=PENDING'
+          ),
         ]);
 
-        const listingsData = await listingsRes.json();
-        const inquiriesData = await inquiriesRes.json();
-
         setStats({
-          totalListings: listingsData.pagination?.total || 0,
+          totalListings: listingsRes.data.pagination?.total || 0,
           activeProviders: 0,
-          pendingInquiries: inquiriesData.pagination?.total || 0,
+          pendingInquiries: inquiriesRes.data.pagination?.total || 0,
           totalReviews: 0,
         });
       } catch (err) {

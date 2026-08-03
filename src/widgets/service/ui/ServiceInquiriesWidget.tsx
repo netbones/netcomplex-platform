@@ -6,6 +6,7 @@ import { authClient } from '@api/client';
 import { ErrorBoundary } from '@shared/ui';
 import { Mail } from 'lucide-react';
 import { useApiToast } from '@shared/lib/hooks';
+import { apiGet } from '@/shared/api/http-client';
 
 interface ServiceInquiry {
   id: string;
@@ -33,9 +34,9 @@ export function ServiceInquiriesWidget() {
     if (!session?.user?.id) return;
 
     apiFetch(
-      globalThis
-        .fetch('/api/community-services/inquiries?providerId=' + session.user.id)
-        .then(res => res.json() as Promise<ServiceInquiry[] | { inquiries: ServiceInquiry[] }>),
+      apiGet<ServiceInquiry[] | { inquiries: ServiceInquiry[] }>(
+        '/api/community-services/inquiries?providerId=' + session.user.id
+      ).then(res => res.data),
       {
         error: 'Failed to fetch inquiries',
         onSuccess: (data: ServiceInquiry[] | { inquiries: ServiceInquiry[] }) => {

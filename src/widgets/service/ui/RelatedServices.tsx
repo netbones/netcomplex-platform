@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ReviewStars, PricingDisplay, ServiceListing } from '@entities/service';
 import Image from 'next/image';
 import { createComponentLogger } from '@shared/lib';
+import { apiGet } from '@/shared/api/http-client';
 
 import { ImageIcon, User } from 'lucide-react';
 const log = createComponentLogger('RelatedServices');
@@ -20,13 +21,10 @@ export function RelatedServices({ serviceId }: RelatedServicesProps) {
   useEffect(() => {
     async function fetchRelated() {
       try {
-        const res = await fetch(
+        const { data } = await apiGet<{ relatedServices?: ServiceListing[] }>(
           `/api/community-services/listings/related?serviceId=${serviceId}&limit=4`
         );
-        if (res.ok) {
-          const data = await res.json();
-          setServices(data?.data?.relatedServices ?? data?.relatedServices ?? []);
-        }
+        setServices(data?.relatedServices ?? []);
       } catch (error) {
         log.error({}, 'Failed to fetch related services', error);
       } finally {

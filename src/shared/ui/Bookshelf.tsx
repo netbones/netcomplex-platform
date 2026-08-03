@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useSafeTranslation } from '@shared/lib';
 import { createId } from '@shared/lib/id';
+import { apiGet, apiPost } from '@/shared/api/http-client';
 
 import { ChevronLeft, ChevronRight, ExternalLink, Images, LayoutGrid, Trash2 } from 'lucide-react';
 interface Book {
@@ -35,9 +36,8 @@ export function Bookshelf({
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   useEffect(() => {
-    fetch(`/api/users/${userId}/books`)
-      .then(res => res.json())
-      .then(data => {
+    apiGet<{ books: Book[] }>(`/api/users/${userId}/books`)
+      .then(({ data }) => {
         setBooks(data.books || []);
       })
       .catch(() => {
@@ -59,12 +59,10 @@ export function Bookshelf({
     };
 
     try {
-      const res = await fetch(`/api/users/${userId}/books`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'add', book }),
+      const { data } = await apiPost<{ books: Book[] }>(`/api/users/${userId}/books`, {
+        action: 'add',
+        book,
       });
-      const data = await res.json();
       setBooks(data.books || [...books, book]);
       setNewBook({ title: '', author: '', coverUrl: '', url: '' });
     } catch {
@@ -76,12 +74,10 @@ export function Bookshelf({
   const handleDeleteBook = async (bookId: string) => {
     setSaving(true);
     try {
-      const res = await fetch(`/api/users/${userId}/books`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'delete', bookId }),
+      const { data } = await apiPost<{ books: Book[] }>(`/api/users/${userId}/books`, {
+        action: 'delete',
+        bookId,
       });
-      const data = await res.json();
       setBooks(data.books || books.filter(b => b.id !== bookId));
     } catch {
       setBooks(books.filter(b => b.id !== bookId));

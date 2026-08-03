@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { ErrorBoundary } from '@shared/ui';
 import { logError } from '@shared/lib';
 import { PRIORITY_TAXONOMY, type AnnouncementPriority } from '@features/announcements';
+import { apiGet } from '@/shared/api/http-client';
 
 import { AlertCircle, Megaphone, Plus } from 'lucide-react';
 interface AdminAnnouncementItem {
@@ -47,9 +48,7 @@ export function AdminAnnouncementsWidget() {
   useEffect(() => {
     async function fetchAnnouncements() {
       try {
-        const res = await fetch('/api/announcements?limit=5');
-        if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`);
-        const data = await res.json();
+        const { data } = await apiGet<AdminAnnouncementItem[]>('/api/announcements?limit=5');
         setAnnouncements(Array.isArray(data) ? data : []);
       } catch (err) {
         logError(
@@ -66,24 +65,22 @@ export function AdminAnnouncementsWidget() {
     fetchAnnouncements();
   }, []);
 
-  const handleRetry = () => {
+  const handleRetry = async () => {
     setLoading(true);
     setError(null);
-    fetch('/api/announcements?limit=5')
-      .then(res => {
-        if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`);
-        return res.json();
-      })
-      .then(data => setAnnouncements(Array.isArray(data) ? data : []))
-      .catch(err => {
-        logError(
-          { component: 'AdminAnnouncementsWidget', operation: 'retry' },
-          'Failed to retry fetch announcements',
-          err
-        );
-        setError('Failed to load announcements');
-      })
-      .finally(() => setLoading(false));
+    try {
+      const { data } = await apiGet<AdminAnnouncementItem[]>('/api/announcements?limit=5');
+      setAnnouncements(Array.isArray(data) ? data : []);
+    } catch (err) {
+      logError(
+        { component: 'AdminAnnouncementsWidget', operation: 'retry' },
+        'Failed to retry fetch announcements',
+        err
+      );
+      setError('Failed to load announcements');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (loading) {

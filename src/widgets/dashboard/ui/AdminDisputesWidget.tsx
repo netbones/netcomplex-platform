@@ -7,6 +7,7 @@ import { cn, formatDate } from '@shared/lib';
 import { LoadingSkeleton } from '@shared/ui';
 import { DisputeStatusBadge, DisputeCategoryBadge, SeverityIndicator } from '@entities/dispute';
 import type { DisputeCaseDTO, DisputeStatus } from '@entities/dispute';
+import { apiGet } from '@/shared/api/http-client';
 
 // ── Constants ─────────────────────────────────────────────────
 
@@ -80,16 +81,8 @@ export function AdminDisputesWidget() {
       const params = new URLSearchParams();
       tabDef.statuses.forEach(s => params.append('status', s));
 
-      const res = await fetch(`/api/disputes?${params}`);
-
-      if (!res.ok) {
-        setError('Unable to load disputes');
-        toast.error('Failed to load moderation queue');
-        return;
-      }
-
-      const data = await res.json();
-      const list: DisputeCaseDTO[] = Array.isArray(data) ? data : (data?.data ?? []);
+      const { data } = await apiGet<DisputeCaseDTO[]>(`/api/disputes?${params}`);
+      const list: DisputeCaseDTO[] = Array.isArray(data) ? data : [];
 
       setDisputes(list);
     } catch {

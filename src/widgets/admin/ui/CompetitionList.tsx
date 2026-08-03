@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import type { Competition } from './competition/types';
 import { STATUS_COLORS, TYPE_BADGE_COLORS, TYPE_LABELS, formatDate } from './competition/types';
 import { ParticipantsPanel } from './competition/ParticipantsPanel';
+import { apiGet, apiDelete } from '@/shared/api/http-client';
 
 export function CompetitionList() {
   const [competitions, setCompetitions] = useState<Competition[]>([]);
@@ -15,21 +16,20 @@ export function CompetitionList() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/api/competitions')
-      .then(res => res.json())
-      .then(body => {
-        setCompetitions(body?.data ?? body);
+    apiGet<Competition[]>('/api/competitions')
+      .then(({ data }) => {
+        setCompetitions(data ?? []);
         setLoading(false);
       })
       .catch(() => setLoading(false));
   }, []);
 
   const handleDelete = async (id: string) => {
-    const res = await fetch(`/api/competitions/${id}`, { method: 'DELETE' });
-    if (res.ok) {
+    try {
+      await apiDelete(`/api/competitions/${id}`);
       setCompetitions(competitions.filter(c => c.id !== id));
       toast.success('Competition deleted');
-    } else {
+    } catch {
       toast.error('Failed to delete competition');
     }
     setDeleteId(null);

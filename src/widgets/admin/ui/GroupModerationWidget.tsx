@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { ErrorBoundary } from '@shared/ui';
+import { apiGet, apiPost } from '@/shared/api/http-client';
 
 import { UserCheck } from 'lucide-react';
 interface MembershipRequest {
@@ -30,11 +31,10 @@ export function GroupModerationWidget() {
   const fetchRequests = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`/api/groups/membership-requests?status=${filter}`);
-      if (res.ok) {
-        const data = await res.json();
-        setRequests(data.requests || []);
-      }
+      const res = await apiGet<{ requests: MembershipRequest[] }>(
+        `/api/groups/membership-requests?status=${filter}`
+      );
+      setRequests(res.data.requests || []);
     } catch {
       // Silently fail - ErrorBoundary will catch render errors
     } finally {
@@ -49,15 +49,8 @@ export function GroupModerationWidget() {
   const handleAction = async (id: string, action: 'approve' | 'reject') => {
     setActionInProgress(id);
     try {
-      const res = await fetch(`/api/groups/membership-requests/${id}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action }),
-      });
-      if (res.ok) {
-        // Remove from list (optimistic update)
-        setRequests(prev => prev.filter(r => r.id !== id));
-      }
+      const res = await apiPost(`/api/groups/membership-requests/${id}`, { action });
+      setRequests(prev => prev.filter(r => r.id !== id));
     } catch {
       // Refetch on error to restore consistent state
       fetchRequests();

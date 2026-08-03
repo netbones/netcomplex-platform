@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Plus, Wrench } from 'lucide-react';
 import { ErrorBoundary, LoadingSpinner } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
+import { apiGet } from '@/shared/api/http-client';
 
 const log = createComponentLogger('MaintenanceRequestsWidget');
 
@@ -35,9 +36,7 @@ export function MaintenanceRequestsWidget() {
       try {
         // scope=mine forces user-scoped view even for admins — this widget is rendered
         // on the user-facing services space, so it should always show the user's own requests
-        const res = await fetch('/api/maintenance?scope=mine');
-        const body = await res.json();
-        const data = body?.data ?? body;
+        const { data } = await apiGet<MaintenanceRequest[]>('/api/maintenance?scope=mine');
         setRequests(data.slice(0, 5));
       } catch (error) {
         log.error({}, 'Failed to fetch requests', error);

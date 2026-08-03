@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Shield, Award, AlertTriangle, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { getStandingTier, type StandingTier } from '@entities/merit';
+import { apiGet } from '@/shared/api/http-client';
 
 interface CommunityMerit {
   id: string;
@@ -30,10 +31,9 @@ export function UserStandingCard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/merits?limit=100&userId=self')
-      .then(res => res.json())
-      .then(data => {
-        const rows: CommunityMerit[] = data.data || [];
+    apiGet<CommunityMerit[]>('/api/merits?limit=100&userId=self')
+      .then(({ data }) => {
+        const rows: CommunityMerit[] = data || [];
         setRecords(rows);
         const rec = rows
           .filter(r => r.status !== 'OVERTURNED')

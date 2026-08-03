@@ -5,6 +5,7 @@ import type { AdminUser, Invitation } from '@entities/user';
 import { PAGE_SIZE } from '@entities/user';
 import { useAdminUsers } from '@shared/lib/hooks';
 import { resolveType } from './resolve-user-helpers';
+import { apiGet } from '@/shared/api/http-client';
 
 interface UseUsersDataReturn {
   users: AdminUser[];
@@ -85,9 +86,9 @@ export function useUsersData(): UseUsersDataReturn {
 
   useEffect(() => {
     if (!isOpen) return;
-    Promise.all([fetch('/api/invitations').then(r => r.json())])
-      .then(([invitesData]) => {
-        setInvitations(invitesData?.data ?? invitesData);
+    apiGet<Invitation[]>('/api/invitations')
+      .then(({ data }) => {
+        setInvitations(data ?? []);
       })
       .catch(() => {});
   }, [isOpen]);

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { ErrorBoundary, LoadingSpinner } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
+import { apiGet } from '@/shared/api/http-client';
 
 const log = createComponentLogger('MaintenanceAnalyticsWidget');
 
@@ -25,8 +26,7 @@ export function MaintenanceAnalyticsWidget() {
   useEffect(() => {
     async function fetchStats() {
       try {
-        const res = await fetch('/api/admin/maintenance-stats');
-        const data = await res.json();
+        const { data } = await apiGet<Stats>('/api/admin/maintenance-stats');
         setStats(data);
       } catch (error) {
         log.error({}, 'Failed to fetch stats', error);

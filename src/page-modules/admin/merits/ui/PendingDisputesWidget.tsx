@@ -3,16 +3,21 @@
 import { useState, useEffect } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
+import { apiGet } from '@/shared/api/http-client';
+
+interface CommunityMerit {
+  id: string;
+  status: string;
+}
 
 export function PendingDisputesWidget() {
   const [count, setCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/merits?status=DISPUTED&limit=1')
-      .then(res => res.json())
-      .then(result => {
-        setCount((result.data || []).length);
+    apiGet<CommunityMerit[]>('/api/merits?status=DISPUTED&limit=1')
+      .then(({ data }) => {
+        setCount((data || []).length);
       })
       .catch(() => {})
       .finally(() => setLoading(false));

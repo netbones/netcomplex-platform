@@ -16,6 +16,7 @@ import {
   type SupportedLanguage,
 } from '@/shared/lib/i18n';
 import { contentSchema, type ContentFormData } from '@entities/content';
+import { apiPatch, apiPost } from '@/shared/api/http-client';
 
 interface ContentFormProps {
   initialData?: {
@@ -138,24 +139,16 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
   const onSubmit = async (data: ContentFormData) => {
     await toastPromise(
       (async () => {
-        const method = isEditing ? 'PATCH' : 'POST';
-        const url = isEditing ? `/api/content/${initialData.id}` : '/api/content';
-
         const body = {
           ...data,
           publishedAt: data.publishedAt ? new Date(data.publishedAt) : null,
           expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
         };
 
-        const res = await fetch(url, {
-          method,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-        });
-
-        if (!res.ok) {
-          const error = await res.json();
-          throw new Error(error.error || ToastMsg.failedToSave('content'));
+        if (isEditing) {
+          await apiPatch(`/api/content/${initialData.id}`, body);
+        } else {
+          await apiPost('/api/content', body);
         }
 
         setLocaleDirtyState(prev => ({ ...prev, [activeLocale]: false }));

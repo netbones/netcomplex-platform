@@ -3,10 +3,17 @@
 import { useState, useEffect } from 'react';
 import { AlertTriangle, Shield } from 'lucide-react';
 import Link from 'next/link';
+import { apiGet } from '@/shared/api/http-client';
 
 interface EscalationData {
   reviewFlagged: number;
   suspensionRecommended: number;
+}
+
+interface MeritRow {
+  behaviorType: string;
+  status: string;
+  userId: string;
 }
 
 export function MeritEscalationWidget() {
@@ -14,14 +21,12 @@ export function MeritEscalationWidget() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/merits?status=ACTIVE&limit=100')
-      .then(res => res.json())
-      .then(result => {
-        const rows = result.data || [];
+    apiGet<MeritRow[]>('/api/merits?status=ACTIVE&limit=100')
+      .then(({ data: rows }) => {
         const counts: Record<string, number> = {};
         rows
-          .filter((r: { behaviorType: string; status: string }) => r.behaviorType === 'INFRACTION')
-          .forEach((r: { userId: string | number }) => {
+          .filter(r => r.behaviorType === 'INFRACTION')
+          .forEach(r => {
             counts[r.userId] = (counts[r.userId] || 0) + 1;
           });
         setData({

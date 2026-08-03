@@ -5,16 +5,16 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Breadcrumbs } from '@shared/ui';
 import type { Survey } from '@entities/survey';
+import { apiGet } from '@/shared/api/http-client';
 
 export function SurveysListPage() {
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/surveys')
-      .then(res => res.json())
-      .then(data => {
-        setSurveys(data.success ? data.data : data);
+    apiGet<Survey[]>('/api/surveys')
+      .then(({ data }) => {
+        setSurveys(data ?? []);
         setLoading(false);
       })
       .catch(() => setLoading(false));

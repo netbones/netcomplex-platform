@@ -4,6 +4,7 @@ import React, { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { logError } from '@shared/lib';
+import { apiGet } from '@/shared/api/http-client';
 
 import { AlertCircle, BarChart3, Inbox, Star, StarHalf } from 'lucide-react';
 interface QuestionResult {
@@ -198,12 +199,8 @@ export function SurveyResultsPage({ params }: { params: Promise<{ id: string }> 
 
     async function fetchResults() {
       try {
-        const response = await fetch(`/api/surveys/${surveyId}/responses`);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch results: ${response.status}`);
-        }
-        const result = await response.json();
-        setData(result.success ? result.data : result);
+        const { data } = await apiGet<SurveyResponseData>(`/api/surveys/${surveyId}/responses`);
+        setData(data);
       } catch (err) {
         logError(
           { component: 'SurveyResultsPage', operation: 'fetchResults' },
@@ -219,28 +216,23 @@ export function SurveyResultsPage({ params }: { params: Promise<{ id: string }> 
     fetchResults();
   }, [surveyId]);
 
-  const handleRetry = () => {
+  const handleRetry = async () => {
     if (!surveyId) return;
     setLoading(true);
     setError(null);
-    fetch(`/api/surveys/${surveyId}/responses`)
-      .then(res => {
-        if (!res.ok) throw new Error(`Failed to fetch results: ${res.status}`);
-        return res.json();
-      })
-      .then(result => {
-        setData(result.success ? result.data : result);
-        setLoading(false);
-      })
-      .catch(err => {
-        logError(
-          { component: 'SurveyResultsPage', operation: 'retryFetch' },
-          'Failed to retry fetch survey results',
-          err
-        );
-        setError('Failed to load survey results');
-        setLoading(false);
-      });
+    try {
+      const { data } = await apiGet<SurveyResponseData>(`/api/surveys/${surveyId}/responses`);
+      setData(data);
+      setLoading(false);
+    } catch (err) {
+      logError(
+        { component: 'SurveyResultsPage', operation: 'retryFetch' },
+        'Failed to retry fetch survey results',
+        err
+      );
+      setError('Failed to load survey results');
+      setLoading(false);
+    }
   };
 
   const statusColors: Record<string, string> = {

@@ -4,6 +4,7 @@ import React, { use, useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { logError } from '@shared/lib';
 import { LoadingSpinner } from '@shared/ui';
+import { apiGet } from '@/shared/api/http-client';
 import {
   getTypeMeta,
   type Survey,
@@ -46,13 +47,14 @@ export function SurveyPreviewPage({ params }: SurveyPreviewPageProps) {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/surveys/${surveyId}`);
-      if (!res.ok) throw new Error(`Failed to load survey: ${res.status}`);
-      const json = await res.json();
-      const payload = json.success ? json.data : json;
-      setSurvey(payload.survey);
-      setQuestions(payload.questions);
-      setSections(payload.sections);
+      const { data } = await apiGet<{
+        survey: Survey;
+        questions: SurveyQuestion[];
+        sections: SurveySection[];
+      }>(`/api/surveys/${surveyId}`);
+      setSurvey(data.survey);
+      setQuestions(data.questions);
+      setSections(data.sections);
     } catch (err) {
       logError(
         { component: 'SurveyPreviewPage', operation: 'loadSurvey' },

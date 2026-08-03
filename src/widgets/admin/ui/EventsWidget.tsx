@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ErrorBoundary } from '@shared/ui';
 import { logError } from '@shared/lib';
+import { apiGet } from '@/shared/api/http-client';
 
 import { AlertCircle, Calendar, CalendarX, MapPin, Plus } from 'lucide-react';
 export interface EventItem {
@@ -38,12 +39,8 @@ export function EventsWidget() {
   useEffect(() => {
     async function fetchUpcomingEvents() {
       try {
-        const response = await fetch('/api/events?limit=5&upcoming=true');
-        if (!response.ok) {
-          throw new Error(`Failed to fetch events: ${response.status}`);
-        }
-        const body = await response.json();
-        setEvents(body?.data ?? body);
+        const { data } = await apiGet<EventItem[]>('/api/events?limit=5&upcoming=true');
+        setEvents(data);
       } catch (err) {
         logError(
           { component: 'EventsWidget', operation: 'fetchUpcomingEvents' },
@@ -62,12 +59,8 @@ export function EventsWidget() {
   const handleRetry = () => {
     setLoading(true);
     setError(null);
-    fetch('/api/events?limit=5&upcoming=true')
-      .then(res => {
-        if (!res.ok) throw new Error(`Failed to fetch events: ${res.status}`);
-        return res.json();
-      })
-      .then(body => setEvents(body?.data ?? body))
+    apiGet<EventItem[]>('/api/events?limit=5&upcoming=true')
+      .then(res => setEvents(res.data))
       .catch(err => {
         logError(
           { component: 'EventsWidget', operation: 'retryFetch' },

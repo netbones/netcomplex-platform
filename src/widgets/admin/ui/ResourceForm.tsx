@@ -10,6 +10,7 @@ import { RichTextEditor } from '@shared/ui';
 import { z } from 'zod';
 import { createComponentLogger } from '@shared/lib';
 import { ToastMsg } from '@shared/lib/hooks';
+import { apiDelete, apiPatch, apiPost } from '@/shared/api/http-client';
 
 import { CheckCircle, Loader2, Trash2 } from 'lucide-react';
 const log = createComponentLogger('ResourceForm');
@@ -173,23 +174,15 @@ export function ResourceForm({ initialData }: ResourceFormProps) {
   const onSubmit = async (data: ResourceFormData) => {
     await toastPromise(
       (async () => {
-        const method = isEditing ? 'PATCH' : 'POST';
-        const url = isEditing ? `/api/resources/${initialData.id}` : '/api/resources';
-
         const body = {
           ...data,
           publishedAt: data.publishedAt ? new Date(data.publishedAt) : null,
         };
 
-        const res = await fetch(url, {
-          method,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-        });
-
-        if (!res.ok) {
-          const error = await res.json();
-          throw new Error(error.error || ToastMsg.failedToSave('resource'));
+        if (isEditing) {
+          await apiPatch(`/api/resources/${initialData.id}`, body);
+        } else {
+          await apiPost('/api/resources', body);
         }
 
         router.push('/admin/resources');
@@ -209,8 +202,7 @@ export function ResourceForm({ initialData }: ResourceFormProps) {
 
     await toastPromise(
       (async () => {
-        const res = await fetch(`/api/resources/${initialData.id}`, { method: 'DELETE' });
-        if (!res.ok) throw new Error(ToastMsg.failedToDelete('resource'));
+        await apiDelete(`/api/resources/${initialData.id}`);
         router.push('/admin/resources');
         router.refresh();
       })(),

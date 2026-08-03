@@ -4,6 +4,7 @@ import { useEffect, useState, type ComponentType } from 'react';
 import { Trophy, icons } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSafeTranslation } from '@shared/lib';
+import { apiGet, apiPatch } from '@/shared/api/http-client';
 
 interface AchievementDefinition {
   id: string;
@@ -24,21 +25,19 @@ export function AdminAchievementsWidget() {
   const [filter, setFilter] = useState<string>('all');
 
   useEffect(() => {
-    fetch('/api/achievements', { credentials: 'same-origin' })
-      .then(res => (res.ok ? res.json() : Promise.reject()))
-      .then(body => {
-        const data = body?.data ?? [];
+    apiGet<Partial<AchievementDefinition>[]>('/api/achievements')
+      .then(({ data }) => {
         setDefinitions(
-          data.map((d: Record<string, unknown>) => ({
-            id: d.id,
-            key: d.key,
-            label: d.label,
+          data.map(d => ({
+            id: d.id ?? '',
+            key: d.key ?? '',
+            label: d.label ?? '',
             description: d.description,
-            category: d.category,
-            threshold: d.threshold,
+            category: d.category ?? '',
+            threshold: d.threshold ?? 0,
             enabled: d.enabled !== false,
             customThreshold: d.customThreshold,
-            icon: d.icon as string | null | undefined,
+            icon: d.icon ?? null,
           }))
         );
       })
@@ -48,13 +47,7 @@ export function AdminAchievementsWidget() {
 
   const toggleEnabled = async (id: string, current: boolean) => {
     try {
-      const res = await fetch(`/api/admin/achievements/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'same-origin',
-        body: JSON.stringify({ enabled: !current }),
-      });
-      if (!res.ok) throw new Error();
+      await apiPatch(`/api/admin/achievements/${id}`, { enabled: !current });
       setDefinitions(prev => prev.map(d => (d.id === id ? { ...d, enabled: !current } : d)));
       toast.success(
         current
@@ -69,13 +62,7 @@ export function AdminAchievementsWidget() {
   const updateIcon = async (id: string, value: string) => {
     const icon = value || null;
     try {
-      const res = await fetch(`/api/admin/achievements/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'same-origin',
-        body: JSON.stringify({ icon }),
-      });
-      if (!res.ok) throw new Error();
+      await apiPatch(`/api/admin/achievements/${id}`, { icon });
       setDefinitions(prev => prev.map(d => (d.id === id ? { ...d, icon } : d)));
       toast.success('Icon updated');
     } catch {
@@ -88,13 +75,7 @@ export function AdminAchievementsWidget() {
     if (num !== null && (isNaN(num) || num < 1)) return;
 
     try {
-      const res = await fetch(`/api/admin/achievements/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'same-origin',
-        body: JSON.stringify({ customThreshold: num }),
-      });
-      if (!res.ok) throw new Error();
+      await apiPatch(`/api/admin/achievements/${id}`, { customThreshold: num });
       setDefinitions(prev => prev.map(d => (d.id === id ? { ...d, customThreshold: num } : d)));
       toast.success(tx('achievements.thresholdUpdated', 'Threshold updated'));
     } catch {

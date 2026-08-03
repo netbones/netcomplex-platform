@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { apiGet, apiDelete } from '@/shared/api/http-client';
 
 import { PenSquare, Trash2 } from 'lucide-react';
 interface Event {
@@ -23,10 +24,9 @@ export function EventList() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/api/events')
-      .then(res => res.json())
-      .then(body => {
-        setEvents(body?.data ?? body ?? []);
+    apiGet<Event[]>('/api/events')
+      .then(({ data }) => {
+        setEvents(data ?? []);
         setLoading(false);
       })
       .catch(() => {
@@ -35,10 +35,10 @@ export function EventList() {
   }, []);
 
   const handleDelete = async (id: string) => {
-    const res = await fetch(`/api/events/${id}`, { method: 'DELETE' });
-    if (res.ok) {
+    try {
+      await apiDelete(`/api/events/${id}`);
       setEvents(events.filter(e => e.id !== id));
-    }
+    } catch {}
     setDeleteId(null);
   };
 
