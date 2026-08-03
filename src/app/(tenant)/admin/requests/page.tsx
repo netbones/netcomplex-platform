@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
+import { apiGet, apiPost, apiPatch, apiDelete } from '@/shared/api/http-client';
 import type { MaintenanceCategory } from '@entities/maintenance';
 import type {
   MaintenanceRequest,
@@ -54,9 +55,8 @@ export default function AdminRequestsPage() {
       if (priorityFilter !== 'all') params.set('priority', priorityFilter);
       if (categoryFilter !== 'all') params.set('category', categoryFilter);
       if (search) params.set('search', search);
-      const res = await fetch(`/api/maintenance?${params}`);
-      const json = await res.json();
-      setRequests(json.data);
+      const { data } = await apiGet<MaintenanceRequest[]>(`/api/maintenance?${params}`);
+      setRequests(data);
     } catch (error) {
       log.error({}, 'Failed to fetch requests', error);
     } finally {
@@ -67,9 +67,8 @@ export default function AdminRequestsPage() {
   const fetchHistory = useCallback(async (requestId: string) => {
     setLoadingHistory(true);
     try {
-      const res = await fetch(`/api/maintenance/${requestId}/history`);
-      const json = await res.json();
-      setHistory(json.data);
+      const { data } = await apiGet<HistoryEntry[]>(`/api/maintenance/${requestId}/history`);
+      setHistory(data);
     } catch (error) {
       log.error({}, 'Failed to fetch history', error);
     } finally {
@@ -80,9 +79,8 @@ export default function AdminRequestsPage() {
   const fetchNotes = useCallback(async (requestId: string) => {
     setLoadingNotes(true);
     try {
-      const res = await fetch(`/api/maintenance/${requestId}/notes`);
-      const json = await res.json();
-      setNotes(json.data);
+      const { data } = await apiGet<NoteEntry[]>(`/api/maintenance/${requestId}/notes`);
+      setNotes(data);
     } catch (error) {
       log.error({}, 'Failed to fetch notes', error);
     } finally {
@@ -92,9 +90,8 @@ export default function AdminRequestsPage() {
 
   const fetchTeams = useCallback(async () => {
     try {
-      const res = await fetch('/api/maintenance/teams');
-      const json = await res.json();
-      setTeams(json.data || []);
+      const { data } = await apiGet<MaintenanceTeam[]>('/api/maintenance/teams');
+      setTeams(data || []);
     } catch (error) {
       log.error({}, 'Failed to fetch teams', error);
     }
@@ -102,9 +99,8 @@ export default function AdminRequestsPage() {
 
   const fetchProviders = useCallback(async () => {
     try {
-      const res = await fetch('/api/maintenance/providers');
-      const json = await res.json();
-      setProviders(json.data || []);
+      const { data } = await apiGet<ServiceProvider[]>('/api/maintenance/providers');
+      setProviders(data || []);
     } catch (error) {
       log.error({}, 'Failed to fetch providers', error);
     }
@@ -112,9 +108,8 @@ export default function AdminRequestsPage() {
 
   const fetchCategories = useCallback(async () => {
     try {
-      const res = await fetch('/api/maintenance/categories');
-      const json = await res.json();
-      setCategories(json.data || []);
+      const { data } = await apiGet<MaintenanceCategory[]>('/api/maintenance/categories');
+      setCategories(data || []);
     } catch (error) {
       log.error({}, 'Failed to fetch categories', error);
     }
@@ -135,9 +130,8 @@ export default function AdminRequestsPage() {
   useEffect(() => {
     async function fetchBoardMembers() {
       try {
-        const res = await fetch('/api/admin/board-members');
-        const json = await res.json();
-        setBoardMembers(json.data);
+        const { data } = await apiGet<BoardMember[]>('/api/admin/board-members');
+        setBoardMembers(data);
       } catch (error) {
         log.error({}, 'Failed to fetch board members', error);
       }
@@ -153,11 +147,7 @@ export default function AdminRequestsPage() {
 
   const handleStatusChange = async (requestId: string, newStatus: string) => {
     try {
-      await fetch(`/api/maintenance/${requestId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus }),
-      });
+      await apiPatch(`/api/maintenance/${requestId}`, { status: newStatus });
       setRequests(requests.map(r => (r.id === requestId ? { ...r, status: newStatus } : r)));
       if (selectedRequest?.id === requestId) {
         setSelectedRequest({ ...selectedRequest, status: newStatus });
@@ -170,11 +160,7 @@ export default function AdminRequestsPage() {
 
   const handlePriorityChange = async (requestId: string, newPriority: string) => {
     try {
-      await fetch(`/api/maintenance/${requestId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ priority: newPriority }),
-      });
+      await apiPatch(`/api/maintenance/${requestId}`, { priority: newPriority });
       setRequests(requests.map(r => (r.id === requestId ? { ...r, priority: newPriority } : r)));
       if (selectedRequest?.id === requestId) {
         setSelectedRequest({ ...selectedRequest, priority: newPriority });
@@ -187,11 +173,7 @@ export default function AdminRequestsPage() {
 
   const handleAssigneeChange = async (requestId: string, assignedTo: string) => {
     try {
-      await fetch(`/api/maintenance/${requestId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ assignedTo: assignedTo || null }),
-      });
+      await apiPatch(`/api/maintenance/${requestId}`, { assignedTo: assignedTo || null });
       setRequests(requests.map(r => (r.id === requestId ? { ...r, assignedTo } : r)));
       if (selectedRequest?.id === requestId) {
         setSelectedRequest({ ...selectedRequest, assignedTo });
@@ -204,10 +186,9 @@ export default function AdminRequestsPage() {
 
   const handleAssignment = async (requestId: string, teamId?: string, providerId?: string) => {
     try {
-      await fetch(`/api/maintenance/${requestId}/assign`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ teamId: teamId || null, providerId: providerId || null }),
+      await apiPost(`/api/maintenance/${requestId}/assign`, {
+        teamId: teamId || null,
+        providerId: providerId || null,
       });
       fetchRequests();
       if (selectedRequest?.id === requestId) {
@@ -233,14 +214,10 @@ export default function AdminRequestsPage() {
   const handleHandoff = async (requestId: string) => {
     if (!handoffProviderId) return;
     try {
-      await fetch(`/api/maintenance/${requestId}/assign`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          teamId: null,
-          providerId: handoffProviderId,
-          reason: handoffReason,
-        }),
+      await apiPost(`/api/maintenance/${requestId}/assign`, {
+        teamId: null,
+        providerId: handoffProviderId,
+        reason: handoffReason,
       });
       setHandoffMode(false);
       setHandoffProviderId('');
@@ -267,11 +244,7 @@ export default function AdminRequestsPage() {
   const handleScheduleChange = async (requestId: string, scheduledDate: string) => {
     try {
       const date = scheduledDate ? new Date(scheduledDate).toISOString() : null;
-      await fetch(`/api/maintenance/${requestId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ scheduledDate: date }),
-      });
+      await apiPatch(`/api/maintenance/${requestId}`, { scheduledDate: date });
       setRequests(
         requests.map(r => (r.id === requestId ? { ...r, scheduledDate: date as string | null } : r))
       );
@@ -286,11 +259,7 @@ export default function AdminRequestsPage() {
 
   const handleVendorChange = async (requestId: string, vendor: string) => {
     try {
-      await fetch(`/api/maintenance/${requestId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ vendor: vendor || null }),
-      });
+      await apiPatch(`/api/maintenance/${requestId}`, { vendor: vendor || null });
       setRequests(requests.map(r => (r.id === requestId ? { ...r, vendor } : r)));
       if (selectedRequest?.id === requestId) {
         setSelectedRequest({ ...selectedRequest, vendor });
@@ -308,11 +277,7 @@ export default function AdminRequestsPage() {
   ) => {
     try {
       const updates = { [field]: value || null };
-      await fetch(`/api/maintenance/${requestId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
-      });
+      await apiPatch(`/api/maintenance/${requestId}`, updates);
       setRequests(requests.map(r => (r.id === requestId ? { ...r, [field]: value } : r)));
       if (selectedRequest?.id === requestId) {
         setSelectedRequest({ ...selectedRequest, [field]: value });
@@ -325,11 +290,7 @@ export default function AdminRequestsPage() {
   const handleAddNote = async (requestId: string) => {
     if (!newNote.trim()) return;
     try {
-      await fetch(`/api/maintenance/${requestId}/notes`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: newNote, isInternal: true }),
-      });
+      await apiPost(`/api/maintenance/${requestId}/notes`, { content: newNote, isInternal: true });
       setNewNote('');
       fetchNotes(requestId);
     } catch (error) {
@@ -339,7 +300,7 @@ export default function AdminRequestsPage() {
 
   const handleDeleteNote = async (requestId: string, noteId: string) => {
     try {
-      await fetch(`/api/maintenance/${requestId}/notes?noteId=${noteId}`, { method: 'DELETE' });
+      await apiDelete(`/api/maintenance/${requestId}/notes?noteId=${noteId}`);
       fetchNotes(requestId);
     } catch (error) {
       log.error({}, 'Failed to delete note', error);
@@ -349,21 +310,15 @@ export default function AdminRequestsPage() {
   const handleAddCategory = async () => {
     if (!newCategoryValue.trim() || !newCategoryLabel.trim()) return;
     try {
-      const res = await fetch('/api/maintenance/categories', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          value: newCategoryValue.toUpperCase().replace(/\s+/g, '_'),
-          label: newCategoryLabel,
-          description: newCategoryDesc || null,
-        }),
+      await apiPost('/api/maintenance/categories', {
+        value: newCategoryValue.toUpperCase().replace(/\s+/g, '_'),
+        label: newCategoryLabel,
+        description: newCategoryDesc || null,
       });
-      if (res.ok) {
-        setNewCategoryValue('');
-        setNewCategoryLabel('');
-        setNewCategoryDesc('');
-        fetchCategories();
-      }
+      setNewCategoryValue('');
+      setNewCategoryLabel('');
+      setNewCategoryDesc('');
+      fetchCategories();
     } catch (error) {
       log.error({}, 'Failed to add category', error);
     }
@@ -371,10 +326,9 @@ export default function AdminRequestsPage() {
 
   const handleEditCategory = async (categoryId: string) => {
     try {
-      await fetch(`/api/maintenance/categories/${categoryId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ label: editCategoryLabel, description: editCategoryDesc || null }),
+      await apiPatch(`/api/maintenance/categories/${categoryId}`, {
+        label: editCategoryLabel,
+        description: editCategoryDesc || null,
       });
       setEditingCategory(null);
       setEditCategoryLabel('');
@@ -387,7 +341,7 @@ export default function AdminRequestsPage() {
 
   const handleDeleteCategory = async (categoryId: string) => {
     try {
-      await fetch(`/api/maintenance/categories/${categoryId}`, { method: 'DELETE' });
+      await apiDelete(`/api/maintenance/categories/${categoryId}`);
       fetchCategories();
     } catch (error) {
       log.error({}, 'Failed to delete category', error);
@@ -410,10 +364,9 @@ export default function AdminRequestsPage() {
   const handleNotifyResident = async () => {
     if (!selectedRequest) return;
     try {
-      const res = await fetch(`/api/maintenance/${selectedRequest.id}/notify`, {
-        method: 'POST',
-      });
-      const data = await res.json();
+      const { data } = await apiPost<{ success: boolean; recipient: string }>(
+        `/api/maintenance/${selectedRequest.id}/notify`
+      );
       if (data.success) {
         alert(`Notification sent to ${data.recipient}`);
       } else {
