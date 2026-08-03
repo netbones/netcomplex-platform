@@ -5,8 +5,10 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { ChevronDown, ChevronRight, UserPlus, X, Search } from 'lucide-react';
 import { ErrorBoundary } from '@shared/ui';
+import { apiPost, apiDelete, apiPatch, apiGet } from '@/shared/api/http-client';
 import type {
   AdminUser,
+  Invitation,
   InviteFormData,
   AllocateSeatFormData,
   SuspensionFormData,
@@ -59,48 +61,39 @@ export function UsersListSection() {
   // --- Action handlers ---
 
   const handleInvite = async (form: InviteFormData) => {
-    const r = await fetch('/api/invitations', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    });
-    if (r.ok) {
-      const body = await r.json();
-      setInvitations([body?.data ?? body, ...invitations]);
+    try {
+      const { data } = await apiPost<Invitation>('/api/invitations', form);
+      setInvitations([data, ...invitations]);
       toast.success(t('inviteSent'));
-    } else {
+    } catch {
       toast.error(t('inviteFailed'));
     }
     setShowInvite(false);
   };
 
   const handleRevoke = async (id: string) => {
-    const res = await fetch(`/api/invitations/${id}`, { method: 'DELETE' });
-    if (res.ok) {
+    try {
+      await apiDelete(`/api/invitations/${id}`);
       setInvitations(invitations.filter(i => i.id !== id));
       toast.success(t('inviteRevoked'));
-    } else {
+    } catch {
       toast.error(t('inviteFailed'));
     }
   };
 
   const updateUser = async (id: string, data: Record<string, string>) => {
-    const res = await fetch(`/api/users/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (res.ok) {
+    try {
+      await apiPatch(`/api/users/${id}`, data);
       setUsers(users.map(u => (u.id === id ? { ...u, ...data } : u)));
       toast.success(t('userUpdated'));
-    } else {
+    } catch {
       toast.error(t('inviteFailed'));
     }
   };
 
   const handleDelete = async () => {
     if (!deleteUser) return;
-    await fetch(`/api/users/${deleteUser.id}`, { method: 'DELETE' });
+    await apiDelete(`/api/users/${deleteUser.id}`);
     setUsers(users.filter(u => u.id !== deleteUser.id));
     setDeleteUser(null);
     toast.success(t('userRemoved'));
@@ -111,22 +104,17 @@ export function UsersListSection() {
     const durationDays = { '2days': 2, '1week': 7, '30days': 30, permanent: null } as const;
     const days = durationDays[formData.duration];
     const endDate = days ? new Date(Date.now() + days * 86400000).toISOString() : null;
-    const res = await fetch(`/api/users/${suspendUser.id}/suspend`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    try {
+      await apiPost(`/api/users/${suspendUser.id}/suspend`, {
         suspensionType: formData.suspensionType,
         reason: formData.reason,
         description: formData.description || undefined,
         endDate,
-      }),
-    });
-    if (res.ok) {
+      });
       setUsers(users.map(u => (u.id === suspendUser.id ? { ...u, isActive: false } : u)));
       toast.success(t('userSuspended'));
-    } else {
-      const err = await res.json();
-      toast.error(err.error || t('suspendFailed'));
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : t('suspendFailed'));
     }
     setSuspendUser(null);
   };
@@ -180,47 +168,44 @@ export function UsersListSection() {
       return;
     }
     try {
-      const res = await fetch(`/api/users/${u.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      if (res.ok) {
-        const updated = await res.json();
-        setUsers(
-          users.map(x => {
-            if (x.id !== u.id) return x;
-            const merged = { ...x, ...updated };
-            if (updated.updatedSeat) {
-              const { type, platformAddress } = updated.updatedSeat;
-              if (type === 'premium') {
-                merged.premiumSeat = {
-                  ...(x.premiumSeat ?? {
-                    id: '',
-                    platformAddress,
-                    portfolioName: null,
-                    tier: null,
-                    isActive: null,
-                  }),
+      const { data: updated } = await apiPatch<AdminUser & { updatedSeat?: unknown }>(
+        `/api/users/${u.id}`,
+        payload
+      );
+      setUsers(
+        users.map(x => {
+          if (x.id !== u.id) return x;
+          const merged = { ...x, ...updated };
+          if (updated.updatedSeat) {
+            const { type, platformAddress } = updated.updatedSeat as {
+              type: 'premium' | 'solo' | 'standard';
+              platformAddress: string;
+            };
+            if (type === 'premium') {
+              merged.premiumSeat = {
+                ...(x.premiumSeat ?? {
+                  id: '',
                   platformAddress,
-                };
-              } else if (type === 'solo' && x.soloSeats?.length) {
-                const seats = [...x.soloSeats];
-                if (seats.length) seats[0] = { ...seats[0], platformAddress };
-                merged.soloSeats = seats;
-              } else if (type === 'standard' && x.standardSeats?.length) {
-                const seats = [...x.standardSeats];
-                if (seats.length) seats[0] = { ...seats[0], platformAddress };
-                merged.standardSeats = seats;
-              }
+                  portfolioName: null,
+                  tier: null,
+                  isActive: null,
+                }),
+                platformAddress,
+              };
+            } else if (type === 'solo' && x.soloSeats?.length) {
+              const seats = [...x.soloSeats];
+              if (seats.length) seats[0] = { ...seats[0], platformAddress };
+              merged.soloSeats = seats;
+            } else if (type === 'standard' && x.standardSeats?.length) {
+              const seats = [...x.standardSeats];
+              if (seats.length) seats[0] = { ...seats[0], platformAddress };
+              merged.standardSeats = seats;
             }
-            return merged;
-          })
-        );
-        toast.success(t('userUpdated'));
-      } else {
-        toast.error(t('inviteFailed'));
-      }
+          }
+          return merged;
+        })
+      );
+      toast.success(t('userUpdated'));
     } catch {
       toast.error(t('inviteFailed'));
     }
@@ -231,16 +216,12 @@ export function UsersListSection() {
     if (user.isActive === true) {
       setSuspendUser(user);
     } else {
-      const res = await fetch(`/api/users/${user.id}/unsuspend`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      });
-      if (res.ok) {
+      try {
+        await apiPost(`/api/users/${user.id}/unsuspend`);
         setUsers(users.map(u => (u.id === user.id ? { ...u, isActive: true } : u)));
         toast.success(t('userActivated'));
-      } else {
-        const err = await res.json();
-        toast.error(err.error?.message ?? err.error ?? t('unsuspendFailed'));
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : t('unsuspendFailed'));
       }
     }
   };
@@ -257,27 +238,19 @@ export function UsersListSection() {
   const handleAllocateSeatConfirm = async (form: AllocateSeatFormData) => {
     const u = allocatingUser;
     if (!u) return;
-    const res = await fetch('/api/seats', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    try {
+      await apiPost('/api/seats', {
         userId: u.id,
         seatType: allocSeatType,
         platformAddress: form.platformAddress,
         soloSeatType: allocSeatType === 'solo' ? form.soloSeatType : undefined,
         portfolioName: allocSeatType === 'premium' ? form.portfolioName || null : undefined,
-      }),
-    });
-    if (res.ok) {
-      const userRes = await fetch(`/api/users/${u.id}`);
-      if (userRes.ok) {
-        const updatedUser = await userRes.json();
-        setUsers(users.map(x => (x.id === u.id ? { ...x, ...updatedUser } : x)));
-      }
+      });
+      const { data: updatedUser } = await apiGet<AdminUser>(`/api/users/${u.id}`);
+      setUsers(users.map(x => (x.id === u.id ? { ...x, ...updatedUser } : x)));
       toast.success(allocSeatType === 'solo' ? 'Solo seat allocated' : 'Premium seat allocated');
-    } else {
-      const err = await res.json();
-      toast.error(err.error || 'Failed to allocate seat');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to allocate seat');
     }
     setAllocatingUser(null);
     setAllocSeatType('solo');
@@ -304,23 +277,16 @@ export function UsersListSection() {
       setRemovingSeatAddress(null);
       return;
     }
-    const res = await fetch('/api/seats', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    try {
+      await apiDelete('/api/seats', {
         userId: u.id,
         seatType,
         platformAddress: seatType === 'solo' ? removingSeatAddress : undefined,
-      }),
-    });
-    if (res.ok) {
-      const userRes = await fetch(`/api/users/${u.id}`);
-      if (userRes.ok) {
-        const updatedUser = await userRes.json();
-        setUsers(users.map(x => (x.id === u.id ? { ...x, ...updatedUser } : x)));
-      }
+      });
+      const { data: updatedUser } = await apiGet<AdminUser>(`/api/users/${u.id}`);
+      setUsers(users.map(x => (x.id === u.id ? { ...x, ...updatedUser } : x)));
       toast.success('Seat removed');
-    } else {
+    } catch {
       toast.error('Failed to remove seat');
     }
     setRemovingUser(null);
