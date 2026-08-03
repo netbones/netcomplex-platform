@@ -21,6 +21,7 @@ import {
 } from '@dnd-kit/sortable';
 import { LoadingSpinner } from '@shared/ui';
 import { logError } from '@shared/lib';
+import { apiGet, apiPatch, apiPost, apiDelete } from '@/shared/api/http-client';
 import { AlertCircle, BarChart3, Plus } from 'lucide-react';
 import type {
   Survey,
@@ -61,12 +62,7 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/surveys/${surveyId}`);
-      if (!res.ok) {
-        throw new Error(`Failed to load survey: ${res.status}`);
-      }
-      const json = await res.json();
-      const payload: SurveyDetailResponse = json.success ? json.data : json;
+      const payload = (await apiGet<SurveyDetailResponse>(`/api/surveys/${surveyId}`)).data;
       setSurvey(payload.survey);
       setQuestions(payload.questions);
       setSections(payload.sections);
@@ -95,15 +91,9 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
       saveStatus.markDirty();
       saveStatus.beginSave();
       try {
-        const res = await fetch(url, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-        });
-        if (!res.ok) throw new Error(`Request failed: ${res.status}`);
-        const json = await res.json();
+        const { data } = await apiPatch<T>(url, body);
         saveStatus.endSave(true);
-        return (json.success ? json.data : json) as T;
+        return data;
       } catch (err) {
         saveStatus.endSave(false, err instanceof Error ? err.message : 'Failed to save');
         throw err;
@@ -151,21 +141,16 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
       saveStatus.markDirty();
       saveStatus.beginSave();
       try {
-        const res = await fetch(`/api/surveys/${surveyId}/questions`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
+        const created = (
+          await apiPost<SurveyQuestion>(`/api/surveys/${surveyId}/questions`, {
             type,
             text: optimistic.text,
             options: optimistic.options,
             required: false,
             sectionId,
             config: optimistic.config,
-          }),
-        });
-        if (!res.ok) throw new Error(`Create failed: ${res.status}`);
-        const json = await res.json();
-        const created: SurveyQuestion = json.success ? json.data : json;
+          })
+        ).data;
         setQuestions(prev => prev.map(q => (q.id === tempId ? created : q)));
         saveStatus.endSave(true);
       } catch (err) {
@@ -213,10 +198,7 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
       saveStatus.markDirty();
       saveStatus.beginSave();
       try {
-        const res = await fetch(`/api/surveys/${surveyId}/questions/${questionId}`, {
-          method: 'DELETE',
-        });
-        if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
+        await apiDelete(`/api/surveys/${surveyId}/questions/${questionId}`);
         saveStatus.endSave(true);
       } catch (err) {
         saveStatus.endSave(false, err instanceof Error ? err.message : 'Failed to delete question');
@@ -248,14 +230,12 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
     saveStatus.markDirty();
     saveStatus.beginSave();
     try {
-      const res = await fetch(`/api/surveys/${surveyId}/sections`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: optimistic.title, description: null }),
-      });
-      if (!res.ok) throw new Error(`Section create failed: ${res.status}`);
-      const json = await res.json();
-      const created: SurveySection = json.success ? json.data : json;
+      const created = (
+        await apiPost<SurveySection>(`/api/surveys/${surveyId}/sections`, {
+          title: optimistic.title,
+          description: null,
+        })
+      ).data;
       setSections(prev => prev.map(s => (s.id === tempId ? created : s)));
       saveStatus.endSave(true);
     } catch (err) {
@@ -303,10 +283,7 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
       saveStatus.markDirty();
       saveStatus.beginSave();
       try {
-        const res = await fetch(`/api/surveys/${surveyId}/sections/${sectionId}`, {
-          method: 'DELETE',
-        });
-        if (!res.ok) throw new Error(`Section delete failed: ${res.status}`);
+        await apiDelete(`/api/surveys/${surveyId}/sections/${sectionId}`);
         saveStatus.endSave(true);
       } catch (err) {
         saveStatus.endSave(false, err instanceof Error ? err.message : 'Failed to delete section');
@@ -355,12 +332,7 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
       saveStatus.markDirty();
       saveStatus.beginSave();
       try {
-        const res = await fetch(`/api/surveys/${surveyId}/questions/reorder`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ items }),
-        });
-        if (!res.ok) throw new Error(`Reorder failed: ${res.status}`);
+        await apiPost(`/api/surveys/${surveyId}/questions/reorder`, { items });
         saveStatus.endSave(true);
       } catch (err) {
         saveStatus.endSave(false, err instanceof Error ? err.message : 'Failed to reorder');
@@ -386,12 +358,7 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
       saveStatus.markDirty();
       saveStatus.beginSave();
       try {
-        const res = await fetch(`/api/surveys/${surveyId}/sections/reorder`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ items }),
-        });
-        if (!res.ok) throw new Error(`Section reorder failed: ${res.status}`);
+        await apiPost(`/api/surveys/${surveyId}/sections/reorder`, { items });
         saveStatus.endSave(true);
       } catch (err) {
         saveStatus.endSave(false, err instanceof Error ? err.message : 'Failed to reorder');
