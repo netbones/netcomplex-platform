@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { createComponentLogger } from '@shared/lib';
+import { apiGet } from '@/shared/api/http-client';
 
 const log = createComponentLogger('useServiceFilter');
 
@@ -83,11 +84,11 @@ export function useServiceFilter(options: ServiceFilterOptions = {}): UseService
       params.set('offset', String((page - 1) * limit));
       params.set('limit', String(limit));
 
-      const res = await fetch(`${apiEndpoint}?${params}`);
-      const body = await res.json();
-      const data = body?.data ?? body;
+      const { data } = await apiGet<
+        { listings?: Service[]; pagination?: { total?: number } } | Service[]
+      >(`${apiEndpoint}?${params}`);
 
-      if (data.listings) {
+      if (!Array.isArray(data) && data.listings) {
         setServices(data.listings || []);
         setTotal(data.pagination?.total || 0);
       } else if (Array.isArray(data)) {

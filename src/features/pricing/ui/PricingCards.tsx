@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { SectionLayout } from '@shared/ui';
+import { apiGet } from '@/shared/api/http-client';
 import type { PricingPlan } from '../model/types';
 
 export function PricingCards() {
@@ -15,12 +16,8 @@ export function PricingCards() {
   useEffect(() => {
     async function fetchPricing() {
       try {
-        const response = await fetch('/api/pricing');
-        if (!response.ok) {
-          throw new Error('Failed to fetch pricing data');
-        }
-        const data = await response.json();
-        setPlans(Array.isArray(data?.data?.plans) ? data.data.plans : []);
+        const { data } = await apiGet<{ plans: PricingPlan[] }>('/api/pricing');
+        setPlans(Array.isArray(data?.plans) ? data.plans : []);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load pricing');
       } finally {

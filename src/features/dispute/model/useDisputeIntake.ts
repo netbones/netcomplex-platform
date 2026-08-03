@@ -3,6 +3,7 @@
 import { useMemo, useEffect, useRef } from 'react';
 import { useWorkflow } from '@/shared/lib/workflow';
 import { useAutoSave } from '@/shared/lib/useAutoSave';
+import { apiPost } from '@/shared/api/http-client';
 import type { WorkflowConfig } from '@/shared/lib/workflow/types';
 import type { DisputeCreateInput } from '@entities/dispute';
 import type { IntakeScreenOutput } from '@entities/dispute/server';
@@ -73,15 +74,10 @@ export function useDisputeIntake({ aiEnabled, onComplete, onCancel }: UseDispute
           to: '__complete__' as never,
           effect: async ctx => {
             try {
-              const response = await fetch('/api/disputes', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(ctx.formData),
-              });
-              if (!response.ok) {
-                throw new Error(`Server returned ${response.status}`);
-              }
-              const data = await response.json();
+              const { data } = await apiPost<{ id?: string; dispute?: { id?: string } }>(
+                '/api/disputes',
+                ctx.formData
+              );
               const disputeId = data?.id ?? data?.dispute?.id;
               if (disputeId) {
                 onComplete(disputeId);

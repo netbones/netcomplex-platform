@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { apiPost } from '@/shared/api/http-client';
 import type { CheckoutResult } from '../model/types';
 
 interface CheckoutButtonProps {
@@ -26,25 +27,10 @@ export function CheckoutButton({
     setError(null);
 
     try {
-      const response = await fetch('/api/tenant/billing/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          planId,
-          paymentGateway: 'PAYSTACK',
-        }),
+      const { data: result } = await apiPost<CheckoutResult>('/api/tenant/billing/checkout', {
+        planId,
+        paymentGateway: 'PAYSTACK',
       });
-
-      const body = await response.json();
-
-      if (!response.ok || !body.success) {
-        const message = body?.error?.message ?? 'Checkout failed. Please try again.';
-        setError(message);
-        toast.error(message);
-        return;
-      }
-
-      const result: CheckoutResult = body.data;
 
       // Free plan — activated immediately
       if (!result.paymentUrl) {

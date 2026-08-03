@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { apiGet, ApiClientError } from '@/shared/api/http-client';
 
 // ponytail: Widget receives tenantId from the dashboard shell via WidgetRenderer context.
 // For MVP, accept it as an optional prop. The WidgetRenderer will pass it when tenant
@@ -60,21 +61,22 @@ export function AdminAiUsageWidget({ tenantId }: AdminAiUsageWidgetProps) {
 
     // TODO: Wire tenantId from dashboard shell context instead of prop.
     // The API route resolves tenant from session — tenantId is for future plumbing.
-    fetch(`/api/admin/platform/ai-pool/usage/${encodeURIComponent(tenantId)}`)
-      .then(async res => {
-        if (!res.ok) throw new Error(res.status === 404 ? 'No usage data' : 'Failed to load');
-        const json = await res.json();
-        return json.data;
-      })
-      .then((data: UsageData) => {
+    apiGet<UsageData>(`/api/admin/platform/ai-pool/usage/${encodeURIComponent(tenantId)}`)
+      .then(({ data }) => {
         if (!cancelled) {
           setUsage(data);
           setLoading(false);
         }
       })
-      .catch((err: Error) => {
+      .catch((err: unknown) => {
         if (!cancelled) {
-          setError(err.message || 'Could not load AI usage');
+          let message: string;
+          if (err instanceof ApiClientError) {
+            message = err.statusCode === 404 ? 'No usage data' : 'Failed to load';
+          } else {
+            message = err instanceof Error ? err.message : 'Could not load AI usage';
+          }
+          setError(message || 'Could not load AI usage');
           setLoading(false);
         }
       });

@@ -9,6 +9,7 @@ import {
   defaultLanguage,
   type SupportedLanguage,
 } from '@/shared/lib/i18n';
+import { apiPost, ApiClientError } from '@/shared/api/http-client';
 
 interface LocaleContent {
   [locale: string]: string;
@@ -71,24 +72,14 @@ export function LocaleAwareEditor({
       setTranslatingLocale(targetLocale);
       setTranslateError(null);
 
-      let res: Response | undefined;
       try {
-        res = await fetch('/api/translate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            sourceLocale: activeLocale,
-            targetLocale,
-            content: sourceContent,
-          }),
+        const { data } = await apiPost<{ content?: string }>('/api/translate', {
+          sourceLocale: activeLocale,
+          targetLocale,
+          content: sourceContent,
         });
 
-        const body = await res.json();
-        if (!res.ok) {
-          throw new Error(body?.error?.message ?? 'Translation failed');
-        }
-
-        const translatedContent = body?.data?.content ?? body?.content;
+        const translatedContent = data?.content;
         if (translatedContent) {
           onChange({
             ...content,
@@ -96,8 +87,8 @@ export function LocaleAwareEditor({
           });
           setActiveLocale(targetLocale);
         }
-      } catch (err) {
-        if (res && (res.status === 503 || res.status === 429)) {
+      } catch (err: unknown) {
+        if (err instanceof ApiClientError && (err.statusCode === 503 || err.statusCode === 429)) {
           setTranslationUnavailable(true);
         }
         setTranslateError(err instanceof Error ? err.message : 'Translation failed');

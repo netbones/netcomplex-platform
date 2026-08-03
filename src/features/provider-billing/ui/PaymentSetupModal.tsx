@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { ModalOverlay } from '@shared/ui';
+import { apiPost } from '@/shared/api/http-client';
 import type { BillingTier } from '../model/types';
 
 interface SubscribeResult {
@@ -30,23 +31,8 @@ async function submitSubscription(input: {
   paymentGateway: 'PAYSTACK' | 'PAYPAL';
   callbackUrl?: string;
 }): Promise<SubscribeResult> {
-  const response = await fetch('/api/providers/billing/subscribe', {
-    method: 'POST',
-    credentials: 'same-origin',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(input),
-  });
-
-  const body = await response.json().catch(() => null);
-  if (!response.ok) {
-    throw new Error(
-      body?.error?.message ?? body?.message ?? 'Failed to initialize provider billing.'
-    );
-  }
-
-  return (body?.data ?? body) as SubscribeResult;
+  const { data } = await apiPost<SubscribeResult>('/api/providers/billing/subscribe', input);
+  return data;
 }
 
 export function PaymentSetupModal({

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { apiGet, ApiClientError } from '@/shared/api/http-client';
 
 /**
  * Lightweight hook that wraps entity-layer MediationThread with page-level
@@ -22,25 +23,24 @@ export function useDisputeThread(disputeId: string) {
       setError(null);
 
       try {
-        const res = await fetch(`/api/disputes/${disputeId}`);
+        await apiGet(`/api/disputes/${disputeId}`);
 
         if (!cancelled) {
-          if (!res.ok) {
-            if (res.status === 404) {
+          setThreadState('ready');
+        }
+      } catch (e) {
+        if (!cancelled) {
+          if (e instanceof ApiClientError) {
+            if (e.statusCode === 404) {
               setError('Dispute not found');
-            } else if (res.status === 403) {
+            } else if (e.statusCode === 403) {
               setError("You don't have permission to view this dispute");
             } else {
               setError('Unable to load dispute');
             }
-            setThreadState('error');
           } else {
-            setThreadState('ready');
+            setError('Network error — please check your connection');
           }
-        }
-      } catch {
-        if (!cancelled) {
-          setError('Network error — please check your connection');
           setThreadState('error');
         }
       }

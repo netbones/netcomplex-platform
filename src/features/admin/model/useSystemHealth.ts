@@ -1,6 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { apiGet } from '@/shared/api/http-client';
 
 export interface SystemHealth {
   db: 'connected' | 'disconnected';
@@ -11,16 +12,8 @@ export interface SystemHealth {
 }
 
 async function fetchSystemHealth(): Promise<SystemHealth> {
-  const res = await fetch('/api/admin/system/health', {
-    credentials: 'same-origin',
-  });
-
-  if (!res.ok) {
-    throw new Error(`Health check failed: ${res.status}`);
-  }
-
-  const body = await res.json();
-  return body.data as SystemHealth;
+  const { data } = await apiGet<SystemHealth>('/api/admin/system/health');
+  return data;
 }
 
 export function useSystemHealth() {

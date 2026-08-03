@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ReputationProgressWidget } from './ReputationProgressWidget';
 import { PaymentSetupModal } from './PaymentSetupModal';
+import { apiGet, apiPost } from '@/shared/api/http-client';
 import type { BillingResponse, ReputationResponse } from '../model/types';
 
 interface QueryError extends Error {
@@ -11,39 +12,12 @@ interface QueryError extends Error {
 }
 
 async function fetchApi<T>(url: string): Promise<T> {
-  const response = await fetch(url, {
-    credentials: 'same-origin',
-    cache: 'no-store',
-  });
-
-  const body = await response.json().catch(() => null);
-  if (!response.ok) {
-    const error = new Error(
-      body?.error?.message ?? body?.message ?? `Request failed with status ${response.status}`
-    ) as QueryError;
-    error.status = response.status;
-    throw error;
-  }
-
-  return (body?.data ?? body) as T;
+  const { data } = await apiGet<T>(url);
+  return data;
 }
 
 async function cancelSubscription(): Promise<void> {
-  const response = await fetch('/api/providers/billing/cancel', {
-    method: 'POST',
-    credentials: 'same-origin',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({}),
-  });
-
-  const body = await response.json().catch(() => null);
-  if (!response.ok) {
-    throw new Error(
-      body?.error?.message ?? body?.message ?? 'Failed to cancel provider subscription.'
-    );
-  }
+  await apiPost('/api/providers/billing/cancel', {});
 }
 
 function formatDate(value: string | null): string {

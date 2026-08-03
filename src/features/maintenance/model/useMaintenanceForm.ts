@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { supabase } from '@/shared/api/supabase';
+import { apiGet, apiPost } from '@/shared/api/http-client';
 import { MaintenanceRequestForm, DEFAULT_CATEGORIES } from '@entities/maintenance';
 import type { TenantCategory } from '@entities/maintenance';
 import { createComponentLogger } from '@shared/lib';
@@ -19,14 +20,13 @@ export function useTenantCategories() {
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const res = await fetch('/api/settings?key=maintenance_categories');
-        if (res.ok) {
-          const data = await res.json();
-          if (data?.value) {
-            const parsed = JSON.parse(data.value);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              setCategories(parsed as TenantCategory[]);
-            }
+        const { data } = await apiGet<{ value?: string }>(
+          '/api/settings?key=maintenance_categories'
+        );
+        if (data?.value) {
+          const parsed = JSON.parse(data.value);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setCategories(parsed as TenantCategory[]);
           }
         }
       } catch (err) {
@@ -79,10 +79,11 @@ export function useMaintenanceForm(
     }
 
     let cancelled = false;
-    fetch(`/api/maintenance/routing-hint?propertyId=${encodeURIComponent(propertyId)}`)
-      .then(r => r.json())
-      .then(data => {
-        if (!cancelled) setRoutingHint(data?.data?.routingType ?? null);
+    apiGet<{ routingType?: 'HOA' | 'LANDLORD' | null }>(
+      `/api/maintenance/routing-hint?propertyId=${encodeURIComponent(propertyId)}`
+    )
+      .then(({ data }) => {
+        if (!cancelled) setRoutingHint(data?.routingType ?? null);
       })
       .catch(() => {
         if (!cancelled) setRoutingHint(null);
@@ -176,15 +177,7 @@ export function useMaintenanceForm(
       if (onSubmit) {
         await onSubmit(formData);
       } else {
-        const res = await fetch('/api/maintenance', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
-        });
-
-        if (!res.ok) {
-          throw new Error('Failed to submit request');
-        }
+        await apiPost('/api/maintenance', formData);
 
         alert('Maintenance request submitted successfully!');
         setFormData({ category: '', priority: 'MEDIUM', description: '', images: [] });

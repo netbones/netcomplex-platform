@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { ErrorBoundary } from '@shared/ui';
 import { useApiToast } from '@shared/lib/hooks';
+import { apiGet, apiPost } from '@/shared/api/http-client';
 
 import { X } from 'lucide-react';
 interface CreateListingFormProps {
@@ -44,13 +45,10 @@ export function CreateListingForm({ householdId, onClose, onSuccess }: CreateLis
 
   const fetchHouseholds = () => {
     apiFetch(
-      globalThis.fetch('/api/premium/portfolio').then(
-        res =>
-          res.json() as Promise<{
-            hasPortfolio: boolean;
-            portfolio?: { linkedHouseholds?: Household[] };
-          }>
-      ),
+      apiGet<{
+        hasPortfolio: boolean;
+        portfolio?: { linkedHouseholds?: Household[] };
+      }>('/api/premium/portfolio').then(({ data }) => data),
       {
         error: 'Failed to fetch households',
         onSuccess: (data: {
@@ -70,13 +68,7 @@ export function CreateListingForm({ householdId, onClose, onSuccess }: CreateLis
     setLoading(true);
 
     apiMutate(
-      globalThis
-        .fetch('/api/premium/listings', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
-        })
-        .then(res => res.json() as Promise<{ success?: boolean }>),
+      apiPost<{ success?: boolean }>('/api/premium/listings', formData).then(({ data }) => data),
       {
         loading: 'Creating listing...',
         success: 'Listing created!',

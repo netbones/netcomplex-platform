@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { apiPost } from '@/shared/api/http-client';
 import type { BookingFormData, Booking } from '@entities/booking';
 import { createComponentLogger } from '@shared/lib';
 
@@ -20,18 +21,7 @@ export function useBookings({ onBookingCreated }: UseBookingsOptions = {}) {
       setError('');
 
       try {
-        const res = await fetch('/api/bookings', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-        });
-
-        if (!res.ok) {
-          const errorData = await res.json();
-          throw new Error(errorData.error || 'Failed to create booking');
-        }
-
-        const booking = await res.json();
+        const { data: booking } = await apiPost<Booking>('/api/bookings', data);
         onBookingCreated?.(booking);
         return true;
       } catch (err) {

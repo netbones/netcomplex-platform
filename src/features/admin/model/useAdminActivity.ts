@@ -1,6 +1,7 @@
 'use client';
 
 import { useInfiniteQuery } from '@tanstack/react-query';
+import { apiGet } from '@/shared/api/http-client';
 
 export type ActivityDomain = 'maintenance' | 'users' | 'content' | 'surveys' | 'events';
 
@@ -37,16 +38,8 @@ async function fetchActivityPage({
   const params = new URLSearchParams({ domain, limit: String(limit) });
   if (cursor) params.set('cursor', cursor);
 
-  const res = await fetch(`/api/admin/activity?${params}`, {
-    credentials: 'same-origin',
-  });
-
-  if (!res.ok) {
-    throw new Error(`Activity fetch failed: ${res.status}`);
-  }
-
-  const body = await res.json();
-  return body.data as ActivityPage;
+  const { data } = await apiGet<ActivityPage>(`/api/admin/activity?${params}`);
+  return data;
 }
 
 export function useAdminActivity({ domain = 'all', limit = 20 }: UseAdminActivityOptions = {}) {

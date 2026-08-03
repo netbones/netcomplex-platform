@@ -6,6 +6,7 @@ import { LoadingSkeleton } from '@shared/ui';
 import type { IntakeScreenOutput } from '@entities/dispute/server';
 import { parseIntakeScreenOutput } from '@shared/lib/dispute/intake-screen-output';
 import { cn } from '@shared/lib';
+import { apiPost } from '@/shared/api/http-client';
 
 interface FrivolityScreenProps {
   description: string;
@@ -26,17 +27,10 @@ export function FrivolityScreen({ description, onResult, onProceed }: FrivolityS
         setLoading(true);
         setError(null);
 
-        const response = await fetch('/api/disputes/intake-screen', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ description }),
+        const { data } = await apiPost<IntakeScreenOutput | string>('/api/disputes/intake-screen', {
+          description,
         });
 
-        if (!response.ok) {
-          throw new Error(`Server returned ${response.status}`);
-        }
-
-        const data = await response.json();
         const parsed = parseIntakeScreenOutput(
           typeof data === 'string' ? data : JSON.stringify(data)
         );

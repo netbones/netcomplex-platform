@@ -1,47 +1,31 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiGet, apiPost } from '@/shared/api/http-client';
 import type { DWalletSummary, ConsentState, TransactionItem } from './types';
 import type { ConsentInput, PayoutRequestInput } from '../schema';
 
-async function fetchEnvelope<T>(url: string): Promise<T> {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Failed to fetch ${url}`);
-  const body = await res.json();
-  return (body.success ? body.data : body) as T;
-}
-
 async function fetchWallet(): Promise<DWalletSummary> {
-  return fetchEnvelope<DWalletSummary>('/api/v1/tenant/dwallet');
+  const { data } = await apiGet<DWalletSummary>('/api/v1/tenant/dwallet');
+  return data;
 }
 
 async function fetchConsents(): Promise<ConsentState[]> {
-  return fetchEnvelope<ConsentState[]>('/api/v1/tenant/dwallet/consents');
+  const { data } = await apiGet<ConsentState[]>('/api/v1/tenant/dwallet/consents');
+  return data;
 }
 
 async function fetchTransactions(): Promise<TransactionItem[]> {
-  return fetchEnvelope<TransactionItem[]>('/api/v1/tenant/dwallet/transactions');
+  const { data } = await apiGet<TransactionItem[]>('/api/v1/tenant/dwallet/transactions');
+  return data;
 }
 
 async function updateConsent(streamKey: string, input: ConsentInput): Promise<void> {
-  const res = await fetch(`/api/v1/tenant/dwallet/consents/${streamKey}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(input),
-  });
-  if (!res.ok) throw new Error('Failed to update consent');
+  await apiPost(`/api/v1/tenant/dwallet/consents/${streamKey}`, input);
 }
 
 async function requestPayout(input: PayoutRequestInput): Promise<void> {
-  const res = await fetch('/api/v1/tenant/dwallet/payout', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(input),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: 'Payout request failed' }));
-    throw new Error(err.message || 'Payout request failed');
-  }
+  await apiPost('/api/v1/tenant/dwallet/payout', input);
 }
 
 export function useWallet(tenantId?: string) {

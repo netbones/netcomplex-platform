@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useCallback, useState } from 'react';
+import { apiPatch } from '@/shared/api/http-client';
 
 interface AutoSaveState {
   isSaving: boolean;
@@ -51,20 +52,11 @@ export function useAutoSaveSetting(tenantId: string) {
         if (!pending) return;
 
         try {
-          const res = await fetch('/api/platform/setup/settings', {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              tenantId,
-              key: pending.key,
-              value: pending.value,
-            }),
+          await apiPatch('/api/platform/setup/settings', {
+            tenantId,
+            key: pending.key,
+            value: pending.value,
           });
-
-          if (!res.ok) {
-            const body = await res.json().catch(() => ({ error: 'Save failed' }));
-            throw new Error(body.error || `Save failed (${res.status})`);
-          }
 
           pendingRef.current = null;
 

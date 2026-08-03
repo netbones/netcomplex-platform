@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
+import { apiGet, apiPost, apiDelete } from '@/shared/api/http-client';
 
 interface UseContentLikeOptions {
   contentId: string;
@@ -32,11 +33,8 @@ export function useContentLike({
   const [count, setCount] = useState(initialCount);
 
   useEffect(() => {
-    fetch(`/api/content/${contentId}/like`)
-      .then(res => (res.ok ? res.json() : null))
-      .then(body => {
-        if (!body) return;
-        const data = body?.data ?? body;
+    apiGet<{ liked: boolean; likes: number }>(`/api/content/${contentId}/like`)
+      .then(({ data }) => {
         setLiked(data.liked);
         setCount(data.likes);
       })
@@ -50,12 +48,10 @@ export function useContentLike({
     { previousLiked: boolean; previousCount: number }
   >({
     mutationFn: async (nextLiked: boolean) => {
-      const response = await fetch(`/api/content/${contentId}/like`, {
-        method: nextLiked ? 'POST' : 'DELETE',
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update like state');
+      if (nextLiked) {
+        await apiPost(`/api/content/${contentId}/like`);
+      } else {
+        await apiDelete(`/api/content/${contentId}/like`);
       }
     },
     onMutate: (nextLiked: boolean) => {

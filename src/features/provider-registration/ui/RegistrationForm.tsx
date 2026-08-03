@@ -12,6 +12,7 @@ import {
   type ProviderRegistrationInput,
 } from '@shared/lib/providers';
 import { cn } from '@shared/lib';
+import { apiPost, ApiClientError } from '@/shared/api/http-client';
 
 import { LegalAgreementModal } from './LegalAgreementModal';
 
@@ -75,34 +76,29 @@ export function RegistrationForm({ initialEmail, initialContactName }: Registrat
     setFormError(null);
 
     try {
-      const response = await fetch('/api/providers/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(values),
-      });
+      const { data } = await apiPost<{ success: boolean }>('/api/providers/register', values);
 
-      const payload = (await response.json()) as {
-        success: boolean;
-        error?: { message?: string; code?: string; details?: unknown };
-      };
-
-      if (!response.ok || !payload.success) {
-        const message = payload.error?.message || 'Failed to submit provider registration';
+      if (data && data.success === false) {
+        const message = 'Failed to submit provider registration';
         setFormError(message);
-        if (response.status === 409) {
-          toast.error('Company already registered');
-        } else {
-          toast.error(message);
-        }
+        toast.error(message);
         return;
       }
 
       toast.success('Registration submitted — awaiting verification');
       router.push('/dashboard/providers');
       router.refresh();
-    } catch {
+    } catch (err) {
+      if (err instanceof ApiClientError) {
+        const message = err.message || 'Failed to submit provider registration';
+        setFormError(message);
+        if (err.statusCode === 409) {
+          toast.error('Company already registered');
+        } else {
+          toast.error(message);
+        }
+        return;
+      }
       const message = 'Failed to submit provider registration';
       setFormError(message);
       toast.error(message);

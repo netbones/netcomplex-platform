@@ -12,6 +12,7 @@ import {
 import { toast } from 'sonner';
 import { useState } from 'react';
 import { LoadingSpinner } from '@shared/ui';
+import { apiPost } from '@/shared/api/http-client';
 
 // Severity options from the schema
 const SEVERITY_OPTIONS = ['MINOR', 'MODERATE', 'SERIOUS', 'URGENT'] as const;
@@ -56,17 +57,11 @@ export function DisputeForm({ onComplete, onCancel }: DisputeFormProps) {
             : undefined,
       };
 
-      const response = await fetch('/api/disputes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+      const { data: result } = await apiPost<{ id?: string; dispute?: { id?: string } }>(
+        '/api/disputes',
+        payload
+      );
 
-      if (!response.ok) {
-        throw new Error(`Server returned ${response.status}`);
-      }
-
-      const result = await response.json();
       const disputeId = result?.id ?? result?.dispute?.id;
 
       if (!disputeId) {

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import type { DisputeCaseDTO, DisputeStatus } from '../model/types';
 import { CSOSExportButton } from './CSOSExportButton';
 import { toast } from 'sonner';
+import { apiPost, apiPatch, apiDelete, ApiClientError } from '@/shared/api/http-client';
 
 interface DisputeActionsBarProps {
   dispute: DisputeCaseDTO;
@@ -45,16 +46,14 @@ export function DisputeActionsBar({ dispute, userRole, userId }: DisputeActionsB
   const handleSubmit = async () => {
     setLoading('submit');
     try {
-      const res = await fetch(`/api/disputes/${dispute.id}/submit`, { method: 'POST' });
-      if (res.status === 423) {
-        const body = await res.json().catch(() => ({}));
-        toast.error(body.error?.message || 'Cooling-off period has not elapsed.');
-        return;
-      }
-      if (!res.ok) throw new Error('Failed to submit');
+      await apiPost(`/api/disputes/${dispute.id}/submit`);
       toast.success('Dispute submitted successfully');
       window.location.reload();
     } catch (err) {
+      if (err instanceof ApiClientError && err.statusCode === 423) {
+        toast.error(err.message || 'Cooling-off period has not elapsed.');
+        return;
+      }
       toast.error(err instanceof Error ? err.message : 'Failed to submit');
     } finally {
       setLoading('');
@@ -65,12 +64,7 @@ export function DisputeActionsBar({ dispute, userRole, userId }: DisputeActionsB
     if (!moderatorId) return;
     setLoading('assign');
     try {
-      const res = await fetch(`/api/disputes/${dispute.id}/assign`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ moderatorId }),
-      });
-      if (!res.ok) throw new Error('Failed to assign');
+      await apiPost(`/api/disputes/${dispute.id}/assign`, { moderatorId });
       toast.success('Moderator assigned');
       closeModal();
       window.location.reload();
@@ -85,12 +79,7 @@ export function DisputeActionsBar({ dispute, userRole, userId }: DisputeActionsB
     if (!rulingDescription.trim()) return;
     setLoading('ruling');
     try {
-      const res = await fetch(`/api/disputes/${dispute.id}/ruling`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rulingDescription }),
-      });
-      if (!res.ok) throw new Error('Failed to issue ruling');
+      await apiPost(`/api/disputes/${dispute.id}/ruling`, { rulingDescription });
       toast.success('Ruling issued');
       closeModal();
       window.location.reload();
@@ -104,12 +93,7 @@ export function DisputeActionsBar({ dispute, userRole, userId }: DisputeActionsB
   const handleWithdraw = async () => {
     setLoading('withdraw');
     try {
-      const res = await fetch(`/api/disputes/${dispute.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'WITHDRAWN' }),
-      });
-      if (!res.ok) throw new Error('Failed to withdraw');
+      await apiPatch(`/api/disputes/${dispute.id}`, { status: 'WITHDRAWN' });
       toast.success('Dispute withdrawn');
       closeModal();
       window.location.reload();
@@ -123,8 +107,7 @@ export function DisputeActionsBar({ dispute, userRole, userId }: DisputeActionsB
   const handleDelete = async () => {
     setLoading('delete');
     try {
-      const res = await fetch(`/api/disputes/${dispute.id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Failed to delete');
+      await apiDelete(`/api/disputes/${dispute.id}`);
       toast.success('Dispute deleted');
       window.location.assign('/admin/disputes');
     } catch (err) {

@@ -13,6 +13,7 @@ import {
   type AnnouncementPriority,
 } from '../model/priority-taxonomy';
 import { createComponentLogger } from '@shared/lib';
+import { apiGet } from '@/shared/api/http-client';
 
 const log = createComponentLogger('AnnouncementForm');
 
@@ -117,18 +118,16 @@ export function AnnouncementForm({
   useEffect(() => {
     async function fetchResources() {
       try {
-        const res = await fetch('/api/resources');
-        if (res.ok) {
-          const data = await res.json();
-          const items = Array.isArray(data) ? data : [];
-          setResources(
-            items.map((r: { id: string; title: string; category: string }) => ({
-              id: r.id,
-              title: r.title,
-              category: r.category,
-            }))
-          );
-        }
+        const { data } =
+          await apiGet<{ id: string; title: string; category: string }[]>('/api/resources');
+        const items = Array.isArray(data) ? data : [];
+        setResources(
+          items.map(r => ({
+            id: r.id,
+            title: r.title,
+            category: r.category,
+          }))
+        );
       } catch (err) {
         log.error({}, 'Failed to fetch resources for dropdown', err);
       } finally {

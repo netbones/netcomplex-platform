@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createComponentLogger } from '@shared/lib';
+import { apiPost } from '@/shared/api/http-client';
 import { DEFAULT_TENANT_COLORS } from '@entities/admin';
 import type { TenantFormData } from '@entities/admin';
 
@@ -29,13 +30,7 @@ export function NewTenantForm() {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/admin/platform/tenants', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-
-      if (!res.ok) throw new Error('Failed to create tenant');
+      await apiPost('/api/admin/platform/tenants', formData);
 
       router.push('/admin/platform');
     } catch (error) {

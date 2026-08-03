@@ -1,32 +1,39 @@
 'use client';
 
+import { apiGet, apiPost, apiPatch, apiDelete, ApiClientError } from '@/shared/api/http-client';
+
 export interface QueryError extends Error {
   status?: number;
   details?: unknown;
 }
 
 export async function fetchApi<T>(url: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(url, {
-    credentials: 'same-origin',
-    cache: 'no-store',
-    ...init,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(init?.headers ?? {}),
-    },
-  });
-
-  const body = await response.json().catch(() => null);
-  if (!response.ok) {
-    const error = new Error(
-      body?.error?.message ?? body?.message ?? `Request failed with status ${response.status}`
-    ) as QueryError;
-    error.status = response.status;
-    error.details = body?.error?.details ?? body;
-    throw error;
+  const method = (init?.method ?? 'GET').toUpperCase();
+  let body: unknown;
+  if (init?.body) {
+    try {
+      body = JSON.parse(String(init.body));
+    } catch {
+      body = init.body;
+    }
   }
 
-  return (body?.data ?? body) as T;
+  try {
+    let result: { data: T };
+    if (method === 'POST') result = await apiPost<T>(url, body);
+    else if (method === 'PATCH') result = await apiPatch<T>(url, body);
+    else if (method === 'DELETE') result = await apiDelete<T>(url, body);
+    else result = await apiGet<T>(url);
+    return result.data as T;
+  } catch (e) {
+    if (e instanceof ApiClientError) {
+      const error = new Error(e.message) as QueryError;
+      error.status = e.statusCode;
+      error.details = e.details;
+      throw error;
+    }
+    throw e;
+  }
 }
 
 export async function sendJson<T>(url: string, init: RequestInit): Promise<T> {

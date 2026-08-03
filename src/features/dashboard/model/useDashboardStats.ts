@@ -1,6 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { apiGet } from '@/shared/api/http-client';
 
 export interface DashboardStats {
   requests: number;
@@ -10,9 +11,8 @@ export interface DashboardStats {
 }
 
 async function fetchDashboardStats(): Promise<DashboardStats> {
-  const res = await fetch('/api/dashboard/stats');
-  if (!res.ok) throw new Error('Failed to fetch dashboard stats');
-  return res.json();
+  const { data } = await apiGet<DashboardStats>('/api/dashboard/stats');
+  return data;
 }
 
 export function useDashboardStats() {

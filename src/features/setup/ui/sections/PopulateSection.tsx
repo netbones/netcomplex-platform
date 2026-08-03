@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { apiPost } from '@/shared/api/http-client';
 
 interface PopulateSectionProps {
   tenantId: string;
@@ -82,17 +83,13 @@ export default function PopulateSection({ tenantId: _tenantId }: PopulateSection
   // ── Send invitation helper ─────────────────────────────────────
   async function sendInvitation(email: string, name: string, role: string): Promise<boolean> {
     try {
-      const res = await fetch('/api/invitations', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email,
-          name,
-          role,
-          residencyType: 'OWNER',
-        }),
+      await apiPost('/api/invitations', {
+        email,
+        name,
+        role,
+        residencyType: 'OWNER',
       });
-      return res.ok;
+      return true;
     } catch {
       return false;
     }

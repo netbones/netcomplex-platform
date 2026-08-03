@@ -1,6 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { apiGet } from '@/shared/api/http-client';
 
 export interface UpcomingEvent {
   id: string;
@@ -14,10 +15,8 @@ export interface UpcomingEvent {
 }
 
 async function fetchUpcomingEvents(): Promise<UpcomingEvent[]> {
-  const res = await fetch('/api/events?limit=5&upcoming=true');
-  if (!res.ok) throw new Error('Failed to fetch events');
-  const body = await res.json();
-  return (body?.data ?? body ?? []) as UpcomingEvent[];
+  const { data } = await apiGet<UpcomingEvent[]>('/api/events?limit=5&upcoming=true');
+  return data ?? [];
 }
 
 export function useUpcomingEvents() {

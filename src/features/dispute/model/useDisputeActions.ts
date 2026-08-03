@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
+import { apiPost, apiPatch, ApiClientError } from '@/shared/api/http-client';
 import type { DisputeStatus } from '@entities/dispute';
 import { isTerminalStatus } from '@entities/dispute';
 
@@ -77,28 +78,26 @@ export function useDisputeActions(
       setIsLoading(true);
       try {
         if (action === 'submit') {
-          const res = await fetch(`/api/disputes/${disputeId}/submit`, {
-            method: 'POST',
-          });
-
-          if (!res.ok) {
-            const body = await res.json().catch(() => ({}));
-            toast.error((body as { message?: string }).message ?? 'Failed to submit dispute');
-          } else {
+          try {
+            await apiPost(`/api/disputes/${disputeId}/submit`);
             toast.success('Dispute submitted for review');
+          } catch (e) {
+            if (e instanceof ApiClientError) {
+              toast.error(e.message || 'Failed to submit dispute');
+            } else {
+              throw e;
+            }
           }
         } else if (action === 'withdraw') {
-          const res = await fetch(`/api/disputes/${disputeId}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status: 'WITHDRAWN' }),
-          });
-
-          if (!res.ok) {
-            const body = await res.json().catch(() => ({}));
-            toast.error((body as { message?: string }).message ?? 'Failed to withdraw dispute');
-          } else {
+          try {
+            await apiPatch(`/api/disputes/${disputeId}`, { status: 'WITHDRAWN' });
             toast.success('Dispute withdrawn');
+          } catch (e) {
+            if (e instanceof ApiClientError) {
+              toast.error(e.message || 'Failed to withdraw dispute');
+            } else {
+              throw e;
+            }
           }
         }
       } catch {

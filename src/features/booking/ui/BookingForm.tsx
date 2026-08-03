@@ -6,6 +6,7 @@ import type { BookingFormData } from '@entities/booking';
 import { DEFAULT_FACILITIES } from '@entities/booking';
 import type { TenantFacility } from '@entities/booking';
 import { createComponentLogger } from '@shared/lib';
+import { apiGet, apiPost, ApiClientError } from '@/shared/api/http-client';
 
 const log = createComponentLogger('BookingForm');
 
@@ -28,16 +29,13 @@ export function BookingForm({ onSubmit, onSuccess }: BookingFormProps) {
   useEffect(() => {
     async function fetchFacilities() {
       try {
-        const res = await fetch('/api/settings?key=booking_facilities');
-        if (res.ok) {
-          const body = await res.json();
-          const raw = body?.data?.value;
-          if (raw) {
-            const parsed = JSON.parse(raw);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              setFacilities(parsed as TenantFacility[]);
-              return;
-            }
+        const { data } = await apiGet<{ value?: string }>('/api/settings?key=booking_facilities');
+        const raw = data?.value;
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setFacilities(parsed as TenantFacility[]);
+            return;
           }
         }
       } catch (err) {
@@ -67,25 +65,13 @@ export function BookingForm({ onSubmit, onSuccess }: BookingFormProps) {
       if (onSubmit) {
         await onSubmit(formData);
       } else {
-        const res = await fetch('/api/bookings', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
-        });
-
-        if (!res.ok) {
-          const errorData = await res.json();
-          const message =
-            errorData?.data?.error ||
-            errorData?.error?.message ||
-            errorData?.error ||
-            'Failed to create booking';
-
-          if (res.status === 409) {
+        try {
+          await apiPost('/api/bookings', formData);
+        } catch (err) {
+          if (err instanceof ApiClientError && err.statusCode === 409) {
             throw new Error('This time slot is no longer available. Please choose another time.');
           }
-
-          throw new Error(typeof message === 'string' ? message : JSON.stringify(message));
+          throw err;
         }
       }
 

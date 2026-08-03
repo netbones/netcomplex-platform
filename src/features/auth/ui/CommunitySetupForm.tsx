@@ -8,6 +8,7 @@ import { communitySetupSchema, type CommunitySetupFormData } from '@entities/ten
 import type { PricingPlan } from '@shared/lib';
 import { SectionLayout } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
+import { apiGet, apiPost, ApiClientError } from '@/shared/api/http-client';
 
 const log = createComponentLogger('CommunitySetupForm');
 
@@ -38,11 +39,8 @@ export function CommunitySetupForm() {
   useEffect(() => {
     async function fetchPlans() {
       try {
-        const response = await fetch('/api/pricing');
-        if (response.ok) {
-          const { data: body } = await response.json();
-          setPlans(body.plans);
-        }
+        const { data } = await apiGet<{ plans: PricingPlan[] }>('/api/pricing');
+        setPlans(data.plans);
       } catch (fetchError) {
         log.error({}, 'Failed to fetch pricing plans', fetchError);
       } finally {
@@ -58,23 +56,17 @@ export function CommunitySetupForm() {
     setError(null);
 
     try {
-      const res = await fetch('/api/platform/tenants', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      try {
+        await apiPost('/api/platform/tenants', {
           name: data.communityName,
           slug: data.subdomain,
           plan: data.plan,
-        }),
-        credentials: 'include',
-      });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ message: 'Failed to create community' }));
-        if (res.status === 409) {
+        });
+      } catch (e) {
+        if (e instanceof ApiClientError && e.statusCode === 409) {
           throw new Error('This subdomain is already taken. Please choose another.');
         }
-        throw new Error(err.message || 'Failed to create community');
+        throw e;
       }
 
       // On success, redirect to dashboard

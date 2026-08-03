@@ -5,6 +5,7 @@ import { BadgeCent, Loader2, Send, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@shared/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@shared/ui';
+import { apiGet, apiPost } from '@/shared/api/http-client';
 import type { SupportTarget } from '../model/schema';
 
 const QUICK_AMOUNTS = [5, 10, 25, 50, 100];
@@ -42,10 +43,8 @@ export function SupportChipsButton({
   const fetchAggregate = useCallback(async () => {
     try {
       const params = new URLSearchParams({ targetType, targetId });
-      const res = await fetch(`/api/support?${params}`);
-      if (!res.ok) return;
-      const body = await res.json();
-      setAggregate(body?.data ?? body);
+      const { data } = await apiGet<SupportAggregate>(`/api/support?${params}`);
+      setAggregate(data);
     } catch {}
   }, [targetType, targetId]);
 
@@ -88,23 +87,14 @@ export function SupportChipsButton({
 
     setIsSending(true);
     try {
-      const res = await fetch('/api/support', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          targetType,
-          targetId,
-          recipientUserId,
-          chips: amount,
-          message: message || undefined,
-          isAnonymous,
-        }),
+      await apiPost('/api/support', {
+        targetType,
+        targetId,
+        recipientUserId,
+        chips: amount,
+        message: message || undefined,
+        isAnonymous,
       });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => null);
-        throw new Error(err?.message || 'Failed to send chips');
-      }
 
       setAggregate(prev => {
         if (!prev) return prev;

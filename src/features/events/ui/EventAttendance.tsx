@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Image from 'next/image';
 import { UserCheck, UserPlus, Loader2, Users } from 'lucide-react';
+import { apiGet, apiPost, apiDelete } from '@/shared/api/http-client';
 
 interface Attendee {
   id: string;
@@ -22,11 +23,12 @@ interface EventAttendanceProps {
 }
 
 async function fetchAttendance(eventId: string): Promise<AttendanceData> {
-  const res = await fetch(`/api/events/${eventId}/register`);
-  if (!res.ok) return { attendees: [], registered: false };
-  const body = await res.json();
-  const data = body?.data ?? body;
-  return { attendees: data?.attendees ?? [], registered: data?.registered ?? false };
+  try {
+    const { data } = await apiGet<AttendanceData>(`/api/events/${eventId}/register`);
+    return { attendees: data?.attendees ?? [], registered: data?.registered ?? false };
+  } catch {
+    return { attendees: [], registered: false };
+  }
 }
 
 export function EventAttendance({ eventId }: EventAttendanceProps) {
@@ -40,9 +42,11 @@ export function EventAttendance({ eventId }: EventAttendanceProps) {
 
   const toggleMutation = useMutation({
     mutationFn: async (currentlyRegistered: boolean) => {
-      const method = currentlyRegistered ? 'DELETE' : 'POST';
-      const res = await fetch(`/api/events/${eventId}/register`, { method });
-      if (!res.ok) throw new Error('Failed to toggle registration');
+      if (currentlyRegistered) {
+        await apiDelete(`/api/events/${eventId}/register`);
+      } else {
+        await apiPost(`/api/events/${eventId}/register`);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });

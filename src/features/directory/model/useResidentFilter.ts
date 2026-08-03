@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Resident, UseResidentFilterReturn, ViewMode } from '@entities/directory';
 import { DEBOUNCE_DELAY_MS, DEFAULT_PAGE_LIMIT } from '@entities/directory';
-import { authClient } from '@api/client';
+import { apiGet } from '@/shared/api/http-client';
 
 export interface UseResidentFilterOptions {
   defaultLimit?: number;
@@ -42,37 +42,27 @@ export function useResidentFilter(options: UseResidentFilterOptions = {}): UseRe
   const fetchResidents = useCallback(async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams();
-      if (debouncedSearch) params.set('search', debouncedSearch);
-      if (filterStreet !== 'All Streets') params.set('street', filterStreet);
-      params.set('page', String(page));
-      params.set('limit', String(limit));
+      const params: Record<string, string> = {
+        page: String(page),
+        limit: String(limit),
+      };
+      if (debouncedSearch) params.search = debouncedSearch;
+      if (filterStreet !== 'All Streets') params.street = filterStreet;
 
       if (filterType !== 'All Residents') {
         const filterValue = filterType.replace(' Members', '').replace('s', '');
         if (filterValue === 'Board') {
-          params.set('role', 'BOARD');
+          params.role = 'BOARD';
         } else if (filterValue === 'Committee') {
-          params.set('role', 'COMMITTEE');
+          params.role = 'COMMITTEE';
         } else if (filterValue === 'Owner') {
-          params.set('residencyType', 'OWNER');
+          params.residencyType = 'OWNER';
         } else if (filterValue === 'Renter') {
-          params.set('residencyType', 'RENTER');
+          params.residencyType = 'RENTER';
         }
       }
 
-      const queryStr = params.toString();
-      const url = queryStr ? `${apiEndpoint}?${queryStr}` : apiEndpoint;
-      const session = await authClient.getSession();
-      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-      if (session?.data?.session?.token) {
-        headers['Authorization'] = `Bearer ${session.data.session.token}`;
-      }
-      const res = await fetch(url, { headers });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const envelope = await res.json();
-      const data = envelope?.data ?? envelope;
-      const meta = envelope?.meta;
+      const { data, meta } = await apiGet<Resident[]>(apiEndpoint, params);
 
       if (data && typeof data === 'object' && 'users' in data) {
         setResidents((data as { users: Resident[] }).users);

@@ -1,6 +1,7 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiGet, apiPatch } from '@/shared/api/http-client';
 
 interface SetupData {
   id: string;
@@ -49,14 +50,11 @@ export function useSetupProgress(tenantId: string, _initial?: SetupData | null) 
   } = useQuery<SetupData | null>({
     queryKey: ['setup', tenantId],
     queryFn: async () => {
-      const res = await fetch(`/api/platform/setup?tenantId=${encodeURIComponent(tenantId)}`);
-      if (!res.ok) {
-        if (res.status === 404) return null;
-        throw new Error(`Failed to fetch setup: ${res.status}`);
-      }
-      const body: SetupResponse = await res.json();
+      const { data } = await apiGet<SetupResponse>(
+        `/api/platform/setup?tenantId=${encodeURIComponent(tenantId)}`
+      );
       // Support both `{ data: { setup } }` and direct `{ setup }` shapes
-      return body?.data?.setup ?? body?.setup ?? null;
+      return data?.setup ?? null;
     },
     staleTime: 30 * 1000, // 30s stale — mission toggles invalidate instantly
   });
@@ -72,17 +70,11 @@ export function useSetupProgress(tenantId: string, _initial?: SetupData | null) 
       missionKey: string;
       isCompleted: boolean;
     }) => {
-      const res = await fetch('/api/platform/setup/missions', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          tenantId,
-          missionKey,
-          isCompleted,
-        }),
+      return apiPatch(`/api/platform/setup/missions`, {
+        tenantId,
+        missionKey,
+        isCompleted,
       });
-      if (!res.ok) throw new Error(`Failed to update mission: ${res.status}`);
-      return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['setup', tenantId] });
@@ -94,13 +86,7 @@ export function useSetupProgress(tenantId: string, _initial?: SetupData | null) 
    */
   const settingMutation = useMutation({
     mutationFn: async ({ key, value }: { key: string; value: unknown }) => {
-      const res = await fetch('/api/platform/setup/settings', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tenantId, key, value }),
-      });
-      if (!res.ok) throw new Error(`Failed to update setting: ${res.status}`);
-      return res.json();
+      return apiPatch(`/api/platform/setup/settings`, { tenantId, key, value });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['setup', tenantId] });
