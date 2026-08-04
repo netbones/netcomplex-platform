@@ -7,6 +7,7 @@ import { Carousel, Pagination } from '@shared/ui';
 import { CARD_HEADER_COLORS } from '@shared/lib';
 import { useResidentFilter } from '@features/directory';
 import { useMapSettings } from '@shared/lib/hooks/useMapSettings';
+import { apiGet } from '@/shared/api/http-client';
 import type { CarouselItem } from '@entities/tenant';
 import type { HeroCarouselConfig } from '@entities/tenant';
 
@@ -67,10 +68,8 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    fetch('/api/admin/settings/hero-carousel')
-      .then(r => r.json())
-      .then(body => {
-        const data: HeroCarouselConfig | undefined = body?.data ?? body;
+    apiGet<HeroCarouselConfig>('/api/admin/settings/hero-carousel')
+      .then(({ data }) => {
         if (data?.items?.length) {
           setCarouselItems(data.items.filter((item: CarouselItem) => item.image));
         }

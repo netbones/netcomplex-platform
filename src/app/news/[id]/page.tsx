@@ -10,6 +10,7 @@ import { CommentThread } from '@features/comments';
 import { createComponentLogger } from '@shared/lib';
 import Image from 'next/image';
 import { usePageLoading } from '@shared/ui';
+import { apiGet } from '@/shared/api/http-client';
 
 import { AlertCircle, ArrowLeft, User } from 'lucide-react';
 const log = createComponentLogger('news-post-page');
@@ -89,24 +90,21 @@ export default function NewsPostPage() {
 
     const fetchPost = async () => {
       try {
-        const [postRes, likeRes] = await Promise.all([
-          fetch(`/api/content/${id}?published=true&locale=${i18n.language}`),
-          fetch(`/api/content/${id}/like`),
+        const [postData, likeData] = await Promise.all([
+          apiGet<ContentItem>(`/api/content/${id}?published=true&locale=${i18n.language}`),
+          apiGet<{ liked: boolean; likes: number }>(`/api/content/${id}/like`),
         ]);
 
-        if (postRes.ok) {
-          const body = await postRes.json();
-          const data = body?.data ?? body;
-          setPost(data);
+        const post = postData.data;
+        if (post) {
+          setPost(post);
         } else {
           setError('Post not found');
         }
 
-        if (likeRes.ok) {
-          const body = await likeRes.json();
-          const data = body?.data ?? body;
-          setLiked(data.liked);
-          setLikeCount(data.likes);
+        if (likeData?.data) {
+          setLiked(likeData.data.liked);
+          setLikeCount(likeData.data.likes);
         }
       } catch (err) {
         log.error({}, 'Failed to fetch post', err);

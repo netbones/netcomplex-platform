@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { usePageLoading, Breadcrumbs, ErrorBoundary, ModalOverlay } from '@shared/ui';
 import { CARD_ANIMATIONS, createComponentLogger } from '@shared/lib';
 import Image from 'next/image';
+import { apiGet, apiPost } from '@/shared/api/http-client';
 import { CheckCircle, Store } from 'lucide-react';
 import {
   defaultServiceCategories as defaultCats,
@@ -98,44 +99,47 @@ export function ServicesPage() {
   useEffect(() => {
     async function fetchAll() {
       try {
-        const [contentRes, configRes] = await Promise.all([
-          fetch('/api/content?category=SERVICES&published=true&locale=${i18n.language}'),
-          fetch('/api/admin/services-config'),
+        const [contentData, configData] = await Promise.all([
+          apiGet<ContentItem[]>(
+            `/api/content?category=SERVICES&published=true&locale=${i18n.language}`
+          ),
+          apiGet<ServicesConfig>('/api/admin/services-config'),
         ]);
+        const content = contentData.data ?? [];
+        const cfg = configData.data;
 
-        if (contentRes.ok) {
-          const body = await contentRes.json();
-          const data = body?.data ?? [];
-          if (data.length > 0) {
-            setServiceCategories(
-              data.map((item: ContentItem) => ({
-                id: String(item.id),
-                title: item.title,
-                subtitle: item.excerpt || '',
-                icon: 'fa-concierge-bell',
+        if (content.length > 0) {
+          setServiceCategories(
+            content.map((item: ContentItem) => ({
+              id: String(item.id),
+              title: item.title,
+              subtitle: item.excerpt || '',
+              icon: 'fa-concierge-bell',
+              gradient: 'from-blue-500 to-blue-600',
+              items: [item.content.substring(0, 200) + '...'],
+            }))
+          );
+        }
+
+        if (cfg && cfg.categoriesVisible !== undefined) {
+          setConfig(cfg);
+          if (cfg.categories?.length) {
+            setCfgCategories(
+              cfg.categories.map(cat => ({
+                ...cat,
                 gradient: 'from-blue-500 to-blue-600',
-                items: [item.content.substring(0, 200) + '...'],
               }))
             );
           }
-        }
-
-        if (configRes.ok) {
-          const body = await configRes.json();
-          const cfg = body?.data ?? body;
-          if (cfg && cfg.categoriesVisible !== undefined) {
-            setConfig(cfg);
-            if (cfg.categories?.length) setCfgCategories(cfg.categories);
-            if (cfg.hours?.length) setCfgHours(cfg.hours);
-            if (cfg.additionalServices?.length) setCfgAdditional(cfg.additionalServices);
-            if (cfg.emergencyContacts?.length) {
-              setCfgEmergency(
-                cfg.emergencyContacts.map((c: { label: string; phone: string }, i: number) => {
-                  const v = EMERGENCY_VISUALS[i % EMERGENCY_VISUALS.length];
-                  return { ...v, label: c.label, phone: c.phone };
-                })
-              );
-            }
+          if (cfg.hours?.length) setCfgHours(cfg.hours);
+          if (cfg.additionalServices?.length) setCfgAdditional(cfg.additionalServices);
+          if (cfg.emergencyContacts?.length) {
+            setCfgEmergency(
+              cfg.emergencyContacts.map((c: { label: string; phone: string }, i: number) => {
+                const v = EMERGENCY_VISUALS[i % EMERGENCY_VISUALS.length];
+                return { ...v, label: c.label, phone: c.phone };
+              })
+            );
           }
         }
       } catch (error) {
@@ -161,18 +165,14 @@ export function ServicesPage() {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const res = await fetch('/api/maintenance', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          category: formData.serviceType,
-          priority: formData.priority.toUpperCase(),
-          description: formData.description,
-          preferredDate: formData.preferredDate,
-          preferredTime: formData.preferredTime,
-        }),
+      await apiPost('/api/maintenance', {
+        category: formData.serviceType,
+        priority: formData.priority.toUpperCase(),
+        description: formData.description,
+        preferredDate: formData.preferredDate,
+        preferredTime: formData.preferredTime,
       });
-      if (res.ok) alert('Service request submitted successfully!');
+      alert('Service request submitted successfully!');
     } catch (error) {
       log.error({}, 'Failed to submit request', error);
     } finally {

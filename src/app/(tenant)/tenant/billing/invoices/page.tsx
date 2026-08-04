@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { InvoiceList } from '@features/billing';
 import { LoadingSkeleton } from '@shared/ui';
 import type { TenantInvoiceView } from '@features/billing';
+import { apiGet } from '@/shared/api/http-client';
 
 export default function InvoicesPage() {
   const {
@@ -13,12 +14,8 @@ export default function InvoicesPage() {
   } = useQuery<TenantInvoiceView[]>({
     queryKey: ['tenant-billing-invoices'],
     queryFn: async () => {
-      const response = await fetch('/api/tenant/billing/invoices');
-      if (!response.ok) {
-        throw new Error('Failed to load invoices');
-      }
-      const body = await response.json();
-      return body.data ?? body;
+      const { data } = await apiGet<TenantInvoiceView[]>('/api/tenant/billing/invoices');
+      return data;
     },
     staleTime: 30_000,
   });

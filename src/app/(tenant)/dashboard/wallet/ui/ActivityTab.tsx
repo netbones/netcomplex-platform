@@ -6,6 +6,7 @@ import { LoadingSkeleton } from '@shared/ui';
 import { Activity as ActivityIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { TransactionItem } from '@entities/dwallet';
 import { formatZAR, formatDate, getTypeBadge } from '../model/helpers';
+import { apiGet } from '@/shared/api/http-client';
 
 export function ActivityTab() {
   const { tx } = useSafeTranslation();
@@ -30,13 +31,13 @@ export function ActivityTab() {
       if (startDate) params.set('startDate', startDate);
       if (endDate) params.set('endDate', endDate);
 
-      const res = await fetch(`/api/v1/tenant/dwallet/transactions?${params}`);
-      if (!res.ok) throw new Error('Failed to load activity');
-      const data = await res.json();
-      const items = Array.isArray(data) ? data : (data.data ?? []);
-      setTransactions(items);
-      setTotal(data.total ?? items.length);
-      setHasMore(data.hasMore ?? false);
+      const { data } = await apiGet<
+        TransactionItem[] | { data?: TransactionItem[]; total?: number; hasMore?: boolean }
+      >(`/api/v1/tenant/dwallet/transactions?${params}`);
+      const unwrapped = Array.isArray(data) ? data : (data?.data ?? []);
+      setTransactions(unwrapped);
+      setTotal(Array.isArray(data) ? unwrapped.length : (data?.total ?? unwrapped.length));
+      setHasMore(Array.isArray(data) ? false : (data?.hasMore ?? false));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load');
     } finally {

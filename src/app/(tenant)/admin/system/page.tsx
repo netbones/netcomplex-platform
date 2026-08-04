@@ -7,6 +7,7 @@ import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { useSafeTranslation } from '@shared/lib';
 import { useAdminStats } from '@features/admin';
 import { PageSettingsWidget } from '@widgets/admin';
+import { apiGet, ApiClientError } from '@/shared/api/http-client';
 
 interface HealthStatus {
   db: 'connected' | 'error';
@@ -103,24 +104,13 @@ export default function AdminSystemPage() {
 
   const fetchHealth = useCallback(async () => {
     try {
-      const res = await fetch('/api/admin/system/health');
-      if (res.ok) {
-        const body = await res.json();
-        setHealth(body.success ? body.data : body);
-      } else {
-        setHealth({
-          db: 'error',
-          dbError: `HTTP ${res.status}`,
-          tenantId: '',
-          tenantName: 'Unknown',
-          totalUsers: 0,
-          activeUsers: 0,
-        });
-      }
-    } catch {
+      const { data } = await apiGet<HealthStatus>('/api/admin/system/health');
+      setHealth(data);
+    } catch (err) {
+      const status = err instanceof ApiClientError ? err.statusCode : 'Network error';
       setHealth({
         db: 'error',
-        dbError: 'Network error',
+        dbError: `HTTP ${status}`,
         tenantId: '',
         tenantName: 'Unknown',
         totalUsers: 0,
@@ -132,12 +122,11 @@ export default function AdminSystemPage() {
 
   const fetchActivity = useCallback(async () => {
     try {
-      const res = await fetch('/api/admin/activity?limit=8');
-      if (res.ok) {
-        const body = await res.json();
-        const data = body.success ? body.data : body;
-        setActivities(Array.isArray(data?.items) ? data.items : []);
-      }
+      const { data } = await apiGet<{ items?: ActivityItem[] } | ActivityItem[]>(
+        '/api/admin/activity?limit=8'
+      );
+      const unwrapped = Array.isArray(data) ? data : (data?.items ?? []);
+      setActivities(unwrapped);
     } catch {
       /* silent — activity is non-critical */
     }

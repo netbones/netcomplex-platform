@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
+import { apiGet } from '@/shared/api/http-client';
 import Image from 'next/image';
 import { usePageLoading } from '@shared/ui';
 
@@ -152,12 +153,7 @@ export default function ResourcesPage() {
       try {
         setLoading(true);
         setError(null);
-        const res = await fetch('/api/resources');
-        if (!res.ok) {
-          throw new Error(`Failed to fetch resources: ${res.status}`);
-        }
-        const body = await res.json();
-        const data = body?.data ?? body;
+        const { data } = await apiGet<ResourceItem[]>('/api/resources');
         setResources(Array.isArray(data) ? data : []);
       } catch (err) {
         log.error({}, 'Failed to fetch resources', err);

@@ -9,6 +9,7 @@ import { supportedLanguages, languageNames } from '@/shared/lib/i18n';
 import Image from 'next/image';
 import { usePageLoading } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
+import { apiPatch } from '@/shared/api/http-client';
 import { useUserProfile } from '@shared/lib/hooks';
 import {
   ProfileSection,
@@ -63,11 +64,11 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (!userData) return;
-    const data = userData?.data ?? userData;
+    const data = userData;
 
     if (data.showEmail !== undefined) setShowEmail(data.showEmail);
     if (data.showPhone !== undefined) setShowPhone(data.showPhone);
-    if (data.avatar || data.image) setUserAvatar(data.avatar || data.image);
+    if (data.avatar || data.image) setUserAvatar(data.avatar || data.image || '');
     if (data.notificationPreferences) setNotificationPrefs(data.notificationPreferences);
 
     if (data.premiumSeat) {
@@ -112,21 +113,18 @@ export default function SettingsPage() {
   const handleAvatarChange = async (url: string) => {
     setUserAvatar(url);
     try {
-      const res = await fetch(`/api/users/${session?.user?.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ avatar: url, image: url }),
-      });
+      try {
+        await apiPatch(`/api/users/${session?.user?.id}`, { avatar: url, image: url });
+      } catch {
+        toast.error(tToast('failedToUpload', 'profile image'));
+        return;
+      }
       try {
         await authClient.updateUser({ image: url });
       } catch (e) {
         log.error({}, 'Failed to update better-auth session image', e);
       }
-      if (res.ok) {
-        toast.success(tToast('uploaded', 'Profile image'));
-      } else {
-        toast.error(tToast('failedToUpload', 'profile image'));
-      }
+      toast.success(tToast('uploaded', 'Profile image'));
     } catch {
       toast.error(tToast('failedToUpload', 'profile image'));
     }
@@ -158,16 +156,10 @@ export default function SettingsPage() {
     if (!session?.user?.id) return;
     setNotifSaving(true);
     try {
-      const res = await fetch(`/api/users/${session.user.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ notificationPreferences: notificationPrefs }),
+      await apiPatch(`/api/users/${session.user.id}`, {
+        notificationPreferences: notificationPrefs,
       });
-      if (res.ok) {
-        toast.success(tToast('updated', 'Notification preferences'));
-      } else {
-        toast.error(tToast('failedToSave', 'notification preferences'));
-      }
+      toast.success(tToast('updated', 'Notification preferences'));
     } catch {
       toast.error(tToast('failedToSave', 'notification preferences'));
     } finally {
@@ -179,16 +171,8 @@ export default function SettingsPage() {
     if (!session?.user?.id) return;
     setPrivacySaving(true);
     try {
-      const res = await fetch(`/api/users/${session.user.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ showEmail, showPhone }),
-      });
-      if (res.ok) {
-        toast.success(tToast('updated', 'Privacy settings'));
-      } else {
-        toast.error(tToast('failedToSave', 'settings'));
-      }
+      await apiPatch(`/api/users/${session.user.id}`, { showEmail, showPhone });
+      toast.success(tToast('updated', 'Privacy settings'));
     } catch {
       toast.error(tToast('failedToSave', 'settings'));
     } finally {

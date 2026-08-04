@@ -7,6 +7,7 @@ import { useWallet } from '@entities/dwallet';
 import { Info } from 'lucide-react';
 import type { StreamConfig } from '@entities/dwallet';
 import { useSafeTranslation } from '@shared/lib';
+import { apiGet } from '@/shared/api/http-client';
 
 import { TABS, type TabKey } from './model/helpers';
 import { PageHeader } from './ui/PageHeader';
@@ -56,11 +57,13 @@ function DWalletPageContent() {
     let cancelled = false;
     async function loadStreams() {
       try {
-        const res = await fetch('/api/v1/tenant/dwallet/streams');
-        if (!res.ok) return;
-        const data = await res.json();
+        const { data } = await apiGet<StreamConfig[] | { data?: StreamConfig[] }>(
+          '/api/v1/tenant/dwallet/streams'
+        );
         if (!cancelled) {
-          setStreams(Array.isArray(data) ? data : (data.data ?? []));
+          setStreams(
+            Array.isArray(data) ? data : ((data as { data?: StreamConfig[] })?.data ?? [])
+          );
         }
       } catch {
         // Silently fail

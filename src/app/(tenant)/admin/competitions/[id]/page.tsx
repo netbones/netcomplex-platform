@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { Breadcrumbs } from '@shared/ui';
 import { CompetitionForm } from '@widgets/admin';
+import { apiGet } from '@/shared/api/http-client';
 
 interface Competition {
   id: string;
@@ -28,13 +29,9 @@ export default function EditCompetitionPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`/api/competitions/${id}`)
-      .then(res => {
-        if (!res.ok) throw new Error('Not found');
-        return res.json();
-      })
-      .then(body => {
-        setCompetition(body?.data ?? body);
+    apiGet<Competition>(`/api/competitions/${id}`)
+      .then(({ data }) => {
+        setCompetition(data);
         setLoading(false);
       })
       .catch(() => {

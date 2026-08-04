@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { createComponentLogger } from '@shared/lib';
 import type { HeroCarouselConfig, CarouselItem } from '@entities/tenant';
 import { createId } from '@shared/lib/id';
+import { apiGet, apiPut } from '@/shared/api/http-client';
 
 const log = createComponentLogger('admin-carousel');
 
@@ -27,10 +28,8 @@ export default function AdminCarouselPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/api/admin/settings/hero-carousel')
-      .then(r => r.json())
-      .then(body => {
-        const data = body?.data ?? body;
+    apiGet<HeroCarouselConfig>('/api/admin/settings/hero-carousel')
+      .then(({ data }) => {
         setConfig(data);
       })
       .catch(err => {
@@ -70,18 +69,9 @@ export default function AdminCarouselPage() {
     setSaved(false);
     setError(null);
     try {
-      const res = await fetch('/api/admin/settings/hero-carousel', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(config),
-      });
-      if (res.ok) {
-        setSaved(true);
-        setTimeout(() => setSaved(false), 3000);
-      } else {
-        const body = await res.json();
-        setError(body?.message ?? body?.error ?? 'Failed to save');
-      }
+      await apiPut('/api/admin/settings/hero-carousel', config);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
     } catch (err) {
       log.error({}, 'Failed to save carousel config', err);
       setError('Failed to save configuration');

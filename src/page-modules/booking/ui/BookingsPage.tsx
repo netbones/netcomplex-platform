@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { usePageLoading } from '@shared/ui';
 import Image from 'next/image';
+import { apiGet } from '@/shared/api/http-client';
 import { createComponentLogger } from '@shared/lib';
 import { BookingForm } from '@features/booking';
 import { StatusBadge, FacilityBadge, BookingCalendar, type Booking } from '@entities/booking';
@@ -29,9 +30,8 @@ export function BookingsPage() {
 
   const fetchBookings = useCallback(async () => {
     try {
-      const res = await fetch('/api/bookings');
-      const json = await res.json();
-      setBookings(json.data ?? []);
+      const { data } = await apiGet<Booking[]>(`/api/bookings`);
+      setBookings(data ?? []);
     } catch (error) {
       log.error({}, 'Failed to fetch bookings', error);
     } finally {

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Honeypot, TurnstileWidget } from '@shared/ui';
+import { apiPost, ApiClientError } from '@/shared/api/http-client';
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -37,31 +38,21 @@ export default function SignUpPage() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email,
-          password,
-          name,
-          turnstileToken,
-          invitationToken: invitationToken || undefined,
-        }),
+      await apiPost('/api/auth/signup', {
+        email,
+        password,
+        name,
+        turnstileToken,
+        invitationToken: invitationToken || undefined,
       });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        router.push(`/verify-email?email=${encodeURIComponent(email)}`);
-      } else {
-        const errMsg =
-          typeof data.error === 'object' && data.error !== null
-            ? (data.error as { message?: string }).message || 'Failed to sign up'
-            : data.error || 'Failed to sign up';
-        setError(errMsg);
-      }
+      router.push(`/verify-email?email=${encodeURIComponent(email)}`);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'An unexpected error occurred';
+      const message =
+        err instanceof ApiClientError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : 'An unexpected error occurred';
       setError(message);
     } finally {
       setLoading(false);

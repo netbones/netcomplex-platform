@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { GroupForm } from '@widgets/admin';
 import { createComponentLogger } from '@shared/lib';
+import { apiGet } from '@/shared/api/http-client';
 
 const log = createComponentLogger('edit-group-page');
 
@@ -23,20 +24,17 @@ export default function EditGroupPage() {
   useEffect(() => {
     if (!id) return;
 
-    fetch(`/api/groups/${id}`)
-      .then(res => res.json())
-      .then(body => {
-        if (body?.error) {
-          log.error({}, 'Failed to fetch group', body.error);
-          return;
-        }
-        const data = body?.data ?? body;
+    apiGet<Group>(`/api/groups/${id}`)
+      .then(({ data }) => {
         setGroup({
           name: data.name,
           description: data.description,
           category: data.category,
           isPublic: data.isPublic,
         });
+      })
+      .catch(err => {
+        log.error({}, 'Failed to fetch group', err);
       })
       .finally(() => setLoading(false));
   }, [id]);

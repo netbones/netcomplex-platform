@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { createComponentLogger } from '@shared/lib';
+import { apiGet } from '@/shared/api/http-client';
 
 const log = createComponentLogger('proudly-soralia-page');
 
@@ -58,20 +59,22 @@ export default function ProudlySoraliaPage() {
   useEffect(() => {
     async function fetchStats() {
       try {
-        const res = await fetch('/api/stats');
-        if (res.ok) {
-          const data = await res.json();
-          setStats([
-            { key: 'homes', value: String(data.homes || 180), label: 'Homes' },
-            { key: 'years', value: String(data.years || '15+'), label: 'Years of Community' },
-            { key: 'birdSpecies', value: String(data.birdSpecies || 47), label: 'Bird Species' },
-            {
-              key: 'nativePlants',
-              value: String(data.nativePlants || '150+'),
-              label: 'Native Plants',
-            },
-          ]);
-        }
+        const { data } = await apiGet<{
+          homes?: number;
+          years?: string;
+          birdSpecies?: number;
+          nativePlants?: string;
+        }>('/api/stats');
+        setStats([
+          { key: 'homes', value: String(data.homes || 180), label: 'Homes' },
+          { key: 'years', value: String(data.years || '15+'), label: 'Years of Community' },
+          { key: 'birdSpecies', value: String(data.birdSpecies || 47), label: 'Bird Species' },
+          {
+            key: 'nativePlants',
+            value: String(data.nativePlants || '150+'),
+            label: 'Native Plants',
+          },
+        ]);
       } catch (error) {
         log.error({}, 'Failed to fetch stats', error);
       } finally {

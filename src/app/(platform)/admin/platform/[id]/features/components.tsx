@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { apiPatch } from '@/shared/api/http-client';
 
 interface TenantFeaturesFormProps {
   tenant: {
@@ -91,11 +92,7 @@ function FeaturesForm({ tenant, allFeatures }: TenantFeaturesFormProps) {
     setFeatureFlags(newFlags);
 
     startTransition(async () => {
-      await fetch(`/api/admin/platform/tenants/${tenant.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ featureFlags: newFlags }),
-      });
+      await apiPatch(`/api/admin/platform/tenants/${tenant.id}`, { featureFlags: newFlags });
     });
   }
 

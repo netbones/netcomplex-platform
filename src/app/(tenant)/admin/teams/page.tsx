@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
+import { apiGet, apiPost, apiPatch, apiDelete } from '@/shared/api/http-client';
 import type { MaintenanceTeam } from '@entities/maintenance';
 
 const log = createComponentLogger('admin-teams-page');
@@ -40,9 +41,8 @@ export default function AdminTeamsPage() {
   const fetchTeams = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/maintenance/teams');
-      const json = await res.json();
-      setTeams(json.data || []);
+      const { data } = await apiGet<MaintenanceTeam[]>('/api/maintenance/teams');
+      setTeams(data ?? []);
     } catch (error) {
       log.error({}, 'Failed to fetch teams', error);
     } finally {
@@ -57,9 +57,8 @@ export default function AdminTeamsPage() {
   const fetchMembers = async (teamId: string) => {
     setLoadingMembers(true);
     try {
-      const res = await fetch(`/api/maintenance/teams/${teamId}/members`);
-      const json = await res.json();
-      setMembers(json.data || []);
+      const { data } = await apiGet<TeamMember[]>(`/api/maintenance/teams/${teamId}/members`);
+      setMembers(data ?? []);
     } catch (error) {
       log.error({}, 'Failed to fetch members', error);
     } finally {
@@ -87,23 +86,17 @@ export default function AdminTeamsPage() {
     if (!newName.trim()) return;
     setSaving(true);
     try {
-      const res = await fetch('/api/maintenance/teams', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: newName.trim(),
-          trade: newTrade,
-          contactName: newContact.trim() || null,
-        }),
+      await apiPost('/api/maintenance/teams', {
+        name: newName.trim(),
+        trade: newTrade,
+        contactName: newContact.trim() || null,
       });
-      if (res.ok) {
-        setShowCreate(false);
-        setNewName('');
-        setNewTrade('GENERAL');
-        setNewContact('');
-        fetchTeams();
-        flash('Team created successfully');
-      }
+      setShowCreate(false);
+      setNewName('');
+      setNewTrade('GENERAL');
+      setNewContact('');
+      fetchTeams();
+      flash('Team created successfully');
     } catch (error) {
       log.error({}, 'Failed to create team', error);
     } finally {
@@ -115,20 +108,14 @@ export default function AdminTeamsPage() {
     if (!editName.trim()) return;
     setSaving(true);
     try {
-      const res = await fetch(`/api/maintenance/teams/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: editName.trim(),
-          trade: editTrade,
-          contactName: editContact.trim() || null,
-        }),
+      await apiPatch(`/api/maintenance/teams/${id}`, {
+        name: editName.trim(),
+        trade: editTrade,
+        contactName: editContact.trim() || null,
       });
-      if (res.ok) {
-        setEditingId(null);
-        fetchTeams();
-        flash('Team updated successfully');
-      }
+      setEditingId(null);
+      fetchTeams();
+      flash('Team updated successfully');
     } catch (error) {
       log.error({}, 'Failed to update team', error);
     } finally {
@@ -139,15 +126,9 @@ export default function AdminTeamsPage() {
   const handleToggleActive = async (id: string, currentActive: boolean) => {
     setSaving(true);
     try {
-      const res = await fetch(`/api/maintenance/teams/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isActive: !currentActive }),
-      });
-      if (res.ok) {
-        fetchTeams();
-        flash(currentActive ? 'Team deactivated' : 'Team activated');
-      }
+      await apiPatch(`/api/maintenance/teams/${id}`, { isActive: !currentActive });
+      fetchTeams();
+      flash(currentActive ? 'Team deactivated' : 'Team activated');
     } catch (error) {
       log.error({}, 'Failed to toggle team status', error);
     } finally {
@@ -159,11 +140,9 @@ export default function AdminTeamsPage() {
     if (!confirm('Deactivate this team? It will no longer appear in assignment lists.')) return;
     setSaving(true);
     try {
-      const res = await fetch(`/api/maintenance/teams/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        fetchTeams();
-        flash('Team deactivated');
-      }
+      await apiDelete(`/api/maintenance/teams/${id}`);
+      fetchTeams();
+      flash('Team deactivated');
     } catch (error) {
       log.error({}, 'Failed to delete team', error);
     } finally {
@@ -175,21 +154,15 @@ export default function AdminTeamsPage() {
     if (!newMemberUserId.trim()) return;
     setSaving(true);
     try {
-      const res = await fetch(`/api/maintenance/teams/${teamId}/members`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: newMemberUserId.trim() }),
+      await apiPost(`/api/maintenance/teams/${teamId}/members`, {
+        userId: newMemberUserId.trim(),
       });
-      if (res.ok) {
-        setNewMemberUserId('');
-        fetchMembers(teamId);
-        flash('Member added');
-      } else {
-        const body = await res.json();
-        flash(body.message || 'Failed to add member');
-      }
+      setNewMemberUserId('');
+      fetchMembers(teamId);
+      flash('Member added');
     } catch (error) {
       log.error({}, 'Failed to add member', error);
+      flash(error instanceof Error ? error.message : 'Failed to add member');
     } finally {
       setSaving(false);
     }
@@ -199,13 +172,9 @@ export default function AdminTeamsPage() {
     if (!confirm('Remove this member from the team?')) return;
     setSaving(true);
     try {
-      const res = await fetch(`/api/maintenance/teams/${teamId}/members?userId=${userId}`, {
-        method: 'DELETE',
-      });
-      if (res.ok) {
-        fetchMembers(teamId);
-        flash('Member removed');
-      }
+      await apiDelete(`/api/maintenance/teams/${teamId}/members?userId=${userId}`);
+      fetchMembers(teamId);
+      flash('Member removed');
     } catch (error) {
       log.error({}, 'Failed to remove member', error);
     } finally {

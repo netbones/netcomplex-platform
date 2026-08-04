@@ -31,6 +31,7 @@ export interface ServiceListing {
     avatar?: string;
   };
   isPublished: boolean;
+  slug?: string;
   createdAt: string;
 }
 

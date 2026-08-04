@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { authClient } from '@api/client';
+import { apiGet, apiPost } from '@/shared/api/http-client';
 
 interface InvitationData {
   id: string;
@@ -38,17 +39,14 @@ export default function InvitePage() {
 
     const validateInvitation = async () => {
       try {
-        const response = await fetch(`/api/invitations/validate?token=${token}`);
-        const data = await response.json();
-
-        if (!response.ok) {
-          setError(data.error || 'Invalid invitation');
-          return;
-        }
-
+        const { data } = await apiGet<{
+          invitation: InvitationData;
+          existingUser: { id: string; name: string; emailVerified: boolean } | null;
+        }>(`/api/invitations/validate?token=${token}`);
         setInvitation(data.invitation);
-      } catch {
-        setError('Failed to load invitation. Please try again.');
+      } catch (err) {
+        const message = err instanceof Error ? err.message : '';
+        setError(message || 'Failed to load invitation. Please try again.');
       } finally {
         setLoading(false);
       }
@@ -62,18 +60,10 @@ export default function InvitePage() {
     setAccepting(true);
 
     try {
-      const response = await fetch('/api/invitations/accept', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, userId: session?.user?.id }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.error || 'Failed to accept invitation');
-        return;
-      }
+      const { data } = await apiPost<{
+        invitation: InvitationData;
+        requiresSignup?: boolean;
+      }>('/api/invitations/accept', { token, userId: session?.user?.id });
 
       if (data.requiresSignup) {
         // User doesn't exist — redirect to signup with token

@@ -6,6 +6,7 @@ import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import Image from 'next/image';
 import { usePageLoading } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
+import { apiGet } from '@/shared/api/http-client';
 import { trpc } from '@api/client';
 
 import { CheckCircle, Handshake, Leaf, PawPrint, Sprout, User, UserPlus } from 'lucide-react';
@@ -62,10 +63,9 @@ export default function ConservationPage() {
     // Fetch conservation mode from flags
     async function fetchMode() {
       try {
-        const res = await fetch('/api/flags?flag=conservation');
-        const data = await res.json();
+        const { data } = await apiGet<{ value?: string }>('/api/flags?flag=conservation');
         if (data.value && ['default', 'managed', 'external'].includes(data.value)) {
-          setConservationMode(data.value);
+          setConservationMode(data.value as 'default' | 'managed' | 'external');
         }
       } catch (error) {
         log.error({}, 'Failed to fetch conservation mode', error);
@@ -78,8 +78,9 @@ export default function ConservationPage() {
     // Fetch external URL
     async function fetchExternalUrl() {
       try {
-        const res = await fetch('/api/flags?flag=conservationExternalUrl');
-        const data = await res.json();
+        const { data } = await apiGet<{ value?: string }>(
+          '/api/flags?flag=conservationExternalUrl'
+        );
         if (data.value) {
           setExternalUrl(data.value);
         }
@@ -91,8 +92,7 @@ export default function ConservationPage() {
     // Fetch managed URL
     async function fetchManagedUrl() {
       try {
-        const res = await fetch('/api/flags?flag=conservationManagedUrl');
-        const data = await res.json();
+        const { data } = await apiGet<{ value?: string }>('/api/flags?flag=conservationManagedUrl');
         if (data.value) {
           setManagedUrl(data.value);
         }

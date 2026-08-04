@@ -7,6 +7,7 @@ import { MaintenanceForm } from '@features/maintenance';
 import { MaintenanceRequest, StatusBadge, PriorityBadge } from '@entities/maintenance';
 import { usePageLoading } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
+import { apiGet, apiPost } from '@/shared/api/http-client';
 import {
   ChevronDown,
   ChevronUp,
@@ -174,10 +175,8 @@ export function MaintenancePage() {
       // widget on /dashboard/services/maintenance uses ?scope=mine for the
       // user-facing per-resident view, and /dashboard/admin/requests uses
       // the default admin-scoped view-all.
-      const res = await fetch('/api/maintenance?scope=community');
-      const json = await res.json();
-      // API returns { success, data } envelope — unwrap
-      setRequests(Array.isArray(json.data) ? json.data : Array.isArray(json) ? json : []);
+      const { data } = await apiGet<MaintenanceRequest[]>(`/api/maintenance?scope=community`);
+      setRequests(data ?? []);
     } catch (error) {
       log.error({}, 'Failed to fetch requests', error);
     } finally {
@@ -241,17 +240,7 @@ export function MaintenancePage() {
                     // handleSubmit only fetches when no onSubmit is provided,
                     // so the page must do it. On success, close the form and
                     // refresh the list.
-                    const res = await fetch('/api/maintenance', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify(data),
-                    });
-                    if (!res.ok) {
-                      const body = await res.json().catch(() => ({}));
-                      const message =
-                        body?.message ?? body?.error ?? 'Failed to submit maintenance request';
-                      throw new Error(message);
-                    }
+                    await apiPost('/api/maintenance', data);
                     setShowForm(false);
                     fetchRequests();
                   }}

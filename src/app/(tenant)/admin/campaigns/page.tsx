@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
+import { apiGet, apiPost, apiPatch, apiDelete } from '@/shared/api/http-client';
 
 const log = createComponentLogger('admin-campaigns');
 
@@ -47,11 +48,8 @@ export default function AdminCampaignsPage() {
 
   const loadItems = useCallback(async () => {
     try {
-      const res = await fetch('/api/content');
-      const data = await res.json();
-      const campaigns = (data.data ?? data ?? []).filter(
-        (c: CampaignItem) => c.category === 'CAMPAIGN'
-      );
+      const { data } = await apiGet<CampaignItem[]>(`/api/content`);
+      const campaigns = (data ?? []).filter((c: CampaignItem) => c.category === 'CAMPAIGN');
       setItems(campaigns);
     } catch (err) {
       log.error({}, 'Failed to load campaigns', err);
@@ -101,25 +99,19 @@ export default function AdminCampaignsPage() {
       };
 
       const url = editingId ? `/api/content/${editingId}` : '/api/content';
-      const method = editingId ? 'PATCH' : 'POST';
 
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editingId ? { ...payload, id: editingId } : payload),
-      });
-
-      if (res.ok) {
-        setShowForm(false);
-        setEditingId(null);
-        loadItems();
+      if (editingId) {
+        await apiPatch(url, { ...payload, id: editingId });
       } else {
-        const body = await res.json();
-        setError(body?.message ?? body?.error ?? 'Failed to save');
+        await apiPost(url, payload);
       }
+
+      setShowForm(false);
+      setEditingId(null);
+      loadItems();
     } catch (err) {
       log.error({}, 'Failed to save campaign', err);
-      setError('Failed to save campaign');
+      setError(err instanceof Error ? err.message : 'Failed to save campaign');
     } finally {
       setSaving(false);
     }
@@ -128,9 +120,8 @@ export default function AdminCampaignsPage() {
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this campaign?')) return;
     try {
-      const res = await fetch(`/api/content/${id}`, { method: 'DELETE' });
-      if (res.ok) loadItems();
-      else setError('Failed to delete');
+      await apiDelete(`/api/content/${id}`);
+      loadItems();
     } catch {
       setError('Failed to delete');
     }
@@ -138,11 +129,7 @@ export default function AdminCampaignsPage() {
 
   const handleToggle = async (id: string, published: boolean) => {
     try {
-      await fetch(`/api/content/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, published: !published }),
-      });
+      await apiPatch(`/api/content/${id}`, { id, published: !published });
       loadItems();
     } catch {
       setError('Failed to toggle');

@@ -9,6 +9,7 @@ import { CommentThread } from '@features/comments';
 import { createComponentLogger } from '@shared/lib';
 import Image from 'next/image';
 import { usePageLoading } from '@shared/ui';
+import { apiGet } from '@/shared/api/http-client';
 
 import { AlertCircle, ArrowLeft, User } from 'lucide-react';
 const log = createComponentLogger('stream-post-page');
@@ -88,24 +89,21 @@ export default function StreamPostPage() {
 
     const fetchPost = async () => {
       try {
-        const [postRes, likeRes] = await Promise.all([
-          fetch(`/api/content/${contentId}?published=true`),
-          fetch(`/api/content/${contentId}/like`),
+        const [postData, likeData] = await Promise.all([
+          apiGet<ContentItem>(`/api/content/${contentId}?published=true`),
+          apiGet<{ liked: boolean; likes: number }>(`/api/content/${contentId}/like`),
         ]);
 
-        if (postRes.ok) {
-          const body = await postRes.json();
-          const data = body?.data ?? body;
-          setPost(data);
+        const post = postData.data;
+        if (post) {
+          setPost(post);
         } else {
           setError('Post not found');
         }
 
-        if (likeRes.ok) {
-          const body = await likeRes.json();
-          const data = body?.data ?? body;
-          setLiked(data.liked);
-          setLikeCount(data.likes);
+        if (likeData?.data) {
+          setLiked(likeData.data.liked);
+          setLikeCount(likeData.data.likes);
         }
       } catch (err) {
         log.error({}, 'Failed to fetch post', err);

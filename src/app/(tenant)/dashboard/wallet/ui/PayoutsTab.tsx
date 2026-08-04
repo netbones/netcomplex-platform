@@ -6,6 +6,7 @@ import { LoadingSkeleton } from '@shared/ui';
 import { CreditCard, Info } from 'lucide-react';
 import type { PayoutRequestItem } from '@entities/dwallet';
 import { formatZAR, formatDate, getPayoutStatusBadge } from '../model/helpers';
+import { apiGet } from '@/shared/api/http-client';
 
 export function PayoutsTab({
   wallet,
@@ -28,10 +29,12 @@ export function PayoutsTab({
 
   const fetchPayouts = useCallback(async () => {
     try {
-      const res = await fetch('/api/v1/tenant/dwallet/payout');
-      if (!res.ok) throw new Error('Failed to load payouts');
-      const data = await res.json();
-      setPayouts(Array.isArray(data) ? data : (data.data ?? []));
+      const { data } = await apiGet<PayoutRequestItem[] | { data?: PayoutRequestItem[] }>(
+        '/api/v1/tenant/dwallet/payout'
+      );
+      setPayouts(
+        Array.isArray(data) ? data : ((data as { data?: PayoutRequestItem[] })?.data ?? [])
+      );
     } catch {
       // Silently fail for payout history
     } finally {

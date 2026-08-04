@@ -8,6 +8,7 @@ import { AchievementsWidget } from '@widgets/dashboard';
 import { PromoBanner, HeaderImagePicker } from '@shared/ui';
 import { useRouter } from 'next/navigation';
 import { authClient } from '@api/client';
+import { apiGet, apiPatch } from '@/shared/api/http-client';
 
 export default function DashboardHome() {
   const router = useRouter();
@@ -25,10 +26,9 @@ export default function DashboardHome() {
   useEffect(() => {
     if (!userId) return;
     setProfileLoading(true);
-    fetch(`/api/users/${userId}`)
-      .then(r => r.json())
-      .then(d => {
-        const profile = d?.data?.profileData || d?.profileData;
+    apiGet<{ profileData?: { headerImage?: string | null } }>(`/api/users/${userId}`)
+      .then(({ data }) => {
+        const profile = data?.profileData;
         setHeaderImage(profile?.headerImage || null);
       })
       .catch(() => {})
@@ -38,24 +38,15 @@ export default function DashboardHome() {
   const handleHeaderSelect = async (url: string) => {
     if (!userId) return;
     setHeaderImage(url);
-    const res = await fetch(`/api/users/${userId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        profileData: { headerImage: url },
-      }),
+    await apiPatch(`/api/users/${userId}`, {
+      profileData: { headerImage: url },
     });
-    if (!res.ok) throw new Error('Failed to save header image');
   };
 
   const handleDismiss = async () => {
     if (!userId) return;
-    await fetch(`/api/users/${userId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        profileData: { featuredContentPromoDismissed: true },
-      }),
+    await apiPatch(`/api/users/${userId}`, {
+      profileData: { featuredContentPromoDismissed: true },
     });
   };
 

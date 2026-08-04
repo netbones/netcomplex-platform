@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Breadcrumbs } from '@shared/ui';
+import { apiGet, apiPost } from '@/shared/api/http-client';
 
 export default function GroupCategoriesPage() {
   const [categories, setCategories] = useState<string[]>([]);
@@ -12,9 +13,8 @@ export default function GroupCategoriesPage() {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    fetch('/api/settings?key=interest_categories')
-      .then(res => res.json())
-      .then(data => {
+    apiGet<{ value?: string }>('/api/settings?key=interest_categories')
+      .then(({ data }) => {
         if (data.value) {
           setCategories(JSON.parse(data.value));
         }
@@ -26,18 +26,12 @@ export default function GroupCategoriesPage() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const res = await fetch('/api/settings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          key: 'interest_categories',
-          value: JSON.stringify(categories),
-        }),
+      await apiPost('/api/settings', {
+        key: 'interest_categories',
+        value: JSON.stringify(categories),
       });
-      if (res.ok) {
-        setMessage('Categories saved successfully!');
-        setTimeout(() => setMessage(''), 3000);
-      }
+      setMessage('Categories saved successfully!');
+      setTimeout(() => setMessage(''), 3000);
     } catch {
       setMessage('Failed to save');
     } finally {

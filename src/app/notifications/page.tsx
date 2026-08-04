@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { usePageLoading } from '@shared/ui';
+import { apiGet, apiPatch } from '@/shared/api/http-client';
 
 interface Notification {
   id: string;
@@ -32,30 +33,21 @@ export default function NotificationsPage() {
 
   useEffect(() => {
     const endpoint = filter === 'unread' ? '/api/notifications?unread=true' : '/api/notifications';
-    fetch(endpoint)
-      .then(res => res.json())
-      .then(data => {
-        setNotifications(data);
+    apiGet<Notification[]>(endpoint)
+      .then(({ data }) => {
+        setNotifications(data ?? []);
         setLoading(false);
       })
       .catch(() => setLoading(false));
   }, [filter]);
 
   const markAllRead = async () => {
-    await fetch('/api/notifications', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ all: true }),
-    });
+    await apiPatch('/api/notifications', { all: true });
     setNotifications(notifications.map(n => ({ ...n, read: true })));
   };
 
   const markRead = async (id: string) => {
-    await fetch('/api/notifications', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id }),
-    });
+    await apiPatch('/api/notifications', { id });
     setNotifications(notifications.map(n => (n.id === id ? { ...n, read: true } : n)));
   };
 

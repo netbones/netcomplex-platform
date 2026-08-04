@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { apiPost } from '@/shared/api/http-client';
 
 export default function PlatformLoginPage() {
   const router = useRouter();
@@ -20,18 +21,7 @@ export default function PlatformLoginPage() {
     setError('');
 
     try {
-      const res = await fetch('/api/auth/sign-in/email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Sign in failed');
-      }
-
+      await apiPost('/api/auth/sign-in/email', formData);
       router.push('/admin/platform');
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Sign in failed';

@@ -9,7 +9,7 @@ import { SERVICE_MARKETPLACE_CATEGORIES } from '@entities/service';
 import Image from 'next/image';
 import { createComponentLogger } from '@shared/lib';
 import { Plus, MessageSquare, Briefcase, Clock, ExternalLink } from 'lucide-react';
-import { apiGet, apiPost } from '@/shared/api/http-client';
+import { apiGet, apiPost, apiPut } from '@/shared/api/http-client';
 
 const log = createComponentLogger('MyServicesManager');
 
@@ -187,16 +187,9 @@ export function MyServicesManager() {
 
       const isEdit = !!editingId;
       if (isEdit) {
-        const res = await fetch(`/api/community-services/listings/${editingId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-        });
-
-        if (res.ok) {
-          resetForm();
-          fetchData();
-        }
+        await apiPut(`/api/community-services/listings/${editingId}`, body);
+        resetForm();
+        fetchData();
       } else {
         await apiPost('/api/community-services/listings', body);
         resetForm();
@@ -252,10 +245,8 @@ export function MyServicesManager() {
       )
     );
     try {
-      await fetch(`/api/community-services/listings/${listingId}/publish`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ publish }),
+      await apiPost(`/api/community-services/listings/${listingId}/publish`, {
+        publish,
       });
       fetchData();
     } catch (err) {
@@ -756,13 +747,9 @@ function PersonalInquiriesTab({
 
   const handleChat = async (inquiry: PersonalInquiry) => {
     try {
-      const res = await fetch('/api/conversations/find', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ participantIds: [currentUserId, inquiry.providerId] }),
+      const { data } = await apiPost<{ conversation: { id: string } }>('/api/conversations/find', {
+        participantIds: [currentUserId, inquiry.providerId],
       });
-      const body = await res.json();
-      const data = body?.data ?? body;
       if (data?.conversation?.id) {
         router.push(`/messages?conversationId=${data.conversation.id}`);
       }

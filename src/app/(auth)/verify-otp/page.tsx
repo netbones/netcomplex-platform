@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { authClient } from '@api/client';
+import { apiPost, ApiClientError } from '@/shared/api/http-client';
 
 const OTP_EXPIRY_SECONDS = 300; // 5 minutes
 
@@ -61,20 +62,18 @@ function VerifyOtpForm() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/auth/email-otp/reset-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, otp, password: newPassword }),
+      await apiPost('/api/auth/email-otp/reset-password', {
+        email,
+        otp,
+        password: newPassword,
       });
-
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        setError(data.error?.message || data.message || 'Invalid or expired code');
+      router.push('/sign-in?reset=success');
+    } catch (err) {
+      if (err instanceof ApiClientError) {
+        setError(err.message || 'Invalid or expired code');
       } else {
-        router.push('/sign-in?reset=success');
+        setError('An unexpected error occurred');
       }
-    } catch {
-      setError('An unexpected error occurred');
     } finally {
       setLoading(false);
     }

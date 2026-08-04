@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { authClient } from '@api/client';
+import { apiGet } from '@/shared/api/http-client';
 import Image from 'next/image';
 import { usePageLoading } from '@shared/ui';
 
@@ -212,10 +213,9 @@ function InterestContent() {
   useEffect(() => {
     if (viewMode === 'matching' && session) {
       setLoading(true);
-      fetch(`/api/users?interest=${groupId}`)
-        .then(res => res.json())
-        .then(data => {
-          const unwrapped = data?.data ?? data;
+      apiGet<{ users?: Resident[] }>(`/api/users?interest=${groupId}`)
+        .then(({ data }) => {
+          const unwrapped = data;
           setResidents(unwrapped?.users ?? (Array.isArray(unwrapped) ? unwrapped : []));
           setLoading(false);
         })

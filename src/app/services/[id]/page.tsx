@@ -14,6 +14,7 @@ import { RelatedServices } from '@widgets/service';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { usePageLoading } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
+import { apiGet, apiPost } from '@/shared/api/http-client';
 
 import { Check, CheckCircle, Wrench } from 'lucide-react';
 const log = createComponentLogger('service-detail-page');
@@ -49,13 +50,26 @@ export default function ServiceDetailPage() {
   useEffect(() => {
     async function fetchService() {
       try {
-        let res = await fetch(`/api/community-services/listings?id=${serviceId}`);
-        if (!res.ok && !/^[0-9a-f-]{36}$/.test(serviceId)) {
-          res = await fetch(`/api/community-services/listings?slug=${serviceId}`);
+        let listing: ServiceListing | null = null;
+        try {
+          const { data } = await apiGet<{ listing: ServiceListing }>(
+            `/api/community-services/listings?id=${serviceId}`
+          );
+          listing = data.listing;
+        } catch (err) {
+          if (!/^[0-9a-f-]{36}$/.test(serviceId)) {
+            try {
+              const { data } = await apiGet<{ listing: ServiceListing }>(
+                `/api/community-services/listings?slug=${serviceId}`
+              );
+              listing = data.listing;
+            } catch {
+              throw err;
+            }
+          } else {
+            throw err;
+          }
         }
-        if (!res.ok) throw new Error('Service not found');
-        const body = await res.json();
-        const listing = body?.data?.listing ?? body?.listing;
         setService(listing);
         // Redirect to slug-based URL if available and not already on it
         if (listing?.slug && serviceId !== listing.slug) {
@@ -76,25 +90,20 @@ export default function ServiceDetailPage() {
 
     setSubmitting(true);
     try {
-      const res = await fetch('/api/community-services/inquiries', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const { data } = await apiPost<{ inquiry?: { conversationId?: string } }>(
+        '/api/community-services/inquiries',
+        {
           listingId: service?.id ?? serviceId,
           description: inquiryForm.message,
           contactMethod:
             inquiryForm.preferredContact === 'platform_message'
               ? 'PLATFORM_MESSAGE'
               : inquiryForm.preferredContact.toUpperCase(),
-        }),
-      });
-      if (res.ok) {
-        const body = await res.json();
-        const data = body?.data ?? body;
-        setSubmitted(true);
-        if (inquiryForm.preferredContact === 'platform_message' && data?.inquiry?.conversationId) {
-          window.location.href = `/messages?conversationId=${data.inquiry.conversationId}`;
         }
+      );
+      setSubmitted(true);
+      if (inquiryForm.preferredContact === 'platform_message' && data?.inquiry?.conversationId) {
+        window.location.href = `/messages?conversationId=${data.inquiry.conversationId}`;
       }
     } catch (err) {
       log.error({}, 'Failed to send inquiry', err);

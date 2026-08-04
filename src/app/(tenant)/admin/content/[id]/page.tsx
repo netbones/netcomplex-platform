@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { ContentForm } from '@widgets/admin';
 import { createComponentLogger } from '@shared/lib';
+import { apiGet } from '@/shared/api/http-client';
 
 const log = createComponentLogger('edit-content-page');
 
@@ -33,14 +34,13 @@ export default function EditContentPage() {
   useEffect(() => {
     if (!id) return;
 
-    fetch(`/api/content/${id}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.error) {
-          log.error({}, 'Failed to fetch content', data.error);
-          return;
-        }
+    apiGet<Content>(`/api/content/${id}`)
+      .then(({ data }) => {
         setContent(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        log.error({}, 'Failed to fetch content', err);
         setLoading(false);
       });
   }, [id]);

@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { apiPatch } from '@/shared/api/http-client';
 
 interface TenantBrandingFormProps {
   tenant: {
@@ -71,11 +72,7 @@ function BrandingForm({ tenant }: TenantBrandingFormProps) {
     };
 
     startTransition(async () => {
-      await fetch(`/api/tenants/${tenant.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
+      await apiPatch(`/api/tenants/${tenant.id}`, data);
       // Optionally redirect or show success
     });
   }

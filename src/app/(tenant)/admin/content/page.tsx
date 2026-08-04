@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Breadcrumbs } from '@shared/ui';
 import { useLanguage } from '@shared/lib/hooks/useSafeTranslation';
+import { apiGet, apiDelete, apiPatch } from '@/shared/api/http-client';
 
 import { PenSquare, Plus, Trash2 } from 'lucide-react';
 interface Content {
@@ -52,12 +53,10 @@ export default function ContentListPage() {
   const { language } = useLanguage();
 
   useEffect(() => {
-    fetch(`/api/content?locale=${language}`)
-      .then(res => res.json())
-      .then(data => {
-        setContent(data.data ?? []);
-        setLoading(false);
-      });
+    apiGet<Content[]>(`/api/content?locale=${language}`).then(({ data }) => {
+      setContent(data ?? []);
+      setLoading(false);
+    });
   }, [language]);
 
   const toggleExpand = (id: string) => {
@@ -66,25 +65,17 @@ export default function ContentListPage() {
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this content?')) return;
-    const res = await fetch(`/api/content/${id}`, { method: 'DELETE' });
-    if (res.ok) {
-      setContent(content.filter(c => c.id !== id));
-    }
+    await apiDelete(`/api/content/${id}`);
+    setContent(content.filter(c => c.id !== id));
   };
 
   const handleModerate = async (id: string, moderationStatus: string) => {
-    const res = await fetch(`/api/content/${id}/moderate`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ moderationStatus }),
-    });
-    if (res.ok) {
-      setContent(
-        content.map(c =>
-          c.id === id ? { ...c, moderationStatus, published: moderationStatus === 'PUBLISHED' } : c
-        )
-      );
-    }
+    await apiPatch(`/api/content/${id}/moderate`, { moderationStatus });
+    setContent(
+      content.map(c =>
+        c.id === id ? { ...c, moderationStatus, published: moderationStatus === 'PUBLISHED' } : c
+      )
+    );
   };
 
   const isCreativeCommons = (license: string) => license.startsWith('CC');

@@ -6,6 +6,7 @@ import { createComponentLogger } from '@shared/lib';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { Upload, Trash2, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
+import { apiGet, apiDelete } from '@/shared/api/http-client';
 
 const log = createComponentLogger('admin-gallery');
 
@@ -26,9 +27,9 @@ export default function AdminGalleryPage() {
 
   const fetchImages = async () => {
     try {
-      const res = await fetch('/api/admin/media');
-      const data = await res.json();
-      setImages(data.data?.images || data.images || []);
+      const { data } = await apiGet<{ images?: MediaItem[] } | MediaItem[]>('/api/admin/media');
+      const unwrapped = Array.isArray(data) ? data : (data?.images ?? []);
+      setImages(unwrapped);
     } catch (err) {
       log.error({}, 'Failed to fetch gallery images', err);
       toast.error('Failed to load gallery images');
@@ -76,18 +77,11 @@ export default function AdminGalleryPage() {
     if (!confirm('Delete this image from the system gallery?')) return;
 
     try {
-      const res = await fetch(`/api/admin/media?key=${encodeURIComponent(key)}`, {
-        method: 'DELETE',
-      });
-      if (res.ok) {
-        setImages(prev => prev.filter(img => img.key !== key));
-        toast.success('Image deleted');
-      } else {
-        const error = await res.json();
-        toast.error(error.error || 'Failed to delete');
-      }
-    } catch {
-      toast.error('Failed to delete image');
+      await apiDelete(`/api/admin/media?key=${encodeURIComponent(key)}`);
+      setImages(prev => prev.filter(img => img.key !== key));
+      toast.success('Image deleted');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to delete image');
     }
   };
 

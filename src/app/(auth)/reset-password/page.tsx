@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { apiPost, ApiClientError } from '@/shared/api/http-client';
 
 export default function ResetPasswordPage() {
   const searchParams = useSearchParams();
@@ -40,25 +41,14 @@ export default function ResetPasswordPage() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/auth/reset-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, newPassword: password }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setSuccess(true);
-      } else {
-        const errMsg =
-          typeof data.error === 'object' && data.error !== null
-            ? (data.error as { message?: string }).message || 'Failed to reset password'
-            : data.error || 'Failed to reset password';
-        setError(errMsg);
-      }
-    } catch {
-      setError('An unexpected error occurred');
+      await apiPost('/api/auth/reset-password', { token, newPassword: password });
+      setSuccess(true);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message || 'Failed to reset password'
+          : 'An unexpected error occurred'
+      );
     } finally {
       setLoading(false);
     }

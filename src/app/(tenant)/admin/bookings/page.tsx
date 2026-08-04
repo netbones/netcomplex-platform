@@ -5,6 +5,7 @@ import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { useSafeTranslation } from '@shared/lib';
 import Image from 'next/image';
 import { createComponentLogger } from '@shared/lib';
+import { apiGet, apiPut } from '@/shared/api/http-client';
 import { Plus, Trash2 } from 'lucide-react';
 import { PRESET_FACILITIES } from '@entities/booking';
 import type { TenantFacility } from '@entities/booking';
@@ -22,11 +23,9 @@ export default function AdminBookingsPage() {
   const [customLabel, setCustomLabel] = useState('');
 
   useEffect(() => {
-    fetch('/api/admin/bookings')
-      .then(r => r.json())
-      .then(body => {
-        const data = body?.data ?? [];
-        setFacilities(data);
+    apiGet<TenantFacility[]>('/api/admin/bookings')
+      .then(({ data }) => {
+        setFacilities(data ?? []);
       })
       .catch(err => {
         log.error({}, 'Failed to load booking facilities', err);
@@ -68,20 +67,11 @@ export default function AdminBookingsPage() {
     setSaved(false);
     setError(null);
     try {
-      const res = await fetch('/api/admin/bookings', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(facilities),
-      });
-      if (res.ok) {
-        setSaved(true);
-        setTimeout(() => setSaved(false), 2000);
-      } else {
-        const body = await res.json().catch(() => ({}));
-        setError(body?.error || 'Failed to save');
-      }
-    } catch {
-      setError('Network error');
+      await apiPut('/api/admin/bookings', facilities);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save');
     } finally {
       setSaving(false);
     }

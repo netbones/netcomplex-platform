@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Calendar, MapPin, User, ArrowLeft } from 'lucide-react';
 import Image from 'next/image';
 import { LoadingSpinner, Breadcrumbs } from '@shared/ui';
+import { apiGet } from '@/shared/api/http-client';
 import { EventAttendance } from '@features/events';
 
 interface EventDetail {
@@ -47,10 +48,7 @@ export default function EventDetailPage({ params }: EventPageProps) {
   useEffect(() => {
     async function fetchEvent() {
       try {
-        const res = await fetch(`/api/events/${id}`);
-        if (!res.ok) throw new Error('Failed');
-        const body = await res.json();
-        const data = body.success ? body.data : body;
+        const { data } = await apiGet<EventDetail>(`/api/events/${id}`);
         setEvent(data);
       } catch {
         setError(true);

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { FileText, Loader2, Send, CheckCircle2, AlertCircle, Star, ArrowLeft } from 'lucide-react';
 import type { Survey, SurveyQuestion, SurveySection } from '@entities/survey';
 import { logError } from '@shared/lib';
+import { apiGet, apiPost, ApiClientError } from '@/shared/api/http-client';
 
 interface SurveyDetail {
   survey: Survey;
@@ -267,17 +268,11 @@ export default function SurveyResponsePage({ params }: { params: Promise<{ id: s
 
     async function fetchSurvey() {
       try {
-        const res = await fetch(`/api/surveys/${id}`);
-        if (!res.ok) {
-          if (res.status === 404) throw new Error('Survey not found');
-          throw new Error(`Failed: ${res.status}`);
-        }
-        const body = await res.json();
-        const detail = body?.data ?? body;
+        const { data } = await apiGet<SurveyDetail>(`/api/surveys/${id}`);
         if (!cancelled) {
-          setData(detail);
+          setData(data);
           // Check if survey is active
-          if (detail.survey?.status !== 'ACTIVE') {
+          if (data.survey?.status !== 'ACTIVE') {
             setError('This survey is no longer accepting responses.');
           }
         }
@@ -288,7 +283,11 @@ export default function SurveyResponsePage({ params }: { params: Promise<{ id: s
           err
         );
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'Failed to load survey');
+          if (err instanceof ApiClientError && err.statusCode === 404) {
+            setError('Survey not found');
+          } else {
+            setError(err instanceof Error ? err.message : 'Failed to load survey');
+          }
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -325,23 +324,13 @@ export default function SurveyResponsePage({ params }: { params: Promise<{ id: s
     setSubmitError(null);
 
     try {
-      const res = await fetch(`/api/surveys/${id}/responses`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answers }),
-      });
-
-      if (!res.ok) {
-        const errBody = await res.json().catch(() => ({}));
-        if (res.status === 409) {
-          setSubmitError('You have already responded to this survey.');
-          return;
-        }
-        throw new Error(errBody?.error || errBody?.message || `Failed: ${res.status}`);
-      }
-
+      await apiPost(`/api/surveys/${id}/responses`, { answers });
       setSubmitted(true);
     } catch (err) {
+      if (err instanceof ApiClientError && err.statusCode === 409) {
+        setSubmitError('You have already responded to this survey.');
+        return;
+      }
       logError(
         { component: 'SurveyResponsePage', operation: 'submitResponse' },
         'Failed to submit response',

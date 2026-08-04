@@ -6,6 +6,7 @@ import { useParams } from 'next/navigation';
 import { Breadcrumbs } from '@shared/ui';
 import { EventForm } from '@widgets/admin';
 import { createComponentLogger } from '@shared/lib';
+import { apiGet } from '@/shared/api/http-client';
 
 import { ArrowLeft } from 'lucide-react';
 const log = createComponentLogger('edit-event-page');
@@ -30,13 +31,8 @@ export default function EditEventPage() {
   useEffect(() => {
     if (!id) return;
 
-    fetch(`/api/events/${id}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.error) {
-          log.error({}, 'Failed to fetch event', data.error);
-          return;
-        }
+    apiGet<Event>(`/api/events/${id}`)
+      .then(({ data }) => {
         setEvent(data);
         setLoading(false);
       })

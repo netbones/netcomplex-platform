@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { BillingOverview, PlanSelector } from '@features/billing';
 import { LoadingSkeleton } from '@shared/ui';
 import type { TenantBillingSnapshot } from '@features/billing';
+import { apiGet } from '@/shared/api/http-client';
 
 export default function BillingPage() {
   const {
@@ -13,12 +14,8 @@ export default function BillingPage() {
   } = useQuery<TenantBillingSnapshot>({
     queryKey: ['tenant-billing-snapshot'],
     queryFn: async () => {
-      const response = await fetch('/api/tenant/billing/snapshot');
-      if (!response.ok) {
-        throw new Error('Failed to load billing information');
-      }
-      const body = await response.json();
-      return body.data ?? body;
+      const { data } = await apiGet<TenantBillingSnapshot>('/api/tenant/billing/snapshot');
+      return data;
     },
     staleTime: 30_000,
   });

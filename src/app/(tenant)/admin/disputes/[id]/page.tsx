@@ -14,6 +14,7 @@ import { AIFrivolityCheckPanel } from '@entities/dispute';
 import { CoolingOffTimer } from '@entities/dispute';
 import { EvidencePreviewGrid } from '@entities/dispute';
 import { DisputeActionsBar } from '@entities/dispute';
+import { apiGet, ApiClientError } from '@/shared/api/http-client';
 
 interface DetailState {
   dispute: DisputeCaseDTO | null;
@@ -51,9 +52,12 @@ export default function AdminDisputeDetailPage() {
   useEffect(() => {
     async function fetchDispute() {
       try {
-        const res = await fetch(`/api/disputes/${id}`);
-        if (!res.ok) {
-          if (res.status === 403) {
+        let dispute: DisputeCaseDTO;
+        try {
+          const { data } = await apiGet<DisputeCaseDTO>(`/api/disputes/${id}`);
+          dispute = data;
+        } catch (err) {
+          if (err instanceof ApiClientError && err.statusCode === 403) {
             setState(prev => ({
               ...prev,
               loading: false,
@@ -61,7 +65,7 @@ export default function AdminDisputeDetailPage() {
             }));
             return;
           }
-          if (res.status === 404) {
+          if (err instanceof ApiClientError && err.statusCode === 404) {
             setState(prev => ({
               ...prev,
               loading: false,
@@ -69,24 +73,22 @@ export default function AdminDisputeDetailPage() {
             }));
             return;
           }
-          throw new Error(`Failed to load dispute: ${res.status}`);
+          throw err;
         }
-        const json = await res.json();
-        const dispute = (json.data ?? json) as DisputeCaseDTO;
 
-        // Extract role info from response metadata or headers
-        setUserRole(json._role ?? 'RESIDENT');
-        setUserId(json._userId ?? '');
-
-        // Fetch events - use dispute events from the response or a separate endpoint
+        // Fetch events (the legacy GET ignores ?include and returns the dispute
+        // body, so events remain empty unless a future version returns them)
         let events: DisputeEventDTO[] = [];
         try {
-          const evRes = await fetch(`/api/disputes/${id}?include=events`);
-          if (evRes.ok) {
-            const evJson = await evRes.json();
-            const data = evJson.data ?? evJson;
-            events = Array.isArray(data.events) ? data.events : Array.isArray(data) ? data : [];
-          }
+          const evData = await apiGet<{ events?: DisputeEventDTO[] } | DisputeEventDTO[]>(
+            `/api/disputes/${id}?include=events`
+          );
+          const ev = evData.data;
+          events = Array.isArray(ev)
+            ? ev
+            : Array.isArray(ev?.events)
+              ? (ev.events as DisputeEventDTO[])
+              : [];
         } catch {
           // events are optional
         }

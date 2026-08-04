@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSession } from '@api/client';
 import { LoadingSkeleton, ErrorBoundary } from '@shared/ui';
+import { apiGet, ApiClientError } from '@/shared/api/http-client';
 import { useDisputeThread } from '@features/dispute';
 import {
   MediationThread,
@@ -44,22 +45,17 @@ export function DisputeDetailPage({ disputeId }: DisputeDetailPageProps) {
 
     async function fetchDispute() {
       try {
-        const res = await fetch(`/api/disputes/${disputeId}`);
+        const { data } = await apiGet<DisputeCaseDTO>(`/api/disputes/${disputeId}`);
         if (!cancelled) {
-          if (!res.ok) {
-            if (res.status === 404) {
-              setFetchError('Dispute not found');
-            } else {
-              setFetchError('Unable to load dispute');
-            }
-          } else {
-            const json = await res.json();
-            setDispute(json.data as DisputeCaseDTO);
-          }
+          setDispute(data);
         }
-      } catch {
+      } catch (err) {
         if (!cancelled) {
-          setFetchError('Network error — please check your connection');
+          if (err instanceof ApiClientError && err.statusCode === 404) {
+            setFetchError('Dispute not found');
+          } else {
+            setFetchError('Unable to load dispute');
+          }
         }
       } finally {
         if (!cancelled) {

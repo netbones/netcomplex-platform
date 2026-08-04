@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { useSafeTranslation } from '@shared/lib';
 import { createComponentLogger } from '@shared/lib';
+import { apiGet, apiPut } from '@/shared/api/http-client';
 import { Loader2, PlusCircle, X } from 'lucide-react';
 import type {
   ServicesPageConfig,
@@ -50,10 +51,8 @@ export default function AdminServicesPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/api/admin/services-config')
-      .then(r => r.json())
-      .then(body => {
-        const data = body?.data ?? body;
+    apiGet<ServicesPageConfig>('/api/admin/services-config')
+      .then(({ data }) => {
         setConfig(data);
       })
       .catch(err => {
@@ -73,20 +72,11 @@ export default function AdminServicesPage() {
     setSaved(false);
     setError(null);
     try {
-      const res = await fetch('/api/admin/services-config', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(config),
-      });
-      if (res.ok) {
-        setSaved(true);
-        setTimeout(() => setSaved(false), 2000);
-      } else {
-        const body = await res.json().catch(() => ({}));
-        setError(body?.error || 'Failed to save');
-      }
-    } catch {
-      setError('Network error');
+      await apiPut('/api/admin/services-config', config);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save');
     } finally {
       setSaving(false);
     }

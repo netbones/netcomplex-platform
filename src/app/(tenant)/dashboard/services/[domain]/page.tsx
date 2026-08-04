@@ -12,6 +12,7 @@ import { SERVICES_DOMAINS, getServicesDomainWidgets } from '@widgets/dashboard';
 import { SERVICES_DOMAIN_DEFINITIONS } from '@widgets/dashboard';
 import { WidgetRenderer } from '@widgets/dashboard';
 import { ErrorBoundary, Breadcrumbs } from '@shared/ui';
+import { apiPost } from '@/shared/api/http-client';
 import { MaintenanceForm } from '@features/maintenance';
 
 interface ServicesDomainPageProps {
@@ -119,17 +120,13 @@ export default function ServicesDomainPage({ params }: ServicesDomainPageProps) 
                   // Perform the actual POST to /api/maintenance, then reload the page
                   // to show the new request in the widget. A full reload is used so the
                   // client-side widget refetches and the form state is cleared.
-                  const res = await fetch('/api/maintenance', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data),
-                  });
-                  if (!res.ok) {
-                    const body = await res.json().catch(() => ({}));
+                  try {
+                    await apiPost('/api/maintenance', data);
+                  } catch (err) {
                     const message =
-                      body?.message ?? body?.error ?? 'Failed to submit maintenance request';
+                      err instanceof Error ? err.message : 'Failed to submit maintenance request';
                     toast.error(message);
-                    throw new Error(message);
+                    throw err;
                   }
                   toast.success('Maintenance request submitted');
                   window.location.href = '/dashboard/services/maintenance';

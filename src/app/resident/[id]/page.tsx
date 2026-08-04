@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import { useSafeTranslation } from '@shared/lib';
 import Link from 'next/link';
 import { authClient } from '@api/client';
+import { apiGet, ApiClientError } from '@/shared/api/http-client';
 import { Breadcrumbs, ErrorBoundary, RichTextRenderer } from '@shared/ui';
 import { ContentEngagementBar } from '@features/content';
 import { CommentThread } from '@features/comments';
@@ -231,25 +232,19 @@ function ProfileContent() {
     }
 
     // First try the legacy API - it always works
-    fetch(`/api/users/${id}`)
-      .then(async res => {
-        if (!res.ok) {
-          if (res.status === 404) {
-            throw new Error('User not found');
-          }
-          throw new Error('Failed to load user');
-        }
-        return res.json();
-      })
-      .then(body => {
-        const data = body?.data ?? body;
+    apiGet<ResidentUser>(`/api/users/${id}`)
+      .then(({ data }) => {
         if (!data.isPublic) {
           throw new Error('This profile is not public');
         }
         setUser(data);
       })
       .catch(err => {
-        setError(err.message || 'Failed to load user');
+        if (err instanceof ApiClientError && err.statusCode === 404) {
+          setError('User not found');
+        } else {
+          setError(err.message || 'Failed to load user');
+        }
       })
       .finally(() => setLoading(false));
   }, [id]);

@@ -8,6 +8,7 @@ import { usePageLoading } from '@shared/ui';
 import Image from 'next/image';
 import { trpc } from '@api/client';
 import { createComponentLogger } from '@shared/lib';
+import { apiGet } from '@/shared/api/http-client';
 
 const log = createComponentLogger('campaign-page');
 
@@ -63,8 +64,7 @@ export default function CampaignPage() {
   useEffect(() => {
     async function checkCampaignEnabled() {
       try {
-        const res = await fetch('/api/flags?flag=campaign');
-        const data = await res.json();
+        const { data } = await apiGet<{ value?: boolean }>('/api/flags?flag=campaign');
         setCampaignEnabled(data.value !== false);
       } catch (error) {
         log.error({}, 'Failed to check campaign status', error);
