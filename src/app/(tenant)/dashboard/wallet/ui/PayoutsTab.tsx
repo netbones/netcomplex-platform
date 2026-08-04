@@ -29,12 +29,8 @@ export function PayoutsTab({
 
   const fetchPayouts = useCallback(async () => {
     try {
-      const { data } = await apiGet<PayoutRequestItem[] | { data?: PayoutRequestItem[] }>(
-        '/api/v1/tenant/dwallet/payout'
-      );
-      setPayouts(
-        Array.isArray(data) ? data : ((data as { data?: PayoutRequestItem[] })?.data ?? [])
-      );
+      const { data } = await apiGet<PayoutRequestItem[]>('/api/v1/tenant/dwallet/payout');
+      setPayouts(data ?? []);
     } catch {
       // Silently fail for payout history
     } finally {

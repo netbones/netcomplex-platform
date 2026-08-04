@@ -73,9 +73,9 @@ export default function SettingsPage() {
 
     if (data.premiumSeat) {
       setPlanType('Premium');
-    } else if (data.standardSeats?.length > 0) {
+    } else if ((data.standardSeats?.length ?? 0) > 0) {
       setPlanType('Standard Seat');
-    } else if (data.soloSeats?.length > 0) {
+    } else if ((data.soloSeats?.length ?? 0) > 0) {
       setPlanType('Solo Seat');
     } else {
       setPlanType('Basic');

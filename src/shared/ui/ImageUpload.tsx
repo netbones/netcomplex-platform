@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { toast } from 'sonner';
 import { createComponentLogger } from '@shared/lib';
+import { apiPostForm } from '@/shared/api/http-client';
 
 const log = createComponentLogger('ImageUpload');
 
@@ -51,17 +52,7 @@ export function ImageUpload({
       const formData = new FormData();
       formData.append('file', file);
 
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Upload failed');
-      }
-
+      const { data } = await apiPostForm<{ url: string; error?: string }>('/api/upload', formData);
       setPreview(data.url);
       onChange(data.url);
       toast.success('Image uploaded successfully!');

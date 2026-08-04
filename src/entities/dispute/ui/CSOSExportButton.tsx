@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { ApiClientError, apiFetchRaw } from '@/shared/api/http-client';
 
 interface CSOSExportButtonProps {
   disputeId: string;
@@ -23,7 +24,7 @@ export function CSOSExportButton({ disputeId, userId: _userId }: CSOSExportButto
     const exportToast = toast.loading('Generating CSOS export...');
 
     try {
-      const res = await fetch(`/api/disputes/${disputeId}/csos-export`);
+      const res = await apiFetchRaw(`/api/disputes/${disputeId}/csos-export`);
 
       toast.dismiss(exportToast);
 
@@ -34,11 +35,15 @@ export function CSOSExportButton({ disputeId, userId: _userId }: CSOSExportButto
       }
 
       if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error?.message || 'Export failed');
+        const body = (await res.json().catch(() => ({}))) as { error?: { message?: string } };
+        throw new ApiClientError(
+          res.status,
+          'CSOS_EXPORT_FAILED',
+          body.error?.message ?? 'Export failed'
+        );
       }
 
-      // Binary PDF download (was: JSON blob)
+      // Binary PDF download — read body blob, extract filename from header
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');

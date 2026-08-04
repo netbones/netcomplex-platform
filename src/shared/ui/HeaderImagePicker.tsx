@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { X, Image as ImageIcon, Upload } from 'lucide-react';
 import { toast } from 'sonner';
-import { apiGet } from '@/shared/api/http-client';
+import { apiGet, apiPostForm } from '@/shared/api/http-client';
 
 interface HeaderImagePickerProps {
   open: boolean;
@@ -29,13 +29,8 @@ async function fetchMyImages(): Promise<MediaItem[]> {
 async function uploadMyImage(file: File): Promise<{ url: string; key: string }> {
   const formData = new FormData();
   formData.append('file', file);
-  const res = await fetch('/api/upload', { method: 'POST', body: formData });
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.error || 'Upload failed');
-  }
-  const data = await res.json();
-  return { url: data.data.url, key: data.data.key };
+  const { data } = await apiPostForm<{ url: string; key: string }>('/api/upload', formData);
+  return { url: data.url, key: data.key };
 }
 
 export function HeaderImagePicker({

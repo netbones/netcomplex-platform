@@ -9,7 +9,7 @@ import { SERVICE_MARKETPLACE_CATEGORIES } from '@entities/service';
 import Image from 'next/image';
 import { createComponentLogger } from '@shared/lib';
 import { Plus, MessageSquare, Briefcase, Clock, ExternalLink } from 'lucide-react';
-import { apiGet, apiPost, apiPut } from '@/shared/api/http-client';
+import { apiGet, apiPost, apiPostForm, apiPut } from '@/shared/api/http-client';
 
 const log = createComponentLogger('MyServicesManager');
 
@@ -145,9 +145,11 @@ export function MyServicesManager() {
     try {
       const fd = new FormData();
       fd.append('file', file);
-      const res = await fetch('/api/upload', { method: 'POST', body: fd });
-      const body = await res.json();
-      const url = body?.data?.url ?? body?.url;
+      const { data } = await apiPostForm<{ url?: string; data?: { url?: string } }>(
+        '/api/upload',
+        fd
+      );
+      const url = data?.url ?? data?.data?.url;
       if (url) {
         setFormData(prev => ({ ...prev, images: [...prev.images, url] }));
       }

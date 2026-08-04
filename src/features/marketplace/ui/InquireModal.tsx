@@ -52,9 +52,12 @@ export function InquireModal({ listing, isOpen, onClose }: InquireModalProps) {
     const initChat = async () => {
       setChatLoading(true);
       try {
-        const data = await apiPost<{ conversation?: { id: string } }>('/api/conversations/find', {
-          participantIds: [currentUserId, recipientId],
-        });
+        const { data } = await apiPost<{ conversation?: { id: string } }>(
+          '/api/conversations/find',
+          {
+            participantIds: [currentUserId, recipientId],
+          }
+        );
         if (!cancelled && data?.conversation?.id) {
           setConversationId(data.conversation.id);
         }
@@ -109,7 +112,7 @@ export function InquireModal({ listing, isOpen, onClose }: InquireModalProps) {
     if (!input.trim() || !conversationId || sending) return;
     setSending(true);
     try {
-      const newMsg = await apiPost<ConversationMessage>('/api/messages', {
+      const { data: newMsg } = await apiPost<ConversationMessage>('/api/messages', {
         conversationId,
         content: input.trim(),
         type: 'TEXT',
@@ -160,7 +163,7 @@ export function InquireModal({ listing, isOpen, onClose }: InquireModalProps) {
         reader.onloadend = async () => {
           if (!conversationId) return;
           try {
-            const newMsg = await apiPost<ConversationMessage>('/api/messages', {
+            const { data: newMsg } = await apiPost<ConversationMessage>('/api/messages', {
               conversationId,
               content: '',
               type: 'VOICE',
@@ -319,12 +322,15 @@ export function InquireModal({ listing, isOpen, onClose }: InquireModalProps) {
                       const reader = new FileReader();
                       reader.onloadend = async () => {
                         try {
-                          const newMsg = await apiPost<ConversationMessage>('/api/messages', {
-                            conversationId,
-                            content: 'Image',
-                            type: 'IMAGE',
-                            mediaUrl: reader.result as string,
-                          });
+                          const { data: newMsg } = await apiPost<ConversationMessage>(
+                            '/api/messages',
+                            {
+                              conversationId,
+                              content: 'Image',
+                              type: 'IMAGE',
+                              mediaUrl: reader.result as string,
+                            }
+                          );
                           setMessages(prev => [...prev, newMsg]);
                         } catch {
                           // silent

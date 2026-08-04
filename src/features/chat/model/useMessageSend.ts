@@ -23,7 +23,7 @@ export function useMessageSend({
     mediaUrl?: string
   ): Promise<boolean> => {
     try {
-      const newMessage = await apiPost<Message>('/api/messages', {
+      const { data: newMessage } = await apiPost<Message>('/api/messages', {
         conversationId,
         content,
         type,

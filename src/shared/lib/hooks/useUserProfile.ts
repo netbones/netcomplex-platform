@@ -1,16 +1,30 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiGet } from '@/shared/api/http-client';
-import type { AdminUser } from '@/entities/user/model/types';
 
-export type UserProfile = AdminUser & {
+export interface UserProfile {
+  id: string;
+  email?: string | null;
+  name?: string | null;
+  image?: string | null;
   avatar?: string | null;
+  showEmail?: boolean;
+  showPhone?: boolean;
+  standardSeats?: Array<{
+    id: string;
+    userId: string;
+    propertyId: string;
+    isPrimaryOwner: boolean;
+    household?: { id: string; name: string; homeImage?: string } | null;
+  }>;
+  soloSeats?: Array<{
+    id: string;
+    userId: string;
+    propertyId?: string;
+    seatType: 'RESIDENT' | 'MEMBER';
+  }>;
+  premiumSeat?: { id: string; userId: string } | null;
   notificationPreferences?: Record<string, { inApp: boolean; email: boolean }>;
-  standardSeats?: Array<
-    AdminUser['standardSeats'][number] & {
-      household?: { id: string; name: string; homeImage?: string } | null;
-    }
-  >;
-};
+}
 
 export function useUserProfile(userId: string | undefined) {
   return useQuery({

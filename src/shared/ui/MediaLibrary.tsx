@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { Tooltip, TooltipTrigger, TooltipContent } from './tooltip';
 import { authClient } from '@api/client';
 import { createComponentLogger } from '@shared/lib';
-import { apiDelete, apiGet } from '@/shared/api/http-client';
+import { apiDelete, apiGet, apiPostForm } from '@/shared/api/http-client';
 
 import {
   ChevronLeft,
@@ -77,17 +77,10 @@ export function MediaLibrary({
       formData.append('file', file);
 
       try {
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (!res.ok) {
-          const error = await res.json();
-          toast.error(`${file.name}: ${error.error}`);
-        }
-      } catch {
-        toast.error(`Failed to upload ${file.name}`);
+        await apiPostForm('/api/upload', formData);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : `Failed to upload ${file.name}`;
+        toast.error(`${file.name}: ${message}`);
       }
     }
 

@@ -10,7 +10,7 @@ import { RichTextEditor } from '@shared/ui';
 import { z } from 'zod';
 import { createComponentLogger } from '@shared/lib';
 import { ToastMsg } from '@shared/lib/hooks';
-import { apiDelete, apiPatch, apiPost } from '@/shared/api/http-client';
+import { apiDelete, apiPatch, apiPost, apiPostForm } from '@/shared/api/http-client';
 
 import { CheckCircle, Loader2, Trash2 } from 'lucide-react';
 const log = createComponentLogger('ResourceForm');
@@ -143,17 +143,7 @@ export function ResourceForm({ initialData }: ResourceFormProps) {
       const formData = new FormData();
       formData.append('file', file);
 
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || 'Upload failed');
-      }
-
-      const data = await res.json();
+      const { data } = await apiPostForm<{ url: string }>('/api/upload', formData);
       setValue('fileUrl', data.url);
       setValue('fileType', file.type || file.name.split('.').pop());
       setValue('fileSize', file.size);

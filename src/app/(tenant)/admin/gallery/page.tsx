@@ -6,7 +6,7 @@ import { createComponentLogger } from '@shared/lib';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { Upload, Trash2, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
-import { apiGet, apiDelete } from '@/shared/api/http-client';
+import { apiGet, apiDelete, apiPostForm } from '@/shared/api/http-client';
 
 const log = createComponentLogger('admin-gallery');
 
@@ -53,17 +53,11 @@ export default function AdminGalleryPage() {
       try {
         const formData = new FormData();
         formData.append('file', file);
-        const res = await fetch('/api/admin/media', {
-          method: 'POST',
-          body: formData,
-        });
-        if (!res.ok) {
-          const error = await res.json();
-          toast.error(`${file.name}: ${error.error || 'Upload failed'}`);
-        }
+        await apiPostForm('/api/admin/media', formData);
       } catch (err) {
         log.error({}, 'Upload error', err);
-        toast.error(`Failed to upload ${file.name}`);
+        const message = err instanceof Error ? err.message : 'Upload failed';
+        toast.error(`${file.name}: ${message}`);
       }
     }
 

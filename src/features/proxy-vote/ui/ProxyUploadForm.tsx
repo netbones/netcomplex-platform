@@ -4,6 +4,7 @@ import { CheckCircle2, Upload } from 'lucide-react';
 import { useState, type ChangeEvent, type DragEvent } from 'react';
 
 import { ALLOWED_DOCUMENT_TYPES, MAX_DOCUMENT_SIZE } from '@/features/proxy-vote/lib/constants';
+import { apiPostForm } from '@/shared/api/http-client';
 
 interface ProxyUploadFormProps {
   proxyId: string;
@@ -40,17 +41,11 @@ export function ProxyUploadForm({ proxyId, tenantId, onUploadComplete }: ProxyUp
       const body = new FormData();
       body.append('file', file);
 
-      const res = await fetch('/api/proxy-vote/upload', { method: 'POST', body });
-      const json = await res.json();
-
-      if (!res.ok || json.error) {
-        setError('Upload failed — try again or use a PDF, JPG, or PNG under 10MB.');
-        return;
-      }
+      const { data } = await apiPostForm<{ url: string }>('/api/proxy-vote/upload', body);
 
       setFilename(file.name);
       setSize(file.size);
-      onUploadComplete(proxyId, json.data.url);
+      onUploadComplete(proxyId, data.url);
     } catch {
       setError('Upload failed — try again or use a PDF, JPG, or PNG under 10MB.');
     } finally {

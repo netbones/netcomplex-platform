@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback } from 'react';
 import { toast } from 'sonner';
+import { ApiClientError, apiPostForm } from '@/shared/api/http-client';
 import { ALLOWED_EVIDENCE_TYPES, MAX_EVIDENCE_FILE_SIZE } from '../model/schemas';
 
 interface EvidenceUploadZoneProps {
@@ -48,27 +49,18 @@ export function EvidenceUploadZone({
         const formData = new FormData();
         formData.append('file', file);
 
-        const res = await fetch(`/api/disputes/${disputeId}/evidence`, {
-          method: 'POST',
-          body: formData,
-        });
+        await apiPostForm(`/api/disputes/${disputeId}/evidence`, formData);
 
         toast.dismiss(uploadToast);
-
-        if (res.status === 429) {
-          toast.error('Too many uploads. Please wait a moment.');
-          return;
-        }
-
-        if (!res.ok) {
-          const body = await res.json().catch(() => ({}));
-          throw new Error(body.error?.message || 'Upload failed');
-        }
 
         toast.success('Evidence uploaded successfully');
         onUploadComplete();
       } catch (err) {
         toast.dismiss(uploadToast);
+        if (err instanceof ApiClientError && err.statusCode === 429) {
+          toast.error('Too many uploads. Please wait a moment.');
+          return;
+        }
         toast.error(err instanceof Error ? err.message : 'Failed to upload evidence');
       } finally {
         setUploading(false);

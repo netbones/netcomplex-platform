@@ -44,7 +44,7 @@ export function CreateConversationModal({
 
     setCreating(true);
     try {
-      const newConv = await apiPost<ConversationListItem>('/api/conversations', {
+      const { data: newConv } = await apiPost<ConversationListItem>('/api/conversations', {
         name: chatType === 'GROUP' ? name : null,
         type: chatType,
         participantIds: [currentUserId, ...selectedUsers],

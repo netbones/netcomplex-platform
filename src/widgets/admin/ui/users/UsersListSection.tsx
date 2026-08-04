@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { ChevronDown, ChevronRight, UserPlus, X, Search } from 'lucide-react';
 import { ErrorBoundary } from '@shared/ui';
-import { apiPost, apiDelete, apiPatch, apiGet } from '@/shared/api/http-client';
+import { apiPost, apiDelete, apiDeleteWithBody, apiPatch, apiGet } from '@/shared/api/http-client';
 import type {
   AdminUser,
   Invitation,
@@ -278,7 +278,7 @@ export function UsersListSection() {
       return;
     }
     try {
-      await apiDelete('/api/seats', {
+      await apiDeleteWithBody('/api/seats', {
         userId: u.id,
         seatType,
         platformAddress: seatType === 'solo' ? removingSeatAddress : undefined,

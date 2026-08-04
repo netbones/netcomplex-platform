@@ -40,9 +40,12 @@ export function DirectoryChatModal({
 
     const initConversation = async () => {
       try {
-        const data = await apiPost<{ conversation?: { id: string } }>('/api/conversations/find', {
-          participantIds: [currentUserId, recipientId],
-        });
+        const { data } = await apiPost<{ conversation?: { id: string } }>(
+          '/api/conversations/find',
+          {
+            participantIds: [currentUserId, recipientId],
+          }
+        );
         if (data?.conversation?.id) {
           setConversationId(data.conversation.id);
         }
@@ -104,7 +107,7 @@ export function DirectoryChatModal({
 
     setSending(true);
     try {
-      const newMessage = await apiPost<ConversationMessage>('/api/messages', {
+      const { data: newMessage } = await apiPost<ConversationMessage>('/api/messages', {
         conversationId,
         content: input.trim(),
         type: 'TEXT',

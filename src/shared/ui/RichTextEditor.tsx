@@ -21,7 +21,7 @@ import { common, createLowlight } from 'lowlight';
 import { useEffect, useCallback, useState, useRef } from 'react';
 import { toast } from 'sonner';
 import { Tooltip, TooltipTrigger, TooltipContent } from './tooltip';
-import { apiGet } from '@/shared/api/http-client';
+import { apiGet, apiPostForm } from '@/shared/api/http-client';
 
 import {
   AlignCenter,
@@ -230,21 +230,12 @@ export function RichTextEditor({
       const formData = new FormData();
       formData.append('file', file);
 
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        editor?.chain().focus().setImage({ src: data.url }).run();
-        toast.success('Image uploaded!');
-      } else {
-        const error = await res.json();
-        toast.error(error.error || 'Failed to upload image');
-      }
-    } catch {
-      toast.error('Failed to upload image');
+      const { data } = await apiPostForm<{ url: string; error?: string }>('/api/upload', formData);
+      editor?.chain().focus().setImage({ src: data.url }).run();
+      toast.success('Image uploaded!');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to upload image';
+      toast.error(message);
     } finally {
       setUploading(false);
       toast.dismiss(loadingToast);

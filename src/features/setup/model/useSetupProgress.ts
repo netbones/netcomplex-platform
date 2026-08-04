@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiGet, apiPatch } from '@/shared/api/http-client';
+import { apiGet, apiPatch, ApiClientError } from '@/shared/api/http-client';
 
 interface SetupData {
   id: string;
@@ -50,11 +50,16 @@ export function useSetupProgress(tenantId: string, _initial?: SetupData | null) 
   } = useQuery<SetupData | null>({
     queryKey: ['setup', tenantId],
     queryFn: async () => {
-      const { data } = await apiGet<SetupResponse>(
-        `/api/platform/setup?tenantId=${encodeURIComponent(tenantId)}`
-      );
-      // Support both `{ data: { setup } }` and direct `{ setup }` shapes
-      return data?.setup ?? null;
+      try {
+        const { data } = await apiGet<SetupResponse>(
+          `/api/platform/setup?tenantId=${encodeURIComponent(tenantId)}`
+        );
+        // Support both `{ data: { setup } }` and direct `{ setup }` shapes
+        return data?.setup ?? null;
+      } catch (err) {
+        if (err instanceof ApiClientError && err.statusCode === 404) return null;
+        throw err;
+      }
     },
     staleTime: 30 * 1000, // 30s stale — mission toggles invalidate instantly
   });

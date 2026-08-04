@@ -31,13 +31,14 @@ export function ActivityTab() {
       if (startDate) params.set('startDate', startDate);
       if (endDate) params.set('endDate', endDate);
 
-      const { data } = await apiGet<
-        TransactionItem[] | { data?: TransactionItem[]; total?: number; hasMore?: boolean }
-      >(`/api/v1/tenant/dwallet/transactions?${params}`);
-      const unwrapped = Array.isArray(data) ? data : (data?.data ?? []);
-      setTransactions(unwrapped);
-      setTotal(Array.isArray(data) ? unwrapped.length : (data?.total ?? unwrapped.length));
-      setHasMore(Array.isArray(data) ? false : (data?.hasMore ?? false));
+      const { data, meta } = await apiGet<TransactionItem[]>(
+        `/api/v1/tenant/dwallet/transactions?${params}`
+      );
+      const items = data ?? [];
+      setTransactions(items);
+      const m = (meta ?? {}) as { total?: number; hasMore?: boolean };
+      setTotal(m.total ?? items.length);
+      setHasMore(m.hasMore ?? false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load');
     } finally {
