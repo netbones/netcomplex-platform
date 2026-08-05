@@ -1,9 +1,9 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 
 const TEST_EMAIL = 'admin@soralia.co.za';
 const TEST_PASSWORD = 'password123';
 
-async function login(page: Awaited<ReturnType<typeof test>>['page']) {
+async function login(page: Page) {
   await page.goto('/login', { waitUntil: 'domcontentloaded' });
   await page.getByLabel(/email|e-mail/i).fill(TEST_EMAIL);
   await page.getByLabel(/password/i).fill(TEST_PASSWORD);
@@ -11,7 +11,7 @@ async function login(page: Awaited<ReturnType<typeof test>>['page']) {
   await expect(page).toHaveURL(/\/dashboard/, { timeout: 15_000 });
 }
 
-async function navigateToBookings(page: Awaited<ReturnType<typeof test>>['page']) {
+async function navigateToBookings(page: Page) {
   await page.goto('/bookings', { waitUntil: 'domcontentloaded' });
   const heading = page.getByRole('heading', { name: /bookings/i });
   await expect(heading).toBeVisible({ timeout: 10_000 });

@@ -6,6 +6,7 @@ import { createComponentLogger } from '@shared/lib';
 import { apiGet } from '@/shared/api/http-client';
 
 import { CheckCircle, Shield } from 'lucide-react';
+import type { ServiceListing } from '@entities/service';
 const log = createComponentLogger('ServiceQualityWidget');
 
 interface QualityAlert {
@@ -29,8 +30,8 @@ export function ServiceQualityWidget() {
         );
         const listings = data.listings || [];
         const qualityAlerts: QualityAlert[] = listings
-          .filter((l: { rating?: number }) => l.rating && l.rating < 3)
-          .map((l: { id: string; title: string; provider: { name: string }; rating: number }) => ({
+          .filter(l => l.rating && l.rating < 3)
+          .map(l => ({
             id: l.id,
             type: 'LOW_RATING' as const,
             listing: { id: l.id, title: l.title },

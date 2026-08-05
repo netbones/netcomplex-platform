@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest';
 
 // ---------------------------------------------------------------------------
 // vi.hoisted — shared mock state
@@ -112,7 +112,7 @@ describe('HandleService', () => {
       const h = mockHandle({ id: 'handle-new', handle: 'john' });
       setInsertResult([h]);
 
-      const svc = new HandleService(mockDb() as NodePgDatabase<unknown>);
+      const svc = new HandleService(mockDb() as NodePgDatabase<Record<string, unknown>>);
       const result = await svc.register('john', 'addr-1', 'tenant-1');
 
       expect(result.handle).toBe('john');
@@ -120,7 +120,7 @@ describe('HandleService', () => {
     });
 
     it('throws HandleConflictError for reserved name (non-admin)', async () => {
-      const svc = new HandleService(mockDb() as NodePgDatabase<unknown>);
+      const svc = new HandleService(mockDb() as NodePgDatabase<Record<string, unknown>>);
       await expect(svc.register('admin', 'addr-1', 'tenant-1')).rejects.toThrow(
         HandleConflictError
       );
@@ -129,7 +129,7 @@ describe('HandleService', () => {
     it('throws HandleConflictError for duplicate handle', async () => {
       setSelectResult([mockHandle()]);
 
-      const svc = new HandleService(mockDb() as NodePgDatabase<unknown>);
+      const svc = new HandleService(mockDb() as NodePgDatabase<Record<string, unknown>>);
       await expect(svc.register('john', 'addr-1', 'tenant-1')).rejects.toThrow(HandleConflictError);
     });
   });
@@ -141,7 +141,7 @@ describe('HandleService', () => {
     it('returns handles matching a prefix within a tenant', async () => {
       setSelectResult([mockHandle({ handle: 'john' }), mockHandle({ id: 'h2', handle: 'johnny' })]);
 
-      const svc = new HandleService(mockDb() as NodePgDatabase<unknown>);
+      const svc = new HandleService(mockDb() as NodePgDatabase<Record<string, unknown>>);
       const results = await svc.search('jo', 'tenant-1');
 
       expect(results).toHaveLength(2);
@@ -151,7 +151,7 @@ describe('HandleService', () => {
     it('returns empty array when no handles match', async () => {
       setSelectResult([]);
 
-      const svc = new HandleService(mockDb() as NodePgDatabase<unknown>);
+      const svc = new HandleService(mockDb() as NodePgDatabase<Record<string, unknown>>);
       const results = await svc.search('zzz', 'tenant-1');
 
       expect(results).toHaveLength(0);
@@ -163,7 +163,7 @@ describe('HandleService', () => {
   // -----------------------------------------------------------------------
   describe('release()', () => {
     it('sets status to RELEASED', async () => {
-      const svc = new HandleService(mockDb() as NodePgDatabase<unknown>);
+      const svc = new HandleService(mockDb() as NodePgDatabase<Record<string, unknown>>);
       await svc.release('handle-1');
 
       expect(mockDb().update).toHaveBeenCalled();
@@ -177,7 +177,7 @@ describe('HandleService', () => {
     it('returns address record for a valid handle', async () => {
       setSelectResult([mockHandle()]);
 
-      const svc = new HandleService(mockDb() as NodePgDatabase<unknown>);
+      const svc = new HandleService(mockDb() as NodePgDatabase<Record<string, unknown>>);
       const result = await svc.resolve('john', 'tenant-1');
 
       expect(result).not.toBeNull();
@@ -187,7 +187,7 @@ describe('HandleService', () => {
     it('returns null for unknown handle', async () => {
       setSelectResult([]);
 
-      const svc = new HandleService(mockDb() as NodePgDatabase<unknown>);
+      const svc = new HandleService(mockDb() as NodePgDatabase<Record<string, unknown>>);
       const result = await svc.resolve('unknown', 'tenant-1');
 
       expect(result).toBeNull();

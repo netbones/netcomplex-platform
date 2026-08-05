@@ -28,12 +28,8 @@ interface StreamAnnouncement {
 export function AnnouncementsStreamWidget() {
   const { data: rawData, isLoading, error, refetch } = useActiveAnnouncements();
 
-  const announcements: StreamAnnouncement[] = rawData
-    ? Array.isArray(rawData.success !== undefined ? rawData.data : rawData)
-      ? rawData.success !== undefined
-        ? rawData.data
-        : rawData
-      : []
+  const announcements: StreamAnnouncement[] = Array.isArray(rawData)
+    ? (rawData as StreamAnnouncement[])
     : [];
 
   if (isLoading) {

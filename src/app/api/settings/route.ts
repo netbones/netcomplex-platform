@@ -21,7 +21,7 @@ export const maxDuration = 8;
  * @deprecated Use trpc.settings.listSettings instead.
  */
 export const GET = withErrorHandler(async (request: Request) => {
-  const auth = await requireAuth(request, { permission: 'admin', module: 'settings' });
+  const auth = await requireAuth(request, { permission: 'admin' });
   if (!auth.success) return auth.response;
 
   const { searchParams } = new URL(request.url);
@@ -47,7 +47,7 @@ export const GET = withErrorHandler(async (request: Request) => {
  * @deprecated Use trpc.settings.upsertSetting instead.
  */
 export const POST = withErrorHandler(async (request: Request) => {
-  const auth = await requireAuth(request, { permission: 'admin', module: 'settings' });
+  const auth = await requireAuth(request, { permission: 'admin' });
   if (!auth.success) return auth.response;
 
   const scopeError = await requireAssistScope(request, 'full');

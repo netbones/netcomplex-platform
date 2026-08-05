@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest';
 
 // ---------------------------------------------------------------------------
 // vi.hoisted — shared mock state across both mock calls
@@ -144,7 +144,7 @@ describe('AddressService', () => {
       const addr = mockAddress({ id: 'addr-new', address: 'john@soralia.org', kind: 'SOLO' });
       setInsertResult([addr]);
 
-      const svc = new AddressService(mockDb() as NodePgDatabase<unknown>);
+      const svc = new AddressService(mockDb() as NodePgDatabase<Record<string, unknown>>);
       const result = await svc.reserve('john@soralia.org', 'tenant-1', 'SOLO');
 
       expect(result.address).toBe('john@soralia.org');
@@ -163,7 +163,7 @@ describe('AddressService', () => {
       });
       setInsertResult([addr]);
 
-      const svc = new AddressService(mockDb() as NodePgDatabase<unknown>);
+      const svc = new AddressService(mockDb() as NodePgDatabase<Record<string, unknown>>);
       const result = await svc.reserve('unit042@soralia.org', 'tenant-1', 'STANDARD', {
         ownerType: 'STANDARD_SEAT',
         ownerId: 'seat-1',
@@ -174,7 +174,7 @@ describe('AddressService', () => {
     });
 
     it('throws AddressConflictError for reserved name (non-admin)', async () => {
-      const svc = new AddressService(mockDb() as NodePgDatabase<unknown>);
+      const svc = new AddressService(mockDb() as NodePgDatabase<Record<string, unknown>>);
       await expect(svc.reserve('admin@soralia.org', 'tenant-1', 'SYSTEM')).rejects.toThrow(
         AddressConflictError
       );
@@ -183,14 +183,14 @@ describe('AddressService', () => {
     it('throws AddressConflictError for duplicate address', async () => {
       setSelectResult([mockAddress({ address: 'john@soralia.org' })]);
 
-      const svc = new AddressService(mockDb() as NodePgDatabase<unknown>);
+      const svc = new AddressService(mockDb() as NodePgDatabase<Record<string, unknown>>);
       await expect(svc.reserve('john@soralia.org', 'tenant-1', 'SOLO')).rejects.toThrow(
         AddressConflictError
       );
     });
 
     it('throws AddressValidationError for invalid address format (no @)', async () => {
-      const svc = new AddressService(mockDb() as NodePgDatabase<unknown>);
+      const svc = new AddressService(mockDb() as NodePgDatabase<Record<string, unknown>>);
       await expect(svc.reserve('invalid-format', 'tenant-1', 'SOLO')).rejects.toThrow(
         AddressValidationError
       );
@@ -205,7 +205,7 @@ describe('AddressService', () => {
       const addr = mockAddress();
       setSelectResult([addr]);
 
-      const svc = new AddressService(mockDb() as NodePgDatabase<unknown>);
+      const svc = new AddressService(mockDb() as NodePgDatabase<Record<string, unknown>>);
       const result = await svc.resolve('john@soralia.org', 'tenant-1');
 
       expect(result).not.toBeNull();
@@ -215,7 +215,7 @@ describe('AddressService', () => {
     it('returns null for an unknown address', async () => {
       setSelectResult([]);
 
-      const svc = new AddressService(mockDb() as NodePgDatabase<unknown>);
+      const svc = new AddressService(mockDb() as NodePgDatabase<Record<string, unknown>>);
       const result = await svc.resolve('unknown@soralia.org', 'tenant-1');
 
       expect(result).toBeNull();
@@ -226,7 +226,7 @@ describe('AddressService', () => {
       // Second select: handle match
       setSelectResult([{ id: 'handle-1', addressId: 'addr-1', handle: 'john', status: 'ACTIVE' }]);
 
-      const svc = new AddressService(mockDb() as NodePgDatabase<unknown>);
+      const svc = new AddressService(mockDb() as NodePgDatabase<Record<string, unknown>>);
       await svc.resolve('john', 'tenant-1');
 
       // Should try handle resolution
@@ -239,7 +239,7 @@ describe('AddressService', () => {
   // -----------------------------------------------------------------------
   describe('release()', () => {
     it('sets status to DELETED and sets releasedAt', async () => {
-      const svc = new AddressService(mockDb() as NodePgDatabase<unknown>);
+      const svc = new AddressService(mockDb() as NodePgDatabase<Record<string, unknown>>);
       await svc.release('addr-1');
 
       expect(mockDb().update).toHaveBeenCalled();
@@ -258,7 +258,7 @@ describe('AddressService', () => {
       setSelectResult([]);
       setInsertResult([mockAddress()]);
 
-      const svc = new AddressService(mockDb() as NodePgDatabase<unknown>);
+      const svc = new AddressService(mockDb() as NodePgDatabase<Record<string, unknown>>);
       await svc.move('addr-1', 'new-address@soralia.org', 'tenant-1');
 
       expect(mockDb().update).toHaveBeenCalled();
@@ -267,7 +267,7 @@ describe('AddressService', () => {
     it('throws AddressConflictError if new address already exists', async () => {
       setSelectResult([mockAddress()]);
 
-      const svc = new AddressService(mockDb() as NodePgDatabase<unknown>);
+      const svc = new AddressService(mockDb() as NodePgDatabase<Record<string, unknown>>);
       await expect(svc.move('addr-1', 'john@soralia.org', 'tenant-1')).rejects.toThrow(
         AddressConflictError
       );
@@ -279,7 +279,7 @@ describe('AddressService', () => {
   // -----------------------------------------------------------------------
   describe('archive()', () => {
     it('sets status to ARCHIVED and archivedUntil to 90 days from now', async () => {
-      const svc = new AddressService(mockDb() as NodePgDatabase<unknown>);
+      const svc = new AddressService(mockDb() as NodePgDatabase<Record<string, unknown>>);
       await svc.archive('addr-1');
 
       expect(mockDb().update).toHaveBeenCalled();
@@ -294,7 +294,7 @@ describe('AddressService', () => {
       const addr = mockAddress({ ownerType: 'STANDARD_SEAT', ownerId: 'seat-1' });
       setSelectResult([addr]);
 
-      const svc = new AddressService(mockDb() as NodePgDatabase<unknown>);
+      const svc = new AddressService(mockDb() as NodePgDatabase<Record<string, unknown>>);
       const result = await svc.lookup('STANDARD_SEAT', 'seat-1', 'tenant-1');
 
       expect(result).not.toBeNull();
@@ -305,7 +305,7 @@ describe('AddressService', () => {
     it('returns null when not found', async () => {
       setSelectResult([]);
 
-      const svc = new AddressService(mockDb() as NodePgDatabase<unknown>);
+      const svc = new AddressService(mockDb() as NodePgDatabase<Record<string, unknown>>);
       const result = await svc.lookup('STANDARD_SEAT', 'nonexistent', 'tenant-1');
 
       expect(result).toBeNull();
@@ -317,12 +317,12 @@ describe('AddressService', () => {
   // -----------------------------------------------------------------------
   describe('validate()', () => {
     it('throws AddressValidationError for address without @', async () => {
-      const svc = new AddressService(mockDb() as NodePgDatabase<unknown>);
+      const svc = new AddressService(mockDb() as NodePgDatabase<Record<string, unknown>>);
       await expect(svc.validate('invalid')).rejects.toThrow(AddressValidationError);
     });
 
     it('throws AddressValidationError for empty address', async () => {
-      const svc = new AddressService(mockDb() as NodePgDatabase<unknown>);
+      const svc = new AddressService(mockDb() as NodePgDatabase<Record<string, unknown>>);
       await expect(svc.validate('')).rejects.toThrow(AddressValidationError);
     });
   });
@@ -374,7 +374,7 @@ describe('AddressService', () => {
       // Simulate: address exists in tenant-2 but we're searching in tenant-1
       setSelectResult([]); // no match in tenant-1
 
-      const svc = new AddressService(mockDb() as NodePgDatabase<unknown>);
+      const svc = new AddressService(mockDb() as NodePgDatabase<Record<string, unknown>>);
       const result = await svc.resolve('john@soralia.org', 'tenant-1');
 
       expect(result).toBeNull();
@@ -386,7 +386,7 @@ describe('AddressService', () => {
   // -----------------------------------------------------------------------
   describe('forward()', () => {
     it('updates forwardStrategy field', async () => {
-      const svc = new AddressService(mockDb() as NodePgDatabase<unknown>);
+      const svc = new AddressService(mockDb() as NodePgDatabase<Record<string, unknown>>);
       await svc.forward('addr-1', 'HOUSEHOLD');
 
       expect(mockDb().update).toHaveBeenCalled();
@@ -401,7 +401,7 @@ describe('AddressService', () => {
       // All seat queries return empty
       setSelectResult([]);
 
-      const svc = new AddressService(mockDb() as NodePgDatabase<unknown>);
+      const svc = new AddressService(mockDb() as NodePgDatabase<Record<string, unknown>>);
       const result = await svc.lookupByOwnerInSeats('user-1', 'tenant-1');
 
       expect(result).toBeNull();

@@ -51,7 +51,7 @@ export function MobileSpaceBar() {
   const handleClose = useCallback(() => setOverflowOpen(false), []);
 
   const { data: unreadData } = useUnreadMessages(true);
-  const unreadCount = (unreadData?.data?.totalUnread as number) ?? 0;
+  const unreadCount = unreadData?.totalUnread ?? 0;
 
   const { spaces: visibleSpaces } = useVisibleSpaces(ctx?.flags);
 

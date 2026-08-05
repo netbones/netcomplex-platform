@@ -22,13 +22,13 @@ const mocks = vi.hoisted(() => ({
     select: vi.fn(),
     insert: vi.fn(() => ({
       values: vi.fn(() => ({
-        returning: vi.fn(() => Promise.resolve([])),
+        returning: vi.fn(() => Promise.resolve([] as unknown[])),
       })),
     })),
     update: vi.fn(() => ({
       set: vi.fn(() => ({
         where: vi.fn(() => ({
-          returning: vi.fn(() => Promise.resolve([])),
+          returning: vi.fn(() => Promise.resolve([] as unknown[])),
         })),
       })),
     })),

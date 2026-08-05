@@ -77,7 +77,8 @@ vi.mock('@api/server', () => ({
   apiNotFound: mocks.apiNotFound,
   revalidateContent: mocks.revalidateContent,
   withErrorHandler: vi.fn((handler: any) => handler as never),
-  now: (...args: any[]) => mocks.nowFn(...args),
+  now: ((...args: unknown[]) =>
+    mocks.nowFn(...(args as Parameters<typeof mocks.nowFn>))) as typeof mocks.nowFn,
 }));
 
 vi.mock('@entities/tenant/server', () => ({
