@@ -433,27 +433,6 @@ export const householdsRouter = router({
       return toEnvelope({ success: true });
     }),
 
-  getProperty: tenantProcedure.input(z.object({ id: z.string() })).query(async ({ input, ctx }) => {
-    const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'PRECONDITION_FAILED', message: 'Tenant context required' });
-    }
-
-    const [property] = await db
-      .select()
-      .from(properties)
-      .where(
-        and(eq(properties.id, input.id), eq(properties.tenantId, tenantId), notDeleted(properties))
-      )
-      .limit(1);
-
-    if (!property) {
-      throw new TRPCError({ code: 'NOT_FOUND', message: 'Property not found' });
-    }
-
-    return toEnvelope(property);
-  }),
-
   deleteProperty: privilegedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
