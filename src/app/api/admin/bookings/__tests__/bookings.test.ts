@@ -144,14 +144,14 @@ describe('GET /api/admin/bookings', () => {
   });
 
   it('returns 401 without session', async () => {
-    const res = await GET();
+    const res = await GET(new NextRequest('http://localhost:3000'));
     expect(res.status).toBe(401);
   });
 
   it('returns 403 for non-admin', async () => {
     mocks.sessionRole = { userId: 'u1', role: 'RESIDENT' };
     mocks.isAdminValue = false;
-    const res = await GET();
+    const res = await GET(new NextRequest('http://localhost:3000'));
     expect(res.status).toBe(403);
   });
 
@@ -161,7 +161,7 @@ describe('GET /api/admin/bookings', () => {
       { value: 'pool', label: 'Pool' },
       { value: 'gym', label: 'Gym' },
     ];
-    const res = await GET();
+    const res = await GET(new NextRequest('http://localhost:3000'));
     const body = await res.json();
     expect(res.status).toBe(200);
     expect(body.data).toHaveLength(2);
@@ -171,7 +171,7 @@ describe('GET /api/admin/bookings', () => {
     const mod = await import('@entities/booking/server');
     (mod.getTenantFacilities as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('fail'));
     mocks.sessionRole = { userId: 'u1', role: 'ADMIN' };
-    const res = await GET();
+    const res = await GET(new NextRequest('http://localhost:3000'));
     expect(res.status).toBe(500);
   });
 });

@@ -27,7 +27,9 @@ const { dbMock, authSessionMock, requirePlatformAdminMock, mockRole } = vi.hoist
       update: vi.fn(),
       delete: vi.fn(),
     },
-    authSessionMock: vi.fn(() => Promise.resolve(null)),
+    authSessionMock: vi.fn<() => Promise<{ user: { id: string } } | null>>(() =>
+      Promise.resolve(null)
+    ),
     requirePlatformAdminMock: vi.fn(),
     mockRole,
   };

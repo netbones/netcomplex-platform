@@ -38,12 +38,11 @@ export function useUsersData(): UseUsersDataReturn {
   const [filterType, setFilterType] = useState('all');
   const [page, setPage] = useState(1);
 
-  const { data: rawData, isLoading } = useAdminUsers();
+  const { data: rawData, isLoading } = useAdminUsers<AdminUser>();
 
   const allUsers: AdminUser[] = useMemo(() => {
     if (!rawData) return [];
-    const data = rawData?.data ?? rawData;
-    return data?.users ?? (Array.isArray(data) ? (data as AdminUser[]) : []);
+    return rawData.users ?? [];
   }, [rawData]);
 
   const searchedUsers = useMemo(() => {

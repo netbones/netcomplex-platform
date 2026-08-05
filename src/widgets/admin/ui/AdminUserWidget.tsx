@@ -16,15 +16,13 @@ export interface UserItem {
 
 export function AdminUserWidget() {
   const { t } = useTranslation('admin');
-  const { data, isLoading } = useAdminUsers();
+  const { data, isLoading } = useAdminUsers<UserItem>();
 
   const userStats = useMemo(() => {
     if (!data) return { total: 0, active: 0, pending: 0, recentSignups: 0 };
-    const unwrapped = data?.data ?? data;
-    const users = unwrapped?.users ?? (Array.isArray(unwrapped) ? unwrapped : []);
-    const total =
-      unwrapped?.total ?? data?.meta?.total ?? (Array.isArray(users) ? users.length : 0);
-    const active = Array.isArray(users) ? users.filter((u: UserItem) => u.isActive).length : 0;
+    const users = data.users;
+    const total = data.total;
+    const active = users.filter(u => u.isActive).length;
     const pending = total - active;
     const recentSignups = Math.floor(Math.random() * 5) + 1;
     return { total, active, pending, recentSignups };

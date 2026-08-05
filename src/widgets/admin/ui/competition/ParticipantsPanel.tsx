@@ -309,7 +309,7 @@ function ScorePanel({
   scoreValue: number;
   autoSelectModalOpen: boolean;
   onToggleAutoSelect: () => void;
-  onEditScore: (id: string, score: number | null) => void;
+  onEditScore: (id: string, score: number | null | undefined) => void;
   onScoreChange: (value: number) => void;
   onScoreSave: (entryId: string) => void;
   onCancelEdit: () => void;

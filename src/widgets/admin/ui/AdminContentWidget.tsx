@@ -18,11 +18,9 @@ export function AdminContentWidget() {
 
   const contentStats = useMemo(() => {
     if (!data) return { total: 0, published: 0, draft: 0, recent: 0 };
-    const body = data;
-    const raw = body?.data;
-    const content = Array.isArray(raw) ? raw : [];
+    const content = Array.isArray(data) ? data : [];
     const total = content.length;
-    const published = content.filter((c: ContentItem) => c.published).length;
+    const published = content.filter(c => c.published).length;
     const draft = total - published;
     const recent = Math.floor(Math.random() * 3) + 1;
     return { total, published, draft, recent };

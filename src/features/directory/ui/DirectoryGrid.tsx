@@ -18,7 +18,7 @@ export function DirectoryGrid({ residents, viewMode = 'grid' }: DirectoryGridPro
   const currentUserId = session?.user?.id || '';
 
   const { data: unreadData } = useUnreadMessages(!!currentUserId);
-  const unreadCounts: Record<string, number> = unreadData?.data?.unreadCounts || {};
+  const unreadCounts: Record<string, number> = unreadData?.unreadCounts ?? {};
 
   const openChat = (user: { id: string; name: string }) => {
     setChatUser(user);

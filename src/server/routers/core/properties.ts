@@ -74,6 +74,70 @@ export const propertiesRouter = router({
   // ============ PROPERTIES (The Assets) ============
 
   /**
+   * Get current user's owned properties (via standardSeats where isPrimaryOwner=true).
+   * Self-service — no staff role required. Used by widgets/identity hooks.
+   * @tenant
+   */
+  getMyProperties: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/identity/properties/mine',
+        tags: ['Identity'],
+        summary: 'Get current user owned properties',
+        protect: true,
+      },
+    })
+    .output(
+      toEnvelopeSchema(
+        z.array(
+          pDto.extend({
+            tenantId: z.string(),
+            updatedAt: z.date(),
+            standardSeats: z.array(ssDto.passthrough()),
+            activeHousehold: z
+              .object({
+                id: z.string(),
+                tenantId: z.string(),
+                propertyId: z.string(),
+                occupancyType: z.enum(['OWNER_OCCUPIED', 'RENTAL', 'VACANT']),
+                status: z.enum(['ACTIVE', 'ARCHIVED']),
+                moveInDate: z.date().nullable(),
+                moveOutDate: z.date().nullable(),
+                createdAt: z.date(),
+                updatedAt: z.date(),
+              })
+              .nullable(),
+          })
+        )
+      )
+    )
+    .query(async ({ ctx }) => {
+      const ownedSeats = await ctx.db
+        .select({ propertyId: standardSeats.propertyId })
+        .from(standardSeats)
+        .where(and(eq(standardSeats.userId, ctx.userId), eq(standardSeats.isPrimaryOwner, true)));
+
+      if (ownedSeats.length === 0) return toEnvelope([]);
+
+      const propertyIds = [...new Set(ownedSeats.map(s => s.propertyId))];
+      const owned = await ctx.db
+        .select()
+        .from(properties)
+        .where(inArray(properties.id, propertyIds));
+
+      return toEnvelope(
+        owned.map(p => ({
+          ...p,
+          tenantId: p.tenantId,
+          updatedAt: p.updatedAt,
+          standardSeats: [],
+          activeHousehold: null,
+        }))
+      );
+    }),
+
+  /**
    * List all properties in the current tenant — staff only.
    * @privileged
    */

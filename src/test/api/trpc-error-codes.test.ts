@@ -137,6 +137,6 @@ describe('tRPC error codes', () => {
     const err = await catchError(() => caller.throwZodError({ name: 123 as unknown as string }));
     expect(err).toBeDefined();
     // The ZodError should be caught by tRPC and formatted
-    expect(err?.code || (err as Record<string, unknown>)?.shape).toBeTruthy();
+    expect(err?.code || (err as unknown as Record<string, unknown>)?.shape).toBeTruthy();
   });
 });

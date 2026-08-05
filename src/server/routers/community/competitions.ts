@@ -114,6 +114,8 @@ export const competitionsRouter = router({
       )
     )
     .query(async ({ ctx }) => {
+      if (!ctx.tenantId)
+        throw new TRPCError({ code: 'PRECONDITION_FAILED', message: 'Tenant context required' });
       const enriched = await findActiveCompetitions(ctx.tenantId);
       return toEnvelope(enriched);
     }),
@@ -169,7 +171,7 @@ export const competitionsRouter = router({
       )
     )
     .query(async ({ input, ctx }) => {
-      const detail = await getCompetitionDetail(input.id, ctx.tenantId, ctx.userId);
+      const detail = await getCompetitionDetail(input.id, ctx.tenantId ?? undefined, ctx.userId);
       return toEnvelope(detail);
     }),
 
@@ -304,7 +306,7 @@ export const competitionsRouter = router({
     .input(z.object({ competitionId: z.string() }))
     .output(toEnvelopeSchema(z.array(WinnerOutput)))
     .query(async ({ input, ctx }) => {
-      const winners = await listCompetitionWinners(input.competitionId, ctx.tenantId);
+      const winners = await listCompetitionWinners(input.competitionId, ctx.tenantId ?? undefined);
       return toEnvelope(winners);
     }),
 });
