@@ -1,7 +1,7 @@
 ---
 title: Pending Work Items — Priority Assessment
 status: current
-reviewed: 2026-07-30
+reviewed: 2026-08-05
 tags: [tracking, priorities, todos, bd-cross-ref]
 audience: all
 ---
@@ -12,14 +12,23 @@ audience: all
 > priority summary and cross-references BD IDs. Do not re-list individual items
 > here that BD already tracks — consult `bd list` for the live queue.
 >
-> Reviewed 2026-07-30. BD queue snapshot: **51 open** (17 P1, 7 P2, 26 P3, 1 P4).
-> 10 items are unblocked (ready).
+> Reviewed 2026-08-05. BD queue snapshot: **50 open** (16 P1, 7 P2, 26 P3, 1 P4).
+> 9 items are unblocked (ready).
+>
+> **Closed since last review (2026-07-30 → 2026-08-05):**
+>
+> - `l0co` — Migrate remaining raw fetch() call sites to http-client (was:
+>   "to tRPC"). Completed across 5 refactor commits (37a2bce1 → 26a65b4b →
+>   46608b4b → 3ba4185d → 415a9a2d). Final state: zero raw `fetch('/api/...')`
+>   outside FormData uploads + binary downloads; http-client now exposes
+>   `apiPostForm`/`apiFetchRaw`/`apiDeleteWithBody` so the FormData bypass
+>   surface is centralized. Closed by `bd close soralia-village-l0co`.
 
 ---
 
-## P1 — High Priority (17 BD issues)
+## P1 — High Priority (16 BD issues)
 
-BN BD queue maps 1:1 to the 17 P1 items formerhand-curated in PENDING.md; all
+BN BD queue maps 1:1 to the 16 P1 items formerhand-curated in PENDING.md; all
 source-doc references now have BD IDs.
 
 | BD ID  | Title                                                                                 |
@@ -32,7 +41,6 @@ source-doc references now have BD IDs.
 | `bvi9` | Module gating enforcement: verify SpaceLauncher auto-hides optional spaces            |
 | `lwpw` | Mobile space overflow pattern: handle 6 spaces exceeding 5-slot mobile limit          |
 | `5s99` | Maintenance admin: add sort controls, CSV export, ISR caching headers                 |
-| `l0co` | Migrate ~30 remaining raw fetch() call sites to tRPC                                  |
 | `p9mq` | FeatureGateWall component + domain card gating — Phase C/D of gate consolidation      |
 | `jtmt` | Organization/Tenant switcher component for multi-tenant navigation                    |
 | `g7rq` | Household management UI: My Households dashboard section + /unit/[id]/manage page     |
