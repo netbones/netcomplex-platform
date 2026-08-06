@@ -40,6 +40,7 @@ export function ProxyUploadForm({ proxyId, tenantId, onUploadComplete }: ProxyUp
     try {
       const body = new FormData();
       body.append('file', file);
+      body.append('tenantId', tenantId);
 
       const { data } = await apiPostForm<{ url: string }>('/api/proxy-vote/upload', body);
 

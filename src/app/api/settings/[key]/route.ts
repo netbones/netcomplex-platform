@@ -2,7 +2,6 @@ import {
   db,
   settings,
   apiError,
-  apiForbidden,
   apiInternalError,
   apiNotFound,
   apiSuccess,

@@ -54,7 +54,7 @@ describe('TIERS module lists', () => {
   });
 
   it('no duplicate modules within any tier', () => {
-    for (const [tierId, tier] of Object.entries(TIERS)) {
+    for (const tier of Object.values(TIERS)) {
       const seen = new Set<ModuleKey>();
       for (const m of tier.modules) {
         expect(seen.has(m)).toBe(false);

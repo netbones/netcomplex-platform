@@ -1,7 +1,6 @@
 import {
   apiSuccess,
   apiInternalError,
-  apiUnauthorized,
   requireAnyPermission,
   runWithRLS,
   requireTenantRLS,

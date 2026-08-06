@@ -166,10 +166,6 @@ export async function requireAuth(request: Request, options?: AuthOptions): Prom
   return { success: true, data: authData };
 }
 
-async function checkActiveSuspension(userId: string): Promise<SuspensionInfo | null> {
-  return checkUserSuspension(userId);
-}
-
 export async function requireNotSuspended(request: Request): Promise<{
   suspended: boolean;
   suspension: SuspensionInfo | null;

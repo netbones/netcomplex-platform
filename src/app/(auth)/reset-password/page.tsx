@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { apiPost, ApiClientError } from '@/shared/api/http-client';
+import { apiPost } from '@/shared/api/http-client';
 
 export default function ResetPasswordPage() {
   const searchParams = useSearchParams();

@@ -17,7 +17,6 @@ interface ConversationDetailProps {
   messages: Message[];
   messagesLoading: boolean;
   currentUserId: string;
-  currentUserName: string;
   typingUsers: string[];
   onBack: () => void;
   onSend: (text: string) => void;
@@ -29,7 +28,6 @@ export function ConversationDetail({
   messages,
   messagesLoading,
   currentUserId,
-  currentUserName,
   typingUsers,
   onBack,
   onSend,

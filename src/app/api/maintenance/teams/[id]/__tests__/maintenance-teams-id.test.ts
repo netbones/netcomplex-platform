@@ -111,11 +111,6 @@ const activeTeam = {
   deletedAt: null,
 };
 
-const deletedTeam = {
-  ...activeTeam,
-  deletedAt: new Date('2026-06-21T11:00:00Z'),
-};
-
 function makeRequest(method: string, body?: unknown): Request {
   return new Request(`http://localhost/api/maintenance/teams/${TEAM_ID}`, {
     method,

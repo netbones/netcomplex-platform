@@ -127,10 +127,8 @@ export const adminBillingRouter = router({
     const active = subscriptions.filter(s => s.status === 'ACTIVE');
     const cancelled = subscriptions.filter(s => s.status === 'CANCELLED');
     const tierDist: Record<string, number> = {};
-    for (const s of subscriptions) {
-      const tier = 'STANDARD'; // tier not on subscription — use plan join below if needed
-      tierDist[tier] = (tierDist[tier] || 0) + 1;
-    }
+    // tier not on subscription — until a plan join is added, all are bucketed as STANDARD
+    tierDist['STANDARD'] = subscriptions.length;
     const mrr = plans.reduce((sum, p) => sum + parseFloat(String(p.monthlyPrice ?? '0')), 0);
     const trialConversions = subscriptions.filter(s => s.convertedAt).length;
     const total = active.length + cancelled.length;

@@ -8,7 +8,7 @@ import { INTEREST_CATEGORIES } from '@shared/lib';
 import { usePageLoading } from '@shared/ui';
 import { trpc } from '@api/client';
 
-import { Loader2, Users } from 'lucide-react';
+import { Users } from 'lucide-react';
 interface Group {
   id: string;
   name: string;

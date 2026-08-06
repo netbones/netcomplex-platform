@@ -10,7 +10,6 @@ import {
 
 import { TRPCError } from '@trpc/server';
 import {
-  findTenantCompetition,
   findActiveCompetitions,
   getCompetitionDetail,
   joinRaffle,

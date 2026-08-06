@@ -12,7 +12,7 @@ import {
   withErrorHandler,
 } from '@api/server';
 
-import { eq, and, isNull, count, sql } from 'drizzle-orm';
+import { eq, and, isNull, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { createId } from '@shared/lib/id';
 

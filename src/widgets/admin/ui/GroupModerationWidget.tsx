@@ -49,7 +49,7 @@ export function GroupModerationWidget() {
   const handleAction = async (id: string, action: 'approve' | 'reject') => {
     setActionInProgress(id);
     try {
-      const res = await apiPost(`/api/groups/membership-requests/${id}`, { action });
+      await apiPost(`/api/groups/membership-requests/${id}`, { action });
       setRequests(prev => prev.filter(r => r.id !== id));
     } catch {
       // Refetch on error to restore consistent state

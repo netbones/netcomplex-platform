@@ -29,9 +29,16 @@ export async function POST(request: Request) {
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
+    const submittedTenantId = formData.get('tenantId') as string | null;
 
     if (!file) {
       return apiError('VALIDATION_ERROR', 'No file provided', 400);
+    }
+
+    // Verify submitted tenantId matches the resolved tenant context — fail closed
+    // if the client claims a different tenant than the one in their request context.
+    if (submittedTenantId && submittedTenantId !== tenantId) {
+      return apiError('FORBIDDEN', 'Tenant mismatch', 403);
     }
 
     const result = await uploadDocument(file, tenantId, 'proxy-forms');

@@ -126,7 +126,6 @@ export function MessagesPage({ initialConversationId }: MessagesPageProps) {
               messages={messages}
               messagesLoading={messagesLoading}
               currentUserId={currentUserId}
-              currentUserName={currentUserName}
               typingUsers={typingUsers}
               onBack={() => setSelectedConversation(null)}
               onSend={handleSend}

@@ -494,7 +494,6 @@ export const DELETE = withErrorHandler(
 
     const auth = await requireAuth(request, { permission: 'requests', module: 'maintenance' });
     if (!auth.success) return auth.response;
-    const authData = auth.data;
 
     // Soft-delete the maintenance request with tenant check
     await db

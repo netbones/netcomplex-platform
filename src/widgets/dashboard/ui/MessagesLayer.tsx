@@ -4,12 +4,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useSafeTranslation } from '@shared/lib';
 import { trpc } from '@api/client';
-import { MessagesCommandBar, type MessagesCommandBarUrgency } from './MessagesCommandBar';
-import {
-  MESSAGES_DOMAIN_DEFINITIONS,
-  type MessagesDomainDef,
-  type MessagesDomainId,
-} from './MessagesSubLauncher';
+import { MessagesCommandBar } from './MessagesCommandBar';
+import { MESSAGES_DOMAIN_DEFINITIONS, type MessagesDomainDef } from './MessagesSubLauncher';
 
 const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.conversations': 'Conversations',
@@ -19,15 +15,6 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.descriptions.announcements': 'Community announcements and updates',
   'domains.descriptions.notifications': 'System notifications and alerts',
 };
-
-// ═══════════════════════════════════════════════════════════════
-// TYPES
-// ═══════════════════════════════════════════════════════════════
-
-interface UrgencyResponse {
-  commandBar: MessagesCommandBarUrgency;
-  domainBadges: Record<string, number>;
-}
 
 // ═══════════════════════════════════════════════════════════════
 // DOMAIN GRID CARD

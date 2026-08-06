@@ -1,4 +1,4 @@
-import { db, events, notDeleted, apiSuccess, withErrorHandler } from '@api/server';
+import { db, events, apiSuccess, withErrorHandler } from '@api/server';
 
 import { eq, and, desc, asc, gte, isNull } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';

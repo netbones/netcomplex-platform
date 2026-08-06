@@ -125,7 +125,6 @@ export const PATCH = withErrorHandler(
     const { id } = await params;
     const auth = await requireAuth(request, { permission: 'content', module: 'resources' });
     if (!auth.success) return auth.response;
-    const authData = auth.data;
 
     // Enforce tenant isolation
     const { tenantId } = await withTenant();
@@ -192,7 +191,6 @@ export const DELETE = withErrorHandler(
     const { id } = await params;
     const auth = await requireAuth(request, { permission: 'admin' });
     if (!auth.success) return auth.response;
-    const authData = auth.data;
 
     // Enforce tenant isolation
     const { tenantId } = await withTenant();

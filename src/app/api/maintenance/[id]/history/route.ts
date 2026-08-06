@@ -29,7 +29,6 @@ export const GET = withErrorHandler(
 
     const auth = await requireAuth(request, { permission: 'requests', module: 'maintenance' });
     if (!auth.success) return auth.response;
-    const authData = auth.data;
 
     // First verify the request belongs to this tenant
     const [mr] = await db

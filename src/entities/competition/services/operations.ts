@@ -368,7 +368,7 @@ export async function updateEntry(
   data: { score?: number; status?: string; prize?: string },
   tenantId: string
 ) {
-  const { entry } = await findEntryInTenant(entryId, tenantId);
+  await findEntryInTenant(entryId, tenantId);
 
   const updateData: Record<string, unknown> = { updatedAt: new Date() };
   if (data.score !== undefined) updateData.score = data.score;
@@ -390,7 +390,7 @@ export async function markEntryWinner(
   prize: string | undefined,
   tenantId: string
 ) {
-  const { entry, comp } = await findEntryInTenant(entryId, tenantId);
+  const { comp } = await findEntryInTenant(entryId, tenantId);
 
   const nowDate = new Date();
   const [updated] = await db

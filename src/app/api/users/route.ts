@@ -192,7 +192,6 @@ export const GET = withErrorHandler(async (request: Request) => {
 export const POST = withErrorHandler(async (request: Request) => {
   const auth = await requireAuth(request, { permission: 'users' });
   if (!auth.success) return auth.response;
-  const authData = auth.data;
 
   const body = await request.json();
   const ts = now();

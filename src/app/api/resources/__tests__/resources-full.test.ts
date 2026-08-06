@@ -363,7 +363,6 @@ describe('Resource API', () => {
       });
 
       const response = await POST(request);
-      const data = await response.json();
 
       expect(response.status).toBe(401);
     });
@@ -381,7 +380,6 @@ describe('Resource API', () => {
       });
 
       const response = await POST(request);
-      const data = await response.json();
 
       expect(response.status).toBe(403);
     });

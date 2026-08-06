@@ -219,7 +219,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       return apiForbidden('Admin access required');
     }
 
-    const { reason, notes } = await request.json();
+    const { reason } = await request.json();
 
     // Update listing with Drizzle (soft delete with tenant filter)
     await db

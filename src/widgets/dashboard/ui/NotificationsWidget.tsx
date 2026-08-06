@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { authClient, trpc } from '@api/client';
 import { useNotifSubscription } from '../model/useNotifSubscription';
 
@@ -16,15 +16,8 @@ export function NotificationsWidget({ count = 0 }: NotificationsWidgetProps) {
 
   const { data: notifData, refetch } = trpc.notifications.list.useQuery(
     { unread: true },
-    { staleTime: 30_000, refetchInterval: 30_000 },
+    { staleTime: 30_000, refetchInterval: 30_000 }
   );
-
-  const refresh = useCallback(() => {
-    refetch().then(res => {
-      const list = res.data?.data;
-      setUnread(Array.isArray(list) ? list.length : 0);
-    });
-  }, [refetch]);
 
   useEffect(() => {
     const list = notifData?.data;
@@ -39,6 +32,8 @@ export function NotificationsWidget({ count = 0 }: NotificationsWidgetProps) {
     }
     prevUnread.current = unread;
   }, [unread]);
+
+  useNotifSubscription(session?.user?.id, refetch);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {

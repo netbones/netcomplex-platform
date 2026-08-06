@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { TenantStyles } from './TenantStyles';
 import { useTenantStore } from '../api/context';
-import type { Tenant, TierLevel } from '@shared/lib';
+import type { TierLevel } from '@shared/lib';
 import type { TenantTier } from '@shared/lib/types/tenant';
 
 const FALLBACK_NAME = 'Netcomplex';

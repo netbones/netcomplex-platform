@@ -14,6 +14,7 @@ import { AIFrivolityCheckPanel } from '@entities/dispute';
 import { CoolingOffTimer } from '@entities/dispute';
 import { EvidencePreviewGrid } from '@entities/dispute';
 import { DisputeActionsBar } from '@entities/dispute';
+import { authClient } from '@api/client';
 import { apiGet, ApiClientError } from '@/shared/api/http-client';
 
 interface DetailState {
@@ -34,8 +35,9 @@ export default function AdminDisputeDetailPage() {
     error: null,
   });
 
-  const [userRole, setUserRole] = useState('RESIDENT');
-  const [userId, setUserId] = useState('');
+  const { data: session } = authClient.useSession();
+  const userRole = session?.user?.role?.toUpperCase() ?? 'RESIDENT';
+  const userId = session?.user?.id ?? '';
 
   const BREADCRUMBS: Array<{ label: string; href: string }> = [
     { label: 'Admin', href: '/admin' },
