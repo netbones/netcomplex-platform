@@ -1,41 +1,17 @@
 import { z } from 'zod';
 import {
-  agentAccesses,
-  albums,
-  bookings,
-  conversationParticipants,
-  db,
   households,
-  maintenanceRequests,
-  notDeleted,
-  notifications,
-  now,
-  platformSuspensions,
   premiumSeats,
-  privilegedProcedure,
   profiles,
   properties,
   protectedProcedure,
-  publicProcedure,
   router,
   soloSeats,
   standardSeats,
-  tenantProcedure,
   toEnvelope,
   toEnvelopeSchema,
   users,
-  writeAuditLog,
-} from '@api/server';
-import {
-  propertyDto,
   userDto,
-  profileDto,
-  albumDto,
-  seatDto,
-  premiumSeatDto,
-  standardSeatDto,
-  agentAccessDto,
-  suspensionDto,
 } from '@api/server';
 
 // Zod v4 DTOs (from drizzle-zod) are incompatible with Zod v3's ZodTypeAny constraint
@@ -45,24 +21,7 @@ import {
 const uDto = userDto as any;
 
 import { TRPCError } from '@trpc/server';
-import { hasPermission } from '@shared/lib';
-import {
-  eq,
-  and,
-  or,
-  asc,
-  desc,
-  gt,
-  ne,
-  like,
-  count,
-  ilike,
-  inArray,
-  sql,
-  InferSelectModel,
-} from 'drizzle-orm';
-import type { SQL } from 'drizzle-orm';
-import { createId } from '@shared/lib/id';
+import { eq, and } from 'drizzle-orm';
 
 export const myProfileRouter = router({
   // ============ MY PROFILE (User + Household + Platform Address) ============
