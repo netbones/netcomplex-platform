@@ -1,4 +1,15 @@
 import { pgTable, text, integer, timestamp } from 'drizzle-orm/pg-core';
 import { achievementCategoryEnum } from './achievement-category-enum';
 
-export const achievementDefinitions = pgTable('AchievementDefinition', { id: text('id').primaryKey(), key: text('key').notNull(), label: text('label').notNull(), description: text('description'), icon: text('icon'), eventType: text('eventType').notNull(), threshold: integer('threshold').default(1).notNull(), category: achievementCategoryEnum('category').default('ENGAGEMENT').notNull(), createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }) });
+export const achievementDefinitions = pgTable('AchievementDefinition', {
+  id: text('id').primaryKey(),
+  key: text('key').notNull(),
+  label: text('label').notNull(),
+  description: text('description'),
+  icon: text('icon'),
+  eventType: text('eventType').notNull(),
+  threshold: integer('threshold').default(1).notNull(),
+  category: achievementCategoryEnum('category').default('ENGAGEMENT').notNull(),
+  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+  deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }),
+});

@@ -5,4 +5,13 @@ import { questions } from './questions';
 import { responses } from './responses';
 import { surveySections } from './survey-sections';
 
-export const surveysRelations = relations(surveys, (helpers) => ({ Tenant: helpers.one(tenants, { relationName: 'SurveyToTenant', fields: [ surveys.tenantId ], references: [ tenants.id ] }), Question: helpers.many(questions, { relationName: 'QuestionToSurvey' }), Response: helpers.many(responses, { relationName: 'ResponseToSurvey' }), SurveySection: helpers.many(surveySections, { relationName: 'SurveyToSurveySection' }) }));
+export const surveysRelations = relations(surveys, helpers => ({
+  Tenant: helpers.one(tenants, {
+    relationName: 'SurveyToTenant',
+    fields: [surveys.tenantId],
+    references: [tenants.id],
+  }),
+  Question: helpers.many(questions, { relationName: 'QuestionToSurvey' }),
+  Response: helpers.many(responses, { relationName: 'ResponseToSurvey' }),
+  SurveySection: helpers.many(surveySections, { relationName: 'SurveyToSurveySection' }),
+}));

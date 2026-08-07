@@ -1,4 +1,20 @@
 import { pgTable, text, boolean, timestamp, jsonb } from 'drizzle-orm/pg-core';
 import { notificationTypeEnum } from './notification-type-enum';
 
-export const notifications = pgTable('Notification', { id: text('id').primaryKey(), tenantId: text('tenantId').notNull(), userId: text('userId').notNull(), title: text('title').notNull(), message: text('message').notNull(), type: notificationTypeEnum('type').default('info').notNull(), link: text('link'), read: boolean('read').default(false).notNull(), createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }), senderId: text('senderId'), readAt: timestamp('readAt', { mode: 'date', precision: 3 }), payload: jsonb('payload'), deliveryStatus: text('deliveryStatus').default('PENDING').notNull(), category: text('category') });
+export const notifications = pgTable('Notification', {
+  id: text('id').primaryKey(),
+  tenantId: text('tenantId').notNull(),
+  userId: text('userId').notNull(),
+  title: text('title').notNull(),
+  message: text('message').notNull(),
+  type: notificationTypeEnum('type').default('info').notNull(),
+  link: text('link'),
+  read: boolean('read').default(false).notNull(),
+  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+  deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }),
+  senderId: text('senderId'),
+  readAt: timestamp('readAt', { mode: 'date', precision: 3 }),
+  payload: jsonb('payload'),
+  deliveryStatus: text('deliveryStatus').default('PENDING').notNull(),
+  category: text('category'),
+});

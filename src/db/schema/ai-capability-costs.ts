@@ -1,3 +1,10 @@
 import { pgTable, text, integer, timestamp } from 'drizzle-orm/pg-core';
 
-export const aiCapabilityCosts = pgTable('AiCapabilityCost', { id: text('id').primaryKey(), capability: text('capability').notNull(), estimatedTokens: integer('estimatedTokens').notNull(), maxTokens: integer('maxTokens').notNull(), notes: text('notes'), updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull() });
+export const aiCapabilityCosts = pgTable('AiCapabilityCost', {
+  id: text('id').primaryKey(),
+  capability: text('capability').notNull(),
+  estimatedTokens: integer('estimatedTokens').notNull(),
+  maxTokens: integer('maxTokens').notNull(),
+  notes: text('notes'),
+  updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull(),
+});

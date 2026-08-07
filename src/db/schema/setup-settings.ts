@@ -1,3 +1,11 @@
 import { pgTable, text, jsonb, timestamp } from 'drizzle-orm/pg-core';
 
-export const setupSettings = pgTable('SetupSetting', { id: text('id').primaryKey(), tenantSetupId: text('tenantSetupId').notNull(), key: text('key').notNull(), value: jsonb('value').notNull(), createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }) });
+export const setupSettings = pgTable('SetupSetting', {
+  id: text('id').primaryKey(),
+  tenantSetupId: text('tenantSetupId').notNull(),
+  key: text('key').notNull(),
+  value: jsonb('value').notNull(),
+  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+  updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+  deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }),
+});

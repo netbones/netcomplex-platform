@@ -1,3 +1,15 @@
 import { pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 
-export const residentDelegations = pgTable('ResidentDelegation', { id: text('id').primaryKey(), tenantId: text('tenantId').notNull(), propertyId: text('propertyId').notNull(), ownerId: text('ownerId').notNull(), profileId: text('profileId').notNull(), scopes: text('scopes').array().notNull(), grantedAt: timestamp('grantedAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), expiresAt: timestamp('expiresAt', { mode: 'date', precision: 3 }), revokedAt: timestamp('revokedAt', { mode: 'date', precision: 3 }), createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull() });
+export const residentDelegations = pgTable('ResidentDelegation', {
+  id: text('id').primaryKey(),
+  tenantId: text('tenantId').notNull(),
+  propertyId: text('propertyId').notNull(),
+  ownerId: text('ownerId').notNull(),
+  profileId: text('profileId').notNull(),
+  scopes: text('scopes').array().notNull(),
+  grantedAt: timestamp('grantedAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+  expiresAt: timestamp('expiresAt', { mode: 'date', precision: 3 }),
+  revokedAt: timestamp('revokedAt', { mode: 'date', precision: 3 }),
+  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+  updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull(),
+});

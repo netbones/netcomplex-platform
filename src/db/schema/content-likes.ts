@@ -1,3 +1,10 @@
 import { pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 
-export const contentLikes = pgTable('ContentLike', { id: text('id').primaryKey(), tenantId: text('tenantId').notNull(), contentId: text('contentId').notNull(), userId: text('userId').notNull(), createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }) });
+export const contentLikes = pgTable('ContentLike', {
+  id: text('id').primaryKey(),
+  tenantId: text('tenantId').notNull(),
+  contentId: text('contentId').notNull(),
+  userId: text('userId').notNull(),
+  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+  deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }),
+});

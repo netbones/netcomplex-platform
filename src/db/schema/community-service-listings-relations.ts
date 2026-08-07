@@ -6,4 +6,22 @@ import { users } from './users';
 import { communityServiceReviews } from './community-service-reviews';
 import { serviceBookings } from './service-bookings';
 
-export const communityServiceListingsRelations = relations(communityServiceListings, (helpers) => ({ Tenant: helpers.one(tenants, { relationName: 'CommunityServiceListingToTenant', fields: [ communityServiceListings.tenantId ], references: [ tenants.id ] }), communityServiceInquiry: helpers.many(communityServiceInquiries, { relationName: 'CommunityServiceInquiryToCommunityServiceListing' }), user: helpers.one(users, { relationName: 'CommunityServiceListingTouser', fields: [ communityServiceListings.providerId ], references: [ users.id ] }), communityServiceReview: helpers.many(communityServiceReviews, { relationName: 'CommunityServiceListingToCommunityServiceReview' }), serviceBooking: helpers.many(serviceBookings, { relationName: 'ServiceBookingToListing' }) }));
+export const communityServiceListingsRelations = relations(communityServiceListings, helpers => ({
+  Tenant: helpers.one(tenants, {
+    relationName: 'CommunityServiceListingToTenant',
+    fields: [communityServiceListings.tenantId],
+    references: [tenants.id],
+  }),
+  communityServiceInquiry: helpers.many(communityServiceInquiries, {
+    relationName: 'CommunityServiceInquiryToCommunityServiceListing',
+  }),
+  user: helpers.one(users, {
+    relationName: 'CommunityServiceListingTouser',
+    fields: [communityServiceListings.providerId],
+    references: [users.id],
+  }),
+  communityServiceReview: helpers.many(communityServiceReviews, {
+    relationName: 'CommunityServiceListingToCommunityServiceReview',
+  }),
+  serviceBooking: helpers.many(serviceBookings, { relationName: 'ServiceBookingToListing' }),
+}));

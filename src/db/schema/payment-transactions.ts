@@ -2,4 +2,20 @@ import { pgTable, text, decimal, timestamp } from 'drizzle-orm/pg-core';
 import { transactionStatusEnum } from './transaction-status-enum';
 import { paymentGatewayEnum } from './payment-gateway-enum';
 
-export const paymentTransactions = pgTable('PaymentTransaction', { id: text('id').primaryKey(), providerId: text('providerId').notNull(), tenantId: text('tenantId').notNull(), subscriptionId: text('subscriptionId').notNull(), amount: decimal('amount', { precision: 65, scale: 30 }).notNull(), currency: text('currency').default('ZAR').notNull(), platformFee: decimal('platformFee', { precision: 65, scale: 30 }).notNull(), processorFee: decimal('processorFee', { precision: 65, scale: 30 }).notNull(), netAmount: decimal('netAmount', { precision: 65, scale: 30 }).notNull(), status: transactionStatusEnum('status').default('PENDING').notNull(), gateway: paymentGatewayEnum('gateway').notNull(), externalRef: text('externalRef'), invoiceUrl: text('invoiceUrl'), createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }) });
+export const paymentTransactions = pgTable('PaymentTransaction', {
+  id: text('id').primaryKey(),
+  providerId: text('providerId').notNull(),
+  tenantId: text('tenantId').notNull(),
+  subscriptionId: text('subscriptionId').notNull(),
+  amount: decimal('amount', { precision: 65, scale: 30 }).notNull(),
+  currency: text('currency').default('ZAR').notNull(),
+  platformFee: decimal('platformFee', { precision: 65, scale: 30 }).notNull(),
+  processorFee: decimal('processorFee', { precision: 65, scale: 30 }).notNull(),
+  netAmount: decimal('netAmount', { precision: 65, scale: 30 }).notNull(),
+  status: transactionStatusEnum('status').default('PENDING').notNull(),
+  gateway: paymentGatewayEnum('gateway').notNull(),
+  externalRef: text('externalRef'),
+  invoiceUrl: text('invoiceUrl'),
+  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+  deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }),
+});

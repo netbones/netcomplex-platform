@@ -1,4 +1,19 @@
 import { pgTable, text, decimal, integer, timestamp, boolean } from 'drizzle-orm/pg-core';
 import { couponDiscountTypeEnum } from './coupon-discount-type-enum';
 
-export const coupons = pgTable('Coupon', { id: text('id').primaryKey(), tenantId: text('tenantId').notNull(), code: text('code').notNull(), discountType: couponDiscountTypeEnum('discountType').notNull(), discountValue: decimal('discountValue', { precision: 65, scale: 30 }).notNull(), maxRedemptions: integer('maxRedemptions').default(0).notNull(), currentRedemptions: integer('currentRedemptions').default(0).notNull(), validFrom: timestamp('validFrom', { mode: 'date', precision: 3 }), validUntil: timestamp('validUntil', { mode: 'date', precision: 3 }), isActive: boolean('isActive').default(true).notNull(), planId: text('planId'), minPlanPrice: decimal('minPlanPrice', { precision: 65, scale: 30 }), createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull() });
+export const coupons = pgTable('Coupon', {
+  id: text('id').primaryKey(),
+  tenantId: text('tenantId').notNull(),
+  code: text('code').notNull(),
+  discountType: couponDiscountTypeEnum('discountType').notNull(),
+  discountValue: decimal('discountValue', { precision: 65, scale: 30 }).notNull(),
+  maxRedemptions: integer('maxRedemptions').default(0).notNull(),
+  currentRedemptions: integer('currentRedemptions').default(0).notNull(),
+  validFrom: timestamp('validFrom', { mode: 'date', precision: 3 }),
+  validUntil: timestamp('validUntil', { mode: 'date', precision: 3 }),
+  isActive: boolean('isActive').default(true).notNull(),
+  planId: text('planId'),
+  minPlanPrice: decimal('minPlanPrice', { precision: 65, scale: 30 }),
+  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+  updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull(),
+});
