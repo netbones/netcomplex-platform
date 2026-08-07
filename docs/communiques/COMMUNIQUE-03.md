@@ -1,7 +1,7 @@
 ---
 title: COMMUNIQUE-03 — Tier Gating System Architecture Review
 status: current
-reviewed: 2026-07-28
+reviewed: 2026-08-06
 tags: [status, communication]
 audience: all
 ---
@@ -211,7 +211,7 @@ During active development (pre-launch), the Soralia tenant should be `PREMIUM` t
 
 - [x] ✅ `GET /api/gate/context` route exists at `src/app/api/gate/context/route.ts`
 - [x] ✅ Zustand store (`useGateContextStore`) at `src/entities/tenant/model/gate-context-store.ts`
-- [ ] ⏳ Hydrate on app shell mount
+- [x] ✅ Hydrate on app shell mount (see `src/app/(tenant)/layout.tsx:11`)
 
 ### Phase C — Domain card gating
 

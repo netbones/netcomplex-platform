@@ -1,7 +1,7 @@
 ---
 title: COMMUNIQUE — Better Auth Admin Plugin & User Impersonation
 status: current
-reviewed: 2026-07-28
+reviewed: 2026-08-06
 tags: [status, communication]
 audience: all
 ---
@@ -117,8 +117,8 @@ Implementation checklist for Option A:
 - [x] ✅ `customSyntheticUser` configured in `auth.ts:65-72`
 - [x] ✅ `banned`/`banReason`/`banExpires` columns exist in schema.prisma:121-123
 - [x] ✅ `impersonatedBy` confirmed on session table
-- [ ] Test impersonation: admin logs in → `POST /api/auth/admin/impersonate-user`
-- [ ] ⏳ Test stop: `POST /api/auth/admin/stop-impersonating`
+- [ ] ⏳ Test impersonation: admin logs in → `POST /api/auth/admin/impersonate-user`
+- [ ] ⏳ Test stop: `POST /api/auth/admin/stop-impersonating` — tracked by BD `nkgt`
 
 ## 6. Related
 

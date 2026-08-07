@@ -1,7 +1,7 @@
 ---
 title: Identity Model Migration Plan
 status: current
-reviewed: 2026-07-28
+reviewed: 2026-08-06
 tags: [migration, database]
 audience: developer
 ---
@@ -147,11 +147,11 @@ Route Mapping:
 
 ### Phase 5: Deprecation
 
-**Status**: Future
+**Status**: ✅ Mostly Complete (verified 2026-08-06)
 
-- Remove legacy fields from User model (street, unit, homeImage, residentType)
-- Remove direct /resident routes (after redirect period)
-- Archive inactive households
+- [x] ✅ Remove legacy fields from User model (`street`, `unit`, `homeImage`, `residentType`) — verified by absence in `prisma/schema/schema.prisma`
+- [ ] Remove direct /resident routes (after redirect period) — backward-compat redirect still in place
+- [ ] Archive inactive households
 
 ---
 

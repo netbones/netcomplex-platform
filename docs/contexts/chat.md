@@ -1,7 +1,7 @@
 ---
 title: Chat Context
 status: current
-reviewed: 2026-07-28
+reviewed: 2026-08-06
 tags: [context-map, bounded-context]
 audience: developer
 ---

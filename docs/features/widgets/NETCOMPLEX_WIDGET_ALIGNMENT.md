@@ -1,7 +1,7 @@
 ---
 title: NetComplex Widget Registry — Architecture Alignment
 status: current
-reviewed: 2026-07-28
+reviewed: 2026-08-06
 tags: [feature, spec]
 audience: developer
 ---
@@ -140,6 +140,24 @@ These patterns are already correct and should not change:
 - Premium widget tier concept (`premium: boolean` on `WidgetRegistryEntry`) ✅
 - Tenant-scoped data plane with `withTenant()` / `tenantId` header pattern ✅
 - Single Next.js app serving both platform and tenant traffic via host-based routing ✅
+
+---
+
+## Status Audit (2026-08-06)
+
+Verified against the live widget manifest (`src/widgets/dashboard/model/types.ts`,
+`src/widgets/dashboard/model/widgets.ts`, `src/widgets/dashboard/model/registry.ts`):
+
+| Gap                         | Status     | Evidence                                                               |
+| --------------------------- | ---------- | ---------------------------------------------------------------------- |
+| Gap 2 — `version`           | ✅ Shipped | `version: string` on `WidgetManifest`; every entry stamped `'1.0.0'`   |
+| Gap 4 — Lazy loading        | ✅ Shipped | `component: LazyExoticComponent<WidgetComponent>` on manifest          |
+| Gap 6 — `icon` as component | ✅ Shipped | `icon: LucideIcon` typed on manifest                                   |
+| Gap 7 — `author` field      | ✅ Shipped | `author: 'internal' \| 'netcomplex-premium' \| string`; entries tagged |
+
+Gaps **1, 3, 5, 8, 9, 10** remain open (dual registry, feature-flag fallback, forced
+tenant context, `collapsed` pattern, `loader`/remote loading, drag-drop library
+confirmation) — see the gap sections above and `WIDGET_HELP.md`.
 
 ---
 

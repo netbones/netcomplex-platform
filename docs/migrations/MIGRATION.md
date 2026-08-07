@@ -1,7 +1,7 @@
 ---
 title: Migration
 status: current
-reviewed: 2026-07-28
+reviewed: 2026-08-06
 tags: [migration, database]
 audience: developer
 ---
@@ -12,11 +12,11 @@ This checklist tracks the migration of this repo to **Feature-Sliced Design (FSD
 
 ### Ground rules (read first)
 
-- [ ] ⏳ **No big-bang moves**: only migrate by vertical slice (domain) after the base skeleton exists.
-- [ ] **Thin routes**: `src/app/**` files should be composition shells (params, guards, layout composition), not “feature code”.
-- [ ] **Public API only**: import from `@/shared`, `@/entities/<x>`, `@/features/<x>`, `@/widgets/<x>`, `@/pages/<x>`, `@/processes/<x>` via each slice’s `index.ts`. No deep imports.
-- [ ] **Enforce boundaries**: add lint rules early; tighten over time (warn → error).
-- [ ] ⏳ **Pilot first**: complete one domain end-to-end (Dashboard) before attempting broad migrations.
+- [x] ✅ **No big-bang moves**: only migrate by vertical slice (domain) after the base skeleton exists.
+- [x] ✅ **Thin routes**: `src/app/**` files should be composition shells (params, guards, layout composition), not “feature code”.
+- [x] ✅ **Public API only**: import from `@/shared`, `@/entities/<x>`, `@/features/<x>`, `@/widgets/<x>`, `@/pages/<x>`, `@/processes/<x>` via each slice’s `index.ts`. No deep imports. (Enforced by ESLint + Steiger; some sidesteps allowed — see `steiger.config.js`.)
+- [x] ✅ **Enforce boundaries**: add lint rules early; tighten over time (warn → error). (Currently `warn`; `error` escalation tracked by BD `soralia-village-de8x`.)
+- [x] ✅ **Pilot first**: complete one domain end-to-end (Dashboard) before attempting broad migrations.
 
 ---
 
@@ -76,21 +76,22 @@ Layer dependency direction:
   - Fix DashboardTab interface (`widgetIds` → `defaultWidgets`)
 - [x] ✅ Dashboard route now thin composition shell
 
-### 1.3 Add lint guardrails (pending)
+### 1.3 Add lint guardrails (DONE at `warn`, escalation to `error` tracked by BD `soralia-village-de8x`)
 
-- [ ] ⏳ Add `no-restricted-imports` rules:
-  - [ ] ⏳ Block deep imports from new layers (e.g. `@/features/**/ui/**`, require slice `index.ts`)
-  - [ ] ⏳ Optionally block new imports from legacy "buckets" (`src/lib/*`, `src/components/*`) except `shared/*` migrations
-  - [ ] ⏳ Add layer boundary rules (warn initially, later error):
-    - [ ] ⏳ `features` must not import `widgets/pages/app`
-    - [ ] ⏳ `entities` must not import `features/widgets/pages/app`
-    - [ ] ⏳ `shared` must not import anything above it
+- [x] ✅ Add `no-restricted-imports` rules (`eslint.config.js`)
+- [x] ✅ Block deep imports from new layers (e.g. `@/features/**/ui/**`, require slice `index.ts`) — at `warn`
+- [x] ✅ Optionally block new imports from legacy "buckets" (`src/lib/*`, `src/components/*`) — at `warn`, allow-list in `steiger.config.js`
+- [x] ✅ Add layer boundary rules (warn initially, later error):
+  - [x] ✅ `features` must not import `widgets/pages/app`
+  - [x] ✅ `entities` must not import `features/widgets/pages/app`
+  - [x] ✅ `shared` must not import anything above it
+- [ ] **Not yet**: tighten `warn → error` (deferred — baseline 582 findings at `.planning/phases/44-m5a-hardening/44-01-baseline-report.txt`)
 
 ### 1.4 Quality gates
 
 - [x] `pnpm run typecheck` ✅
-- [x] `pnpm run lint` ✅ (warnings only, pre-existing)
-- [ ] `pnpm run build` ⚠️ (pre-existing pg module issue)
+- [x] `pnpm run lint` ✅ (warnings only — baseline being closed by Phase 44 follow-ups)
+- [x] `pnpm run build` ✅ (post-Vercel hook fix in commit `7d9398e9`)
 
 ---
 
@@ -104,7 +105,7 @@ Layer dependency direction:
 - [x] ✅ Update imports across app/components (109 imports updated)
 - [x] ✅ Ensure client components keep `"use client"` where needed
 - [x] ✅ Populate `src/shared/ui/index.ts` with all UI components (Apr 2026)
-- [ ] ⏳ **Pending**: Enforce Public API via lint rules (Phase 1.3)
+- [x] ✅ **Done at `warn`**: Enforce Public API via lint rules (Phase 1.3); `error` escalation in BD `soralia-village-de8x`
 
 ### 2.2 Shared utilities + infra
 
@@ -127,9 +128,9 @@ Layer dependency direction:
 
 ### 2.4 Quality gates
 
-- [ ] ⏳ `pnpm run typecheck`
-- [ ] ⏳ `pnpm run lint`
-- [ ] ⏳ `pnpm run build`
+- [x] ✅ `pnpm run typecheck`
+- [x] ✅ `pnpm run lint`
+- [x] ✅ `pnpm run build`
 
 ---
 
@@ -189,23 +190,23 @@ Layer dependency direction:
   - [x] ✅ import from `@pages/dashboard`
   - [x] ✅ contain minimal glue only (no dashboard logic)
 
-### 3.5 Enforce boundaries (tighten)
+### 3.5 Enforce boundaries (tighten) — partially done
 
-- [ ] Turn boundary lint rules for dashboard slices from warn → error
-- [ ] ⏳ Verify there are **no deep imports** within new slices
+- [x] ✅ Verify there are **no deep imports** within new slices (Steiger + ESLint both green at `warn` level)
+- [ ] Turn boundary lint rules for dashboard slices from warn → error (deferred — see BD `soralia-village-de8x`)
 
 ### 3.6 Quality gates + smoke test
 
 - [x] `pnpm run typecheck` ✅
 - [x] `pnpm run lint` ✅ (warnings only)
-- [ ] `pnpm run build` ⚠️ (pre-existing pg module issue, not blocking)
+- [x] `pnpm run build` ✅
 - [x] `pnpm run dev` and verify `/dashboard` renders and widgets work ✅
 
 ### 3.7 "Pilot done" exit criteria
 
 - [x] `src/app/dashboard/page.tsx` is a thin composition shell ✅
 - [x] Dashboard-related code is not in `src/lib/*` (unless truly shared) or `src/components/dashboard/*` ✅
-- [ ] ⏳ Lint boundaries prevent backsliding (pending)
+- [x] ✅ Lint boundaries prevent backsliding (at `warn`; `error` escalation in BD `soralia-village-de8x`)
 
 ---
 
@@ -228,16 +229,17 @@ For each domain:
 - [x] ✅ Identify `features/<domain-*>/`
 - [x] ✅ Identify `entities/<domain>/`
 - [x] ✅ Move code + update imports
-- [ ] ⏳ Tighten lint boundaries for that domain
-- [x] Run quality gates (typecheck ✅, lint ✅, build ⚠️ pre-existing issue)
+- [x] ✅ Tighten lint boundaries for that domain (at `warn`; `error` escalation in BD `soralia-village-de8x`)
+- [x] Run quality gates (typecheck ✅, lint ✅, build ✅)
 
 ---
 
 ## Cleanup (final phase)
 
-- [ ] ⏳ Remove/empty legacy buckets (`src/components/*`, `src/lib/*`) once all domains migrated
-- [ ] ⏳ Make boundary violations fail CI (eslint errors)
-- [ ] ⏳ Update `README.md` with the new architecture rules + import conventions
+- [x] ✅ Update `README.md` with the new architecture rules + import conventions
+- [x] ✅ Remove empty legacy buckets (`src/hooks/`, `src/components/surveys/` — see Phase 44 cleanup summary)
+- [ ] Empty `src/components/*` and `src/lib/*` of remaining legacy (mostly done; small residue in `src/lib/sanitization.ts` and dead exports — tracked ad-hoc)
+- [ ] Make boundary violations fail CI (escalate `warn → error`) — tracked by BD `soralia-village-de8x`
 
 ---
 
@@ -245,20 +247,20 @@ For each domain:
 
 ### High Priority
 
-- [ ] ⏳ Phase 1.3: Add lint guardrails (no-restricted-imports rules) - **Blocked by Public API cleanup**
-- [ ] ⏳ Phase 3.5: Enforce lint boundaries for dashboard slices - **Blocked by Phase 1.3**
+- [x] ✅ Phase 1.3: Add lint guardrails (no-restricted-imports rules) — at `warn`, escalation in BD `soralia-village-de8x`
+- [x] ✅ Phase 3.5: Enforce lint boundaries for dashboard slices — at `warn`
 - [x] ✅ Update README.md with new FSD architecture rules
 
 ### Medium Priority
 
-- [ ] ⏳ Phase 2.1: Enforce Public API via lint rules (Phase 1.3)
+- [x] ✅ Phase 2.1: Enforce Public API via lint rules (Phase 1.3)
 - [x] ✅ Complete migration of `src/components/surveys` to FSD layers
-- [ ] ⏳ Fix `pnpm run build` issue (pg module)
+- [x] ✅ Fix `pnpm run build` issue (pg module) — resolved via `postinstall`/`prebuild` hook (commit `7d9398e9`)
 
 ### Low Priority (Cleanup)
 
-- [ ] ⏳ Final removal of `src/lib/sanitization.ts` if possible
-- [ ] ⏳ Remove empty or legacy buckets once all domains migrated
+- [ ] Final removal of `src/lib/sanitization.ts` if possible
+- [ ] Remove empty or legacy buckets once all domains migrated (mostly done; small residue)
 
 ---
 
@@ -286,12 +288,12 @@ For each domain:
 
 ### Remaining
 
-- [ ] ⏳ Phase 1.3: Add lint guardrails (no-restricted-imports rules)
-- [ ] ⏳ Phase 3.5: Enforce lint boundaries for dashboard slices
-- [ ] ⏳ Phase 2.2: Complete shared/api/\* infrastructure
+- [ ] Phase 1.3 → `warn → error` escalation (BD `soralia-village-de8x`)
+- [ ] Phase 3.5 → `warn → error` escalation (BD `soralia-village-de8x`)
+- [x] ✅ Phase 2.2: Complete shared/api/\* infrastructure
 
 ## FSD Architectural Audit (Post-Migration)
 
 - [x] ✅ Survey Module: Successfully migrated to FSD (entities/survey, features/survey-builder) [x]
-- [x] ✅ Boundary Enforcement: Strict `no-restricted-imports` linting rules enabled and verified [x]
-- [x] ✅ Legacy Buckets: `src/lib`, `src/hooks`, `src/components/surveys` successfully removed/consolidated [x]
+- [x] ✅ Boundary Enforcement: `no-restricted-imports` + Steiger enabled at `warn` level (verified) [x]
+- [x] ✅ Legacy Buckets: `src/hooks`, `src/components/surveys` removed; `src/lib`, `src/components` substantially consolidated [x]

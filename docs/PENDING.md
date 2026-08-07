@@ -1,7 +1,7 @@
 ---
 title: Pending Work Items — Priority Assessment
 status: current
-reviewed: 2026-08-05
+reviewed: 2026-08-06
 tags: [tracking, priorities, todos, bd-cross-ref]
 audience: all
 ---
@@ -12,10 +12,10 @@ audience: all
 > priority summary and cross-references BD IDs. Do not re-list individual items
 > here that BD already tracks — consult `bd list` for the live queue.
 >
-> Reviewed 2026-08-05. BD queue snapshot: **50 open** (16 P1, 7 P2, 26 P3, 1 P4).
-> 9 items are unblocked (ready).
+> Reviewed 2026-08-06. BD queue snapshot: **50 open** (16 P1, 7 P2, 26 P3, 1 P4).
+> 10 items are unblocked (ready).
 >
-> **Closed since last review (2026-07-30 → 2026-08-05):**
+> **Closed since last review (2026-07-30 → 2026-08-06):**
 >
 > - `l0co` — Migrate remaining raw fetch() call sites to http-client (was:
 >   "to tRPC"). Completed across 5 refactor commits (37a2bce1 → 26a65b4b →
@@ -23,6 +23,10 @@ audience: all
 >   outside FormData uploads + binary downloads; http-client now exposes
 >   `apiPostForm`/`apiFetchRaw`/`apiDeleteWithBody` so the FormData bypass
 >   surface is centralized. Closed by `bd close soralia-village-l0co`.
+> - **Doc hygiene (2026-08-06)** — flipped already-implemented ⏳ markers to ✅ and
+>   refreshed `reviewed:` dates in chat.md, content.md, user.md, COMMUNIQUE.md,
+>   COMMUNIQUE-03.md, MIGRATION.md, migration-plan-identity.md,
+>   NETCOMPLEX_WIDGET_ALIGNMENT.md. See "Items Confirmed as Already Implemented".
 
 ---
 
@@ -103,10 +107,10 @@ Additional P3 items tracked only in source docs (no BD IDf yet):
 
 ---
 
-## Items Confirmed as Already Implemented (source docs need ✅ updated))
+## Items Confirmed as Already Implemented (source docs ✅ updated 2026-08-06)
 
 These adversarial items were marked ⏳ in source docs but code confirms they are
-done. Mark source docs as ✅ at next refresh:
+done. Source docs have now been updated to ✅:
 
 | Source                             | Item                                                               | Code Evidence                                                     |
 | ---------------------------------- | ------------------------------------------------------------------ | ----------------------------------------------------------------- |
@@ -135,8 +139,8 @@ done. Mark source docs as ✅ at next refresh:
 
 ## Action Items
 
-1. **Update source docs** for the ~10 confirmed-implemented items (⏳→✅) listed above.
+1. ~~Update source docs for the ~10 confirmed-implemented items (⏳→✅)~~ **Done 2026-08-06** — table above reflects the updated ✅ state.
 2. **Keep BD in sync** — all P1 items have BDs IDs; convert residual P2/P3 source-doc items to BD when they become active.
-3. **Resolve MIGRATION.md doc staleness** — 4 items in MIGRATION.md still flag work that's already done (FSD boundaries, legacy cleanup). Do not correct PENDING.md to match; fix MIGRATION.md directly.
+3. **Resolve MIGRATION.md doc staleness** — ✅ Done 2026-08-06. MIGRATION.md now reconciles FSD lint/enforcement status (`warn` level enabled; `error` escalation tracked by BD `soralia-village-de8x`); legacy cleanup + `src/lib/sanitization.ts` residue still noted as open.
 4. **A116 user-stories-john-mary.md** 114 items against M5 anchor tenant roadmap scope — might needs a `spec` discussion.
-5. **Remove duplicate widget-registry doc** — `features/widget-registry-architecture-react-rnd-v2.md` = `features/widgets/widget-registry-architecture-react-rnd-v2.md`.
+5. ~~Remove duplicate widget-registry doc~~ **Resolved** — duplicate already removed in commit `b9024cd5` (2026-07-28); PENDING.md reference corrected.
