@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { meetingProxies } from '@/db/schema/proxy-vote';
+import { meetingProxies } from '@/db/schema/meeting-proxies';
 
 describe('proxy-vote entity schema (Wave 0)', () => {
   it('exposes meetingProxies from the entity-layer barrel', () => {
