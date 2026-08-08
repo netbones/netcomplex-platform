@@ -131,6 +131,7 @@ export {
   setupMissions,
   setupSettings,
   meetingProxies,
+  agentReviews,
 } from '../db';
 export { auth } from '../auth';
 export {
@@ -138,6 +139,7 @@ export {
   guardSuspension,
   requireNotSuspended,
   requireAnyPermission,
+  requireAuth,
   throwIfSuspended,
 } from '../auth-utils';
 export type { SuspensionInfo, SessionAndRole } from '../auth-utils';

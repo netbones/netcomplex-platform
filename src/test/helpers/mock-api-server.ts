@@ -92,6 +92,7 @@ export function createApiServerMocks(overrides: Record<string, unknown> = {}) {
     eventAttendees: mockTable('eventAttendees'),
     announcements: mockTable('announcements'),
     agentAccesses: mockTable('agentAccesses'),
+    agentReviews: mockTable('agentReviews'),
     platformSuspensions: mockTable('platformSuspensions'),
     communityMerits: mockTable('communityMerits'),
     groupMembershipRequests: mockTable('groupMembershipRequests'),

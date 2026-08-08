@@ -71,6 +71,7 @@ vi.mock('@api/server', () => ({
   eventAttendees: {},
   announcements: {},
   agentAccesses: {},
+  agentReviews: {},
   platformSuspensions: {},
   groupMembershipRequests: {},
   platformModules: {},

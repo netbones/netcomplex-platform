@@ -127,6 +127,7 @@ model user {
   agentProfile                                          AgentProfile?
   agentTokensAsAgent                                    AgentToken[]              @relation("agentToken_agentIdTouser")
   agentTokensIssued                                     AgentToken[]              @relation("agentToken_issuedByIdTouser")
+  agentReviewsAsReviewer                                AgentReview[]             @relation("AgentReview_reviewerToUser")
   album                                                 Album[]
   assistSessions                                        AssistSession[]
   Booking                                               Booking[]
@@ -350,6 +351,32 @@ model AgentProfile {
   @@index([organizationId])
   @@index([rating])
   @@index([tenantId])
+  reviews AgentReview[]
+}
+
+model AgentReview {
+  id                String   @id
+  tenantId          String
+  Tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  agentProfileId    String
+  agentProfile      AgentProfile @relation(fields: [agentProfileId], references: [id], onDelete: Cascade)
+  reviewerId        String
+  reviewer          user     @relation("AgentReview_reviewerToUser", fields: [reviewerId], references: [id])
+  rating            Int
+  title             String?
+  comment           String?
+  serviceDate       DateTime?
+  responseQuality   Int?
+  isPublished       Boolean  @default(true)
+  moderatedBy       String?
+  moderatedAt       DateTime?
+  createdAt         DateTime @default(now())
+  deletedAt         DateTime?
+
+  @@index([agentProfileId])
+  @@index([tenantId])
+  @@index([rating])
+  @@index([reviewerId])
 }
 
 model PremiumSeat {

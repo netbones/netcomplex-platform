@@ -140,6 +140,7 @@ model Tenant {
   tenantSetup             TenantSetup?
   tenantFeatureFlags      TenantFeatureFlag[]
   meetingProxies          MeetingProxy[]
+  AgentReview             AgentReview[]
 
   @@index([ownerId])
 }

@@ -145,6 +145,7 @@ import { payoutRequests } from '@schema/payout-requests';
 import { walletTransactions } from '@schema/wallet-transactions';
 import { residentDelegations } from '@schema/resident-delegations';
 import { agentTokens } from '@schema/agent-tokens';
+import { agentReviews } from '@schema/agent-reviews';
 import { delegationActions } from '@schema/delegation-actions';
 import { addresses } from '@schema/addresses';
 import { addressesRelations } from '@schema/addresses-relations';
@@ -283,6 +284,7 @@ const dbSchema = {
   setupMissions,
   setupSettings,
   meetingProxies,
+  agentReviews,
 } as const;
 
 export type DbSchema = typeof dbSchema;
@@ -535,4 +537,5 @@ export {
   setupMissions,
   setupSettings,
   meetingProxies,
+  agentReviews,
 };
