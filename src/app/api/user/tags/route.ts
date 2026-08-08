@@ -5,6 +5,7 @@ import { withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
 
 export const maxDuration = 8;
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
