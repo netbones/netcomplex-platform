@@ -8,8 +8,8 @@
 > `soralia-village-zbvq` (401 hotfix, committed), `soralia-village-0jh1` (Setup Center).
 > Docs: `docs/advisories/ADVISORY-031.md` (supersedes ADVISORY-030), `ONBOARDING_REFACTOR.md`.
 
-> **Last updated:** 2026-07-23 (Session 19 — Auth gating audit + Setting type column)
-> **Total remaining:** 44 issues
+> **Last updated:** 2026-08-08 (Session 20 — Agent Reviews delivered + migration tooling bugs filed)
+> **Total remaining:** 50 issues (49 open, 1 in-progress)
 > **Note:** BD is for quick fixes and small tasks. **Any BD issue touching 5+ files across multiple FSD slices, or requiring new directories/types, is GSD territory — escalate it.**
 
 ## Summary by Priority
@@ -251,6 +251,14 @@ Phase 47 is an **M5 optional addendum** (not launch-blocking). dWallet requires 
 | `al6p` | Module gating audit: add assertModuleEnabled to 9+ unguarded modules | Delivered                     |
 | `6e1y` | Clean up dead auth imports in 14 API routes                          | Delivered                     |
 | `hoab` | Add type column to Setting table or migrate to JSONB                 | Delivered — type column added |
+
+### Session 20 — Agent Reviews + migration tooling (2 opened, 1 closed)
+
+| ID     | Title                                                                                        | Reason             |
+| ------ | -------------------------------------------------------------------------------------------- | ------------------ |
+| `jhuk` | Agent rating & review system (AgentReview CRUD)                                              | Closed — delivered |
+| `85sp` | `prisma migrate dev` fails: `meeting_proxies` missing from migration history (shadow DB gap) | Open (bug, P2)     |
+| `bfaq` | `drizzle-kit generate` fails: snapshot collision (`drizzle/meta/0002` vs `0003`)             | Open (bug, P2)     |
 
 ### Earlier Sessions
 
