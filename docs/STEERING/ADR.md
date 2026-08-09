@@ -1496,3 +1496,69 @@ The cast alias is used in `.output()` schema positions; `.parse()` calls at runt
 - Phase 120-02 SUMMARY.md: Acknowledged 33 pre-existing v3/v4 errors in `identity.ts`
 - `src/server/routers/identity.ts`: Reference implementation of the cast alias pattern
 - `src/server/routers/notifications.ts`: Second router using the cast alias pattern
+
+## ADR-027: TypeScript 7 Native Compiler Side-by-Side with TypeScript 6 API
+
+**Status:** Accepted
+
+**Date:** 2026-08-09
+
+### Context
+
+TypeScript 7.0 (the Go-based "Corsa" native port) shipped stable on 2026-07-08, delivering 8–12× faster builds (10.6s vs 25.7s on VS Code's codebase) with structurally identical type-checking to 6.0. However, **7.0 ships without a stable programmatic (compiler) API** — it exposes only the `tsc` CLI. The API returns in 7.1.
+
+This project's toolchain depends on the compiler API in two places:
+
+| Tool                                          | Dependency                   | Why it needs the API                                     |
+| --------------------------------------------- | ---------------------------- | -------------------------------------------------------- |
+| `typescript-eslint`                           | `import 'typescript'` (peer) | Type-aware lint rules (AST + type info)                  |
+| `@varlock/nextjs-integration` / other tooling | compiler API                 | Currently resolves `typescript` via peer/transitive deps |
+
+`typescript-eslint@8.x` declares a peer range of `>=4.8.4 <6.1.0`. Pointing `typescript` at the 7.0 package fails install with `ERESOLVE`, and forcing the install crashes inside `typescript-estree` (`TypeError: Cannot read properties of undefined (reading 'Cjs')`), tracked upstream as typescript-eslint#10940 / #12518 (closed as blocked on the 7.1 API).
+
+`vitest` is unaffected — it transpiles via esbuild and never imports the compiler at runtime (no runtime typecheck is enabled in `vitest.config.ts`).
+
+### Decision
+
+**Adopt two compilers side-by-side via npm aliases** (the pattern Microsoft documents for the 6.0/7.0 transition):
+
+```json
+{
+  "devDependencies": {
+    "@typescript/native": "npm:typescript@^7.0.2",
+    "typescript": "npm:@typescript/typescript6@^6.0.2"
+  }
+}
+```
+
+- The `typescript` module name resolves to `@typescript/typescript6` (bundles the 6.0.3 compiler and re-exports the TS 6 API, `tsc6` binary). Every tool that does `import 'typescript'` — `typescript-eslint`, `steiger`, `drizzle-kit`, transitive peer consumers — keeps resolving against the API surface it understands.
+- The `@typescript/native` alias installs the native Go compiler so `tsc` (and therefore `pnpm typecheck`) runs the 7.0.2 binary.
+
+**Why not upgrade to 7.0 alone?** The full drop-in only works where TypeScript is used purely as a checker. This project's lint gate (`pnpm lint`) depends on `typescript-eslint` type-aware rules; upgrading `typescript` to 7.0 would break every pre-commit lint invocation.
+
+**Why not wait for 7.1?** The 8–12× typecheck speedup is available now with zero behavioral risk (7.0's type-checking is identical to 6.0's). The side-by-side setup costs nothing while blocking nothing.
+
+**Re-evaluation trigger:** When TypeScript 7.1 ships its stable programmatic API (expected with 7.1, per the TS team), re-point `typescript` at the native package directly (`npm:typescript@^7.1.0`), drop the `@typescript/typescript6` alias, and delete the `@typescript/native` alias. Validate `pnpm lint` (type-aware rules) still works against the 7.x API before removing the side-by-side.
+
+### Consequences
+
+#### Positive
+
+- `pnpm typecheck` runs the native 7.0.2 compiler — full-build speedups of ~8–12× with identical type-checking semantics
+- `pnpm lint` (typescript-eslint) continues working unchanged against the 6.0 API
+- No source changes, no `tsconfig` flag churn (the project has no deprecated 6.0 flags that 7.0 turns into hard errors)
+- `tsc6` is available as an escape hatch if a 7.0 regression ever surfaces
+- Reversible at low cost once 7.1 lands
+
+#### Negative
+
+- Two compiler packages installed instead of one; editor type-aware lint resolves against 6.x while CI `tsc` runs 7.x — a small seam where 7.0 could reject a type the editor still accepts (none observed at adoption)
+- The native `tsc` binary must be supported by CI/Vercel build environments; npm alias packages are resolved at build time, so no runtime deploy concern
+- Requires cleanup discipline at the 7.1 boundary to avoid permanently running the dual setup
+
+### Related
+
+- TypeScript 7.0 announcement: https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/
+- Side-by-side instructions (from the announcement): `@typescript/typescript6` compat package + `@typescript/native`/`npm:typescript@rc` alias
+- typescript-eslint#10940 (TS 7 support tracking) and #12518 (closed as blocked on the 7.1 API)
+- Commit `ad0f0c98` — `build(ts): run TypeScript 7 native tsc side-by-side with TS 6 API`
