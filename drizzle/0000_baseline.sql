@@ -15,18 +15,24 @@ CREATE TYPE "public"."BillingPlanInterval" AS ENUM('MONTHLY', 'ANNUAL');--> stat
 CREATE TYPE "public"."BookingPaymentStatus" AS ENUM('PENDING', 'COMPLETED', 'REFUNDED');--> statement-breakpoint
 CREATE TYPE "public"."BookingStatus" AS ENUM('CONFIRMED', 'CANCELLED', 'COMPLETED');--> statement-breakpoint
 CREATE TYPE "public"."BursaryStatus" AS ENUM('DRAFT', 'PUBLISHED', 'ARCHIVED');--> statement-breakpoint
+CREATE TYPE "public"."CommentStatus" AS ENUM('PUBLISHED', 'HIDDEN', 'FLAGGED', 'REMOVED');--> statement-breakpoint
+CREATE TYPE "public"."CommentVoteType" AS ENUM('UPVOTE', 'DOWNVOTE');--> statement-breakpoint
 CREATE TYPE "public"."CompetitionStatus" AS ENUM('DRAFT', 'ACTIVE', 'ENDED', 'CANCELLED');--> statement-breakpoint
 CREATE TYPE "public"."CompetitionType" AS ENUM('RAFFLE', 'PHOTO', 'SCORE');--> statement-breakpoint
+CREATE TYPE "public"."ContentAuditAction" AS ENUM('CREATED', 'UPDATED', 'PUBLISHED', 'UNPUBLISHED', 'FLAGGED', 'DELETED', 'RESTORED');--> statement-breakpoint
 CREATE TYPE "public"."ContentCategory" AS ENUM('ANNOUNCEMENT', 'NEWS', 'EVENT', 'BLOG', 'CONSERVATION', 'SERVICES', 'CAMPAIGN', 'LEGAL');--> statement-breakpoint
 CREATE TYPE "public"."ContentLicense" AS ENUM('CC0', 'CC_BY', 'CC_BY_SA', 'CC_BY_NC', 'ALL_RIGHTS_RESERVED');--> statement-breakpoint
 CREATE TYPE "public"."ConversationType" AS ENUM('DIRECT', 'GROUP', 'SECURE_DIRECT', 'SECURE_GROUP');--> statement-breakpoint
 CREATE TYPE "public"."CouponDiscountType" AS ENUM('PERCENTAGE', 'FIXED');--> statement-breakpoint
+CREATE TYPE "public"."CredentialType" AS ENUM('EMAIL', 'PASSKEY', 'NOSTR', 'LNURL', 'OIDC');--> statement-breakpoint
 CREATE TYPE "public"."DelegationStatus" AS ENUM('PENDING', 'ACTIVE', 'REJECTED', 'REVOKED', 'EXPIRED');--> statement-breakpoint
 CREATE TYPE "public"."DisputeCategory" AS ENUM('NOISE', 'PETS', 'PARKING', 'BOUNDARIES', 'COMMON_PROPERTY', 'LEVY_DISPUTE', 'RULE_ENFORCEMENT', 'GOVERNANCE', 'CONDUCT', 'DAMAGE', 'OTHER');--> statement-breakpoint
 CREATE TYPE "public"."DisputeEventType" AS ENUM('CREATED', 'SUBMITTED', 'ASSIGNED', 'MEDIATION_OFFERED', 'MEDIATION_ACCEPTED', 'MEDIATION_DECLINED', 'MEDIATION_CONCLUDED', 'RULING_ISSUED', 'RESOLVED', 'WITHDRAWN', 'ESCALATED_CSOS', 'CSOS_CLOSED', 'NOTE_ADDED', 'EVIDENCE_ADDED', 'STATUS_CHANGED');--> statement-breakpoint
 CREATE TYPE "public"."DisputeRespondent" AS ENUM('RESIDENT', 'HOA', 'BOARD_MEMBER', 'TENANT_PROVIDER');--> statement-breakpoint
 CREATE TYPE "public"."DisputeSeverity" AS ENUM('MINOR', 'MODERATE', 'SERIOUS', 'URGENT');--> statement-breakpoint
 CREATE TYPE "public"."DisputeStatus" AS ENUM('DRAFT', 'SUBMITTED', 'UNDER_REVIEW', 'MEDIATION_OFFERED', 'MEDIATION_ACTIVE', 'MEDIATED_RESOLVED', 'FORMAL_RULING', 'RESOLVED', 'WITHDRAWN', 'ESCALATED_CSOS', 'CSOS_CLOSED');--> statement-breakpoint
+CREATE TYPE "public"."DueDiligenceDocumentCategory" AS ENUM('IDENTITY_DOC', 'BUSINESS_LICENSE', 'INSURANCE', 'REFERENCE', 'OTHER');--> statement-breakpoint
+CREATE TYPE "public"."DueDiligenceItemStatus" AS ENUM('PENDING', 'APPROVED', 'REJECTED');--> statement-breakpoint
 CREATE TYPE "public"."EndpointType" AS ENUM('INTERNAL_CHAT', 'EMAIL', 'WEBFORM', 'API', 'SMS', 'WHATSAPP', 'PUSH');--> statement-breakpoint
 CREATE TYPE "public"."EntryStatus" AS ENUM('JOINED', 'WITHDRAWN', 'WINNER', 'RUNNER_UP');--> statement-breakpoint
 CREATE TYPE "public"."ForwardStrategy" AS ENUM('DIRECT', 'HOUSEHOLD');--> statement-breakpoint
@@ -52,11 +58,15 @@ CREATE TYPE "public"."PriceType" AS ENUM('FIXED', 'HOURLY', 'QUOTE', 'FREE');-->
 CREATE TYPE "public"."Priority" AS ENUM('LOW', 'MEDIUM', 'HIGH', 'EMERGENCY');--> statement-breakpoint
 CREATE TYPE "public"."ProfileStatus" AS ENUM('ACTIVE', 'UPGRADED', 'REMOVED', 'EVICTED', 'LEASE_ENDED');--> statement-breakpoint
 CREATE TYPE "public"."ProviderChargeStatus" AS ENUM('PENDING', 'PAID', 'FAILED');--> statement-breakpoint
+CREATE TYPE "public"."ProviderDueDiligenceStatus" AS ENUM('PENDING_REVIEW', 'UNDER_REVIEW', 'APPROVED', 'REJECTED');--> statement-breakpoint
 CREATE TYPE "public"."ProviderEmploymentType" AS ENUM('IN_HOUSE', 'EXTERNAL');--> statement-breakpoint
 CREATE TYPE "public"."ProviderMeritType" AS ENUM('RESPONSE_TIME', 'SERVICE_QUALITY', 'REVIEW_RATING', 'COMPLIANCE', 'ENGAGEMENT', 'REFERENCE');--> statement-breakpoint
 CREATE TYPE "public"."ProviderType" AS ENUM('COMMUNITY', 'THIRD_PARTY');--> statement-breakpoint
 CREATE TYPE "public"."ProviderVerificationStatus" AS ENUM('PENDING', 'PROBATION', 'VERIFIED', 'SUSPENDED');--> statement-breakpoint
+CREATE TYPE "public"."ProxyStatus" AS ENUM('Draft', 'WaitingForUpload', 'WaitingForProxy', 'PendingHoaReview', 'Approved', 'Rejected', 'Withdrawn');--> statement-breakpoint
 CREATE TYPE "public"."QuestionType" AS ENUM('SINGLE_CHOICE', 'MULTIPLE_CHOICE', 'TEXT', 'RATING', 'YES_NO', 'LINEAR_SCALE');--> statement-breakpoint
+CREATE TYPE "public"."ReportReason" AS ENUM('SPAM', 'HARASSMENT', 'MISINFORMATION', 'HATE_SPEECH', 'VIOLENCE', 'NSFW', 'IMPERSONATION', 'OTHER');--> statement-breakpoint
+CREATE TYPE "public"."ReportResolution" AS ENUM('DISMISSED', 'COMMENT_REMOVED', 'USER_WARNED', 'USER_SUSPENDED');--> statement-breakpoint
 CREATE TYPE "public"."RequestStatus" AS ENUM('SUBMITTED', 'ASSIGNED', 'SCHEDULED', 'IN_PROGRESS', 'PENDING_PARTS', 'COMPLETED', 'CANCELLED');--> statement-breakpoint
 CREATE TYPE "public"."ResidencyType" AS ENUM('FAMILY', 'RENTER', 'OWNER');--> statement-breakpoint
 CREATE TYPE "public"."ResidentFilter" AS ENUM('ALL', 'OWNERS_ONLY', 'RENTERS_ONLY');--> statement-breakpoint
@@ -66,6 +76,8 @@ CREATE TYPE "public"."ResourceVisibility" AS ENUM('ALL_RESIDENTS', 'OWNERS_ONLY'
 CREATE TYPE "public"."Role" AS ENUM('RESIDENT', 'GROUP_ADMIN', 'COMMITTEE', 'BOARD', 'ADMIN', 'AGENT', 'MANAGER', 'ASSOCIATE', 'PROVIDER', 'USER');--> statement-breakpoint
 CREATE TYPE "public"."SeatStatus" AS ENUM('ACTIVE', 'ARCHIVED', 'COOLING_OFF');--> statement-breakpoint
 CREATE TYPE "public"."ServiceBookingStatus" AS ENUM('PENDING_CONFIRMATION', 'CONFIRMED', 'COMPLETED', 'CANCELLED');--> statement-breakpoint
+CREATE TYPE "public"."SettingValueType" AS ENUM('STRING', 'NUMBER', 'BOOLEAN', 'JSON');--> statement-breakpoint
+CREATE TYPE "public"."SignatureProvider" AS ENUM('INTERNAL', 'DOCUSIGN', 'ADOBE_SIGN', 'PGP', 'GOV_EID');--> statement-breakpoint
 CREATE TYPE "public"."SoloSeatType" AS ENUM('RESIDENT', 'MEMBER');--> statement-breakpoint
 CREATE TYPE "public"."SubscriptionStatus" AS ENUM('ACTIVE', 'CANCELLED', 'EXPIRED', 'PENDING');--> statement-breakpoint
 CREATE TYPE "public"."SupportTarget" AS ENUM('CONTENT', 'RESOURCE', 'EVENT', 'GROUP', 'SERVICE', 'PROJECT', 'CAMPAIGN', 'PROFILE');--> statement-breakpoint
@@ -182,6 +194,23 @@ CREATE TABLE "AgentProfile" (
 	"organizationId" text,
 	"createdAt" timestamp (3) DEFAULT now() NOT NULL,
 	"updatedAt" timestamp (3) DEFAULT now() NOT NULL,
+	"deletedAt" timestamp (3)
+);
+--> statement-breakpoint
+CREATE TABLE "AgentReview" (
+	"id" text PRIMARY KEY NOT NULL,
+	"tenantId" text NOT NULL,
+	"agentProfileId" text NOT NULL,
+	"reviewerId" text NOT NULL,
+	"rating" integer NOT NULL,
+	"title" text,
+	"comment" text,
+	"serviceDate" timestamp (3),
+	"responseQuality" integer,
+	"isPublished" boolean DEFAULT true NOT NULL,
+	"moderatedBy" text,
+	"moderatedAt" timestamp (3),
+	"createdAt" timestamp (3) DEFAULT now() NOT NULL,
 	"deletedAt" timestamp (3)
 );
 --> statement-breakpoint
@@ -360,6 +389,50 @@ CREATE TABLE "BursaryField" (
 	"deletedAt" timestamp (3)
 );
 --> statement-breakpoint
+CREATE TABLE "CommentReport" (
+	"id" text PRIMARY KEY NOT NULL,
+	"tenantId" text NOT NULL,
+	"commentId" text NOT NULL,
+	"reporterId" text NOT NULL,
+	"reason" "ReportReason" NOT NULL,
+	"note" text,
+	"createdAt" timestamp (3) DEFAULT now() NOT NULL,
+	"resolvedAt" timestamp (3),
+	"resolvedBy" text,
+	"resolution" "ReportResolution"
+);
+--> statement-breakpoint
+CREATE TABLE "CommentVote" (
+	"id" text PRIMARY KEY NOT NULL,
+	"tenantId" text NOT NULL,
+	"commentId" text NOT NULL,
+	"userId" text NOT NULL,
+	"type" "CommentVoteType" NOT NULL,
+	"createdAt" timestamp (3) DEFAULT now() NOT NULL,
+	"updatedAt" timestamp (3) DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "Comment" (
+	"id" text PRIMARY KEY NOT NULL,
+	"tenantId" text NOT NULL,
+	"contentId" text NOT NULL,
+	"authorId" text NOT NULL,
+	"parentId" text,
+	"rootId" text,
+	"body" text NOT NULL,
+	"status" "CommentStatus" DEFAULT 'PUBLISHED' NOT NULL,
+	"score" integer DEFAULT 0 NOT NULL,
+	"upvotes" integer DEFAULT 0 NOT NULL,
+	"downvotes" integer DEFAULT 0 NOT NULL,
+	"moderatedBy" text,
+	"moderatedAt" timestamp (3),
+	"moderationNotes" text,
+	"editedAt" timestamp (3),
+	"createdAt" timestamp (3) DEFAULT now() NOT NULL,
+	"updatedAt" timestamp (3) DEFAULT now() NOT NULL,
+	"deletedAt" timestamp (3)
+);
+--> statement-breakpoint
 CREATE TABLE "CommunityMerit" (
 	"id" text PRIMARY KEY NOT NULL,
 	"tenantId" text NOT NULL,
@@ -496,6 +569,15 @@ CREATE TABLE "Competition" (
 	"deletedAt" timestamp (3)
 );
 --> statement-breakpoint
+CREATE TABLE "ContentAuditLog" (
+	"id" text PRIMARY KEY NOT NULL,
+	"contentId" text NOT NULL,
+	"userId" text,
+	"action" "ContentAuditAction" NOT NULL,
+	"metadata" jsonb,
+	"createdAt" timestamp (3) DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "ContentLike" (
 	"id" text PRIMARY KEY NOT NULL,
 	"tenantId" text NOT NULL,
@@ -503,6 +585,16 @@ CREATE TABLE "ContentLike" (
 	"userId" text NOT NULL,
 	"createdAt" timestamp (3) DEFAULT now() NOT NULL,
 	"deletedAt" timestamp (3)
+);
+--> statement-breakpoint
+CREATE TABLE "ContentVersion" (
+	"id" text PRIMARY KEY NOT NULL,
+	"contentId" text NOT NULL,
+	"version" integer NOT NULL,
+	"snapshot" jsonb NOT NULL,
+	"userId" text,
+	"changeSummary" text,
+	"createdAt" timestamp (3) DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "Content" (
@@ -530,7 +622,8 @@ CREATE TABLE "Content" (
 	"updatedAt" timestamp (3) DEFAULT now() NOT NULL,
 	"publishedAt" timestamp (3),
 	"expiresAt" timestamp (3),
-	"deletedAt" timestamp (3)
+	"deletedAt" timestamp (3),
+	"commentCount" integer DEFAULT 0 NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "ConversationParticipant" (
@@ -580,6 +673,21 @@ CREATE TABLE "Coupon" (
 	"minPlanPrice" numeric(65, 30),
 	"createdAt" timestamp (3) DEFAULT now() NOT NULL,
 	"updatedAt" timestamp (3) NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "credentials" (
+	"id" text PRIMARY KEY NOT NULL,
+	"identityId" text NOT NULL,
+	"type" "CredentialType" NOT NULL,
+	"email" text,
+	"publicKey" text,
+	"fingerprint" text,
+	"metadata" jsonb,
+	"revokedAt" timestamp (3),
+	"lastUsedAt" timestamp (3),
+	"createdAt" timestamp (3) DEFAULT now() NOT NULL,
+	"updatedAt" timestamp (3) NOT NULL,
+	"deletedAt" timestamp (3)
 );
 --> statement-breakpoint
 CREATE TABLE "DWallet" (
@@ -758,6 +866,8 @@ CREATE TABLE "Event" (
 	"organizer" text NOT NULL,
 	"image" text,
 	"isPublic" boolean DEFAULT true NOT NULL,
+	"category" text,
+	"maxAttendees" integer,
 	"createdAt" timestamp (3) DEFAULT now() NOT NULL,
 	"updatedAt" timestamp (3) DEFAULT now() NOT NULL,
 	"deletedAt" timestamp (3)
@@ -834,6 +944,13 @@ CREATE TABLE "Household" (
 	"status" "HouseholdStatus" DEFAULT 'ACTIVE' NOT NULL,
 	"moveInDate" timestamp (3),
 	"moveOutDate" timestamp (3),
+	"createdAt" timestamp (3) DEFAULT now() NOT NULL,
+	"updatedAt" timestamp (3) NOT NULL,
+	"deletedAt" timestamp (3)
+);
+--> statement-breakpoint
+CREATE TABLE "identities" (
+	"id" text PRIMARY KEY NOT NULL,
 	"createdAt" timestamp (3) DEFAULT now() NOT NULL,
 	"updatedAt" timestamp (3) NOT NULL,
 	"deletedAt" timestamp (3)
@@ -928,6 +1045,44 @@ CREATE TABLE "MaintenanceTeam" (
 	"deletedAt" timestamp (3)
 );
 --> statement-breakpoint
+CREATE TABLE "MediaUpload" (
+	"id" text PRIMARY KEY NOT NULL,
+	"userId" text NOT NULL,
+	"tenantId" text NOT NULL,
+	"key" text NOT NULL,
+	"url" text NOT NULL,
+	"fileName" text NOT NULL,
+	"fileSize" integer NOT NULL,
+	"mimeType" text NOT NULL,
+	"createdAt" timestamp (3) DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "meeting_proxies" (
+	"id" text PRIMARY KEY NOT NULL,
+	"tenantId" text NOT NULL,
+	"meetingId" text NOT NULL,
+	"ownerUserId" text NOT NULL,
+	"ownerHouseholdId" text NOT NULL,
+	"proxyUserId" text,
+	"proxyName" text,
+	"proxyEmail" text,
+	"proxyPhone" text,
+	"formDocumentId" text,
+	"ownerSignedAt" timestamp (3),
+	"proxySignedAt" timestamp (3),
+	"approvedBy" text,
+	"approvedAt" timestamp (3),
+	"status" "ProxyStatus" DEFAULT 'Draft' NOT NULL,
+	"notes" text,
+	"signatureProvider" "SignatureProvider" DEFAULT 'INTERNAL' NOT NULL,
+	"signatureEvidence" jsonb DEFAULT '{}'::jsonb NOT NULL,
+	"credentialId" text,
+	"createdAt" timestamp (3) DEFAULT now() NOT NULL,
+	"updatedAt" timestamp (3) NOT NULL,
+	"deletedAt" timestamp (3),
+	"referenceCode" text
+);
+--> statement-breakpoint
 CREATE TABLE "Member" (
 	"id" text PRIMARY KEY NOT NULL,
 	"tenantId" text NOT NULL,
@@ -979,6 +1134,35 @@ CREATE TABLE "Organization" (
 	"logo" text,
 	"createdAt" timestamp (3) NOT NULL,
 	"metadata" text
+);
+--> statement-breakpoint
+CREATE TABLE "OutboxDeadLetter" (
+	"id" text PRIMARY KEY NOT NULL,
+	"outboxId" text,
+	"type" text NOT NULL,
+	"version" integer NOT NULL,
+	"tenantId" text NOT NULL,
+	"correlationId" text,
+	"payload" jsonb NOT NULL,
+	"error" text,
+	"handler" text,
+	"attempts" integer,
+	"deadLetteredAt" timestamp (3) DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "Outbox" (
+	"id" text PRIMARY KEY NOT NULL,
+	"type" text NOT NULL,
+	"version" integer DEFAULT 1 NOT NULL,
+	"tenantId" text NOT NULL,
+	"correlationId" text NOT NULL,
+	"causationId" text,
+	"actorId" text,
+	"payload" jsonb NOT NULL,
+	"createdAt" timestamp (3) DEFAULT now() NOT NULL,
+	"processedAt" timestamp (3),
+	"attempts" integer DEFAULT 0 NOT NULL,
+	"error" text
 );
 --> statement-breakpoint
 CREATE TABLE "passkey" (
@@ -1178,6 +1362,58 @@ CREATE TABLE "ProviderCharge" (
 	"externalRef" text,
 	"dueDate" timestamp (3) NOT NULL,
 	"paidAt" timestamp (3),
+	"createdAt" timestamp (3) DEFAULT now() NOT NULL,
+	"updatedAt" timestamp (3) NOT NULL,
+	"deletedAt" timestamp (3)
+);
+--> statement-breakpoint
+CREATE TABLE "ProviderDueDiligenceDocument" (
+	"id" text PRIMARY KEY NOT NULL,
+	"workflowId" text NOT NULL,
+	"itemId" text,
+	"fileName" text NOT NULL,
+	"fileType" text NOT NULL,
+	"storageKey" text NOT NULL,
+	"category" "DueDiligenceDocumentCategory" DEFAULT 'OTHER' NOT NULL,
+	"uploadedBy" text NOT NULL,
+	"fileSize" integer,
+	"createdAt" timestamp (3) DEFAULT now() NOT NULL,
+	"deletedAt" timestamp (3)
+);
+--> statement-breakpoint
+CREATE TABLE "ProviderDueDiligenceEvent" (
+	"id" text PRIMARY KEY NOT NULL,
+	"workflowId" text NOT NULL,
+	"action" text NOT NULL,
+	"actorId" text NOT NULL,
+	"oldValue" text,
+	"newValue" text,
+	"description" text,
+	"createdAt" timestamp (3) DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "ProviderDueDiligenceItem" (
+	"id" text PRIMARY KEY NOT NULL,
+	"workflowId" text NOT NULL,
+	"itemKey" text NOT NULL,
+	"status" "DueDiligenceItemStatus" DEFAULT 'PENDING' NOT NULL,
+	"notes" text,
+	"reviewedBy" text,
+	"reviewedAt" timestamp (3),
+	"createdAt" timestamp (3) DEFAULT now() NOT NULL,
+	"updatedAt" timestamp (3) NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "ProviderDueDiligenceWorkflow" (
+	"id" text PRIMARY KEY NOT NULL,
+	"providerId" text NOT NULL,
+	"tenantId" text NOT NULL,
+	"status" "ProviderDueDiligenceStatus" DEFAULT 'PENDING_REVIEW' NOT NULL,
+	"assignedTo" text,
+	"submittedAt" timestamp (3),
+	"startedAt" timestamp (3),
+	"completedAt" timestamp (3),
+	"notes" text,
 	"createdAt" timestamp (3) DEFAULT now() NOT NULL,
 	"updatedAt" timestamp (3) NOT NULL,
 	"deletedAt" timestamp (3)
@@ -1447,9 +1683,37 @@ CREATE TABLE "Setting" (
 	"tenantId" text NOT NULL,
 	"key" text NOT NULL,
 	"value" text NOT NULL,
+	"type" "SettingValueType" DEFAULT 'STRING' NOT NULL,
 	"createdAt" timestamp (3) DEFAULT now() NOT NULL,
 	"updatedAt" timestamp (3) DEFAULT now() NOT NULL,
 	"schemaVersion" integer DEFAULT 1 NOT NULL,
+	"deletedAt" timestamp (3)
+);
+--> statement-breakpoint
+CREATE TABLE "SetupMission" (
+	"id" text PRIMARY KEY NOT NULL,
+	"tenantSetupId" text NOT NULL,
+	"section" text NOT NULL,
+	"missionKey" text NOT NULL,
+	"title" text NOT NULL,
+	"description" text,
+	"isRequired" boolean DEFAULT false NOT NULL,
+	"isCompleted" boolean DEFAULT false NOT NULL,
+	"completedAt" timestamp (3),
+	"sortOrder" integer DEFAULT 0 NOT NULL,
+	"metadata" jsonb,
+	"createdAt" timestamp (3) DEFAULT now() NOT NULL,
+	"updatedAt" timestamp (3) DEFAULT now() NOT NULL,
+	"deletedAt" timestamp (3)
+);
+--> statement-breakpoint
+CREATE TABLE "SetupSetting" (
+	"id" text PRIMARY KEY NOT NULL,
+	"tenantSetupId" text NOT NULL,
+	"key" text NOT NULL,
+	"value" jsonb NOT NULL,
+	"createdAt" timestamp (3) DEFAULT now() NOT NULL,
+	"updatedAt" timestamp (3) DEFAULT now() NOT NULL,
 	"deletedAt" timestamp (3)
 );
 --> statement-breakpoint
@@ -1582,6 +1846,15 @@ CREATE TABLE "TenantAiUsage" (
 	"updatedAt" timestamp (3) NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "TenantFeatureFlag" (
+	"id" text PRIMARY KEY NOT NULL,
+	"tenantId" text NOT NULL,
+	"featureKey" text NOT NULL,
+	"enabled" boolean DEFAULT false NOT NULL,
+	"createdAt" timestamp (3) DEFAULT now() NOT NULL,
+	"updatedAt" timestamp (3)
+);
+--> statement-breakpoint
 CREATE TABLE "TenantInvoice" (
 	"id" text PRIMARY KEY NOT NULL,
 	"tenantId" text NOT NULL,
@@ -1628,6 +1901,18 @@ CREATE TABLE "TenantPayment" (
 	"deletedAt" timestamp (3)
 );
 --> statement-breakpoint
+CREATE TABLE "TenantSetup" (
+	"id" text PRIMARY KEY NOT NULL,
+	"tenantId" text NOT NULL,
+	"completionPercent" integer DEFAULT 0 NOT NULL,
+	"completedSections" text[] DEFAULT '{}' NOT NULL,
+	"launchedAt" timestamp (3),
+	"lastViewedAt" timestamp (3),
+	"createdAt" timestamp (3) DEFAULT now() NOT NULL,
+	"updatedAt" timestamp (3) DEFAULT now() NOT NULL,
+	"deletedAt" timestamp (3)
+);
+--> statement-breakpoint
 CREATE TABLE "TenantSubscription" (
 	"id" text PRIMARY KEY NOT NULL,
 	"tenantId" text NOT NULL,
@@ -1653,16 +1938,16 @@ CREATE TABLE "Tenant" (
 	"customDomain" text,
 	"logoUrl" text,
 	"faviconUrl" text,
+	"primaryColor" text DEFAULT '#4F46E5' NOT NULL,
+	"accentColor" text,
+	"secondaryColor" text,
+	"fontFamily" text,
 	"tagline" text,
 	"description" text,
 	"address" text,
 	"telephone" text,
 	"email" text,
 	"governanceLabel" text,
-	"primaryColor" text DEFAULT '#4F46E5' NOT NULL,
-	"accentColor" text,
-	"secondaryColor" text,
-	"fontFamily" text,
 	"customCss" text,
 	"active" boolean DEFAULT true NOT NULL,
 	"subscriptionTier" text DEFAULT 'basic' NOT NULL,
@@ -1720,7 +2005,7 @@ CREATE TABLE "UserKey" (
 --> statement-breakpoint
 CREATE TABLE "user" (
 	"id" text PRIMARY KEY NOT NULL,
-	"tenantId" text NOT NULL,
+	"tenantId" text,
 	"email" text NOT NULL,
 	"name" text NOT NULL,
 	"role" "Role" DEFAULT 'USER' NOT NULL,

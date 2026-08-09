@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1783513040659,
-      "tag": "0000_dusty_cassandra_nova",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1784791272041,
-      "tag": "0002_cool_susan_delgado",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1784871277693,
-      "tag": "0002_rare_revanche",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1784882492501,
-      "tag": "0003_wonderful_abomination",
+      "when": 1786305035837,
+      "tag": "0000_baseline",
       "breakpoints": true
     }
   ]
