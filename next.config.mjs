@@ -15,7 +15,9 @@ const nextConfig = {
   // Pino uses worker threads for transports (pino-pretty).
   // Bundling it causes "Cannot find module lib/worker.js" at runtime.
   // Mark as external so Node resolves them from node_modules directly.
-  serverExternalPackages: ['pino', 'ioredis'],
+  // @trpc/openapi dynamically imports the router file path at runtime
+  // (import(pathToFileURL(...))), which webpack can't statically analyze.
+  serverExternalPackages: ['pino', 'ioredis', '@trpc/openapi'],
 
   // Allow cross-origin dev requests for HMR
   allowedDevOrigins: [
