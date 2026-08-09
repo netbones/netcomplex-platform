@@ -16,7 +16,7 @@ export type CoercedEnvSchema = {
   BETTER_AUTH_SECRET: string;
   
   /**
-   * **BETTER_AUTH_URL** 🔐 _sensitive_  
+   * **BETTER_AUTH_URL**  
    * ![icon](data:image/svg+xml;utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cpath%20fill%3D%22%23808080%22%20d%3D%22M24%2021V9h-2v14h8v-2zm-4-6v-4c0-1.103-.897-2-2-2h-6v14h2v-6h1.48l2.335%206h2.145l-2.333-6H18c1.103%200%202-.897%202-2m-6-4h4v4h-4zM8%2023H4c-1.103%200-2-.897-2-2V9h2v12h4V9h2v12c0%201.103-.897%202-2%202%22%2F%3E%3C%2Fsvg%3E)   
    */
   BETTER_AUTH_URL: string;
@@ -66,10 +66,16 @@ export type CoercedEnvSchema = {
   SUPABASE_SERVICE_ROLE_SECRET?: string;
   
   /**
-   * **SUPABASE_PUBLISHABLE_KEY** 🔐 _sensitive_  
+   * **SUPABASE_PUBLISHABLE_KEY**  
    * ![icon](data:image/svg+xml;utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cpath%20fill%3D%22%23808080%22%20d%3D%22M29%2022h-5a2.003%202.003%200%200%201-2-2v-6a2%202%200%200%201%202-2h5v2h-5v6h5ZM18%2012h-4V8h-2v14h6a2.003%202.003%200%200%200%202-2v-6a2%202%200%200%200-2-2m-4%208v-6h4v6Zm-6-8H3v2h5v2H4a2%202%200%200%200-2%202v2a2%202%200%200%200%202%202h6v-8a2%202%200%200%200-2-2m0%208H4v-2h4Z%22%2F%3E%3C%2Fsvg%3E)   
    */
   SUPABASE_PUBLISHABLE_KEY?: string;
+  
+  /**
+   * **SUPABASE_PUBLISHABLE_DEFAULT_KEY**  
+   * ![icon](data:image/svg+xml;utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cpath%20fill%3D%22%23808080%22%20d%3D%22M29%2022h-5a2.003%202.003%200%200%201-2-2v-6a2%202%200%200%201%202-2h5v2h-5v6h5ZM18%2012h-4V8h-2v14h6a2.003%202.003%200%200%200%202-2v-6a2%202%200%200%200-2-2m-4%208v-6h4v6Zm-6-8H3v2h5v2H4a2%202%200%200%200-2%202v2a2%202%200%200%200%202%202h6v-8a2%202%200%200%200-2-2m0%208H4v-2h4Z%22%2F%3E%3C%2Fsvg%3E)   
+   */
+  SUPABASE_PUBLISHABLE_DEFAULT_KEY?: string;
   
   /**
    * **NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY**  
@@ -92,7 +98,22 @@ export type CoercedEnvSchema = {
   TURNSTILE_SECRET_KEY?: string;
   
   /**
-   * **LOCAL_TENANT_SLUG** 🔐 _sensitive_  
+   * **NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN**  
+   * ─── PostHog (product analytics) ───────────────────────────────  
+   * Public-by-design project token; embedded in client bundles  
+   * ![icon](data:image/svg+xml;utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cpath%20fill%3D%22%23808080%22%20d%3D%22M29%2022h-5a2.003%202.003%200%200%201-2-2v-6a2%202%200%200%201%202-2h5v2h-5v6h5ZM18%2012h-4V8h-2v14h6a2.003%202.003%200%200%200%202-2v-6a2%202%200%200%200-2-2m-4%208v-6h4v6Zm-6-8H3v2h5v2H4a2%202%200%200%200-2%202v2a2%202%200%200%200%202%202h6v-8a2%202%200%200%200-2-2m0%208H4v-2h4Z%22%2F%3E%3C%2Fsvg%3E)   
+   */
+  NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN?: string;
+  
+  /**
+   * **NEXT_PUBLIC_POSTHOG_HOST**  
+   * Public PostHog ingestion host; embedded in client bundles  
+   * ![icon](data:image/svg+xml;utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cpath%20fill%3D%22%23808080%22%20d%3D%22M29%2022h-5a2.003%202.003%200%200%201-2-2v-6a2%202%200%200%201%202-2h5v2h-5v6h5ZM18%2012h-4V8h-2v14h6a2.003%202.003%200%200%200%202-2v-6a2%202%200%200%200-2-2m-4%208v-6h4v6Zm-6-8H3v2h5v2H4a2%202%200%200%200-2%202v2a2%202%200%200%200%202%202h6v-8a2%202%200%200%200-2-2m0%208H4v-2h4Z%22%2F%3E%3C%2Fsvg%3E)   
+   */
+  NEXT_PUBLIC_POSTHOG_HOST?: string;
+  
+  /**
+   * **LOCAL_TENANT_SLUG**  
    * ─── Multi-tenant Development ──────────────────────────────────  
    * Required for local development to resolve tenant context  
    * Set to your tenant slug (e.g., 'soralia' for Soralia Village)  
@@ -115,7 +136,7 @@ export type CoercedEnvSchema = {
   TENANT_LONGITUDE: number;
   
   /**
-   * **TENANT_LOCATION_NAME** 🔐 _sensitive_  
+   * **TENANT_LOCATION_NAME**  
    * ![icon](data:image/svg+xml;utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cpath%20fill%3D%22%23808080%22%20d%3D%22M29%2022h-5a2.003%202.003%200%200%201-2-2v-6a2%202%200%200%201%202-2h5v2h-5v6h5ZM18%2012h-4V8h-2v14h6a2.003%202.003%200%200%200%202-2v-6a2%202%200%200%200-2-2m-4%208v-6h4v6Zm-6-8H3v2h5v2H4a2%202%200%200%200-2%202v2a2%202%200%200%200%202%202h6v-8a2%202%200%200%200-2-2m0%208H4v-2h4Z%22%2F%3E%3C%2Fsvg%3E)   
    */
   TENANT_LOCATION_NAME: string;
@@ -135,7 +156,7 @@ export type CoercedEnvSchema = {
   RESEND_FROM_EMAIL: string;
   
   /**
-   * **RESEND_FROM_NAME** 🔐 _sensitive_  
+   * **RESEND_FROM_NAME**  
    * ![icon](data:image/svg+xml;utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cpath%20fill%3D%22%23808080%22%20d%3D%22M29%2022h-5a2.003%202.003%200%200%201-2-2v-6a2%202%200%200%201%202-2h5v2h-5v6h5ZM18%2012h-4V8h-2v14h6a2.003%202.003%200%200%200%202-2v-6a2%202%200%200%200-2-2m-4%208v-6h4v6Zm-6-8H3v2h5v2H4a2%202%200%200%200-2%202v2a2%202%200%200%200%202%202h6v-8a2%202%200%200%200-2-2m0%208H4v-2h4Z%22%2F%3E%3C%2Fsvg%3E)   
    */
   RESEND_FROM_NAME: string;
@@ -148,7 +169,7 @@ export type CoercedEnvSchema = {
   STORAGE_ENDPOINT: string;
   
   /**
-   * **STORAGE_REGION** 🔐 _sensitive_  
+   * **STORAGE_REGION**  
    * ![icon](data:image/svg+xml;utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cpath%20fill%3D%22%23808080%22%20d%3D%22M29%2022h-5a2.003%202.003%200%200%201-2-2v-6a2%202%200%200%201%202-2h5v2h-5v6h5ZM18%2012h-4V8h-2v14h6a2.003%202.003%200%200%200%202-2v-6a2%202%200%200%200-2-2m-4%208v-6h4v6Zm-6-8H3v2h5v2H4a2%202%200%200%200-2%202v2a2%202%200%200%200%202%202h6v-8a2%202%200%200%200-2-2m0%208H4v-2h4Z%22%2F%3E%3C%2Fsvg%3E)   
    */
   STORAGE_REGION: string;
@@ -166,7 +187,7 @@ export type CoercedEnvSchema = {
   SECRET_ACCESS_KEY: string;
   
   /**
-   * **STORAGE_BUCKET** 🔐 _sensitive_  
+   * **STORAGE_BUCKET**  
    * ![icon](data:image/svg+xml;utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cpath%20fill%3D%22%23808080%22%20d%3D%22M29%2022h-5a2.003%202.003%200%200%201-2-2v-6a2%202%200%200%201%202-2h5v2h-5v6h5ZM18%2012h-4V8h-2v14h6a2.003%202.003%200%200%200%202-2v-6a2%202%200%200%200-2-2m-4%208v-6h4v6Zm-6-8H3v2h5v2H4a2%202%200%200%200-2%202v2a2%202%200%200%200%202%202h6v-8a2%202%200%200%200-2-2m0%208H4v-2h4Z%22%2F%3E%3C%2Fsvg%3E)   
    */
   STORAGE_BUCKET: string;
@@ -199,14 +220,14 @@ export type CoercedEnvSchema = {
   NEXT_PUBLIC_GOOGLE_CLIENT_ID?: string;
   
   /**
-   * **AUTH_COOKIE_PREFIX** 🔐 _sensitive_  
+   * **AUTH_COOKIE_PREFIX**  
    * ─── Auth Configuration ────────────────────────────────────────  
    * ![icon](data:image/svg+xml;utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cpath%20fill%3D%22%23808080%22%20d%3D%22M29%2022h-5a2.003%202.003%200%200%201-2-2v-6a2%202%200%200%201%202-2h5v2h-5v6h5ZM18%2012h-4V8h-2v14h6a2.003%202.003%200%200%200%202-2v-6a2%202%200%200%200-2-2m-4%208v-6h4v6Zm-6-8H3v2h5v2H4a2%202%200%200%200-2%202v2a2%202%200%200%200%202%202h6v-8a2%202%200%200%200-2-2m0%208H4v-2h4Z%22%2F%3E%3C%2Fsvg%3E)   
    */
   AUTH_COOKIE_PREFIX: string;
   
   /**
-   * **AUTH_ALLOWED_HOSTS** 🔐 _sensitive_  
+   * **AUTH_ALLOWED_HOSTS**  
    * ![icon](data:image/svg+xml;utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cpath%20fill%3D%22%23808080%22%20d%3D%22M29%2022h-5a2.003%202.003%200%200%201-2-2v-6a2%202%200%200%201%202-2h5v2h-5v6h5ZM18%2012h-4V8h-2v14h6a2.003%202.003%200%200%200%202-2v-6a2%202%200%200%200-2-2m-4%208v-6h4v6Zm-6-8H3v2h5v2H4a2%202%200%200%200-2%202v2a2%202%200%200%200%202%202h6v-8a2%202%200%200%200-2-2m0%208H4v-2h4Z%22%2F%3E%3C%2Fsvg%3E)   
    */
   AUTH_ALLOWED_HOSTS?: string;
@@ -239,11 +260,11 @@ export type CoercedEnvSchema = {
   
 };
 
-type _CoercedEnvSchema_8eed45ca = CoercedEnvSchema;
+type _CoercedEnvSchema_1d0402c0 = CoercedEnvSchema;
 
 declare module 'varlock/env' {
-  export interface TypedEnvSchema extends Readonly<_CoercedEnvSchema_8eed45ca> {}
-  export interface PublicTypedEnvSchema extends Readonly<Pick<_CoercedEnvSchema_8eed45ca, 'NEXT_PUBLIC_BETTER_AUTH_URL' | 'NEXT_PUBLIC_SUPABASE_URL' | 'NEXT_PUBLIC_SUPABASE_ANON_KEY' | 'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY' | 'NEXT_PUBLIC_TURNSTILE_SITE_KEY' | 'NEXT_PUBLIC_APP_URL' | 'NEXT_PUBLIC_VERCEL_URL'>> {}
+  export interface TypedEnvSchema extends Readonly<_CoercedEnvSchema_1d0402c0> {}
+  export interface PublicTypedEnvSchema extends Readonly<Pick<_CoercedEnvSchema_1d0402c0, 'BETTER_AUTH_URL' | 'NEXT_PUBLIC_BETTER_AUTH_URL' | 'NEXT_PUBLIC_SUPABASE_URL' | 'NEXT_PUBLIC_SUPABASE_ANON_KEY' | 'SUPABASE_PUBLISHABLE_KEY' | 'SUPABASE_PUBLISHABLE_DEFAULT_KEY' | 'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY' | 'NEXT_PUBLIC_TURNSTILE_SITE_KEY' | 'NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN' | 'NEXT_PUBLIC_POSTHOG_HOST' | 'LOCAL_TENANT_SLUG' | 'TENANT_LOCATION_NAME' | 'RESEND_FROM_NAME' | 'STORAGE_REGION' | 'STORAGE_BUCKET' | 'NEXT_PUBLIC_APP_URL' | 'NEXT_PUBLIC_VERCEL_URL' | 'AUTH_COOKIE_PREFIX' | 'AUTH_ALLOWED_HOSTS'>> {}
 }
 
 
@@ -253,17 +274,17 @@ export type EnvSchemaAsStrings = {
       : (CoercedEnvSchema[Property] extends boolean ? ('true' | 'false') : string)
 };
 
-type _EnvSchemaAsStrings_8eed45ca = EnvSchemaAsStrings;
+type _EnvSchemaAsStrings_1d0402c0 = EnvSchemaAsStrings;
 declare global {
 
   // add types for global import.meta.env
-  interface ImportMetaEnv extends _EnvSchemaAsStrings_8eed45ca {}
+  interface ImportMetaEnv extends _EnvSchemaAsStrings_1d0402c0 {}
   interface ImportMeta {
     readonly env: ImportMetaEnv;
   }
 
   // add types for global process.env
   namespace NodeJS {
-    interface ProcessEnv extends _EnvSchemaAsStrings_8eed45ca {}
+    interface ProcessEnv extends _EnvSchemaAsStrings_1d0402c0 {}
   }
 }

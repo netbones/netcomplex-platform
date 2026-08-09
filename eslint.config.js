@@ -5,7 +5,7 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
 
   {
-    ignores: ['node_modules/', 'dist/', 'build/', '.next/', 'src/**/*.html'],
+    ignores: ['node_modules/', 'dist/', 'build/', '.next/', 'src/**/*.html', 'env.d.ts'],
   },
 
   // Next.js plugin rules
