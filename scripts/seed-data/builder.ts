@@ -43,6 +43,7 @@ const FOREIGN_KEY_FIELDS = new Set([
   'assignedProviderId',
   'providerId',
   'fieldId',
+  'tierId',
 ]);
 
 /**
