@@ -3,6 +3,7 @@ import { users } from './users';
 import { agentAccesses } from './agent-accesses';
 import { agentProfiles } from './agent-profiles';
 import { agentTokens } from './agent-tokens';
+import { agentReviews } from './agent-reviews';
 import { albums } from './albums';
 import { assistSessions } from './assist-sessions';
 import { bookings } from './bookings';
@@ -73,6 +74,9 @@ export const usersRelations = relations(users, helpers => ({
   agentProfile: helpers.one(agentProfiles),
   agentTokensAsAgent: helpers.many(agentTokens, { relationName: 'agentToken_agentIdTouser' }),
   agentTokensIssued: helpers.many(agentTokens, { relationName: 'agentToken_issuedByIdTouser' }),
+  agentReviewsAsReviewer: helpers.many(agentReviews, {
+    relationName: 'AgentReview_reviewerToUser',
+  }),
   album: helpers.many(albums, { relationName: 'AlbumTouser' }),
   assistSessions: helpers.many(assistSessions, { relationName: 'AssistSessionTouser' }),
   Booking: helpers.many(bookings, { relationName: 'BookingTouser' }),
