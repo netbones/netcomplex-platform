@@ -36,6 +36,7 @@ import {
   trackRequestChanges,
 } from './shared';
 import { createId } from '@shared/lib/id';
+import { notifyResidentStatusChange, notifyAdminsNewRequest } from '@entities/maintenance/server';
 
 export const maintenanceRequestProcedures = {
   /**
@@ -160,6 +161,15 @@ export const maintenanceRequestProcedures = {
         category: input.category,
       });
 
+      // Notify tenant admins (roles with `requests` permission) of the new request
+      await notifyAdminsNewRequest({
+        tenantId,
+        requestId: created.id,
+        requesterId: ctx.userId,
+        category: input.category,
+        priority: input.priority,
+      });
+
       revalidateDashboard();
       return toEnvelope(maintenanceRequestDto.parse(created));
     }),
@@ -219,6 +229,18 @@ export const maintenanceRequestProcedures = {
         .returning();
 
       await trackRequestChanges(input.id, ctx.userId, existing, updateData);
+
+      if (updated && updateData.status && updateData.status !== existing.status) {
+        await notifyResidentStatusChange({
+          tenantId,
+          requestId: input.id,
+          residentUserId: existing.userId,
+          senderId: ctx.userId,
+          status: updateData.status as string,
+          category: existing.category,
+          ticketNumber: existing.ticketNumber,
+        });
+      }
 
       revalidateDashboard();
       return toEnvelope(maintenanceRequestDto.parse(updated));
@@ -443,6 +465,18 @@ export const maintenanceRequestProcedures = {
         .returning();
 
       await trackRequestChanges(input.requestId, ctx.userId, existing, updateData);
+
+      if (updated && updateData.status && updateData.status !== existing.status) {
+        await notifyResidentStatusChange({
+          tenantId,
+          requestId: input.requestId,
+          residentUserId: existing.userId,
+          senderId: ctx.userId,
+          status: updateData.status as string,
+          category: existing.category,
+          ticketNumber: existing.ticketNumber,
+        });
+      }
 
       revalidateDashboard();
       return toEnvelope(maintenanceRequestDto.parse(updated));

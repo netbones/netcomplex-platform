@@ -12,6 +12,7 @@ import { requireAuth } from '@/shared/api/auth-utils';
 
 import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
+import { maintenanceStatusMessage, maintenanceStatusSubject } from '@entities/maintenance/server';
 
 import { createLogger } from '@shared/lib';
 
@@ -44,31 +45,9 @@ export const POST = withErrorHandler(
       return apiNotFound('Resident email not found');
     }
 
-    const statusMessages: Record<string, string> = {
-      SUBMITTED: 'Your maintenance request has been submitted and is awaiting review.',
-      ASSIGNED: 'Your maintenance request has been assigned to a team member.',
-      IN_PROGRESS: 'Work has started on your maintenance request.',
-      PENDING_PARTS: 'Your maintenance request is pending parts delivery.',
-      SCHEDULED: 'Your maintenance request has been scheduled for repair.',
-      COMPLETED: 'Your maintenance request has been completed.',
-      CANCELLED: 'Your maintenance request has been cancelled.',
-    };
+    const message = maintenanceStatusMessage(mr.status);
 
-    const statusSubject: Record<string, string> = {
-      SUBMITTED: 'Maintenance Request Received',
-      ASSIGNED: 'Maintenance Request Assigned',
-      IN_PROGRESS: 'Work Started on Your Request',
-      PENDING_PARTS: 'Maintenance Request - Pending Parts',
-      SCHEDULED: 'Maintenance Request Scheduled',
-      COMPLETED: 'Maintenance Request Completed',
-      CANCELLED: 'Maintenance Request Cancelled',
-    };
-
-    const message =
-      statusMessages[mr.status] ||
-      `Your maintenance request status has been updated to ${mr.status}.`;
-
-    const subject = statusSubject[mr.status] || 'Maintenance Request Update';
+    const subject = maintenanceStatusSubject(mr.status);
 
     // Build HTML email
     const html = `

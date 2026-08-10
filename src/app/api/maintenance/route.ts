@@ -20,6 +20,7 @@ import { apiLogger } from '@shared/lib';
 
 import { eq, and, isNull } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
+import { notifyAdminsNewRequest } from '@entities/maintenance/server';
 import {
   listMaintenanceRequests,
   createMaintenanceRequest,
@@ -224,6 +225,16 @@ export async function POST(request: Request) {
       category,
       routingType: routingCtx.routingType as 'HOA' | 'LANDLORD',
     });
+
+    if (routingCtx.routingType === 'HOA') {
+      await notifyAdminsNewRequest({
+        tenantId,
+        requestId: maintenanceRequest.id,
+        requesterId: userId,
+        category,
+        priority,
+      });
+    }
 
     return apiCreated(maintenanceRequest);
   } catch (error) {

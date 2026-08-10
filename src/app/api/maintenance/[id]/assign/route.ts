@@ -21,6 +21,7 @@ import { withTenant } from '@entities/tenant/server';
 
 import { eq, and } from 'drizzle-orm';
 import { createId } from '@shared/lib/id';
+import { notifyResidentStatusChange } from '@entities/maintenance/server';
 
 export const maxDuration = 8;
 /**
@@ -201,6 +202,18 @@ export const POST = withErrorHandler(
       .set(updates)
       .where(and(eq(maintenanceRequests.id, id), eq(maintenanceRequests.tenantId, tenantId)))
       .returning();
+
+    if (updated && updates.status && updates.status !== existing.status) {
+      await notifyResidentStatusChange({
+        tenantId,
+        requestId: id,
+        residentUserId: existing.userId,
+        senderId: authData.userId,
+        status: updated.status,
+        category: existing.category,
+        ticketNumber: existing.ticketNumber,
+      });
+    }
 
     // Fetch team and provider details for the response
     let team = null;

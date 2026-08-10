@@ -11,6 +11,12 @@ export {
   listMaintenanceRequests,
   createMaintenanceRequest,
   toMaintenanceRequestViewList,
+  notifyResidentStatusChange,
+  notifyAdminsNewRequest,
+  MAINTENANCE_STATUS_MESSAGES,
+  MAINTENANCE_STATUS_SUBJECTS,
+  maintenanceStatusMessage,
+  maintenanceStatusSubject,
 } from './services';
 
 export { resolveRoutingType } from './model/routing';

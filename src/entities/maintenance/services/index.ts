@@ -278,3 +278,12 @@ export function toMaintenanceRequestViewList(
 
   return transformed;
 }
+
+export {
+  notifyResidentStatusChange,
+  notifyAdminsNewRequest,
+  MAINTENANCE_STATUS_MESSAGES,
+  MAINTENANCE_STATUS_SUBJECTS,
+  maintenanceStatusMessage,
+  maintenanceStatusSubject,
+} from './notifications';
