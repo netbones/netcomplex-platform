@@ -137,11 +137,15 @@ function DomainCard({
   return (
     <Link
       href={SERVICES_ROUTE_OVERRIDES[domain.id] ?? `/dashboard/services/${domain.id}`}
-      className="flex flex-col items-center gap-2 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow"
+      className="group flex flex-col items-center gap-2 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow relative"
     >
+      {tooltip && (
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs rounded bg-lapis-deep text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+          {tooltip}
+        </div>
+      )}
       <div
         className={`relative flex items-center justify-center w-12 h-12 rounded-full ${DOMAIN_COLORS[domain.id] || 'bg-gray-100 text-gray-600'}`}
-        title={tooltip}
       >
         <Icon className="w-6 h-6" />
         {badge > 0 && (
@@ -180,11 +184,15 @@ function ServiceLinkCard({
   return (
     <Link
       href={href}
-      className="flex flex-col items-center gap-2 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow"
+      className="group flex flex-col items-center gap-2 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow relative"
     >
+      {tooltip && (
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs rounded bg-lapis-deep text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+          {tooltip}
+        </div>
+      )}
       <div
         className={`flex items-center justify-center w-12 h-12 rounded-full ${DOMAIN_COLORS[iconId] || 'bg-gray-100 text-gray-600'}`}
-        title={tooltip}
       >
         <Icon className="w-6 h-6" />
       </div>
