@@ -123,12 +123,16 @@ const DOMAIN_COLORS: Record<string, string> = {
 function DomainCard({
   domain,
   badge,
+  descriptionKey,
 }: {
-  domain: { id: string; labelKey: string };
+  domain: { id: string; labelKey: string; descriptionKey?: string };
   badge: number;
+  descriptionKey?: string;
 }) {
   const { tx } = useSafeTranslation('services');
   const Icon = DOMAIN_ICONS[domain.id] || Settings;
+  const descKey = descriptionKey ?? domain.descriptionKey;
+  const tooltip = descKey ? tx(descKey, DOMAIN_FALLBACKS[descKey] || '') : undefined;
 
   return (
     <Link
@@ -137,6 +141,7 @@ function DomainCard({
     >
       <div
         className={`relative flex items-center justify-center w-12 h-12 rounded-full ${DOMAIN_COLORS[domain.id] || 'bg-gray-100 text-gray-600'}`}
+        title={tooltip}
       >
         <Icon className="w-6 h-6" />
         {badge > 0 && (
@@ -157,15 +162,20 @@ function ServiceLinkCard({
   iconId,
   label,
   rawLabel,
+  descriptionKey,
 }: {
   href: string;
   iconId: string;
   label: string;
   rawLabel?: string;
+  descriptionKey?: string;
 }) {
   const { tx } = useSafeTranslation('services');
   const Icon = DOMAIN_ICONS[iconId] || Settings;
   const displayLabel = rawLabel ?? tx(label, DOMAIN_FALLBACKS[label] || label);
+  const tooltip = descriptionKey
+    ? tx(descriptionKey, DOMAIN_FALLBACKS[descriptionKey] || '')
+    : undefined;
 
   return (
     <Link
@@ -174,6 +184,7 @@ function ServiceLinkCard({
     >
       <div
         className={`flex items-center justify-center w-12 h-12 rounded-full ${DOMAIN_COLORS[iconId] || 'bg-gray-100 text-gray-600'}`}
+        title={tooltip}
       >
         <Icon className="w-6 h-6" />
       </div>
@@ -329,8 +340,18 @@ export function ServicesLayer() {
           {tx('sections.communityEngagement', 'Community & Engagement')}
         </h2>
         <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-          <ServiceLinkCard href="/directory" iconId="directory" label="domains.directory" />
-          <ServiceLinkCard href="/groups" iconId="groups" label="domains.groups" />
+          <ServiceLinkCard
+            href="/directory"
+            iconId="directory"
+            label="domains.directory"
+            descriptionKey="domains.descriptions.directory"
+          />
+          <ServiceLinkCard
+            href="/groups"
+            iconId="groups"
+            label="domains.groups"
+            descriptionKey="domains.descriptions.groups"
+          />
           {SERVICES_DOMAIN_DEFINITIONS.filter(d => engagementDomainIds.includes(d.id)).map(
             domain => (
               <DomainCard
@@ -340,7 +361,14 @@ export function ServicesLayer() {
               />
             )
           )}
-          {isAdmin && <ServiceLinkCard href="/admin/groups" iconId="groups" label="Group Admin" />}
+          {isAdmin && (
+            <ServiceLinkCard
+              href="/admin/groups"
+              iconId="groups"
+              label="Group Admin"
+              descriptionKey="domains.descriptions.teams"
+            />
+          )}
         </div>
       </section>
 
@@ -350,12 +378,23 @@ export function ServicesLayer() {
           {tx('sections.learningGrowth', 'Learning & Growth')}
         </h2>
         <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-          <ServiceLinkCard href="/education" iconId="education" label="domains.education" />
-          <ServiceLinkCard href="/resources" iconId="resources" label="domains.resources" />
+          <ServiceLinkCard
+            href="/education"
+            iconId="education"
+            label="domains.education"
+            descriptionKey="domains.descriptions.education"
+          />
+          <ServiceLinkCard
+            href="/resources"
+            iconId="resources"
+            label="domains.resources"
+            descriptionKey="domains.descriptions.resources"
+          />
           <ServiceLinkCard
             href="/conservation"
             iconId="conservation"
             label="domains.conservation"
+            descriptionKey="domains.descriptions.conservation"
           />
         </div>
       </section>
@@ -371,6 +410,7 @@ export function ServicesLayer() {
             iconId="wallet"
             label="dWallet"
             rawLabel="dWallet"
+            descriptionKey="dWallet.subheading"
           />
           {SERVICES_DOMAIN_DEFINITIONS.filter(d => d.id === 'marketplace').map(domain => (
             <DomainCard
@@ -388,7 +428,12 @@ export function ServicesLayer() {
           {tx('settings.title', 'Settings')}
         </h2>
         <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-          <ServiceLinkCard href="/profile" iconId="settings" label="settings.title" />
+          <ServiceLinkCard
+            href="/profile"
+            iconId="settings"
+            label="settings.title"
+            descriptionKey="settings.description"
+          />
         </div>
       </section>
     </div>

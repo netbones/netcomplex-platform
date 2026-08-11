@@ -78,6 +78,7 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.services': 'Services',
   'domains.carousel': 'Carousel',
   'domains.dwallet': 'dWallet',
+  'domains.gallery': 'Gallery',
   'domains.descriptions.users': 'Manage community members and roles',
   'domains.descriptions.maintenance': 'Maintenance request management and analytics',
   'domains.descriptions.content': 'Content publishing and moderation',
@@ -95,6 +96,7 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.descriptions.carousel': 'Manage homepage hero carousel slides',
   'domains.descriptions.dwallet': 'Community value distribution and payout management',
   'domains.descriptions.adminBookings': 'Manage bookable facilities and settings',
+  'domains.descriptions.gallery': 'Manage system gallery images',
   'domains.teams': 'Teams',
   'domains.descriptions.teams': 'Manage in-house maintenance teams',
   'domains.categories.community': 'Community Engagement & Growth',
@@ -192,11 +194,14 @@ function DomainCard({
   domain,
   badge,
 }: {
-  domain: { id: string; labelKey: string };
+  domain: { id: string; labelKey: string; descriptionKey?: string };
   badge: number;
 }) {
   const { tx } = useSafeTranslation('admin');
   const Icon = ADMIN_DOMAIN_ICONS[domain.id] || Settings;
+  const tooltip = domain.descriptionKey
+    ? tx(domain.descriptionKey, DOMAIN_FALLBACKS[domain.descriptionKey] || '')
+    : undefined;
 
   return (
     <Link
@@ -205,6 +210,7 @@ function DomainCard({
     >
       <div
         className={`relative flex items-center justify-center w-12 h-12 rounded-full ${ADMIN_DOMAIN_COLORS[domain.id] || 'bg-gray-100 text-gray-600'}`}
+        title={tooltip}
       >
         <Icon className="w-6 h-6" />
         {badge > 0 && (

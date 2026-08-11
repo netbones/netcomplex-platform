@@ -70,6 +70,11 @@
     "dwallet": "dWallet",
     "providers": "Providers",
     "education": "Education Portal",
+    "carousel": "Carousel",
+    "merits": "Merits",
+    "disputes": "Disputes",
+    "teams": "Teams",
+    "gallery": "Gallery",
     "descriptions": {
       "users": "Manage community members and roles",
       "maintenance": "Maintenance request management and analytics",
@@ -87,7 +92,12 @@
       "providers": "Provider management, revenue, and moderation",
       "education": "Manage bursaries, scholarships and learning resources",
       "educationBursaries": "Manage bursary and scholarship opportunities",
-      "educationResources": "Manage free learning resources, courses, and books"
+      "educationResources": "Manage free learning resources, courses, and books",
+      "carousel": "Manage homepage hero carousel slides",
+      "merits": "Community merit management and disputes",
+      "disputes": "Dispute moderation and resolution",
+      "teams": "Manage in-house maintenance teams",
+      "gallery": "Manage system gallery images"
     }
   },
   "unsuspend": "Unsuspend",
