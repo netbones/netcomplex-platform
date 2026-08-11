@@ -206,7 +206,7 @@ function DomainCard({
   return (
     <Link
       href={ADMIN_ROUTE_OVERRIDES[domain.id] ?? `/admin/${domain.id}`}
-      className="group flex flex-col items-center gap-2 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow relative"
+      className="group flex flex-col items-center gap-2 p-4 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow relative"
     >
       {tooltip && (
         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs rounded bg-lapis-deep text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
@@ -292,43 +292,57 @@ export function AdminLayer() {
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
-      {/* Section: Command Bar (reactive CTAs + creation shortcuts) */}
-      <section aria-label="Admin command bar">
-        <AdminCommandBar
-          urgency={urgency.commandBar}
-          isPlatformAdmin={isPlatformAdmin}
-          activeShortcuts={activeShortcuts}
-          onShortcutsChange={setActiveShortcuts}
-        />
-      </section>
+    <div className="relative min-h-screen">
+      {/* Pattern background */}
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage: 'url(/platform/patterns/pattern.png)',
+          backgroundRepeat: 'repeat',
+          backgroundSize: '500px',
+        }}
+      />
+      {/* White wash overlay */}
+      <div className="absolute inset-0 bg-white/80" />
+      {/* Content */}
+      <div className="relative p-6 max-w-5xl mx-auto space-y-6">
+        {/* Section: Command Bar (reactive CTAs + creation shortcuts) */}
+        <section aria-label="Admin command bar">
+          <AdminCommandBar
+            urgency={urgency.commandBar}
+            isPlatformAdmin={isPlatformAdmin}
+            activeShortcuts={activeShortcuts}
+            onShortcutsChange={setActiveShortcuts}
+          />
+        </section>
 
-      {/* Section: Domain Grid — grouped by category */}
-      <section aria-label="Management domains">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          {tx('domains.heading', 'Management Domains')}
-        </h2>
-        <AdminDomainGrid urgency={urgency} tx={tx} />
-      </section>
+        {/* Section: Domain Grid — grouped by category */}
+        <section aria-label="Management domains">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            {tx('domains.heading', 'Management Domains')}
+          </h2>
+          <AdminDomainGrid urgency={urgency} tx={tx} />
+        </section>
 
-      {/* Section: Activity Stream (lazy-loaded) */}
-      <section aria-label="Recent admin activity">
-        <ErrorBoundary
-          fallback={
-            <div className="bg-gray-50 rounded-lg p-4 text-center text-sm text-gray-500">
-              Activity stream unavailable
-            </div>
-          }
-        >
-          <Suspense
+        {/* Section: Activity Stream (lazy-loaded) */}
+        <section aria-label="Recent admin activity">
+          <ErrorBoundary
             fallback={
-              <div className="bg-white rounded-lg border border-gray-200 p-4 h-64 animate-pulse" />
+              <div className="bg-gray-50 rounded-lg p-4 text-center text-sm text-gray-500">
+                Activity stream unavailable
+              </div>
             }
           >
-            <AdminActivityStream isPlatformAdmin={isPlatformAdmin} />
-          </Suspense>
-        </ErrorBoundary>
-      </section>
+            <Suspense
+              fallback={
+                <div className="bg-white rounded-lg border border-gray-200 p-4 h-64 animate-pulse" />
+              }
+            >
+              <AdminActivityStream isPlatformAdmin={isPlatformAdmin} />
+            </Suspense>
+          </ErrorBoundary>
+        </section>
+      </div>
     </div>
   );
 }
