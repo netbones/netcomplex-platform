@@ -3,7 +3,6 @@
 import { lazy, Suspense } from 'react';
 import Link from 'next/link';
 import { useSafeTranslation } from '@shared/lib';
-import Image from 'next/image';
 import { useLocalStorage } from 'usehooks-ts';
 import { authClient } from '@api/client';
 import { useAdminUrgency } from '@features/admin';
@@ -13,8 +12,29 @@ import {
   ADMIN_DOMAIN_DEFINITIONS,
   ADMIN_DOMAIN_CATEGORIES,
   groupDomainsByCategory,
-  type AdminDomainDef,
 } from './AdminSubLauncher';
+import {
+  Users,
+  Wrench,
+  FileText,
+  CalendarDays,
+  Trophy,
+  BookOpen,
+  ClipboardCheck,
+  Megaphone,
+  Award,
+  Scale,
+  ShieldCheck,
+  Store,
+  Wallet,
+  Building2,
+  Image as ImageIcon,
+  GraduationCap,
+  UserCog,
+  Settings,
+  Zap,
+  type LucideIcon,
+} from 'lucide-react';
 
 // Domain ID → actual admin route override for domains whose page name differs
 const ADMIN_ROUTE_OVERRIDES: Record<string, string> = {
@@ -58,6 +78,7 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.services': 'Services',
   'domains.carousel': 'Carousel',
   'domains.dwallet': 'dWallet',
+  'domains.gallery': 'Gallery',
   'domains.descriptions.users': 'Manage community members and roles',
   'domains.descriptions.maintenance': 'Maintenance request management and analytics',
   'domains.descriptions.content': 'Content publishing and moderation',
@@ -75,12 +96,59 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.descriptions.carousel': 'Manage homepage hero carousel slides',
   'domains.descriptions.dwallet': 'Community value distribution and payout management',
   'domains.descriptions.adminBookings': 'Manage bookable facilities and settings',
+  'domains.descriptions.gallery': 'Manage system gallery images',
   'domains.teams': 'Teams',
   'domains.descriptions.teams': 'Manage in-house maintenance teams',
   'domains.categories.community': 'Community Engagement & Growth',
   'domains.categories.operations': 'Operational & Facility Management',
   'domains.categories.financial': 'Financial & Ecosystem Infrastructure',
   'domains.categories.system': 'System Administration',
+};
+
+const ADMIN_DOMAIN_ICONS: Record<string, LucideIcon> = {
+  users: Users,
+  maintenance: Wrench,
+  content: FileText,
+  events: CalendarDays,
+  competitions: Trophy,
+  resources: BookOpen,
+  surveys: ClipboardCheck,
+  announcements: Megaphone,
+  merits: ShieldCheck,
+  achievements: Award,
+  disputes: Scale,
+  dwallet: Wallet,
+  providers: Store,
+  bookings: Building2,
+  services: Zap,
+  carousel: ImageIcon,
+  education: GraduationCap,
+  teams: UserCog,
+  system: Settings,
+  gallery: ImageIcon,
+};
+
+const ADMIN_DOMAIN_COLORS: Record<string, string> = {
+  users: 'bg-blue-100 text-blue-600',
+  maintenance: 'bg-orange-100 text-orange-600',
+  content: 'bg-violet-100 text-violet-600',
+  events: 'bg-pink-100 text-pink-600',
+  competitions: 'bg-amber-100 text-amber-600',
+  resources: 'bg-teal-100 text-teal-600',
+  surveys: 'bg-cyan-100 text-cyan-600',
+  announcements: 'bg-indigo-100 text-indigo-600',
+  merits: 'bg-emerald-100 text-emerald-600',
+  achievements: 'bg-rose-100 text-rose-600',
+  disputes: 'bg-red-100 text-red-600',
+  dwallet: 'bg-yellow-100 text-yellow-600',
+  providers: 'bg-sky-100 text-sky-600',
+  bookings: 'bg-green-100 text-green-600',
+  services: 'bg-purple-100 text-purple-600',
+  carousel: 'bg-lime-100 text-lime-600',
+  education: 'bg-fuchsia-100 text-fuchsia-600',
+  teams: 'bg-slate-100 text-slate-600',
+  system: 'bg-gray-100 text-gray-600',
+  gallery: 'bg-stone-100 text-stone-600',
 };
 
 // ── Grouped domain grid ──
@@ -104,7 +172,7 @@ function AdminDomainGrid({
             <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
               {tx(cat.labelKey, DOMAIN_FALLBACKS[cat.labelKey] || cat.description)}
             </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+            <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
               {domains.map(domain => (
                 <DomainCard
                   key={domain.id}
@@ -122,34 +190,42 @@ function AdminDomainGrid({
 
 // ── DomainCard ──
 
-function DomainCard({ domain, badge }: { domain: AdminDomainDef; badge: number }) {
+function DomainCard({
+  domain,
+  badge,
+}: {
+  domain: { id: string; labelKey: string; descriptionKey?: string };
+  badge: number;
+}) {
   const { tx } = useSafeTranslation('admin');
+  const Icon = ADMIN_DOMAIN_ICONS[domain.id] || Settings;
+  const tooltip = domain.descriptionKey
+    ? tx(domain.descriptionKey, DOMAIN_FALLBACKS[domain.descriptionKey] || '')
+    : undefined;
 
   return (
     <Link
       href={ADMIN_ROUTE_OVERRIDES[domain.id] ?? `/admin/${domain.id}`}
-      className="group relative flex items-start gap-3 p-3 bg-white rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md transition-all border border-gray-100"
+      className="group flex flex-col items-center gap-2 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow relative"
     >
-      <div className="flex-shrink-0 w-10 h-10 relative">
-        <Image src={domain.icon} alt="" fill className="w-full h-full" />
-      </div>
-      <div className="min-w-0 flex-1">
-        <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition truncate">
-          {tx(domain.labelKey, DOMAIN_FALLBACKS[domain.labelKey] || domain.labelKey)}
-        </h3>
-        <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">
-          {tx(
-            domain.descriptionKey,
-            DOMAIN_FALLBACKS[domain.descriptionKey] || domain.descriptionKey
-          )}
-        </p>
-      </div>
-      {/* Urgency badge — only shown if count > 0 */}
-      {badge > 0 && (
-        <span className="absolute -top-1.5 -right-1.5 inline-flex items-center justify-center w-5 h-5 rounded-full bg-red-500 text-white text-xs font-bold shadow-sm">
-          {badge > 9 ? '9+' : badge}
-        </span>
+      {tooltip && (
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs rounded bg-lapis-deep text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+          {tooltip}
+        </div>
       )}
+      <div
+        className={`relative flex items-center justify-center w-12 h-12 rounded-full ${ADMIN_DOMAIN_COLORS[domain.id] || 'bg-gray-100 text-gray-600'}`}
+      >
+        <Icon className="w-6 h-6" />
+        {badge > 0 && (
+          <span className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 rounded-full bg-red-500 text-white text-xs font-bold">
+            {badge > 9 ? '9+' : badge}
+          </span>
+        )}
+      </div>
+      <span className="text-sm font-medium text-gray-700 text-center">
+        {tx(domain.labelKey, DOMAIN_FALLBACKS[domain.labelKey] || domain.labelKey)}
+      </span>
     </Link>
   );
 }

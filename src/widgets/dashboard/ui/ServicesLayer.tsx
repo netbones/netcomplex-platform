@@ -1,12 +1,31 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { useSafeTranslation } from '@shared/lib';
 import { useLocalStorage } from 'usehooks-ts';
 import { authClient, trpc } from '@api/client';
 import { ServicesCommandBar, type ServicesCommandBarUrgency } from './ServicesCommandBar';
-import { SERVICES_DOMAIN_DEFINITIONS, type ServicesDomainDef } from './ServicesSubLauncher';
+import { SERVICES_DOMAIN_DEFINITIONS } from './ServicesSubLauncher';
+import {
+  Wrench,
+  Calendar,
+  Building2,
+  Briefcase,
+  CalendarDays,
+  ClipboardCheck,
+  Trophy,
+  MessageSquare,
+  Scale,
+  Store,
+  GraduationCap,
+  Users,
+  UserCog,
+  BookOpen,
+  Leaf,
+  Wallet,
+  Settings,
+  type LucideIcon,
+} from 'lucide-react';
 
 const SERVICES_ROUTE_OVERRIDES: Record<string, string> = {
   disputes: '/disputes',
@@ -57,38 +76,127 @@ interface UrgencyResponse {
   domainBadges: Record<string, number>;
 }
 
+const DOMAIN_ICONS: Record<string, LucideIcon> = {
+  maintenance: Wrench,
+  bookings: Calendar,
+  amenities: Building2,
+  'my-services': Briefcase,
+  events: CalendarDays,
+  surveys: ClipboardCheck,
+  competitions: Trophy,
+  communication: MessageSquare,
+  disputes: Scale,
+  marketplace: Store,
+  education: GraduationCap,
+  directory: Users,
+  groups: UserCog,
+  resources: BookOpen,
+  conservation: Leaf,
+  wallet: Wallet,
+  settings: Settings,
+};
+
+const DOMAIN_COLORS: Record<string, string> = {
+  maintenance: 'bg-orange-100 text-orange-600',
+  bookings: 'bg-blue-100 text-blue-600',
+  amenities: 'bg-green-100 text-green-600',
+  'my-services': 'bg-purple-100 text-purple-600',
+  events: 'bg-pink-100 text-pink-600',
+  surveys: 'bg-teal-100 text-teal-600',
+  competitions: 'bg-amber-100 text-amber-600',
+  communication: 'bg-indigo-100 text-indigo-600',
+  disputes: 'bg-red-100 text-red-600',
+  marketplace: 'bg-cyan-100 text-cyan-600',
+  education: 'bg-rose-100 text-rose-600',
+  directory: 'bg-sky-100 text-sky-600',
+  groups: 'bg-emerald-100 text-emerald-600',
+  resources: 'bg-violet-100 text-violet-600',
+  conservation: 'bg-lime-100 text-lime-600',
+  wallet: 'bg-yellow-100 text-yellow-600',
+  settings: 'bg-gray-100 text-gray-600',
+};
+
 // ═══════════════════════════════════════════════════════════════
 // DOMAIN GRID CARD
 // ═══════════════════════════════════════════════════════════════
 
-function DomainCard({ domain, badge }: { domain: ServicesDomainDef; badge: number }) {
+function DomainCard({
+  domain,
+  badge,
+  descriptionKey,
+}: {
+  domain: { id: string; labelKey: string; descriptionKey?: string };
+  badge: number;
+  descriptionKey?: string;
+}) {
   const { tx } = useSafeTranslation('services');
+  const Icon = DOMAIN_ICONS[domain.id] || Settings;
+  const descKey = descriptionKey ?? domain.descriptionKey;
+  const tooltip = descKey ? tx(descKey, DOMAIN_FALLBACKS[descKey] || '') : undefined;
 
   return (
     <Link
       href={SERVICES_ROUTE_OVERRIDES[domain.id] ?? `/dashboard/services/${domain.id}`}
-      className="group relative flex items-start gap-3 p-3 bg-white rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md transition-all border border-gray-100"
+      className="group flex flex-col items-center gap-2 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow relative"
     >
-      <div className="flex-shrink-0 w-10 h-10 relative">
-        <Image src={domain.icon} alt="" fill className="w-full h-full" />
-      </div>
-      <div className="min-w-0 flex-1">
-        <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition truncate">
-          {tx(domain.labelKey, DOMAIN_FALLBACKS[domain.labelKey] || domain.labelKey)}
-        </h3>
-        <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">
-          {tx(
-            domain.descriptionKey,
-            DOMAIN_FALLBACKS[domain.descriptionKey] || domain.descriptionKey
-          )}
-        </p>
-      </div>
-      {/* Urgency badge — only shown if count > 0 */}
-      {badge > 0 && (
-        <span className="absolute -top-1.5 -right-1.5 inline-flex items-center justify-center w-5 h-5 rounded-full bg-red-500 text-white text-xs font-bold shadow-sm">
-          {badge > 9 ? '9+' : badge}
-        </span>
+      {tooltip && (
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs rounded bg-lapis-deep text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+          {tooltip}
+        </div>
       )}
+      <div
+        className={`relative flex items-center justify-center w-12 h-12 rounded-full ${DOMAIN_COLORS[domain.id] || 'bg-gray-100 text-gray-600'}`}
+      >
+        <Icon className="w-6 h-6" />
+        {badge > 0 && (
+          <span className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 rounded-full bg-red-500 text-white text-xs font-bold">
+            {badge > 9 ? '9+' : badge}
+          </span>
+        )}
+      </div>
+      <span className="text-sm font-medium text-gray-700 text-center">
+        {tx(domain.labelKey, DOMAIN_FALLBACKS[domain.labelKey] || domain.labelKey)}
+      </span>
+    </Link>
+  );
+}
+
+function ServiceLinkCard({
+  href,
+  iconId,
+  label,
+  rawLabel,
+  descriptionKey,
+}: {
+  href: string;
+  iconId: string;
+  label: string;
+  rawLabel?: string;
+  descriptionKey?: string;
+}) {
+  const { tx } = useSafeTranslation('services');
+  const Icon = DOMAIN_ICONS[iconId] || Settings;
+  const displayLabel = rawLabel ?? tx(label, DOMAIN_FALLBACKS[label] || label);
+  const tooltip = descriptionKey
+    ? tx(descriptionKey, DOMAIN_FALLBACKS[descriptionKey] || '')
+    : undefined;
+
+  return (
+    <Link
+      href={href}
+      className="group flex flex-col items-center gap-2 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow relative"
+    >
+      {tooltip && (
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs rounded bg-lapis-deep text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+          {tooltip}
+        </div>
+      )}
+      <div
+        className={`flex items-center justify-center w-12 h-12 rounded-full ${DOMAIN_COLORS[iconId] || 'bg-gray-100 text-gray-600'}`}
+      >
+        <Icon className="w-6 h-6" />
+      </div>
+      <span className="text-sm font-medium text-gray-700 text-center">{displayLabel}</span>
     </Link>
   );
 }
@@ -200,44 +308,13 @@ export function ServicesLayer() {
   ];
   const engagementDomainIds = ['competitions', 'surveys', 'communication'];
 
-  function ServiceLinkCard({
-    href,
-    icon,
-    label,
-    description,
-  }: {
-    href: string;
-    icon: string;
-    label: string;
-    description: string;
-  }) {
-    return (
-      <Link
-        href={href}
-        className="group relative flex items-start gap-3 p-3 bg-white rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md transition-all border border-gray-100"
-      >
-        <div className="flex-shrink-0 w-10 h-10 relative">
-          <Image src={icon} alt="" fill className="w-full h-full" />
-        </div>
-        <div className="min-w-0 flex-1">
-          <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition truncate">
-            {tx(label, DOMAIN_FALLBACKS[label] || label)}
-          </h3>
-          <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">
-            {tx(description, DOMAIN_FALLBACKS[description] || description)}
-          </p>
-        </div>
-      </Link>
-    );
-  }
-
   return (
     <div
       className="p-6 max-w-5xl mx-auto space-y-6 min-h-screen"
       style={{
         backgroundImage: 'url(/platform/patterns/pattern.png)',
         backgroundRepeat: 'repeat',
-        backgroundSize: '300px',
+        backgroundSize: '500px',
       }}
     >
       {/* Command Bar */}
@@ -254,7 +331,7 @@ export function ServicesLayer() {
         <h2 className="text-lg font-semibold text-gray-900 mb-3">
           {tx('sections.coreServices', 'Core Services')}
         </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
           {SERVICES_DOMAIN_DEFINITIONS.filter(d => coreDomainIds.includes(d.id)).map(domain => (
             <DomainCard
               key={domain.id}
@@ -270,18 +347,18 @@ export function ServicesLayer() {
         <h2 className="text-lg font-semibold text-gray-900 mb-3">
           {tx('sections.communityEngagement', 'Community & Engagement')}
         </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
           <ServiceLinkCard
             href="/directory"
-            icon="/platform/users.svg"
+            iconId="directory"
             label="domains.directory"
-            description="domains.descriptions.directory"
+            descriptionKey="domains.descriptions.directory"
           />
           <ServiceLinkCard
             href="/groups"
-            icon="/platform/teams-nc.svg"
+            iconId="groups"
             label="domains.groups"
-            description="domains.descriptions.groups"
+            descriptionKey="domains.descriptions.groups"
           />
           {SERVICES_DOMAIN_DEFINITIONS.filter(d => engagementDomainIds.includes(d.id)).map(
             domain => (
@@ -293,20 +370,12 @@ export function ServicesLayer() {
             )
           )}
           {isAdmin && (
-            <Link
+            <ServiceLinkCard
               href="/admin/groups"
-              className="group relative flex items-start gap-3 p-3 bg-white rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md transition-all border border-gray-100"
-            >
-              <div className="flex-shrink-0 w-10 h-10 relative">
-                <Image src="/platform/system.svg" alt="" fill className="w-full h-full" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition truncate">
-                  Group Admin
-                </h3>
-                <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">Manage community groups</p>
-              </div>
-            </Link>
+              iconId="groups"
+              label="Group Admin"
+              descriptionKey="domains.descriptions.teams"
+            />
           )}
         </div>
       </section>
@@ -316,24 +385,24 @@ export function ServicesLayer() {
         <h2 className="text-lg font-semibold text-gray-900 mb-3">
           {tx('sections.learningGrowth', 'Learning & Growth')}
         </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
           <ServiceLinkCard
             href="/education"
-            icon="/platform/education-red.svg"
+            iconId="education"
             label="domains.education"
-            description="domains.descriptions.education"
+            descriptionKey="domains.descriptions.education"
           />
           <ServiceLinkCard
             href="/resources"
-            icon="/platform/resources.svg"
+            iconId="resources"
             label="domains.resources"
-            description="domains.descriptions.resources"
+            descriptionKey="domains.descriptions.resources"
           />
           <ServiceLinkCard
             href="/conservation"
-            icon="/platform/conservation.svg"
+            iconId="conservation"
             label="domains.conservation"
-            description="domains.descriptions.conservation"
+            descriptionKey="domains.descriptions.conservation"
           />
         </div>
       </section>
@@ -343,23 +412,14 @@ export function ServicesLayer() {
         <h2 className="text-lg font-semibold text-gray-900 mb-3">
           {tx('sections.financeAndMarkets', 'Finance & Markets')}
         </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-          <Link
+        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+          <ServiceLinkCard
             href="/dashboard/wallet"
-            className="group relative flex items-start gap-3 p-3 bg-white rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md transition-all border border-gray-100"
-          >
-            <div className="flex-shrink-0 w-10 h-10 relative">
-              <Image src="/platform/wallet-red.svg" alt="" fill className="w-full h-full" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition truncate">
-                dWallet
-              </h3>
-              <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">
-                {tx('dWallet.subheading', 'Your data, your consent, your rewards')}
-              </p>
-            </div>
-          </Link>
+            iconId="wallet"
+            label="dWallet"
+            rawLabel="dWallet"
+            descriptionKey="dWallet.subheading"
+          />
           {SERVICES_DOMAIN_DEFINITIONS.filter(d => d.id === 'marketplace').map(domain => (
             <DomainCard
               key={domain.id}
@@ -375,12 +435,12 @@ export function ServicesLayer() {
         <h2 className="text-lg font-semibold text-gray-900 mb-3">
           {tx('settings.title', 'Settings')}
         </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
           <ServiceLinkCard
             href="/profile"
-            icon="/platform/settings.svg"
+            iconId="settings"
             label="settings.title"
-            description="settings.description"
+            descriptionKey="settings.description"
           />
         </div>
       </section>
