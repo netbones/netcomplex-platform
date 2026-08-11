@@ -237,7 +237,7 @@ export function ServicesLayer() {
       style={{
         backgroundImage: 'url(/platform/patterns/pattern.png)',
         backgroundRepeat: 'repeat',
-        backgroundSize: '300px',
+        backgroundSize: '500px',
       }}
     >
       {/* Command Bar */}
