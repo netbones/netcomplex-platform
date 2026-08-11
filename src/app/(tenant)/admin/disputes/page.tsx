@@ -27,7 +27,7 @@ export default function AdminDisputesPage() {
           <div className="flex justify-between items-center mb-6">
             <Breadcrumbs items={BREADCRUMBS} />
             <Link
-              href="/disputes/new"
+              href="/disputes"
               className="inline-flex items-center gap-2 px-4 py-2 bg-soralia-primary text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-md"
               aria-label="File a new dispute"
             >

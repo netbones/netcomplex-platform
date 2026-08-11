@@ -9,7 +9,7 @@ import { ServicesCommandBar, type ServicesCommandBarUrgency } from './ServicesCo
 import { SERVICES_DOMAIN_DEFINITIONS, type ServicesDomainDef } from './ServicesSubLauncher';
 
 const SERVICES_ROUTE_OVERRIDES: Record<string, string> = {
-  disputes: '/disputes/new',
+  disputes: '/disputes',
 };
 
 const DOMAIN_FALLBACKS: Record<string, string> = {
@@ -232,7 +232,14 @@ export function ServicesLayer() {
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
+    <div
+      className="p-6 max-w-5xl mx-auto space-y-6 min-h-screen"
+      style={{
+        backgroundImage: 'url(/platform/patterns/pattern.png)',
+        backgroundRepeat: 'repeat',
+        backgroundSize: '300px',
+      }}
+    >
       {/* Command Bar */}
       <section aria-label="Services command bar">
         <ServicesCommandBar
