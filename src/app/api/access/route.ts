@@ -26,7 +26,6 @@ import {
   apiError,
   apiSuccess,
   getSessionAndRole,
-  requireNotSuspended,
   db,
   serviceProviders,
   notDeleted,
@@ -120,17 +119,25 @@ async function resolveProviderExists(
 
 export async function GET(request: NextRequest) {
   try {
-    // Resolve tenant context
+    // Resolve authenticated user FIRST so the session is looked up exactly
+    // once per request. ADVISORY-037 / pool-exhaustion fix: /api/access is
+    // called by every nav component + page guard; prior code ran
+    // auth.api.getSession() up to 3x (withTenant's cross-check,
+    // getSessionAndRole, requireNotSuspended), each hitting the DB and
+    // saturating the connection pool under concurrent page loads.
+    // React.cache() does not dedupe in route handlers, so the resolved
+    // session is threaded through withTenant() instead.
+    const auth = await getSessionAndRole(request);
+
+    // Resolve tenant context (reuses the already-resolved session for the
+    // tenant cross-check — no second getSession()).
     let tenantId: string;
     try {
-      const tenant = await withTenant();
+      const tenant = await withTenant(auth?.session ?? null);
       tenantId = tenant.tenantId;
     } catch {
       return apiError('NOT_FOUND', 'Tenant not found', 404);
     }
-
-    // Resolve authenticated user
-    const auth = await getSessionAndRole(request);
 
     // Unauthenticated callers receive empty access (no error — D-01)
     if (!auth) {
@@ -144,8 +151,9 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Check suspension
-    const { suspended: isSuspended } = await requireNotSuspended(request);
+    // Suspension is already resolved inside getSessionAndRole — no separate
+    // requireNotSuspended() call (would re-run getSession + a duplicate query).
+    const isSuspended = auth.suspension !== null;
 
     // Resolve provider record
     const providerRecordExists = await resolveProviderExists(
