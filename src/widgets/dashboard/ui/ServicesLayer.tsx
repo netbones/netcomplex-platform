@@ -309,141 +309,148 @@ export function ServicesLayer() {
   const engagementDomainIds = ['competitions', 'surveys', 'communication'];
 
   return (
-    <div
-      className="p-6 max-w-5xl mx-auto space-y-6 min-h-screen"
-      style={{
-        backgroundImage: 'url(/platform/patterns/pattern.png)',
-        backgroundRepeat: 'repeat',
-        backgroundSize: '500px',
-      }}
-    >
-      {/* Command Bar */}
-      <section aria-label="Services command bar">
-        <ServicesCommandBar
-          urgency={urgency.commandBar}
-          activeShortcuts={activeShortcuts}
-          onShortcutsChange={setActiveShortcuts}
-        />
-      </section>
-
-      {/* Row 1: Core Services */}
-      <section aria-label="Core services">
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">
-          {tx('sections.coreServices', 'Core Services')}
-        </h2>
-        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-          {SERVICES_DOMAIN_DEFINITIONS.filter(d => coreDomainIds.includes(d.id)).map(domain => (
-            <DomainCard
-              key={domain.id}
-              domain={domain}
-              badge={urgency.domainBadges[domain.id] ?? 0}
-            />
-          ))}
-        </div>
-      </section>
-
-      {/* Row 2: Community & Engagement */}
-      <section aria-label="Community and engagement">
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">
-          {tx('sections.communityEngagement', 'Community & Engagement')}
-        </h2>
-        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-          <ServiceLinkCard
-            href="/directory"
-            iconId="directory"
-            label="domains.directory"
-            descriptionKey="domains.descriptions.directory"
+    <div className="relative min-h-screen">
+      {/* Pattern background */}
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage: 'url(/platform/patterns/pattern.png)',
+          backgroundRepeat: 'repeat',
+          backgroundSize: '500px',
+        }}
+      />
+      {/* White wash overlay */}
+      <div className="absolute inset-0 bg-white/80" />
+      {/* Content */}
+      <div className="relative p-6 max-w-5xl mx-auto space-y-6">
+        {/* Command Bar */}
+        <section aria-label="Services command bar">
+          <ServicesCommandBar
+            urgency={urgency.commandBar}
+            activeShortcuts={activeShortcuts}
+            onShortcutsChange={setActiveShortcuts}
           />
-          <ServiceLinkCard
-            href="/groups"
-            iconId="groups"
-            label="domains.groups"
-            descriptionKey="domains.descriptions.groups"
-          />
-          {SERVICES_DOMAIN_DEFINITIONS.filter(d => engagementDomainIds.includes(d.id)).map(
-            domain => (
+        </section>
+
+        {/* Row 1: Core Services */}
+        <section aria-label="Core services">
+          <h2 className="text-lg font-semibold text-gray-900 mb-3">
+            {tx('sections.coreServices', 'Core Services')}
+          </h2>
+          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+            {SERVICES_DOMAIN_DEFINITIONS.filter(d => coreDomainIds.includes(d.id)).map(domain => (
               <DomainCard
                 key={domain.id}
                 domain={domain}
                 badge={urgency.domainBadges[domain.id] ?? 0}
               />
-            )
-          )}
-          {isAdmin && (
+            ))}
+          </div>
+        </section>
+
+        {/* Row 2: Community & Engagement */}
+        <section aria-label="Community and engagement">
+          <h2 className="text-lg font-semibold text-gray-900 mb-3">
+            {tx('sections.communityEngagement', 'Community & Engagement')}
+          </h2>
+          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
             <ServiceLinkCard
-              href="/admin/groups"
+              href="/directory"
+              iconId="directory"
+              label="domains.directory"
+              descriptionKey="domains.descriptions.directory"
+            />
+            <ServiceLinkCard
+              href="/groups"
               iconId="groups"
-              label="Group Admin"
-              descriptionKey="domains.descriptions.teams"
+              label="domains.groups"
+              descriptionKey="domains.descriptions.groups"
             />
-          )}
-        </div>
-      </section>
+            {SERVICES_DOMAIN_DEFINITIONS.filter(d => engagementDomainIds.includes(d.id)).map(
+              domain => (
+                <DomainCard
+                  key={domain.id}
+                  domain={domain}
+                  badge={urgency.domainBadges[domain.id] ?? 0}
+                />
+              )
+            )}
+            {isAdmin && (
+              <ServiceLinkCard
+                href="/admin/groups"
+                iconId="groups"
+                label="Group Admin"
+                descriptionKey="domains.descriptions.teams"
+              />
+            )}
+          </div>
+        </section>
 
-      {/* Row 3: Learning & Growth */}
-      <section aria-label="Learning and growth">
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">
-          {tx('sections.learningGrowth', 'Learning & Growth')}
-        </h2>
-        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-          <ServiceLinkCard
-            href="/education"
-            iconId="education"
-            label="domains.education"
-            descriptionKey="domains.descriptions.education"
-          />
-          <ServiceLinkCard
-            href="/resources"
-            iconId="resources"
-            label="domains.resources"
-            descriptionKey="domains.descriptions.resources"
-          />
-          <ServiceLinkCard
-            href="/conservation"
-            iconId="conservation"
-            label="domains.conservation"
-            descriptionKey="domains.descriptions.conservation"
-          />
-        </div>
-      </section>
-
-      {/* Row 4: Finance & Markets */}
-      <section aria-label="Finance and markets">
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">
-          {tx('sections.financeAndMarkets', 'Finance & Markets')}
-        </h2>
-        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-          <ServiceLinkCard
-            href="/dashboard/wallet"
-            iconId="wallet"
-            label="dWallet"
-            rawLabel="dWallet"
-            descriptionKey="dWallet.subheading"
-          />
-          {SERVICES_DOMAIN_DEFINITIONS.filter(d => d.id === 'marketplace').map(domain => (
-            <DomainCard
-              key={domain.id}
-              domain={domain}
-              badge={urgency.domainBadges[domain.id] ?? 0}
+        {/* Row 3: Learning & Growth */}
+        <section aria-label="Learning and growth">
+          <h2 className="text-lg font-semibold text-gray-900 mb-3">
+            {tx('sections.learningGrowth', 'Learning & Growth')}
+          </h2>
+          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+            <ServiceLinkCard
+              href="/education"
+              iconId="education"
+              label="domains.education"
+              descriptionKey="domains.descriptions.education"
             />
-          ))}
-        </div>
-      </section>
+            <ServiceLinkCard
+              href="/resources"
+              iconId="resources"
+              label="domains.resources"
+              descriptionKey="domains.descriptions.resources"
+            />
+            <ServiceLinkCard
+              href="/conservation"
+              iconId="conservation"
+              label="domains.conservation"
+              descriptionKey="domains.descriptions.conservation"
+            />
+          </div>
+        </section>
 
-      {/* Settings */}
-      <section aria-label="Settings">
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">
-          {tx('settings.title', 'Settings')}
-        </h2>
-        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-          <ServiceLinkCard
-            href="/profile"
-            iconId="settings"
-            label="settings.title"
-            descriptionKey="settings.description"
-          />
-        </div>
-      </section>
+        {/* Row 4: Finance & Markets */}
+        <section aria-label="Finance and markets">
+          <h2 className="text-lg font-semibold text-gray-900 mb-3">
+            {tx('sections.financeAndMarkets', 'Finance & Markets')}
+          </h2>
+          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+            <ServiceLinkCard
+              href="/dashboard/wallet"
+              iconId="wallet"
+              label="dWallet"
+              rawLabel="dWallet"
+              descriptionKey="dWallet.subheading"
+            />
+            {SERVICES_DOMAIN_DEFINITIONS.filter(d => d.id === 'marketplace').map(domain => (
+              <DomainCard
+                key={domain.id}
+                domain={domain}
+                badge={urgency.domainBadges[domain.id] ?? 0}
+              />
+            ))}
+          </div>
+        </section>
+
+        {/* Settings */}
+        <section aria-label="Settings">
+          <h2 className="text-lg font-semibold text-gray-900 mb-3">
+            {tx('settings.title', 'Settings')}
+          </h2>
+          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+            <ServiceLinkCard
+              href="/profile"
+              iconId="settings"
+              label="settings.title"
+              descriptionKey="settings.description"
+            />
+          </div>
+        </section>
+      </div>
     </div>
   );
 }
