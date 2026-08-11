@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Shell(cat:*)",
+      "Shell(grep:*)",
+      "Shell(sed:*)",
+      "Shell(npx prisma migrate status 2 >& 1)",
+      "Shell(node_modules/.bin/tsx:*)"
+    ],
+    "deny": [],
+    "defaultMode": "default"
+  }
+}
