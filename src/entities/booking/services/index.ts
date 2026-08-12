@@ -167,6 +167,7 @@ export async function createBooking(data: {
   startTime: string;
   endTime: string;
   purpose: string;
+  amenityId?: string | null;
 }) {
   const now = new Date();
   type BookingStatus = (typeof bookings.status.enumValues)[number];
@@ -178,6 +179,7 @@ export async function createBooking(data: {
       tenantId: data.tenantId,
       userId: data.userId,
       facility: data.facility,
+      amenityId: data.amenityId ?? null,
       date: data.date,
       startTime: data.startTime,
       endTime: data.endTime,

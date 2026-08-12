@@ -8,7 +8,8 @@ import { createComponentLogger } from '@/shared/lib';
 import type { AmenityWithStatus } from '@entities/amenity';
 import { AmenityCard } from '@entities/amenity';
 import { BookingDetail } from '@features/booking';
-import { Calendar } from 'lucide-react';
+import { DomainIconBadge } from '@widgets/dashboard';
+import { MyBookingsTab } from './MyBookingsTab';
 
 const log = createComponentLogger('AmenitiesPage');
 
@@ -81,8 +82,19 @@ export function AmenitiesPage() {
 
   return (
     <ErrorBoundary>
-      <main className="min-h-screen bg-soralia-light">
-        <div className="max-w-2xl mx-auto px-4 py-8">
+      <main className="relative min-h-screen">
+        {/* Pattern background */}
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: 'url(/platform/patterns/pattern.png)',
+            backgroundRepeat: 'repeat',
+            backgroundSize: '500px',
+          }}
+        />
+        {/* White wash overlay */}
+        <div className="absolute inset-0 bg-white/80" />
+        <div className="relative max-w-2xl mx-auto px-4 py-8">
           {/* Show booking detail if amenity selected */}
           {selectedAmenity ? (
             <BookingDetail
@@ -92,17 +104,10 @@ export function AmenitiesPage() {
             />
           ) : (
             <>
-              <Breadcrumbs
-                items={[
-                  { label: 'Home', href: '/' },
-                  { label: 'Amenities' },
-                ]}
-              />
+              <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Amenities' }]} />
 
               <div className="flex items-center gap-2.5 mb-6">
-                <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
-                  <Calendar className="w-4 h-4 text-indigo-600" aria-hidden="true" />
-                </div>
+                <DomainIconBadge id="amenities" variant="services" size="md" />
                 <h1 className="text-2xl font-bold text-gray-900">Amenities</h1>
               </div>
 
@@ -163,9 +168,7 @@ export function AmenitiesPage() {
 
               {/* My Bookings Tab */}
               {activeTab === 'bookings' && (
-                <div className="text-center py-12">
-                  <p className="text-gray-500">My bookings content will go here</p>
-                </div>
+                <MyBookingsTab amenities={amenities} onBookAgain={handleBook} />
               )}
 
               {/* Calendar Tab */}

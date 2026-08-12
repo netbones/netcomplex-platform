@@ -5,6 +5,7 @@ import { cn } from '@/shared/lib/utils';
 import type { AmenityWithStatus } from '../model/types';
 import { AmenityBadge, statusToVariant } from './AmenityBadge';
 import { formatHours } from '../model/selectors';
+import { AMENITY_ICON_COLORS } from './icon-colors';
 
 interface AmenityCardProps {
   amenity: AmenityWithStatus;
@@ -14,15 +15,6 @@ interface AmenityCardProps {
   onContact?: (amenity: AmenityWithStatus) => void;
 }
 
-// Tabler icon mapping - maps icon names to colors
-const iconColors: Record<string, { bg: string; text: string }> = {
-  tennis: { bg: 'bg-green-100', text: 'text-green-600' },
-  swimming: { bg: 'bg-amber-100', text: 'text-amber-600' },
-  parking: { bg: 'bg-gray-100', text: 'text-gray-600' },
-  fire: { bg: 'bg-red-100', text: 'text-red-600' },
-  default: { bg: 'bg-indigo-100', text: 'text-indigo-600' },
-};
-
 export function AmenityCard({
   amenity,
   onBook,
@@ -30,7 +22,7 @@ export function AmenityCard({
   onInfo,
   onContact,
 }: AmenityCardProps) {
-  const colors = iconColors[amenity.icon] || iconColors.default;
+  const colors = AMENITY_ICON_COLORS[amenity.icon] || AMENITY_ICON_COLORS.default;
   const hoursText = formatHours(amenity.hoursOpen, amenity.hoursClose);
 
   return (
@@ -43,16 +35,9 @@ export function AmenityCard({
         )}
       >
         {amenity.photoUrl ? (
-          <img
-            src={amenity.photoUrl}
-            alt={amenity.name}
-            className="w-full h-full object-cover"
-          />
+          <img src={amenity.photoUrl} alt={amenity.name} className="w-full h-full object-cover" />
         ) : (
-          <i
-            className={`ti ti-${amenity.icon} text-3xl ${colors.text}`}
-            aria-hidden="true"
-          />
+          <i className={`ti ti-${amenity.icon} text-3xl ${colors.text}`} aria-hidden="true" />
         )}
       </div>
 
@@ -101,7 +86,7 @@ export function AmenityCard({
               )}
             </>
           )}
-          
+
           {amenity.rulesText && (
             <button
               onClick={() => onInfo?.(amenity)}

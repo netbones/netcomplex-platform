@@ -36,7 +36,10 @@ export const GET = withErrorHandler(
   }
 );
 
-/** @deprecated Use `trpc.bookings.cancelBooking` instead */
+/**
+ * Cancel a booking — sets status = CANCELLED and cancelledAt = now().
+ * Residents can only cancel their own bookings; management/admin cancel any.
+ */
 export const DELETE = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;
@@ -44,23 +47,24 @@ export const DELETE = withErrorHandler(
     const session = await auth.api.getSession({ headers: request.headers });
     if (!session?.user?.id) return apiUnauthorized();
 
-    if (!hasPermission(session.user.role as string, 'bookings')) {
-      return apiForbidden();
-    }
-
     const { tenantId } = await withTenant();
 
     const [booking] = await db
-      .select({ id: bookings.id })
+      .select({ id: bookings.id, userId: bookings.userId, status: bookings.status })
       .from(bookings)
       .where(and(eq(bookings.id, id), eq(bookings.tenantId, tenantId), notDeleted(bookings)))
       .limit(1);
 
     if (!booking) return apiNotFound('Booking not found');
 
+    const canManageAll = hasPermission(session.user.role as string, 'bookings');
+    if (!canManageAll && booking.userId !== session.user.id) {
+      return apiForbidden();
+    }
+
     await db
       .update(bookings)
-      .set({ deletedAt: now(), updatedAt: now() })
+      .set({ status: 'CANCELLED', cancelledAt: now(), updatedAt: now() })
       .where(eq(bookings.id, booking.id));
 
     return apiSuccess({ success: true });

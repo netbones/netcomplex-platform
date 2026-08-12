@@ -158,6 +158,7 @@ export async function POST(request: Request) {
       tenantId,
       userId,
       facility: resolvedFacility || body.amenityId || 'General',
+      amenityId: body.amenityId ?? null,
       date: new Date(date),
       startTime,
       endTime,

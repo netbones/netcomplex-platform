@@ -35,11 +35,11 @@ export function BookingDetail({ amenity, onBack, onBookingSuccess }: BookingDeta
   const dateOptions = useMemo<DateOption[]>(() => {
     const days: DateOption[] = [];
     const today = new Date();
-    
+
     for (let i = 0; i < 6; i++) {
       const date = new Date(today);
       date.setDate(today.getDate() + i);
-      
+
       days.push({
         date,
         dayName: date.toLocaleDateString('en-US', { weekday: 'short' }),
@@ -47,46 +47,49 @@ export function BookingDetail({ amenity, onBack, onBookingSuccess }: BookingDeta
         isToday: i === 0,
       });
     }
-    
+
     return days;
   }, []);
 
   // Fetch existing bookings for the selected date
-  const fetchExistingBookings = useCallback(async (date: Date) => {
-    if (!amenity.bookable) return;
-    
-    setLoading(true);
-    try {
-      const dateStr = date.toISOString().split('T')[0];
-      const { data } = await apiGet<Array<{ startTime: string; endTime: string }>>(
-        `/api/amenities/${amenity.id}/bookings?date=${dateStr}`
-      );
-      
-      // Generate slots with booking info
-      const slots = generateTimeSlots(
-        amenity.hoursOpen,
-        amenity.hoursClose,
-        amenity.slotDurationMins || 60,
-        date,
-        data ?? []
-      );
-      
-      setTimeSlots(slots);
-    } catch (error) {
-      log.error({}, 'Failed to fetch bookings', error);
-      // Still generate slots without booking info
-      const slots = generateTimeSlots(
-        amenity.hoursOpen,
-        amenity.hoursClose,
-        amenity.slotDurationMins || 60,
-        date,
-        []
-      );
-      setTimeSlots(slots);
-    } finally {
-      setLoading(false);
-    }
-  }, [amenity]);
+  const fetchExistingBookings = useCallback(
+    async (date: Date) => {
+      if (!amenity.bookable) return;
+
+      setLoading(true);
+      try {
+        const dateStr = date.toISOString().split('T')[0];
+        const { data } = await apiGet<Array<{ startTime: string; endTime: string }>>(
+          `/api/amenities/${amenity.id}/bookings?date=${dateStr}`
+        );
+
+        // Generate slots with booking info
+        const slots = generateTimeSlots(
+          amenity.hoursOpen,
+          amenity.hoursClose,
+          amenity.slotDurationMins || 60,
+          date,
+          data ?? []
+        );
+
+        setTimeSlots(slots);
+      } catch (error) {
+        log.error({}, 'Failed to fetch bookings', error);
+        // Still generate slots without booking info
+        const slots = generateTimeSlots(
+          amenity.hoursOpen,
+          amenity.hoursClose,
+          amenity.slotDurationMins || 60,
+          date,
+          []
+        );
+        setTimeSlots(slots);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [amenity]
+  );
 
   useEffect(() => {
     fetchExistingBookings(selectedDate);
@@ -95,16 +98,17 @@ export function BookingDetail({ amenity, onBack, onBookingSuccess }: BookingDeta
 
   const handleConfirm = async () => {
     if (!selectedSlot) return;
-    
+
     setSubmitting(true);
     try {
       await apiPost('/api/bookings', {
         amenityId: amenity.id,
+        facility: amenity.name,
         date: selectedDate.toISOString().split('T')[0],
         startTime: selectedSlot,
         endTime: calculateEndTime(selectedSlot, amenity.slotDurationMins || 60),
       });
-      
+
       onBookingSuccess();
     } catch (error) {
       log.error({}, 'Failed to create booking', error);
@@ -123,7 +127,7 @@ export function BookingDetail({ amenity, onBack, onBookingSuccess }: BookingDeta
 
   const formatConfirmLabel = (): string => {
     if (!selectedSlot) return 'Confirm booking';
-    
+
     const dayName = selectedDate.toLocaleDateString('en-US', { weekday: 'short' });
     const dayNum = selectedDate.getDate();
     return `Confirm booking · ${dayName} ${dayNum}, ${selectedSlot}`;
@@ -146,16 +150,9 @@ export function BookingDetail({ amenity, onBack, onBookingSuccess }: BookingDeta
         {/* Header with icon/photo */}
         <div className="h-[140px] bg-green-100 flex items-center justify-center">
           {amenity.photoUrl ? (
-            <img
-              src={amenity.photoUrl}
-              alt={amenity.name}
-              className="w-full h-full object-cover"
-            />
+            <img src={amenity.photoUrl} alt={amenity.name} className="w-full h-full object-cover" />
           ) : (
-            <i
-              className={`ti ti-${amenity.icon} text-5xl text-green-600`}
-              aria-hidden="true"
-            />
+            <i className={`ti ti-${amenity.icon} text-5xl text-green-600`} aria-hidden="true" />
           )}
         </div>
 
@@ -223,8 +220,8 @@ export function BookingDetail({ amenity, onBack, onBookingSuccess }: BookingDeta
                     !slot.available
                       ? 'text-gray-400 border-gray-100 cursor-not-allowed'
                       : selectedSlot === slot.time
-                      ? 'border-indigo-600 text-indigo-600 font-medium'
-                      : 'border-gray-200 text-gray-700 hover:border-gray-300'
+                        ? 'border-indigo-600 text-indigo-600 font-medium'
+                        : 'border-gray-200 text-gray-700 hover:border-gray-300'
                   )}
                 >
                   {slot.time}

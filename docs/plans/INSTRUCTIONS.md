@@ -237,14 +237,69 @@ Do not guess on these — check with DavDev:
 
 ## 8. Acceptance criteria
 
-- [ ] Amenities tab is the default landing view; never shows the old empty
+- [x] Amenities tab is the default landing view; never shows the old empty
       state illustration.
 - [ ] Every amenity card renders correct status badge per §3 table.
-- [ ] Non-bookable amenities never show a Book button.
-- [ ] Booking detail flow disables past/taken slots without hiding them.
-- [ ] Confirm button label always echoes the selected date/time.
+      _Partial — `always_open`/`open`/`closes_soon`/`closed` compute correctly;
+      `fully_booked`/`booked_today` are defined but never computed._
+- [x] Non-bookable amenities never show a Book button.
+- [x] Booking detail flow disables past/taken slots without hiding them.
+- [x] Confirm button label always echoes the selected date/time.
 - [ ] My Bookings correctly splits Upcoming vs Past and supports cancel /
-      book-again actions.
+      book-again actions. _Not built — currently a placeholder._
 - [ ] All new tables respect existing tenant RLS conventions.
+      _Not done — migration has FKs but no RLS policies._
 - [ ] "New Booking" tab and any routes/deep-links to it are removed or
       redirected to the amenity detail view.
+      _Partial — tab removed, but two deep links remain (see §9)._
+
+---
+
+## 9. Implementation status (audit)
+
+Last audited: 2026-08-12. Cross-referenced plan against code in `dev`.
+
+### Done
+
+- **§1 Data model** — `Amenity` model (Prisma + Drizzle), `Booking` extended
+  (`amenityId`, `startAt`/`endAt`/`cancelledAt`), `BookingStatus` enum expanded
+  (`WAITLISTED`, `NO_SHOW`). Migration `20260812164134_add_amenities_model`
+  applied; seed data written and run (4 amenities).
+- **§2 Navigation/IA** — `/bookings` → `/amenities` route rename with feature
+  gate; tabs are `Amenities | My bookings | Calendar`; breadcrumb/page title
+  updated to "Amenities".
+- **§3 Catalogue view** — `AmenityCard` + `AmenityBadge` render icon tile,
+  name, status badge, hours, and Book/Waitlist/Info/Contact actions. Footer CTA
+  present.
+- **§4 Booking detail** — `BookingDetail` with date strip, time-slot grid
+  (disables past/taken), rules box, and confirm label echoing selection.
+- **FSD slice** — `src/entities/amenity/` (types, selectors, UI), `AmenitiesPage`
+  in `src/page-modules/booking/ui/`, `BookingDetail` in
+  `src/features/booking/ui/`.
+- **API** — `GET /api/amenities` (catalogue with computed status) and
+  `GET /api/amenities/[id]/bookings` (slot availability).
+
+### Remaining
+
+1. **My Bookings tab (§5)** — the visible placeholder. Build Upcoming
+   (`confirmed`/`waitlisted`) and Past (`completed`/`no_show`/`cancelled`)
+   sections with cancel and book-again actions.
+2. **Status badge — booking-based states (§3)** — compute `fully_booked` and
+   `booked_today` from slot availability so those badges actually render.
+3. **RLS policies (§1 note, #7)** — add tenant scoping for `amenities` and
+   `bookings`, plus resident-only-own-rows for `bookings`.
+4. **Leftover "New Booking" deep links (#8)** —
+   `src/widgets/dashboard/ui/ServicesCommandBar.tsx:60`
+   (`/dashboard/services/amenities?action=new`) and
+   `src/widgets/dashboard/ui/AdminCommandBar.tsx:106-107` (`new-booking`).
+5. **Info modal + contact fallback (§3)** — `handleInfo` and `handleContact`
+   (no-phone case) are stubs; waitlist join is a stub pending §6 Q1.
+
+### Open questions (still undecided, §6)
+
+1. Waitlist promotion — automatic vs. manual approval.
+2. Booking window — max days-ahead limit, per amenity/tenant?
+3. No-show determination — manual flag vs. automated.
+4. Cancelled bookings in Past tab — show with badge or hide.
+5. Non-bookable amenities without `contact_phone` — hide contact icon or route
+   to generic "chat to management"?
