@@ -4,7 +4,7 @@ import { MyDisputesWidget } from '@/widgets/dashboard/ui/MyDisputesWidget';
 import { Suspense } from 'react';
 import { Breadcrumbs, ErrorBoundary, LoadingSkeleton } from '@shared/ui';
 import { useSafeTranslation } from '@shared/lib';
-import { Scale } from 'lucide-react';
+import { DomainIconBadge } from '@widgets/dashboard';
 
 export default function DisputesPage() {
   const { tx } = useSafeTranslation(['common', 'services']);
@@ -21,7 +21,7 @@ export default function DisputesPage() {
         />
 
         <div className="flex items-center gap-3 mt-6 mb-6">
-          <Scale className="w-8 h-8 text-soralia-primary" />
+          <DomainIconBadge id="disputes" variant="services" size="md" />
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
               {tx('domains.disputes', 'Disputes')}

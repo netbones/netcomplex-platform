@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import Image from 'next/image';
+import { DomainIconBadge } from '@widgets/dashboard';
 import { fetchApi, sendJson, statusBadgeClass } from '@features/admin';
 import type { RegistrationModeResponse } from '@features/admin';
 
@@ -32,7 +32,7 @@ export default function AdminProviderSettingsPage() {
     <div className="mx-auto max-w-5xl space-y-6 p-6">
       <section className="rounded-3xl bg-gradient-to-r from-gray-900 to-slate-700 p-6 text-white shadow-lg">
         <h1 className="flex items-center gap-3 text-3xl font-semibold">
-          <Image src="/platform/providers.svg" alt="" width={32} height={32} />
+          <DomainIconBadge id="providers" variant="admin" size="md" />
           Provider registration settings
         </h1>
         <p className="mt-2 max-w-3xl text-sm text-slate-200">

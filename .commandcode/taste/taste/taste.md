@@ -7,3 +7,7 @@
 - Holds off on shared-state actions (git push, mutating a shared dev DB) unless explicitly asked — even when project conventions (e.g. AGENTS.md) treat push as mandatory at session end. Confidence: 0.6
 - Works on a Next.js App Router codebase using Better Auth for authentication and Drizzle ORM against Postgres, with a multi-tenant schema (`tenantId` on user) and FSD-style layering (`src/entities/<entity>/api/`, `src/app/api/` route handlers). Confidence: 0.65
 - Expects replies in English (re-asked the question after receiving a Chinese-language reply). Confidence: 0.65
+- Prefers persistent visual depth on UI cards — shadows should be visible at rest (`shadow-md`), not only on hover/motion, so elements clearly sit above the background. Confidence: 0.7
+- Expects visual consistency across parallel/sibling components — when a treatment (background, shadow, layout) is applied to one dashboard layer, the same treatment should be replicated on the others. Confidence: 0.6
+- Prefers pragmatism over debugging non-essential tooling failures — when a pre-commit hook times out (e.g. `redocly lint`) but all formatting/lint-staged tasks pass, uses `--no-verify` to commit rather than investigating the timeout. Confidence: 0.5
+- Uses conventional-commits format with structured body: a type prefix (`refactor:`, `feat:`, `fix:`), bullet-point change summary, and trailers (`Refs:`, `Co-authored-by:`). Confidence: 0.55

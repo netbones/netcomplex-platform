@@ -13,28 +13,7 @@ import {
   ADMIN_DOMAIN_CATEGORIES,
   groupDomainsByCategory,
 } from './AdminSubLauncher';
-import {
-  Users,
-  Wrench,
-  FileText,
-  CalendarDays,
-  Trophy,
-  BookOpen,
-  ClipboardCheck,
-  Megaphone,
-  Award,
-  Scale,
-  ShieldCheck,
-  Store,
-  Wallet,
-  Building2,
-  Image as ImageIcon,
-  GraduationCap,
-  UserCog,
-  Settings,
-  Zap,
-  type LucideIcon,
-} from 'lucide-react';
+import { DomainIconBadge } from './DomainIconBadge';
 
 // Domain ID → actual admin route override for domains whose page name differs
 const ADMIN_ROUTE_OVERRIDES: Record<string, string> = {
@@ -105,52 +84,6 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.categories.system': 'System Administration',
 };
 
-const ADMIN_DOMAIN_ICONS: Record<string, LucideIcon> = {
-  users: Users,
-  maintenance: Wrench,
-  content: FileText,
-  events: CalendarDays,
-  competitions: Trophy,
-  resources: BookOpen,
-  surveys: ClipboardCheck,
-  announcements: Megaphone,
-  merits: ShieldCheck,
-  achievements: Award,
-  disputes: Scale,
-  dwallet: Wallet,
-  providers: Store,
-  bookings: Building2,
-  services: Zap,
-  carousel: ImageIcon,
-  education: GraduationCap,
-  teams: UserCog,
-  system: Settings,
-  gallery: ImageIcon,
-};
-
-const ADMIN_DOMAIN_COLORS: Record<string, string> = {
-  users: 'bg-blue-100 text-blue-600',
-  maintenance: 'bg-orange-100 text-orange-600',
-  content: 'bg-violet-100 text-violet-600',
-  events: 'bg-pink-100 text-pink-600',
-  competitions: 'bg-amber-100 text-amber-600',
-  resources: 'bg-teal-100 text-teal-600',
-  surveys: 'bg-cyan-100 text-cyan-600',
-  announcements: 'bg-indigo-100 text-indigo-600',
-  merits: 'bg-emerald-100 text-emerald-600',
-  achievements: 'bg-rose-100 text-rose-600',
-  disputes: 'bg-red-100 text-red-600',
-  dwallet: 'bg-yellow-100 text-yellow-600',
-  providers: 'bg-sky-100 text-sky-600',
-  bookings: 'bg-green-100 text-green-600',
-  services: 'bg-purple-100 text-purple-600',
-  carousel: 'bg-lime-100 text-lime-600',
-  education: 'bg-fuchsia-100 text-fuchsia-600',
-  teams: 'bg-slate-100 text-slate-600',
-  system: 'bg-gray-100 text-gray-600',
-  gallery: 'bg-stone-100 text-stone-600',
-};
-
 // ── Grouped domain grid ──
 
 function AdminDomainGrid({
@@ -198,7 +131,6 @@ function DomainCard({
   badge: number;
 }) {
   const { tx } = useSafeTranslation('admin');
-  const Icon = ADMIN_DOMAIN_ICONS[domain.id] || Settings;
   const tooltip = domain.descriptionKey
     ? tx(domain.descriptionKey, DOMAIN_FALLBACKS[domain.descriptionKey] || '')
     : undefined;
@@ -206,17 +138,15 @@ function DomainCard({
   return (
     <Link
       href={ADMIN_ROUTE_OVERRIDES[domain.id] ?? `/admin/${domain.id}`}
-      className="group flex flex-col items-center gap-2 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow relative"
+      className="group flex flex-col items-center gap-2 p-4 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow relative"
     >
       {tooltip && (
         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs rounded bg-lapis-deep text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
           {tooltip}
         </div>
       )}
-      <div
-        className={`relative flex items-center justify-center w-12 h-12 rounded-full ${ADMIN_DOMAIN_COLORS[domain.id] || 'bg-gray-100 text-gray-600'}`}
-      >
-        <Icon className="w-6 h-6" />
+      <div className="relative">
+        <DomainIconBadge id={domain.id} variant="admin" size="lg" />
         {badge > 0 && (
           <span className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 rounded-full bg-red-500 text-white text-xs font-bold">
             {badge > 9 ? '9+' : badge}
@@ -292,43 +222,57 @@ export function AdminLayer() {
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
-      {/* Section: Command Bar (reactive CTAs + creation shortcuts) */}
-      <section aria-label="Admin command bar">
-        <AdminCommandBar
-          urgency={urgency.commandBar}
-          isPlatformAdmin={isPlatformAdmin}
-          activeShortcuts={activeShortcuts}
-          onShortcutsChange={setActiveShortcuts}
-        />
-      </section>
+    <div className="relative min-h-screen">
+      {/* Pattern background */}
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage: 'url(/platform/patterns/pattern.png)',
+          backgroundRepeat: 'repeat',
+          backgroundSize: '500px',
+        }}
+      />
+      {/* White wash overlay */}
+      <div className="absolute inset-0 bg-white/80" />
+      {/* Content */}
+      <div className="relative p-6 max-w-5xl mx-auto space-y-6">
+        {/* Section: Command Bar (reactive CTAs + creation shortcuts) */}
+        <section aria-label="Admin command bar">
+          <AdminCommandBar
+            urgency={urgency.commandBar}
+            isPlatformAdmin={isPlatformAdmin}
+            activeShortcuts={activeShortcuts}
+            onShortcutsChange={setActiveShortcuts}
+          />
+        </section>
 
-      {/* Section: Domain Grid — grouped by category */}
-      <section aria-label="Management domains">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          {tx('domains.heading', 'Management Domains')}
-        </h2>
-        <AdminDomainGrid urgency={urgency} tx={tx} />
-      </section>
+        {/* Section: Domain Grid — grouped by category */}
+        <section aria-label="Management domains">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            {tx('domains.heading', 'Management Domains')}
+          </h2>
+          <AdminDomainGrid urgency={urgency} tx={tx} />
+        </section>
 
-      {/* Section: Activity Stream (lazy-loaded) */}
-      <section aria-label="Recent admin activity">
-        <ErrorBoundary
-          fallback={
-            <div className="bg-gray-50 rounded-lg p-4 text-center text-sm text-gray-500">
-              Activity stream unavailable
-            </div>
-          }
-        >
-          <Suspense
+        {/* Section: Activity Stream (lazy-loaded) */}
+        <section aria-label="Recent admin activity">
+          <ErrorBoundary
             fallback={
-              <div className="bg-white rounded-lg border border-gray-200 p-4 h-64 animate-pulse" />
+              <div className="bg-gray-50 rounded-lg p-4 text-center text-sm text-gray-500">
+                Activity stream unavailable
+              </div>
             }
           >
-            <AdminActivityStream isPlatformAdmin={isPlatformAdmin} />
-          </Suspense>
-        </ErrorBoundary>
-      </section>
+            <Suspense
+              fallback={
+                <div className="bg-white rounded-lg border border-gray-200 p-4 h-64 animate-pulse" />
+              }
+            >
+              <AdminActivityStream isPlatformAdmin={isPlatformAdmin} />
+            </Suspense>
+          </ErrorBoundary>
+        </section>
+      </div>
     </div>
   );
 }

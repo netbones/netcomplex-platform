@@ -1,0 +1,87 @@
+<div style="width:100%">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:10px">
+    <div style="display:flex;align-items:center;gap:10px">
+      <h1 style="margin:0">Access control</h1>
+      <span style="display:flex;align-items:center;gap:5px;background:var(--bg-success);color:var(--text-success);font-size:12px;padding:3px 9px;border-radius:12px">
+        <span style="width:6px;height:6px;border-radius:50%;background:var(--fill-success);display:inline-block"></span>Live
+      </span>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button style="padding:8px 12px;font-size:13px;display:flex;align-items:center;gap:6px">
+        <i class="ti ti-player-pause" style="font-size:15px" aria-hidden="true"></i>Pause stream
+      </button>
+      <button style="padding:8px 12px;font-size:13px;display:flex;align-items:center;gap:6px;background:var(--fill-primary);color:var(--on-primary);border:none">
+        <i class="ti ti-plus" style="font-size:15px" aria-hidden="true"></i>Manual entry
+      </button>
+    </div>
+  </div>
+  <p style="font-size:13px;color:var(--text-secondary);margin:0 0 1.25rem">Streaming new events · 24 in the last hour</p>
+
+  <div style="display:flex;gap:10px;margin-bottom:1rem;flex-wrap:wrap">
+    <input type="text" placeholder="Search visitor or property" style="flex:2;min-width:200px" />
+    <select style="flex:1;min-width:140px"><option>State: any</option><option>Granted</option><option>Denied</option><option>Pending</option></select>
+    <select style="flex:1;min-width:140px"><option>Method: any</option><option>QR</option><option>Code</option><option>ANPR</option><option>Manual</option><option>Intercom</option></select>
+    <select style="flex:1;min-width:140px"><option>Today</option><option>Last 7 days</option><option>Last 30 days</option></select>
+  </div>
+
+  <table style="width:100%;border-collapse:collapse;font-size:13px">
+    <thead>
+      <tr style="border-bottom:0.5px solid var(--border)">
+        <th style="text-align:left;padding:8px 6px;color:var(--text-secondary);font-weight:500">Time</th>
+        <th style="text-align:left;padding:8px 6px;color:var(--text-secondary);font-weight:500">Visitor</th>
+        <th style="text-align:left;padding:8px 6px;color:var(--text-secondary);font-weight:500">Property</th>
+        <th style="text-align:left;padding:8px 6px;color:var(--text-secondary);font-weight:500">State</th>
+        <th style="text-align:left;padding:8px 6px;color:var(--text-secondary);font-weight:500">By</th>
+        <th style="text-align:left;padding:8px 6px;color:var(--text-secondary);font-weight:500">Method</th>
+        <th style="padding:8px 6px"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="border-bottom:0.5px solid var(--border)">
+        <td style="padding:10px 6px;color:var(--text-secondary)">14:08:42</td>
+        <td style="padding:10px 6px;font-weight:500">Marco Visser</td>
+        <td style="padding:10px 6px;color:var(--text-secondary)">12A · Tower one</td>
+        <td style="padding:10px 6px"><span style="background:var(--bg-success);color:var(--text-success);padding:2px 8px;border-radius:var(--radius)">Granted</span></td>
+        <td style="padding:10px 6px;color:var(--text-secondary)">Resident: M. Visser</td>
+        <td style="padding:10px 6px;color:var(--text-secondary)">QR</td>
+        <td style="padding:10px 6px;text-align:right"><i class="ti ti-dots" style="font-size:16px;color:var(--text-muted)" aria-hidden="true"></i></td>
+      </tr>
+      <tr style="border-bottom:0.5px solid var(--border)">
+        <td style="padding:10px 6px;color:var(--text-secondary)">14:02:11</td>
+        <td style="padding:10px 6px;font-weight:500">DHL courier</td>
+        <td style="padding:10px 6px;color:var(--text-secondary)">06C · Tower two</td>
+        <td style="padding:10px 6px"><span style="background:var(--bg-success);color:var(--text-success);padding:2px 8px;border-radius:var(--radius)">Granted</span></td>
+        <td style="padding:10px 6px;color:var(--text-secondary)">Auto-list</td>
+        <td style="padding:10px 6px;color:var(--text-secondary)">Code</td>
+        <td style="padding:10px 6px;text-align:right"><i class="ti ti-dots" style="font-size:16px;color:var(--text-muted)" aria-hidden="true"></i></td>
+      </tr>
+      <tr style="border-bottom:0.5px solid var(--border)">
+        <td style="padding:10px 6px;color:var(--text-secondary)">13:51:02</td>
+        <td style="padding:10px 6px;font-weight:500">Unknown plate (CA 184 421)</td>
+        <td style="padding:10px 6px;color:var(--text-secondary)">—</td>
+        <td style="padding:10px 6px"><span style="background:var(--bg-danger);color:var(--text-danger);padding:2px 8px;border-radius:var(--radius)">Denied</span></td>
+        <td style="padding:10px 6px;color:var(--text-secondary)">Auto-deny</td>
+        <td style="padding:10px 6px;color:var(--text-secondary)">ANPR</td>
+        <td style="padding:10px 6px;text-align:right"><i class="ti ti-dots" style="font-size:16px;color:var(--text-muted)" aria-hidden="true"></i></td>
+      </tr>
+      <tr style="border-bottom:0.5px solid var(--border)">
+        <td style="padding:10px 6px;color:var(--text-secondary)">13:42:18</td>
+        <td style="padding:10px 6px;font-weight:500">Mariam Salie</td>
+        <td style="padding:10px 6px;color:var(--text-secondary)">02B · Tower two</td>
+        <td style="padding:10px 6px"><span style="background:var(--bg-success);color:var(--text-success);padding:2px 8px;border-radius:var(--radius)">Granted</span></td>
+        <td style="padding:10px 6px;color:var(--text-secondary)">Manager: J. Daniels</td>
+        <td style="padding:10px 6px;color:var(--text-secondary)">Manual</td>
+        <td style="padding:10px 6px;text-align:right"><i class="ti ti-dots" style="font-size:16px;color:var(--text-muted)" aria-hidden="true"></i></td>
+      </tr>
+      <tr>
+        <td style="padding:10px 6px;color:var(--text-secondary)">13:18:09</td>
+        <td style="padding:10px 6px;font-weight:500">Unknown visitor</td>
+        <td style="padding:10px 6px;color:var(--text-secondary)">08B · Tower one</td>
+        <td style="padding:10px 6px"><span style="background:var(--bg-warning);color:var(--text-warning);padding:2px 8px;border-radius:var(--radius)">Pending</span></td>
+        <td style="padding:10px 6px;color:var(--text-secondary)">Awaiting resident</td>
+        <td style="padding:10px 6px;color:var(--text-secondary)">Intercom</td>
+        <td style="padding:10px 6px;text-align:right"><i class="ti ti-dots" style="font-size:16px;color:var(--text-muted)" aria-hidden="true"></i></td>
+      </tr>
+    </tbody>
+  </table>
+</div>

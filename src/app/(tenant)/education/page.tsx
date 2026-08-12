@@ -1,8 +1,8 @@
 'use client';
 
 import { useSafeTranslation } from '@shared/lib';
-import Image from 'next/image';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
+import { DomainIconBadge } from '@widgets/dashboard';
 import { EducationPortal } from '@widgets/education';
 
 export default function EducationPage() {
@@ -19,9 +19,7 @@ export default function EducationPage() {
         />
 
         <div className="flex items-center gap-3 mt-6 mb-6">
-          <div className="flex-shrink-0 w-10 h-10 relative">
-            <Image src="/platform/education-red.svg" alt="" fill className="w-full h-full" />
-          </div>
+          <DomainIconBadge id="education" variant="services" size="md" />
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{tx('title', 'Education Portal')}</h1>
             <p className="text-sm text-gray-500">

@@ -13,5 +13,5 @@ export default async function BookingsRedirect({ searchParams }: Props) {
     }
   }
   const q = qs.toString();
-  redirect(`/bookings${q ? `?${q}` : ''}`);
+  redirect(`/amenities${q ? `?${q}` : ''}`);
 }

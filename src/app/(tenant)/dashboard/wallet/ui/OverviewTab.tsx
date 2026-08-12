@@ -1,9 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { useSafeTranslation } from '@shared/lib';
 import { LoadingSkeleton } from '@shared/ui';
+import { DomainIconBadge } from '@widgets/dashboard';
 import { CreditCard, Download } from 'lucide-react';
 import type { ConsentState, TransactionItem, StreamConfig } from '@entities/dwallet';
 import { formatZAR, formatDate, getTypeBadge, getStreamLabelKey } from '../model/helpers';
@@ -30,9 +30,7 @@ export function OverviewTab({
   if (!wallet) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <div className="w-16 h-16 rounded-full bg-indigo-50 flex items-center justify-center mb-4">
-          <Image src="/platform/wallet-red.svg" alt="dWallet" width={32} height={32} />
-        </div>
+        <DomainIconBadge id="wallet" variant="services" size="lg" className="mb-4" />
         <h3 className="text-base font-semibold text-slate-700 mb-2">
           {tx('dwallet.noActivity', 'No community activity yet')}
         </h3>

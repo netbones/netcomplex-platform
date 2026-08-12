@@ -12,7 +12,7 @@ async function login(page: Page) {
 }
 
 async function navigateToBookings(page: Page) {
-  await page.goto('/bookings', { waitUntil: 'domcontentloaded' });
+  await page.goto('/amenities', { waitUntil: 'domcontentloaded' });
   const heading = page.getByRole('heading', { name: /bookings/i });
   await expect(heading).toBeVisible({ timeout: 10_000 });
 }

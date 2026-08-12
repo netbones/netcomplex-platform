@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
 import { Breadcrumbs } from '@shared/ui';
+import { DomainIconBadge } from '@widgets/dashboard';
 import { apiGet, apiPost } from '@/shared/api/http-client';
 
 export default function GroupCategoriesPage() {
@@ -61,7 +61,7 @@ export default function GroupCategoriesPage() {
       />
 
       <h1 className="text-3xl font-bold text-gray-900 mb-8 flex items-center gap-3">
-        <Image src="/platform/system.svg" alt="" width={40} height={40} />
+        <DomainIconBadge id="categories" variant="admin" size="md" />
         Interest Group Categories
       </h1>
 

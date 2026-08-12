@@ -6,26 +6,7 @@ import { useLocalStorage } from 'usehooks-ts';
 import { authClient, trpc } from '@api/client';
 import { ServicesCommandBar, type ServicesCommandBarUrgency } from './ServicesCommandBar';
 import { SERVICES_DOMAIN_DEFINITIONS } from './ServicesSubLauncher';
-import {
-  Wrench,
-  Calendar,
-  Building2,
-  Briefcase,
-  CalendarDays,
-  ClipboardCheck,
-  Trophy,
-  MessageSquare,
-  Scale,
-  Store,
-  GraduationCap,
-  Users,
-  UserCog,
-  BookOpen,
-  Leaf,
-  Wallet,
-  Settings,
-  type LucideIcon,
-} from 'lucide-react';
+import { DomainIconBadge } from './DomainIconBadge';
 
 const SERVICES_ROUTE_OVERRIDES: Record<string, string> = {
   disputes: '/disputes',
@@ -33,7 +14,6 @@ const SERVICES_ROUTE_OVERRIDES: Record<string, string> = {
 
 const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.maintenance': 'Maintenance',
-  'domains.bookings': 'Bookings',
   'domains.amenities': 'Amenities',
   'domains.myServices': 'My Services',
   'domains.events': 'Events',
@@ -41,8 +21,7 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.competitions': 'Competitions',
   'domains.communication': 'Communication',
   'domains.descriptions.maintenance': 'Submit and track maintenance requests',
-  'domains.descriptions.bookings': 'Reserve community facilities',
-  'domains.descriptions.amenities': 'Explore community amenities',
+  'domains.descriptions.amenities': 'Book community facilities and amenities',
   'domains.descriptions.myServices': 'View your service history and inquiries',
   'domains.descriptions.events': 'Upcoming community events',
   'domains.descriptions.surveys': 'Share your feedback',
@@ -76,46 +55,6 @@ interface UrgencyResponse {
   domainBadges: Record<string, number>;
 }
 
-const DOMAIN_ICONS: Record<string, LucideIcon> = {
-  maintenance: Wrench,
-  bookings: Calendar,
-  amenities: Building2,
-  'my-services': Briefcase,
-  events: CalendarDays,
-  surveys: ClipboardCheck,
-  competitions: Trophy,
-  communication: MessageSquare,
-  disputes: Scale,
-  marketplace: Store,
-  education: GraduationCap,
-  directory: Users,
-  groups: UserCog,
-  resources: BookOpen,
-  conservation: Leaf,
-  wallet: Wallet,
-  settings: Settings,
-};
-
-const DOMAIN_COLORS: Record<string, string> = {
-  maintenance: 'bg-orange-100 text-orange-600',
-  bookings: 'bg-blue-100 text-blue-600',
-  amenities: 'bg-green-100 text-green-600',
-  'my-services': 'bg-purple-100 text-purple-600',
-  events: 'bg-pink-100 text-pink-600',
-  surveys: 'bg-teal-100 text-teal-600',
-  competitions: 'bg-amber-100 text-amber-600',
-  communication: 'bg-indigo-100 text-indigo-600',
-  disputes: 'bg-red-100 text-red-600',
-  marketplace: 'bg-cyan-100 text-cyan-600',
-  education: 'bg-rose-100 text-rose-600',
-  directory: 'bg-sky-100 text-sky-600',
-  groups: 'bg-emerald-100 text-emerald-600',
-  resources: 'bg-violet-100 text-violet-600',
-  conservation: 'bg-lime-100 text-lime-600',
-  wallet: 'bg-yellow-100 text-yellow-600',
-  settings: 'bg-gray-100 text-gray-600',
-};
-
 // ═══════════════════════════════════════════════════════════════
 // DOMAIN GRID CARD
 // ═══════════════════════════════════════════════════════════════
@@ -130,24 +69,21 @@ function DomainCard({
   descriptionKey?: string;
 }) {
   const { tx } = useSafeTranslation('services');
-  const Icon = DOMAIN_ICONS[domain.id] || Settings;
   const descKey = descriptionKey ?? domain.descriptionKey;
   const tooltip = descKey ? tx(descKey, DOMAIN_FALLBACKS[descKey] || '') : undefined;
 
   return (
     <Link
       href={SERVICES_ROUTE_OVERRIDES[domain.id] ?? `/dashboard/services/${domain.id}`}
-      className="group flex flex-col items-center gap-2 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow relative"
+      className="group flex flex-col items-center gap-2 p-4 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow relative"
     >
       {tooltip && (
         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs rounded bg-lapis-deep text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
           {tooltip}
         </div>
       )}
-      <div
-        className={`relative flex items-center justify-center w-12 h-12 rounded-full ${DOMAIN_COLORS[domain.id] || 'bg-gray-100 text-gray-600'}`}
-      >
-        <Icon className="w-6 h-6" />
+      <div className="relative">
+        <DomainIconBadge id={domain.id} variant="services" size="lg" />
         {badge > 0 && (
           <span className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 rounded-full bg-red-500 text-white text-xs font-bold">
             {badge > 9 ? '9+' : badge}
@@ -175,7 +111,6 @@ function ServiceLinkCard({
   descriptionKey?: string;
 }) {
   const { tx } = useSafeTranslation('services');
-  const Icon = DOMAIN_ICONS[iconId] || Settings;
   const displayLabel = rawLabel ?? tx(label, DOMAIN_FALLBACKS[label] || label);
   const tooltip = descriptionKey
     ? tx(descriptionKey, DOMAIN_FALLBACKS[descriptionKey] || '')
@@ -184,18 +119,14 @@ function ServiceLinkCard({
   return (
     <Link
       href={href}
-      className="group flex flex-col items-center gap-2 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow relative"
+      className="group flex flex-col items-center gap-2 p-4 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow relative"
     >
       {tooltip && (
         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs rounded bg-lapis-deep text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
           {tooltip}
         </div>
       )}
-      <div
-        className={`flex items-center justify-center w-12 h-12 rounded-full ${DOMAIN_COLORS[iconId] || 'bg-gray-100 text-gray-600'}`}
-      >
-        <Icon className="w-6 h-6" />
-      </div>
+      <DomainIconBadge id={iconId} variant="services" size="lg" />
       <span className="text-sm font-medium text-gray-700 text-center">{displayLabel}</span>
     </Link>
   );
@@ -298,14 +229,7 @@ export function ServicesLayer() {
 
   const isAdmin = role === 'ADMIN' || role === 'BOARD';
 
-  const coreDomainIds = [
-    'maintenance',
-    'bookings',
-    'amenities',
-    'my-services',
-    'events',
-    'disputes',
-  ];
+  const coreDomainIds = ['maintenance', 'amenities', 'my-services', 'events', 'disputes'];
   const engagementDomainIds = ['competitions', 'surveys', 'communication'];
 
   return (

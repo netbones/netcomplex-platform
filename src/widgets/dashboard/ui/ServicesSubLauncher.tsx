@@ -34,18 +34,11 @@ export const SERVICES_DOMAIN_DEFINITIONS: ServicesDomainDef[] = [
     description: 'Submit and track maintenance requests',
   },
   {
-    id: 'bookings',
-    labelKey: 'domains.bookings',
-    descriptionKey: 'domains.descriptions.bookings',
-    icon: '/platform/bookings.svg',
-    description: 'Book community facilities and amenities',
-  },
-  {
     id: 'amenities',
     labelKey: 'domains.amenities',
     descriptionKey: 'domains.descriptions.amenities',
     icon: '/platform/amenities.svg',
-    description: 'Community amenities and shared spaces',
+    description: 'Book community facilities and amenities',
   },
   {
     id: 'my-services',

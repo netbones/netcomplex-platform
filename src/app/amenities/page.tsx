@@ -7,7 +7,7 @@ import { LoadingSpinner } from '@shared/ui';
 import { Ban } from 'lucide-react';
 import Link from 'next/link';
 
-function BookingFeatureGate({ children }: { children: React.ReactNode }) {
+function AmenitiesFeatureGate({ children }: { children: React.ReactNode }) {
   const tenant = useTenant();
 
   if (!tenant) {
@@ -23,8 +23,8 @@ function BookingFeatureGate({ children }: { children: React.ReactNode }) {
       <div className="min-h-[400px] flex items-center justify-center">
         <div className="bg-white rounded-lg shadow p-8 text-center max-w-md">
           <Ban className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <h2 className="text-lg font-semibold text-gray-900 mb-2">Bookings Unavailable</h2>
-          <p className="text-gray-500">Facility bookings are not enabled for your community.</p>
+          <h2 className="text-lg font-semibold text-gray-900 mb-2">Amenities Unavailable</h2>
+          <p className="text-gray-500">Community amenities are not enabled for your community.</p>
           <Link
             href="/"
             className="mt-4 inline-block px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition"
@@ -39,12 +39,12 @@ function BookingFeatureGate({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-export default function BookingsRoute() {
+export default function AmenitiesRoute() {
   return (
     <Suspense fallback={<LoadingSpinner />}>
-      <BookingFeatureGate>
+      <AmenitiesFeatureGate>
         <BookingsPage />
-      </BookingFeatureGate>
+      </AmenitiesFeatureGate>
     </Suspense>
   );
 }

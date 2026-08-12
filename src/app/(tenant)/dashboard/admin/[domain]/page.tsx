@@ -7,7 +7,7 @@ import { notFound } from 'next/navigation';
 import { ADMIN_DOMAINS, getAdminDomainWidgets } from '@widgets/dashboard';
 import { ADMIN_DOMAIN_DEFINITIONS } from '@widgets/dashboard';
 import { WidgetRenderer } from '@widgets/dashboard';
-import Image from 'next/image';
+import { DomainIconBadge } from '@widgets/dashboard';
 import { ErrorBoundary, Breadcrumbs } from '@shared/ui';
 import { UsersListSection } from '@widgets/admin';
 
@@ -25,7 +25,6 @@ export default function AdminDomainPage({ params }: AdminDomainPageProps) {
   }
 
   const domainDef = ADMIN_DOMAIN_DEFINITIONS.find(d => d.id === domain);
-  const iconSrc = domainDef?.icon;
   const widgets = getAdminDomainWidgets(domain);
 
   // Compute domain label fallback (used by tx() multiple times)
@@ -50,7 +49,7 @@ export default function AdminDomainPage({ params }: AdminDomainPageProps) {
 
         <div className="flex items-center justify-between mt-6 mb-6">
           <div className="flex items-center gap-3">
-            {iconSrc && <Image src={iconSrc} alt="" width={32} height={32} unoptimized />}
+            {domainDef && <DomainIconBadge id={domainDef.id} variant="admin" size="md" />}
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
                 {tx(domainDef?.labelKey ?? domain, domainLabelFallback, { ns: 'admin' })}

@@ -238,7 +238,7 @@ function TodayZone({
           {todayBookings.map(b => (
             <TodayCard
               key={b.id}
-              href={`/dashboard/services/bookings?id=${b.id}`}
+              href={`/dashboard/services/amenities?id=${b.id}`}
               icon={<Clock className="w-4 h-4 text-blue-500" />}
               title={b.title}
               subtitle={b.time || 'All day'}

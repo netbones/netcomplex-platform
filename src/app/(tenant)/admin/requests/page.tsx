@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import Image from 'next/image';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
+import { DomainIconBadge } from '@widgets/dashboard';
 import { createComponentLogger } from '@shared/lib';
 import { apiGet, apiPost, apiPatch, apiDelete } from '@/shared/api/http-client';
 import type { MaintenanceCategory } from '@entities/maintenance';
@@ -393,7 +393,7 @@ export default function AdminRequestsPage() {
 
         <div className="flex justify-between items-center mb-6 flex-wrap gap-2">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <Image src="/platform/maintenance.svg" alt="" width={40} height={40} />
+            <DomainIconBadge id="maintenance" variant="admin" size="md" />
             Maintenance Requests
           </h1>
           <div className="text-sm text-gray-500">

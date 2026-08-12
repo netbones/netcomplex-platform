@@ -82,7 +82,7 @@ export function DashboardStats() {
           value={stats?.bookings ?? 0}
           icon="fa-calendar-check"
           color={STAT_COLORS.bookings}
-          href="/bookings"
+          href="/amenities"
           loading={isLoading}
         />
         <StatCard

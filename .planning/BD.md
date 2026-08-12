@@ -57,12 +57,13 @@ Audit evidence in the advisory. Cross-cutting with `z76s` (platform hardening) a
 
 ---
 
-## P2 — High Priority (8 issues)
+## P2 — High Priority (9 issues)
 
 | ID     | Type    | Title                                                                                  | Status |
 | ------ | ------- | -------------------------------------------------------------------------------------- | ------ |
 | `8lus` | task    | Apply outbox migration + build dispatcher worker                                       | ○      |
 | `d982` | task    | CMS post-M5 phase candidates: versioning, audit logging, image transforms              | ○      |
+| `9cvw` | task    | CMS audit trail roundtrips block content mutation critical path                        | ○      |
 | `z76s` | task    | Platform architecture hardening: RLS activation, rate limiting, outbox, API            | ○      |
 | `vo6v` | task    | Ticketing system gap closure: SLA tracking, escalation, notifications                  | ○      |
 | `yvgz` | task    | Phase 122 Workspace Bug Report & Gap Analysis                                          | ○      |

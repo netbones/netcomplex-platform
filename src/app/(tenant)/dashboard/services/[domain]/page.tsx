@@ -2,15 +2,16 @@
 
 import { use } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { useSafeTranslation } from '@shared/lib';
 import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { notFound } from 'next/navigation';
-import Image from 'next/image';
 import { SERVICES_DOMAINS, getServicesDomainWidgets } from '@widgets/dashboard';
 import { SERVICES_DOMAIN_DEFINITIONS } from '@widgets/dashboard';
 import { WidgetRenderer } from '@widgets/dashboard';
+import { DomainIconBadge } from '@widgets/dashboard';
 import { ErrorBoundary, Breadcrumbs } from '@shared/ui';
 import { apiPost } from '@/shared/api/http-client';
 import { MaintenanceForm } from '@features/maintenance';
@@ -38,7 +39,6 @@ export default function ServicesDomainPage({ params }: ServicesDomainPageProps) 
   }
 
   const domainDef = SERVICES_DOMAIN_DEFINITIONS.find(d => d.id === domain);
-  const iconSrc = domainDef?.icon;
   const widgets = getServicesDomainWidgets(domain);
 
   return (
@@ -66,9 +66,7 @@ export default function ServicesDomainPage({ params }: ServicesDomainPageProps) 
 
         <div className="flex items-center justify-between mt-6 mb-6 gap-3 flex-wrap">
           <div className="flex items-center gap-3">
-            {iconSrc && (
-              <Image src={iconSrc} alt="" width={32} height={32} className="w-8 h-8" unoptimized />
-            )}
+            {domainDef && <DomainIconBadge id={domainDef.id} variant="services" size="md" />}
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
                 {tx(
@@ -101,6 +99,19 @@ export default function ServicesDomainPage({ params }: ServicesDomainPageProps) 
             </Link>
           </div>
         </div>
+
+        {domain === 'maintenance' && (
+          <div className="flex justify-center mb-6">
+            <Image
+              src="/platform/info/maintenance.png"
+              alt="Maintenance services at Soralia Village"
+              width={1064}
+              height={762}
+              className="w-full max-w-sm h-auto rounded-lg shadow-sm"
+              priority={false}
+            />
+          </div>
+        )}
 
         {/* New maintenance request form — shown when ?action=new is set on maintenance domain */}
         {showNewForm && (
@@ -150,15 +161,10 @@ export default function ServicesDomainPage({ params }: ServicesDomainPageProps) 
         {/* Coming soon for domains without widgets */}
         {widgets.length === 0 && (
           <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-            {iconSrc && (
-              <Image
-                src={iconSrc}
-                alt=""
-                width={48}
-                height={48}
-                className="w-12 h-12 text-gray-300 mx-auto mb-4"
-                unoptimized
-              />
+            {domainDef && (
+              <div className="flex justify-center mb-4">
+                <DomainIconBadge id={domainDef.id} variant="services" size="xl" />
+              </div>
             )}
             <h2 className="text-lg font-semibold text-gray-900 mb-2">
               {tx(

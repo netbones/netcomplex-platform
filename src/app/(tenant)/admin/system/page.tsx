@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
+import { DomainIconBadge } from '@widgets/dashboard';
 import { useSafeTranslation } from '@shared/lib';
 import { useAdminStats } from '@features/admin';
 import { PageSettingsWidget } from '@widgets/admin';
@@ -153,7 +153,7 @@ export default function AdminSystemPage() {
           />
 
           <div className="flex items-center gap-3 mt-6 mb-8">
-            <Image src="/platform/system.svg" alt="" width={40} height={40} />
+            <DomainIconBadge id="system" variant="admin" size="lg" />
             <div>
               <h1 className="text-3xl font-bold text-gray-900">System</h1>
               <p className="text-sm text-gray-500">Platform configuration and health</p>
@@ -169,9 +169,7 @@ export default function AdminSystemPage() {
                 className="bg-white rounded-xl border border-gray-100 p-6 hover:shadow-lg hover:border-indigo-200 transition-all group"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-blue-500 rounded-xl flex items-center justify-center">
-                    <Image src="/platform/users.svg" alt="" width={32} height={32} />
-                  </div>
+                  <DomainIconBadge id="users" variant="admin" size="xl" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-500">Users</p>
                     <p className="text-3xl font-bold text-gray-900">
@@ -185,9 +183,7 @@ export default function AdminSystemPage() {
                 className="bg-white rounded-xl border border-gray-100 p-6 hover:shadow-lg hover:border-indigo-200 transition-all group"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-orange-500 rounded-xl flex items-center justify-center">
-                    <Image src="/platform/maintenance.svg" alt="" width={32} height={32} />
-                  </div>
+                  <DomainIconBadge id="maintenance" variant="admin" size="xl" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-500">Requests</p>
                     <p className="text-3xl font-bold text-gray-900">
@@ -201,9 +197,7 @@ export default function AdminSystemPage() {
                 className="bg-white rounded-xl border border-gray-100 p-6 hover:shadow-lg hover:border-indigo-200 transition-all group"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-green-500 rounded-xl flex items-center justify-center">
-                    <Image src="/platform/system.svg" alt="" width={32} height={32} />
-                  </div>
+                  <DomainIconBadge id="groups" variant="admin" size="xl" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-500">Groups</p>
                     <p className="text-3xl font-bold text-gray-900">
@@ -217,9 +211,7 @@ export default function AdminSystemPage() {
                 className="bg-white rounded-xl border border-gray-100 p-6 hover:shadow-lg hover:border-indigo-200 transition-all group"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-purple-500 rounded-xl flex items-center justify-center">
-                    <Image src="/platform/content.svg" alt="" width={32} height={32} />
-                  </div>
+                  <DomainIconBadge id="content" variant="admin" size="xl" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-500">Content</p>
                     <p className="text-3xl font-bold text-gray-900">

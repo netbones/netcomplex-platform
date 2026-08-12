@@ -1,0 +1,91 @@
+<div style="max-width:680px">
+  <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-muted);margin-bottom:1rem">
+    <i class="ti ti-home" style="font-size:14px" aria-hidden="true"></i>
+    <i class="ti ti-chevron-right" style="font-size:12px" aria-hidden="true"></i>
+    <span>Admin</span>
+    <i class="ti ti-chevron-right" style="font-size:12px" aria-hidden="true"></i>
+    <span>Security</span>
+  </div>
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="width:32px;height:32px;border-radius:50%;background:var(--bg-danger);display:flex;align-items:center;justify-content:center">
+        <i class="ti ti-shield-exclamation" style="font-size:16px;color:var(--text-danger)" aria-hidden="true"></i>
+      </div>
+      <h1 style="margin:0">Security</h1>
+    </div>
+    <button style="padding:8px 12px;font-size:13px;display:flex;align-items:center;gap:6px">
+      <i class="ti ti-address-book" style="font-size:15px" aria-hidden="true"></i>Manage contacts
+    </button>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:1.25rem">
+    <div style="background:var(--surface-1);border-radius:var(--radius);padding:1rem">
+      <div style="font-size:13px;color:var(--text-secondary)">Active now</div>
+      <div style="font-size:24px;font-weight:500;color:var(--text-danger)">2</div>
+    </div>
+    <div style="background:var(--surface-1);border-radius:var(--radius);padding:1rem">
+      <div style="font-size:13px;color:var(--text-secondary)">Today</div>
+      <div style="font-size:24px;font-weight:500">5</div>
+    </div>
+    <div style="background:var(--surface-1);border-radius:var(--radius);padding:1rem">
+      <div style="font-size:13px;color:var(--text-secondary)">Avg response</div>
+      <div style="font-size:24px;font-weight:500">3m</div>
+    </div>
+    <div style="background:var(--surface-1);border-radius:var(--radius);padding:1rem">
+      <div style="font-size:13px;color:var(--text-secondary)">This month</div>
+      <div style="font-size:24px;font-weight:500">31</div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:20px;border-bottom:0.5px solid var(--border);margin-bottom:1rem">
+    <div style="padding-bottom:8px;border-bottom:2px solid var(--border-accent);font-size:14px;font-weight:500;color:var(--text-accent)">Live stream</div>
+    <div style="padding-bottom:8px;font-size:14px;color:var(--text-secondary)">Resolved</div>
+    <div style="padding-bottom:8px;font-size:14px;color:var(--text-secondary)">Anonymous tips</div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:10px">
+
+    <div style="background:var(--surface-2);border:2px solid var(--border-danger);border-radius:12px;padding:14px 16px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+        <span style="width:8px;height:8px;border-radius:50%;background:var(--fill-danger);display:inline-block"></span>
+        <span style="font-weight:500;font-size:14px">Panic alert · Steve Richmore</span>
+        <span style="margin-left:auto;background:var(--bg-danger);color:var(--text-danger);font-size:12px;padding:2px 8px;border-radius:var(--radius)">Sent · 0:42 ago</span>
+      </div>
+      <div style="font-size:13px;color:var(--text-secondary);display:flex;align-items:center;gap:6px;margin-bottom:2px">
+        <i class="ti ti-map-pin" style="font-size:14px" aria-hidden="true"></i>Unit 14, Sunrise Boulevard · within boundary
+      </div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button style="font-size:13px;padding:6px 12px;background:var(--fill-primary);color:var(--on-primary);border:none">Acknowledge</button>
+        <button style="font-size:13px;padding:6px 12px">View on map</button>
+        <button style="font-size:13px;padding:6px 12px">Call resident</button>
+      </div>
+    </div>
+
+    <div style="background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:14px 16px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+        <span style="width:8px;height:8px;border-radius:50%;background:var(--fill-warning);display:inline-block"></span>
+        <span style="font-weight:500;font-size:14px">Panic alert · Joyce Mphe</span>
+        <span style="margin-left:auto;background:var(--bg-warning);color:var(--text-warning);font-size:12px;padding:2px 8px;border-radius:var(--radius)">Responding · 4m ago</span>
+      </div>
+      <div style="font-size:13px;color:var(--text-secondary);display:flex;align-items:center;gap:6px;margin-bottom:2px">
+        <i class="ti ti-map-pin" style="font-size:14px" aria-hidden="true"></i>Unit 7, Sunrise Boulevard · within boundary
+      </div>
+      <div style="font-size:12px;color:var(--text-muted)">Acknowledged by D. Lewis · guard dispatched</div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button style="font-size:13px;padding:6px 12px;background:var(--fill-success,var(--fill-primary));color:var(--on-success,var(--on-primary));border:none">Mark resolved</button>
+        <button style="font-size:13px;padding:6px 12px">View on map</button>
+      </div>
+    </div>
+
+    <div style="background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:14px 16px;opacity:0.75">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="width:8px;height:8px;border-radius:50%;background:var(--fill-secondary,var(--text-muted));display:inline-block"></span>
+        <span style="font-weight:500;font-size:14px">Anonymous tip-off</span>
+        <span style="margin-left:auto;background:var(--surface-1);color:var(--text-secondary);font-size:12px;padding:2px 8px;border-radius:var(--radius)">New · 12m ago</span>
+      </div>
+      <div style="font-size:13px;color:var(--text-secondary);margin-top:6px">"Suspicious vehicle circling the tennis courts, no plates visible."</div>
+    </div>
+
+  </div>
+</div>
