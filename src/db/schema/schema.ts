@@ -1,3 +1,5 @@
+import * as amenities from './amenities';
+import * as bookings from './bookings';
 import * as accounts from './accounts';
 import * as verifications from './verifications';
 import * as passkeys from './passkeys';
@@ -49,7 +51,6 @@ import * as resourceVersions from './resource-versions';
 import * as announcements from './announcements';
 import * as events from './events';
 import * as eventAttendees from './event-attendees';
-import * as bookings from './bookings';
 import * as maintenanceRequests from './maintenance-requests';
 import * as maintenanceTeams from './maintenance-teams';
 import * as maintenanceTeamMembers from './maintenance-team-members';
@@ -130,6 +131,8 @@ import * as mediaUploads from './media-uploads';
 import * as meetingProxies from './meeting-proxies';
 import * as tenants from './tenants';
 import * as tenantFeatureFlags from './tenant-feature-flags';
+import * as amenitiesRelations from './amenities-relations';
+import * as bookingsRelations from './bookings-relations';
 import * as accountsRelations from './accounts-relations';
 import * as passkeysRelations from './passkeys-relations';
 import * as sessionsRelations from './sessions-relations';
@@ -180,7 +183,6 @@ import * as resourceVersionsRelations from './resource-versions-relations';
 import * as announcementsRelations from './announcements-relations';
 import * as eventsRelations from './events-relations';
 import * as eventAttendeesRelations from './event-attendees-relations';
-import * as bookingsRelations from './bookings-relations';
 import * as maintenanceRequestsRelations from './maintenance-requests-relations';
 import * as maintenanceTeamsRelations from './maintenance-teams-relations';
 import * as maintenanceTeamMembersRelations from './maintenance-team-members-relations';
@@ -259,6 +261,8 @@ import * as tenantsRelations from './tenants-relations';
 import * as tenantFeatureFlagsRelations from './tenant-feature-flags-relations';
 
 export const schema = {
+  ...amenities,
+  ...bookings,
   ...accounts,
   ...verifications,
   ...passkeys,
@@ -310,7 +314,6 @@ export const schema = {
   ...announcements,
   ...events,
   ...eventAttendees,
-  ...bookings,
   ...maintenanceRequests,
   ...maintenanceTeams,
   ...maintenanceTeamMembers,
@@ -391,6 +394,8 @@ export const schema = {
   ...meetingProxies,
   ...tenants,
   ...tenantFeatureFlags,
+  ...amenitiesRelations,
+  ...bookingsRelations,
   ...accountsRelations,
   ...passkeysRelations,
   ...sessionsRelations,
@@ -441,7 +446,6 @@ export const schema = {
   ...announcementsRelations,
   ...eventsRelations,
   ...eventAttendeesRelations,
-  ...bookingsRelations,
   ...maintenanceRequestsRelations,
   ...maintenanceTeamsRelations,
   ...maintenanceTeamMembersRelations,

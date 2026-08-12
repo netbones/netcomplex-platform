@@ -115,41 +115,49 @@ export async function POST(request: Request) {
     const { facility, date, startTime, endTime, purpose } = validationResult.data;
     const userId = body.userId || auth.data.userId;
 
+    // Require either facility (legacy) or amenityId
+    const resolvedFacility = facility || '';
+    if (!resolvedFacility && !body.amenityId) {
+      return apiError('VALIDATION_ERROR', 'Either facility or amenityId is required', 400);
+    }
+
     // Enforce tenant isolation
     const { tenantId } = await withTenant();
 
     // Validate facility against tenant's configured facilities using service
-    const validation = await validateFacility(facility, tenantId);
-    if (!validation.valid) {
-      return apiError(
-        'INVALID_FACILITY',
-        `Invalid facility. Valid options: ${validation.validOptions.join(', ')}`,
-        400
-      );
-    }
+    if (resolvedFacility) {
+      const validation = await validateFacility(resolvedFacility, tenantId);
+      if (!validation.valid) {
+        return apiError(
+          'INVALID_FACILITY',
+          `Invalid facility. Valid options: ${validation.validOptions.join(', ')}`,
+          400
+        );
+      }
 
-    // Check for conflicting bookings (same facility, date, overlapping time)
-    const conflictId = await checkBookingConflict({
-      tenantId,
-      facility,
-      date: new Date(date),
-      startTime,
-      endTime,
-    });
+      // Check for conflicting bookings (same facility, date, overlapping time)
+      const conflictId = await checkBookingConflict({
+        tenantId,
+        facility: resolvedFacility,
+        date: new Date(date),
+        startTime,
+        endTime,
+      });
 
-    if (conflictId) {
-      return apiError(
-        'CONFLICT',
-        'This time slot is no longer available. Please choose another time.',
-        409
-      );
+      if (conflictId) {
+        return apiError(
+          'CONFLICT',
+          'This time slot is no longer available. Please choose another time.',
+          409
+        );
+      }
     }
 
     // Delegate to service for booking creation
     const [booking] = await createBooking({
       tenantId,
       userId,
-      facility,
+      facility: resolvedFacility || body.amenityId || 'General',
       date: new Date(date),
       startTime,
       endTime,
@@ -163,7 +171,7 @@ export async function POST(request: Request) {
       tenantId,
       userId,
       bookingId: booking.id,
-      facility,
+      facility: resolvedFacility || body.amenityId || 'unknown',
     });
 
     return apiCreated(booking);

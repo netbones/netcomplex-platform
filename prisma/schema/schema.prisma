@@ -1193,28 +1193,7 @@ model EventAttendee {
   @@index([tenantId])
 }
 
-model Booking {
-  id         String        @id
-  tenantId   String
-  propertyId String?
-  userId     String
-  facility   String
-  date       DateTime
-  startTime  String
-  endTime    String
-  purpose    String?
-  status     BookingStatus @default(CONFIRMED)
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @default(now()) @updatedAt
-  deletedAt  DateTime?
-  property   Property?     @relation(fields: [propertyId], references: [id])
-  Tenant     Tenant        @relation(fields: [tenantId], references: [id], onDelete: Restrict)
-  user       user          @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([propertyId])
-  @@index([userId])
-  @@index([tenantId])
-}
+// Booking model moved to prisma/schema/amenity.prisma
 
 model MaintenanceRequest {
   id                 String                    @id
@@ -3157,8 +3136,10 @@ enum ResourceMediaType {
 
 enum BookingStatus {
   CONFIRMED
+  WAITLISTED
   CANCELLED
   COMPLETED
+  NO_SHOW
 }
 
 enum MaintenanceRouting {

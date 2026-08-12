@@ -1,7 +1,7 @@
 'use client';
 
 import { useTenant, isFeatureEnabled } from '@entities/tenant';
-import { BookingsPage } from '@pages/booking';
+import { AmenitiesPage } from '@pages/booking';
 import { Suspense } from 'react';
 import { LoadingSpinner } from '@shared/ui';
 import { Ban } from 'lucide-react';
@@ -43,7 +43,7 @@ export default function AmenitiesRoute() {
   return (
     <Suspense fallback={<LoadingSpinner />}>
       <AmenitiesFeatureGate>
-        <BookingsPage />
+        <AmenitiesPage />
       </AmenitiesFeatureGate>
     </Suspense>
   );

@@ -64,6 +64,7 @@ import { responses } from './responses';
 import { surveys } from './surveys';
 import { surveySections } from './survey-sections';
 import { walletTransactions } from './wallet-transactions';
+import { amenities } from './amenities';
 import { billingAdjustments } from './billing-adjustments';
 import { billingEvents } from './billing-events';
 import { billingPlans } from './billing-plans';
@@ -188,6 +189,7 @@ export const tenantsRelations = relations(tenants, helpers => ({
   WalletTransaction: helpers.many(walletTransactions, {
     relationName: 'TenantToWalletTransaction',
   }),
+  Amenity: helpers.many(amenities, { relationName: 'AmenityToTenant' }),
   BillingAdjustment: helpers.many(billingAdjustments, {
     relationName: 'BillingAdjustmentToTenant',
   }),

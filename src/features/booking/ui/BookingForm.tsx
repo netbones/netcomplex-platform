@@ -54,7 +54,7 @@ export function BookingForm({ onSubmit, onSuccess }: BookingFormProps) {
     setError('');
 
     const formData: BookingFormData = {
-      facility: facility as BookingFormData['facility'],
+      facility,
       date,
       startTime,
       endTime,

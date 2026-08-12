@@ -103,6 +103,9 @@ model Tenant {
   SurveySection           SurveySection[]
   WalletTransaction       WalletTransaction[]
 
+  // ── Amenities ──
+  Amenity                 Amenity[]
+
   // ── Batch B back-links (Maintenance & Providers + Billing & Commerce) ──
   BillingAdjustment       BillingAdjustment[]
   BillingEvent            BillingEvent[]

@@ -3,6 +3,7 @@ export * from '@schema/accounts';
 export * from '@schema/agent-accesses';
 export * from '@schema/agent-profiles';
 export * from '@schema/albums';
+export * from '@schema/amenities';
 export * from '@schema/announcements';
 export * from '@schema/bookings';
 export * from '@schema/community-service-inquiries';

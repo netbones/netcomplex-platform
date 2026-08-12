@@ -1,0 +1,62 @@
+// Amenities data model - represents facilities/services available to residents
+model Amenity {
+  id                String    @id @default(uuid())
+  tenantId          String
+  name              String
+  description       String?
+  icon              String    // Tabler icon name: "tennis", "swimming", "parking", "fire"
+  photoUrl          String?   // Falls back to icon tile if absent
+  hoursOpen         String?   // Time string: "06:00" (null = always open)
+  hoursClose        String?   // Time string: "21:30"
+  bookable          Boolean   @default(true)
+  contactEnabled    Boolean   @default(true)
+  contactPhone      String?
+  maxOccupancy      Int?      // e.g. "Max 4 people"
+  slotDurationMins  Int?      // e.g. 60
+  rulesText         String?   // Shown in info box on detail view
+  waitlistEnabled   Boolean   @default(false)
+  sortOrder         Int       @default(0)
+  active            Boolean   @default(true)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @default(now()) @updatedAt
+  deletedAt         DateTime?
+
+  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  bookings  Booking[]
+
+  @@index([tenantId])
+  @@index([tenantId, active])
+}
+
+// Extended Booking model - references amenity instead of facility string
+model Booking {
+  id           String        @id @default(uuid())
+  tenantId     String
+  amenityId    String?       // FK to Amenity (new field, nullable for migration)
+  propertyId   String?
+  userId       String
+  facility     String?       // Deprecated: use amenityId instead (kept for migration)
+  date         DateTime      @db.Date
+  startTime    String        // "09:00"
+  endTime      String        // "10:00"
+  startAt      DateTime?     // Full timestamp for the booking start (new)
+  endAt        DateTime?     // Full timestamp for the booking end (new)
+  status       BookingStatus @default(CONFIRMED)
+  cancelledAt  DateTime?
+  purpose      String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @default(now()) @updatedAt
+  deletedAt    DateTime?
+
+  amenity   Amenity?   @relation(fields: [amenityId], references: [id], onDelete: SetNull)
+  property  Property?  @relation(fields: [propertyId], references: [id])
+  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  user      user       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([amenityId, date, startTime])
+  @@index([amenityId, startAt])
+  @@index([propertyId])
+  @@index([userId])
+  @@index([tenantId])
+  @@index([userId, status])
+}
