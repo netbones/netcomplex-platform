@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { Breadcrumbs } from '@shared/ui';
+import { DomainIconBadge } from '@widgets/dashboard';
 import { useLanguage } from '@shared/lib/hooks/useSafeTranslation';
 import { apiGet, apiDelete, apiPatch } from '@/shared/api/http-client';
 
@@ -89,7 +89,7 @@ export default function ContentListPage() {
       <Breadcrumbs items={[{ label: 'Admin', href: '/admin' }, { label: 'Content Management' }]} />
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-          <Image src="/platform/content.svg" alt="" width={32} height={32} />
+          <DomainIconBadge id="content" variant="admin" size="md" />
           Content Management
         </h1>
         <Link

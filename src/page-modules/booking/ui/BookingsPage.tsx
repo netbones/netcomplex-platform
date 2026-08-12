@@ -7,6 +7,7 @@ import { usePageLoading } from '@shared/ui';
 import Image from 'next/image';
 import { apiGet } from '@/shared/api/http-client';
 import { createComponentLogger } from '@shared/lib';
+import { DomainIconBadge } from '@widgets/dashboard';
 import { BookingForm } from '@features/booking';
 import { StatusBadge, FacilityBadge, BookingCalendar, type Booking } from '@entities/booking';
 
@@ -23,7 +24,7 @@ export function BookingsPage() {
   const { isReady, LoadingComponent } = usePageLoading(
     [
       { label: 'Home', href: '/' },
-      { label: 'Bookings', href: '/bookings' },
+      { label: 'Amenities', href: '/amenities' },
     ],
     { additionalLoading: loading }
   );
@@ -67,15 +68,19 @@ export function BookingsPage() {
           />
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
             <div className="flex items-center gap-3">
-              <Image
-                src="/platform/bookings.svg"
-                alt=""
-                width={32}
-                height={32}
-                className="w-8 h-8"
-              />
+              <DomainIconBadge id="bookings" variant="services" size="md" />
               <h1 className="text-4xl font-bold text-soralia-primary">{t('bookings:title')}</h1>
             </div>
+          </div>
+
+          <div className="flex justify-center mb-6">
+            <Image
+              src="/platform/info/bookings.png"
+              alt="Book a community facility at Soralia Village"
+              width={738}
+              height={560}
+              className="w-full max-w-sm h-auto rounded-lg shadow-sm"
+            />
           </div>
 
           <div className="flex border-b border-gray-200 mb-6">

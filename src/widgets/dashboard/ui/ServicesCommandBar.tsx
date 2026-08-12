@@ -57,7 +57,7 @@ const DEFAULT_SHORTCUTS: ShortcutDef[] = [
     id: 'book-facility',
     label: 'Book Facility',
     icon: CalendarPlus,
-    href: '/dashboard/services/bookings?action=new',
+    href: '/dashboard/services/amenities?action=new',
   },
 ];
 
@@ -67,12 +67,6 @@ const EXTENDED_SHORTCUTS: ShortcutDef[] = [
     label: 'Maintenance',
     icon: Wrench,
     href: '/dashboard/services/maintenance',
-  },
-  {
-    id: 'bookings',
-    label: 'Bookings',
-    icon: Calendar,
-    href: '/dashboard/services/bookings',
   },
   {
     id: 'amenities',
@@ -275,7 +269,7 @@ export function ServicesCommandBar({
             )}
             {urgency.upcomingBookings > 0 && (
               <UrgencyChip
-                href="/dashboard/services/bookings"
+                href="/dashboard/services/amenities"
                 icon={<Calendar className="w-3.5 h-3.5" />}
                 label={`${urgency.upcomingBookings} upcoming ${urgency.upcomingBookings === 1 ? 'booking' : 'bookings'}`}
                 colour="blue"

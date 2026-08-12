@@ -20,7 +20,7 @@ export function QuickActionsWidget({ userId }: QuickActionsWidgetProps) {
         <ChevronRight className="ml-auto text-gray-300 group-hover:text-indigo-400 text-sm" />
       </Link>
       <Link
-        href="/bookings"
+        href="/amenities"
         className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg hover:bg-indigo-50 hover:text-indigo-700 transition group"
       >
         <CalendarPlus className="text-gray-400 group-hover:text-indigo-600 w-5" />

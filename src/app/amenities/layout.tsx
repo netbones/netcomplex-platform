@@ -3,7 +3,7 @@
 import { SpaceChrome } from '@widgets/dashboard';
 import { authClient } from '@api/client';
 
-export default function BookingsLayout({ children }: { children: React.ReactNode }) {
+export default function AmenitiesLayout({ children }: { children: React.ReactNode }) {
   const { data: session } = authClient.useSession();
 
   if (session) {

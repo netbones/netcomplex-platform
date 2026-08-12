@@ -1,7 +1,7 @@
 'use client';
 
-import Image from 'next/image';
 import { Breadcrumbs } from '@shared/ui';
+import { DomainIconBadge } from '@widgets/dashboard';
 import { useSafeTranslation } from '@shared/lib';
 import { AdminAchievementsWidget } from '@widgets/admin';
 
@@ -17,7 +17,7 @@ export default function AchievementsAdminPage() {
         ]}
       />
       <div className="flex items-center gap-3 mb-6">
-        <Image src="/platform/achievements.svg" alt="" width={32} height={32} />
+        <DomainIconBadge id="achievements" variant="admin" size="md" />
         <h1 className="text-2xl font-bold text-gray-900">
           {tx('domains.achievements', 'Achievements')}
         </h1>

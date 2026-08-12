@@ -149,7 +149,7 @@ export function revalidateGate(tenantId: string): void {
   revalidatePath('/dashboard');
   revalidatePath('/admin');
   revalidatePath('/maintenance');
-  revalidatePath('/bookings');
+  revalidatePath('/amenities');
   revalidatePath('/events');
   revalidatePath('/surveys');
   revalidatePath('/competitions');

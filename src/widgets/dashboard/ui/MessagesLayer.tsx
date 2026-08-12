@@ -1,10 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { useSafeTranslation } from '@shared/lib';
 import { trpc } from '@api/client';
 import { MessagesCommandBar } from './MessagesCommandBar';
+import { DomainIconBadge } from './DomainIconBadge';
 import { MESSAGES_DOMAIN_DEFINITIONS, type MessagesDomainDef } from './MessagesSubLauncher';
 
 const DOMAIN_FALLBACKS: Record<string, string> = {
@@ -28,9 +28,7 @@ function DomainCard({ domain, badge }: { domain: MessagesDomainDef; badge: numbe
       href={`/dashboard/communication/${domain.id}`}
       className="group relative flex items-start gap-3 p-3 bg-white rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md transition-all border border-gray-100"
     >
-      <div className="flex-shrink-0 w-10 h-10 relative">
-        <Image src={domain.icon} alt="" fill className="w-full h-full" />
-      </div>
+      <DomainIconBadge id={domain.id} variant="messages" size="md" />
       <div className="min-w-0 flex-1">
         <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition truncate">
           {tx(domain.labelKey, DOMAIN_FALLBACKS[domain.labelKey] || domain.labelKey)}

@@ -7,7 +7,7 @@ import { canPublishAnnouncements } from '@shared/lib';
 import { useAnnouncements, AnnouncementForm, AnnouncementList } from '@features/announcements';
 import type { AnnouncementWithResource } from '@features/announcements';
 import type { AnnouncementFormData } from '@entities/content';
-import Image from 'next/image';
+import { DomainIconBadge } from '@widgets/dashboard';
 import { toast } from 'sonner';
 import { Lock, Plus } from 'lucide-react';
 export default function AnnouncementsAdminPage() {
@@ -99,7 +99,7 @@ export default function AnnouncementsAdminPage() {
 
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-            <Image src="/platform/announcements.svg" alt="" width={32} height={32} />
+            <DomainIconBadge id="announcements" variant="admin" size="md" />
             Announcements
           </h1>
           {!showForm && (

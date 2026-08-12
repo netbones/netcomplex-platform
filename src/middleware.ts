@@ -99,7 +99,7 @@ function isTenantRoute(pathname: string): boolean {
     pathname.startsWith('/directory') ||
     pathname.startsWith('/groups') ||
     pathname.startsWith('/events') ||
-    pathname.startsWith('/bookings') ||
+    pathname.startsWith('/amenities') ||
     pathname.startsWith('/maintenance') ||
     pathname.startsWith('/providers') ||
     pathname.startsWith('/messages') ||

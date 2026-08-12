@@ -1,7 +1,7 @@
 'use client';
 
-import Image from 'next/image';
 import { Breadcrumbs } from '@shared/ui';
+import { DomainIconBadge } from '@widgets/dashboard';
 import { EducationList } from '@widgets/admin';
 
 export default function EducationAdminPage() {
@@ -14,7 +14,7 @@ export default function EducationAdminPage() {
         ]}
       />
       <div className="flex items-center gap-3 mt-6 mb-6">
-        <Image src="/platform/education-red.svg" alt="" width={32} height={32} />
+        <DomainIconBadge id="education" variant="admin" size="md" />
         <h1 className="text-2xl font-bold text-gray-900">Education Portal</h1>
       </div>
       <EducationList />

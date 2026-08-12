@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { useSafeTranslation } from '@shared/lib';
+import { DomainIconBadge } from '@widgets/dashboard';
 import { Download, MoreHorizontal, FileText, Shield } from 'lucide-react';
 import { formatZAR } from '../model/helpers';
 
@@ -20,7 +21,7 @@ export function PageHeader({
     <div className="mb-6">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-3">
-          <Image src="/platform/wallet-red.svg" alt="dWallet" width={28} height={28} />
+          <DomainIconBadge id="wallet" variant="services" size="sm" />
           <div>
             <h2 className="text-2xl font-bold text-slate-800">
               {tx('dwallet.myDwallet', 'My dWallet')}

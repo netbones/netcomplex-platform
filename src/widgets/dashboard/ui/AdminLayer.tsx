@@ -13,28 +13,7 @@ import {
   ADMIN_DOMAIN_CATEGORIES,
   groupDomainsByCategory,
 } from './AdminSubLauncher';
-import {
-  Users,
-  Wrench,
-  FileText,
-  CalendarDays,
-  Trophy,
-  BookOpen,
-  ClipboardCheck,
-  Megaphone,
-  Award,
-  Scale,
-  ShieldCheck,
-  Store,
-  Wallet,
-  Building2,
-  Image as ImageIcon,
-  GraduationCap,
-  UserCog,
-  Settings,
-  Zap,
-  type LucideIcon,
-} from 'lucide-react';
+import { DomainIconBadge } from './DomainIconBadge';
 
 // Domain ID → actual admin route override for domains whose page name differs
 const ADMIN_ROUTE_OVERRIDES: Record<string, string> = {
@@ -105,52 +84,6 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.categories.system': 'System Administration',
 };
 
-const ADMIN_DOMAIN_ICONS: Record<string, LucideIcon> = {
-  users: Users,
-  maintenance: Wrench,
-  content: FileText,
-  events: CalendarDays,
-  competitions: Trophy,
-  resources: BookOpen,
-  surveys: ClipboardCheck,
-  announcements: Megaphone,
-  merits: ShieldCheck,
-  achievements: Award,
-  disputes: Scale,
-  dwallet: Wallet,
-  providers: Store,
-  bookings: Building2,
-  services: Zap,
-  carousel: ImageIcon,
-  education: GraduationCap,
-  teams: UserCog,
-  system: Settings,
-  gallery: ImageIcon,
-};
-
-const ADMIN_DOMAIN_COLORS: Record<string, string> = {
-  users: 'bg-blue-100 text-blue-600',
-  maintenance: 'bg-orange-100 text-orange-600',
-  content: 'bg-violet-100 text-violet-600',
-  events: 'bg-pink-100 text-pink-600',
-  competitions: 'bg-amber-100 text-amber-600',
-  resources: 'bg-teal-100 text-teal-600',
-  surveys: 'bg-cyan-100 text-cyan-600',
-  announcements: 'bg-indigo-100 text-indigo-600',
-  merits: 'bg-emerald-100 text-emerald-600',
-  achievements: 'bg-rose-100 text-rose-600',
-  disputes: 'bg-red-100 text-red-600',
-  dwallet: 'bg-yellow-100 text-yellow-600',
-  providers: 'bg-sky-100 text-sky-600',
-  bookings: 'bg-green-100 text-green-600',
-  services: 'bg-purple-100 text-purple-600',
-  carousel: 'bg-lime-100 text-lime-600',
-  education: 'bg-fuchsia-100 text-fuchsia-600',
-  teams: 'bg-slate-100 text-slate-600',
-  system: 'bg-gray-100 text-gray-600',
-  gallery: 'bg-stone-100 text-stone-600',
-};
-
 // ── Grouped domain grid ──
 
 function AdminDomainGrid({
@@ -198,7 +131,6 @@ function DomainCard({
   badge: number;
 }) {
   const { tx } = useSafeTranslation('admin');
-  const Icon = ADMIN_DOMAIN_ICONS[domain.id] || Settings;
   const tooltip = domain.descriptionKey
     ? tx(domain.descriptionKey, DOMAIN_FALLBACKS[domain.descriptionKey] || '')
     : undefined;
@@ -213,10 +145,8 @@ function DomainCard({
           {tooltip}
         </div>
       )}
-      <div
-        className={`relative flex items-center justify-center w-12 h-12 rounded-full ${ADMIN_DOMAIN_COLORS[domain.id] || 'bg-gray-100 text-gray-600'}`}
-      >
-        <Icon className="w-6 h-6" />
+      <div className="relative">
+        <DomainIconBadge id={domain.id} variant="admin" size="lg" />
         {badge > 0 && (
           <span className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 rounded-full bg-red-500 text-white text-xs font-bold">
             {badge > 9 ? '9+' : badge}

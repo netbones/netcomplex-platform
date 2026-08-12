@@ -116,8 +116,8 @@ export const WORKSPACE_ITEMS: NavItem[] = [
     icon: 'home',
   },
   {
-    href: '/bookings',
-    labelKey: 'nav.bookings',
+    href: '/amenities',
+    labelKey: 'nav.amenities',
     section: 'workspace',
     flagKey: 'bookings',
     requiresAuth: true,

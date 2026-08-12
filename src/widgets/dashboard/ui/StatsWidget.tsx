@@ -87,7 +87,7 @@ export function StatsWidget({ stats, loading = false }: StatsWidgetProps) {
         value={loading ? '...' : stats.bookings}
         icon="fa-calendar-check"
         color={STAT_COLORS.bookings}
-        href="/bookings"
+        href="/amenities"
       />
       <StatCard
         title={t('messages')}

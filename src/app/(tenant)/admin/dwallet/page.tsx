@@ -1,7 +1,7 @@
 'use client';
 
-import Image from 'next/image';
 import { Breadcrumbs } from '@shared/ui';
+import { DomainIconBadge } from '@widgets/dashboard';
 import { useSafeTranslation } from '@shared/lib';
 import { DWalletAdminWidget } from '@entities/dwallet';
 
@@ -17,7 +17,7 @@ export default function DWalletAdminPage() {
         ]}
       />
       <div className="flex items-center gap-3 mb-6">
-        <Image src="/platform/wallet-blue.svg" alt="" width={32} height={32} />
+        <DomainIconBadge id="dwallet" variant="admin" size="md" />
         <h1 className="text-2xl font-bold text-gray-900">{tx('domains.dwallet', 'dWallet')}</h1>
       </div>
       <DWalletAdminWidget />

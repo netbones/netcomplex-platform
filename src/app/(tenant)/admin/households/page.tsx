@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Breadcrumbs } from '@shared/ui';
+import { DomainIconBadge } from '@widgets/dashboard';
 import { trpc } from '@api/client';
 
 import { AlertTriangle, Home, Loader2, Search } from 'lucide-react';
@@ -47,7 +48,7 @@ export default function HouseholdsPage() {
       <Breadcrumbs items={[{ label: 'Admin', href: '/admin' }, { label: 'Households' }]} />
 
       <div className="flex items-center gap-3 mb-6">
-        <Image src="/platform/households.svg" alt="" width={32} height={32} />
+        <DomainIconBadge id="households" variant="admin" size="md" />
         <h1 className="text-2xl font-bold text-gray-900">Households</h1>
         <span className="text-sm text-gray-500 ml-auto">{total} households</span>
       </div>

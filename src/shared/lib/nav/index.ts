@@ -34,8 +34,8 @@ export const NAV_REGISTRY: NavItem[] = [
   { id: 'dashboard', nameKey: 'nav.dashboard', href: '/dashboard' },
   {
     id: 'bookings',
-    nameKey: 'nav.bookings',
-    href: '/bookings',
+    nameKey: 'nav.amenities',
+    href: '/amenities',
     flag: 'bookings',
     permission: 'bookings',
   },

@@ -1,0 +1,86 @@
+<div style="max-width:420px;margin:0 auto;position:relative">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="width:32px;height:32px;border-radius:50%;background:var(--bg-danger);display:flex;align-items:center;justify-content:center">
+        <i class="ti ti-shield-exclamation" style="font-size:16px;color:var(--text-danger)" aria-hidden="true"></i>
+      </div>
+      <h1 style="margin:0">Security</h1>
+    </div>
+    <button id="menuBtn" style="padding:6px 8px" aria-label="More options" aria-haspopup="true" aria-expanded="false">
+      <i class="ti ti-dots" style="font-size:18px" aria-hidden="true"></i>
+    </button>
+  </div>
+
+  <div id="menuPanel" style="display:none;position:absolute;top:44px;right:0;background:var(--surface-3);border:0.5px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-popover);z-index:10;min-width:220px;overflow:hidden">
+    <button id="manageContactsBtn" style="width:100%;text-align:left;padding:10px 14px;font-size:14px;background:transparent;border:none;display:flex;align-items:center;gap:10px">
+      <i class="ti ti-address-book" style="font-size:16px" aria-hidden="true"></i>Manage security contacts
+    </button>
+    <button style="width:100%;text-align:left;padding:10px 14px;font-size:14px;background:transparent;border:none;display:flex;align-items:center;gap:10px;border-top:0.5px solid var(--border)">
+      <i class="ti ti-history" style="font-size:16px" aria-hidden="true"></i>View alert history
+    </button>
+  </div>
+
+  <div style="background:var(--bg-danger);border-radius:12px;padding:1.75rem 1.25rem;text-align:center;margin-bottom:1rem">
+    <div style="width:64px;height:64px;border-radius:50%;background:var(--surface-2);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;border:2px solid var(--border-danger)">
+      <i class="ti ti-shield-exclamation" style="font-size:30px;color:var(--text-danger)" aria-hidden="true"></i>
+    </div>
+    <button style="width:100%;max-width:280px;background:var(--fill-danger);color:var(--on-danger);border:none;padding:16px;font-size:16px;font-weight:500;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:10px;margin:0 auto">
+      <i class="ti ti-alert-triangle" style="font-size:22px" aria-hidden="true"></i>
+      Panic button
+    </button>
+    <p style="font-size:12px;color:var(--text-danger);text-align:center;margin-top:12px;max-width:280px;margin-left:auto;margin-right:auto">
+      Security only responds to requests made and located within the community boundaries.
+    </p>
+  </div>
+
+  <div style="background:var(--surface-1);border-radius:12px;padding:14px 16px;margin-bottom:1rem;display:flex;align-items:center;gap:10px">
+    <i class="ti ti-map-pin" style="font-size:18px;color:var(--text-secondary)" aria-hidden="true"></i>
+    <div style="flex:1">
+      <div style="font-size:13px;font-weight:500">Location sharing on</div>
+      <div style="font-size:12px;color:var(--text-secondary)">GPS attaches automatically when you trigger an alert</div>
+    </div>
+  </div>
+
+  <div style="background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:12px">
+    <p style="font-size:13px;font-weight:500;margin:0 0 10px;display:flex;align-items:center;gap:8px">
+      <i class="ti ti-eye-off" style="font-size:16px" aria-hidden="true"></i>Create alert
+    </p>
+    <button style="width:100%;padding:12px;font-size:14px">Anonymous tip-off</button>
+  </div>
+
+  <div style="background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:1rem">
+    <p style="font-size:13px;font-weight:500;margin:0 0 10px;display:flex;align-items:center;gap:8px">
+      <i class="ti ti-phone" style="font-size:16px" aria-hidden="true"></i>Call response
+    </p>
+    <div style="display:flex;gap:10px">
+      <button style="flex:1;padding:12px;font-size:14px">Call 10111</button>
+      <button style="flex:1;padding:12px;font-size:14px">Call security</button>
+    </div>
+  </div>
+
+  <div style="text-align:center;padding-top:0.5rem">
+    <p style="font-size:12px;color:var(--text-muted);margin:0">
+      Using these functions means you agree to the
+      <a href="#" style="font-size:12px">security disclaimer</a>.
+    </p>
+  </div>
+</div>
+<script>
+(function(){
+  var btn = document.getElementById('menuBtn');
+  var panel = document.getElementById('menuPanel');
+  btn.addEventListener('click', function(e){
+    e.stopPropagation();
+    var open = panel.style.display === 'block';
+    panel.style.display = open ? 'none' : 'block';
+    btn.setAttribute('aria-expanded', String(!open));
+  });
+  document.addEventListener('click', function(){
+    panel.style.display = 'none';
+    btn.setAttribute('aria-expanded', 'false');
+  });
+  document.getElementById('manageContactsBtn').addEventListener('click', function(){
+    sendPrompt('Show me the manage security contacts screen');
+  });
+})();
+</script>

@@ -13,7 +13,7 @@ function isTenantRoute(pathname: string): boolean {
     pathname.startsWith('/directory') ||
     pathname.startsWith('/groups') ||
     pathname.startsWith('/events') ||
-    pathname.startsWith('/bookings') ||
+    pathname.startsWith('/amenities') ||
     pathname.startsWith('/maintenance') ||
     pathname.startsWith('/providers') ||
     pathname.startsWith('/messages') ||
@@ -79,7 +79,7 @@ describe('middleware utility functions', () => {
       expect(isTenantRoute('/directory')).toBe(true);
       expect(isTenantRoute('/groups')).toBe(true);
       expect(isTenantRoute('/events')).toBe(true);
-      expect(isTenantRoute('/bookings')).toBe(true);
+      expect(isTenantRoute('/amenities')).toBe(true);
       expect(isTenantRoute('/maintenance')).toBe(true);
       expect(isTenantRoute('/admin/users')).toBe(true);
     });

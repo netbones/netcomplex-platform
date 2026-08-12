@@ -7,6 +7,7 @@ export * from './ui/SpaceLayout';
 export * from './ui/MobileSpaceBar';
 export * from './ui/AdminLayer';
 export * from './ui/AdminSubLauncher';
+export * from './ui/DomainIconBadge';
 export * from './ui/ServicesLayer';
 export * from './ui/ServicesSubLauncher';
 export * from './ui/ProvidersLayer';

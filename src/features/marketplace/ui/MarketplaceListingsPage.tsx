@@ -122,7 +122,7 @@ export function MarketplaceListingsPage() {
           onClose={() => setBottomSheetOpen(false)}
           onBookingComplete={bookingId => {
             setBottomSheetOpen(false);
-            window.location.href = `/dashboard/services/bookings/${bookingId}`;
+            window.location.href = `/dashboard/services/amenities/${bookingId}`;
           }}
         />
       )}
