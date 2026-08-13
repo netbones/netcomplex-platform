@@ -10,16 +10,23 @@ import { AmenityCard } from '@entities/amenity';
 import { BookingDetail } from '@features/booking';
 import { DomainIconBadge } from '@widgets/dashboard';
 import { MyBookingsTab } from './MyBookingsTab';
+import { AmenitiesCalendarTab } from './AmenitiesCalendarTab';
 
 const log = createComponentLogger('AmenitiesPage');
 
 type Tab = 'amenities' | 'bookings' | 'calendar';
 
+interface BookingHandoff {
+  amenity: AmenityWithStatus;
+  date?: Date;
+  slot?: string;
+}
+
 export function AmenitiesPage() {
   const [amenities, setAmenities] = useState<AmenityWithStatus[]>([]);
   const [activeTab, setActiveTab] = useState<Tab>('amenities');
   const [loading, setLoading] = useState(true);
-  const [selectedAmenity, setSelectedAmenity] = useState<AmenityWithStatus | null>(null);
+  const [bookingHandoff, setBookingHandoff] = useState<BookingHandoff | null>(null);
 
   const { isReady, LoadingComponent } = usePageLoading(
     [
@@ -45,7 +52,11 @@ export function AmenitiesPage() {
   }, [fetchAmenities]);
 
   const handleBook = (amenity: AmenityWithStatus) => {
-    setSelectedAmenity(amenity);
+    setBookingHandoff({ amenity });
+  };
+
+  const handleBookSlot = (amenity: AmenityWithStatus, date: Date, startTime: string) => {
+    setBookingHandoff({ amenity, date, slot: startTime });
   };
 
   const handleJoinWaitlist = (amenity: AmenityWithStatus) => {
@@ -65,9 +76,8 @@ export function AmenitiesPage() {
   };
 
   const handleBookingSuccess = () => {
-    setSelectedAmenity(null);
+    setBookingHandoff(null);
     setActiveTab('bookings');
-    // Could show a toast here
   };
 
   if (!isReady) {
@@ -96,10 +106,12 @@ export function AmenitiesPage() {
         <div className="absolute inset-0 bg-white/80" />
         <div className="relative max-w-2xl mx-auto px-4 py-8">
           {/* Show booking detail if amenity selected */}
-          {selectedAmenity ? (
+          {bookingHandoff ? (
             <BookingDetail
-              amenity={selectedAmenity}
-              onBack={() => setSelectedAmenity(null)}
+              amenity={bookingHandoff.amenity}
+              initialDate={bookingHandoff.date}
+              initialSlot={bookingHandoff.slot}
+              onBack={() => setBookingHandoff(null)}
               onBookingSuccess={handleBookingSuccess}
             />
           ) : (
@@ -172,11 +184,7 @@ export function AmenitiesPage() {
               )}
 
               {/* Calendar Tab */}
-              {activeTab === 'calendar' && (
-                <div className="text-center py-12">
-                  <p className="text-gray-500">Calendar view will go here</p>
-                </div>
-              )}
+              {activeTab === 'calendar' && <AmenitiesCalendarTab onBookSlot={handleBookSlot} />}
             </>
           )}
         </div>

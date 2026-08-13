@@ -71,6 +71,7 @@ Audit evidence in the advisory. Cross-cutting with `z76s` (platform hardening) a
 | `hh1t` | feature | Provider Platform: Paystack/PayPal gateway integration — remote subscription lifecycle | ○      |
 | `5m7l` | task    | Confirm Schedule F Table 2 revenue share % with anchor tenant (dWallet addendum)       | ○      |
 | `bvlu` | feature | Admin Amenities console — CRUD, reorder, stats, delete-if-no-bookings                  | ✅     |
+| `6lg2` | feature | Amenities Calendar tab — month grid, filter chips, day agenda                          | ✅     |
 
 ---
 

@@ -1,10 +1,15 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { X } from 'lucide-react';
 import { apiGet, apiDelete } from '@/shared/api/http-client';
 import { createComponentLogger } from '@/shared/lib';
-import { AMENITY_ICON_COLORS, type AmenityWithStatus } from '@entities/amenity';
+import {
+  AMENITY_ICON_COLORS,
+  formatDateKey,
+  parseDateKey,
+  type AmenityWithStatus,
+} from '@entities/amenity';
 import { toast } from 'sonner';
 import { cn } from '@/shared/lib/utils';
 
@@ -32,6 +37,39 @@ const STATUS_STYLES: Record<BookingStatus, { bg: string; text: string; label: st
   COMPLETED: { bg: 'bg-gray-100', text: 'text-gray-800', label: 'Completed' },
   NO_SHOW: { bg: 'bg-red-100', text: 'text-red-800', label: 'No-show' },
 };
+
+/** Local calendar date key from API date (string or Date), avoiding UTC shift. */
+function bookingDateKey(date: string | Date): string {
+  if (typeof date === 'string') {
+    // "YYYY-MM-DD" or ISO — take the date portion
+    const m = date.match(/^(\d{4}-\d{2}-\d{2})/);
+    if (m) return m[1];
+    return formatDateKey(new Date(date));
+  }
+  return formatDateKey(date);
+}
+
+/**
+ * True when the booking slot has ended (or status already terminal).
+ * CONFIRMED/WAITLISTED rows from yesterday must land in Past even before
+ * an automated COMPLETED/NO_SHOW transition exists.
+ */
+function isPastBooking(booking: MyBooking, now: Date = new Date()): boolean {
+  if (
+    booking.status === 'COMPLETED' ||
+    booking.status === 'NO_SHOW' ||
+    booking.status === 'CANCELLED'
+  ) {
+    return true;
+  }
+
+  const key = bookingDateKey(booking.date);
+  const day = parseDateKey(key);
+  const [endH, endM] = (booking.endTime || '23:59').split(':').map(Number);
+  const endsAt = new Date(day);
+  endsAt.setHours(endH || 0, endM || 0, 0, 0);
+  return endsAt.getTime() <= now.getTime();
+}
 
 interface MyBookingsTabProps {
   amenities: AmenityWithStatus[];
@@ -84,6 +122,20 @@ export function MyBookingsTab({ amenities, onBookAgain }: MyBookingsTabProps) {
     [amenities, onBookAgain]
   );
 
+  const { upcoming, past } = useMemo(() => {
+    const now = new Date();
+    const upcomingList: MyBooking[] = [];
+    const pastList: MyBooking[] = [];
+    for (const b of bookings) {
+      if ((b.status === 'CONFIRMED' || b.status === 'WAITLISTED') && !isPastBooking(b, now)) {
+        upcomingList.push(b);
+      } else if (isPastBooking(b, now)) {
+        pastList.push(b);
+      }
+    }
+    return { upcoming: upcomingList, past: pastList };
+  }, [bookings]);
+
   if (loading) {
     return (
       <div className="text-center py-12">
@@ -91,11 +143,6 @@ export function MyBookingsTab({ amenities, onBookAgain }: MyBookingsTabProps) {
       </div>
     );
   }
-
-  const upcoming = bookings.filter(b => b.status === 'CONFIRMED' || b.status === 'WAITLISTED');
-  const past = bookings.filter(
-    b => b.status === 'COMPLETED' || b.status === 'NO_SHOW' || b.status === 'CANCELLED'
-  );
 
   if (bookings.length === 0) {
     return (
@@ -158,7 +205,7 @@ function BookingRow({
   const icon = booking.amenityIcon ?? 'default';
   const colors = AMENITY_ICON_COLORS[icon] ?? AMENITY_ICON_COLORS.default;
   const statusStyle = STATUS_STYLES[booking.status] ?? STATUS_STYLES.CONFIRMED;
-  const date = typeof booking.date === 'string' ? new Date(booking.date) : booking.date;
+  const date = parseDateKey(bookingDateKey(booking.date));
   const dateLabel = date.toLocaleDateString('en-US', {
     weekday: 'short',
     day: 'numeric',

@@ -1,6 +1,7 @@
 import { db, bookings, settings, users } from '@api/server';
+import { amenities } from '@/db/schema/amenities';
 
-import { eq, asc, gte, and, sql, ne } from 'drizzle-orm';
+import { eq, asc, gte, and, sql, ne, isNull } from 'drizzle-orm';
 import { DEFAULT_FACILITIES } from '../model';
 import type { TenantFacility } from '../model';
 import { apiLogger } from '@shared/lib';
@@ -95,6 +96,63 @@ export async function listBookings(params: {
     .leftJoin(users, eq(bookings.userId, users.id))
     .where(whereClause)
     .orderBy(asc(bookings.date));
+}
+
+/**
+ * Checks for conflicting bookings — same amenity, same date, overlapping time.
+ */
+export async function checkAmenityBookingConflict(params: {
+  tenantId: string;
+  amenityId: string;
+  date: Date;
+  startTime: string;
+  endTime: string;
+  excludeBookingId?: string;
+}): Promise<string | null> {
+  const [conflicting] = await db
+    .select({ id: bookings.id })
+    .from(bookings)
+    .where(
+      and(
+        eq(bookings.tenantId, params.tenantId),
+        eq(bookings.amenityId, params.amenityId),
+        eq(bookings.date, params.date),
+        ne(bookings.status, 'CANCELLED'),
+        sql`(
+          (${bookings.startTime} < ${params.endTime} AND ${bookings.endTime} > ${params.startTime})
+        )`,
+        params.excludeBookingId ? ne(bookings.id, params.excludeBookingId) : undefined
+      )
+    )
+    .limit(1);
+
+  return conflicting?.id ?? null;
+}
+
+/**
+ * Load an active, bookable amenity for the tenant (amenity booking flow).
+ */
+export async function getBookableAmenity(tenantId: string, amenityId: string) {
+  const [row] = await db
+    .select({
+      id: amenities.id,
+      name: amenities.name,
+      bookable: amenities.bookable,
+      active: amenities.active,
+    })
+    .from(amenities)
+    .where(
+      and(
+        eq(amenities.id, amenityId),
+        eq(amenities.tenantId, tenantId),
+        eq(amenities.active, true),
+        eq(amenities.bookable, true),
+        isNull(amenities.deletedAt)
+      )
+    )
+    .limit(1);
+
+  return row ?? null;
 }
 
 /**

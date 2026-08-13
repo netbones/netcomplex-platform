@@ -22,6 +22,8 @@ import {
   validateFacility,
   createBooking,
   checkBookingConflict,
+  checkAmenityBookingConflict,
+  getBookableAmenity,
 } from '@entities/booking/server';
 
 // Limit execution time to 8 seconds for booking operations
@@ -112,34 +114,23 @@ export async function POST(request: Request) {
       return apiError('VALIDATION_ERROR', 'Invalid input', 400, validationResult.error.issues);
     }
 
-    const { facility, date, startTime, endTime, purpose } = validationResult.data;
+    const { facility, date, startTime, endTime, purpose, amenityId } = validationResult.data;
     const userId = body.userId || auth.data.userId;
 
-    // Require either facility (legacy) or amenityId
-    const resolvedFacility = facility || '';
-    if (!resolvedFacility && !body.amenityId) {
-      return apiError('VALIDATION_ERROR', 'Either facility or amenityId is required', 400);
-    }
-
-    // Enforce tenant isolation
     const { tenantId } = await withTenant();
+    const bookingDate = new Date(date);
 
-    // Validate facility against tenant's configured facilities using service
-    if (resolvedFacility) {
-      const validation = await validateFacility(resolvedFacility, tenantId);
-      if (!validation.valid) {
-        return apiError(
-          'INVALID_FACILITY',
-          `Invalid facility. Valid options: ${validation.validOptions.join(', ')}`,
-          400
-        );
+    // Amenity catalogue flow — skip legacy facility preset validation
+    if (amenityId) {
+      const amenity = await getBookableAmenity(tenantId, amenityId);
+      if (!amenity) {
+        return apiError('NOT_FOUND', 'Amenity not found or not bookable', 404);
       }
 
-      // Check for conflicting bookings (same facility, date, overlapping time)
-      const conflictId = await checkBookingConflict({
+      const conflictId = await checkAmenityBookingConflict({
         tenantId,
-        facility: resolvedFacility,
-        date: new Date(date),
+        amenityId,
+        date: bookingDate,
         startTime,
         endTime,
       });
@@ -151,28 +142,80 @@ export async function POST(request: Request) {
           409
         );
       }
+
+      const [booking] = await createBooking({
+        tenantId,
+        userId,
+        facility: amenity.name,
+        amenityId,
+        date: bookingDate,
+        startTime,
+        endTime,
+        purpose,
+      });
+
+      revalidateDashboard();
+
+      emitEvent('booking.created', {
+        tenantId,
+        userId,
+        bookingId: booking.id,
+        facility: amenity.name,
+        amenityId,
+      });
+
+      return apiCreated(booking);
     }
 
-    // Delegate to service for booking creation
+    // Legacy facility preset flow
+    const resolvedFacility = facility || '';
+    if (!resolvedFacility) {
+      return apiError('VALIDATION_ERROR', 'Either facility or amenityId is required', 400);
+    }
+
+    const validation = await validateFacility(resolvedFacility, tenantId);
+    if (!validation.valid) {
+      return apiError(
+        'INVALID_FACILITY',
+        `Invalid facility. Valid options: ${validation.validOptions.join(', ')}`,
+        400
+      );
+    }
+
+    const conflictId = await checkBookingConflict({
+      tenantId,
+      facility: resolvedFacility,
+      date: bookingDate,
+      startTime,
+      endTime,
+    });
+
+    if (conflictId) {
+      return apiError(
+        'CONFLICT',
+        'This time slot is no longer available. Please choose another time.',
+        409
+      );
+    }
+
     const [booking] = await createBooking({
       tenantId,
       userId,
-      facility: resolvedFacility || body.amenityId || 'General',
-      amenityId: body.amenityId ?? null,
-      date: new Date(date),
+      facility: resolvedFacility,
+      amenityId: null,
+      date: bookingDate,
       startTime,
       endTime,
       purpose,
     });
 
-    // Revalidate dashboard caches immediately when new booking is created
     revalidateDashboard();
 
     emitEvent('booking.created', {
       tenantId,
       userId,
       bookingId: booking.id,
-      facility: resolvedFacility || body.amenityId || 'unknown',
+      facility: resolvedFacility,
     });
 
     return apiCreated(booking);

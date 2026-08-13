@@ -11,5 +11,7 @@ export {
   listBookings,
   createBooking,
   checkBookingConflict,
+  checkAmenityBookingConflict,
+  getBookableAmenity,
   getBookedSlots,
 } from './services';

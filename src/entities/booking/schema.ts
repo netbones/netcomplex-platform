@@ -23,7 +23,7 @@ export type BookingStatus = z.infer<typeof BookingStatusEnum>;
  */
 export const bookingSchema = z
   .object({
-    amenityId: z.string().uuid('Invalid amenity').optional(),
+    amenityId: z.string().min(1, 'Invalid amenity').optional(),
     facility: z.string().max(100).optional(),
     date: z
       .string()
@@ -38,6 +38,10 @@ export const bookingSchema = z
       .min(1, 'End time is required')
       .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Time must be HH:MM 24-hour format'),
     purpose: z.string().max(500, 'Purpose too long').trim().optional().default(''),
+  })
+  .refine(data => Boolean(data.amenityId || data.facility), {
+    message: 'Either amenityId or facility is required',
+    path: ['amenityId'],
   })
   .refine(data => data.startTime < data.endTime, {
     message: 'End time must be after start time',

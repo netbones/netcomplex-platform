@@ -5,9 +5,10 @@ import { ChevronLeft, Clock, Users, Info } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
 import type { AmenityWithStatus, TimeSlot } from '@entities/amenity';
 import { AmenityBadge, statusToVariant } from '@entities/amenity';
-import { generateTimeSlots, formatHours } from '@entities/amenity';
-import { apiGet, apiPost } from '@/shared/api/http-client';
-import { createComponentLogger } from '@/shared/lib';
+import { generateTimeSlots, formatHours, formatDateKey } from '@entities/amenity';
+import { apiGet, apiPost, ApiClientError } from '@/shared/api/http-client';
+import { createComponentLogger } from '@shared/lib';
+import { toast } from 'sonner';
 
 const log = createComponentLogger('BookingDetail');
 
@@ -15,6 +16,10 @@ interface BookingDetailProps {
   amenity: AmenityWithStatus;
   onBack: () => void;
   onBookingSuccess: () => void;
+  /** Pre-select a date when opening from the calendar tab. */
+  initialDate?: Date;
+  /** Pre-select a slot time (HH:MM) when opening from the calendar tab. */
+  initialSlot?: string;
 }
 
 interface DateOption {
@@ -24,17 +29,31 @@ interface DateOption {
   isToday: boolean;
 }
 
-export function BookingDetail({ amenity, onBack, onBookingSuccess }: BookingDetailProps) {
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+export function BookingDetail({
+  amenity,
+  onBack,
+  onBookingSuccess,
+  initialDate,
+  initialSlot,
+}: BookingDetailProps) {
+  const [selectedDate, setSelectedDate] = useState<Date>(() => {
+    if (initialDate) {
+      const d = new Date(initialDate);
+      d.setHours(0, 0, 0, 0);
+      return d;
+    }
+    return new Date();
+  });
+  const [selectedSlot, setSelectedSlot] = useState<string | null>(initialSlot ?? null);
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  // Generate 5-7 days ahead
+  // Generate 6 days ahead from today
   const dateOptions = useMemo<DateOption[]>(() => {
     const days: DateOption[] = [];
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
     for (let i = 0; i < 6; i++) {
       const date = new Date(today);
@@ -48,8 +67,23 @@ export function BookingDetail({ amenity, onBack, onBookingSuccess }: BookingDeta
       });
     }
 
+    if (initialDate) {
+      const target = new Date(initialDate);
+      target.setHours(0, 0, 0, 0);
+      const inWindow = days.some(d => d.date.toDateString() === target.toDateString());
+      if (!inWindow && target >= today) {
+        days.push({
+          date: target,
+          dayName: target.toLocaleDateString('en-US', { weekday: 'short' }),
+          dayNum: target.getDate(),
+          isToday: false,
+        });
+        days.sort((a, b) => a.date.getTime() - b.date.getTime());
+      }
+    }
+
     return days;
-  }, []);
+  }, [initialDate]);
 
   // Fetch existing bookings for the selected date
   const fetchExistingBookings = useCallback(
@@ -58,7 +92,7 @@ export function BookingDetail({ amenity, onBack, onBookingSuccess }: BookingDeta
 
       setLoading(true);
       try {
-        const dateStr = date.toISOString().split('T')[0];
+        const dateStr = formatDateKey(date);
         const { data } = await apiGet<Array<{ startTime: string; endTime: string }>>(
           `/api/amenities/${amenity.id}/bookings?date=${dateStr}`
         );
@@ -93,8 +127,15 @@ export function BookingDetail({ amenity, onBack, onBookingSuccess }: BookingDeta
 
   useEffect(() => {
     fetchExistingBookings(selectedDate);
-    setSelectedSlot(null);
   }, [selectedDate, fetchExistingBookings]);
+
+  // When the user picks a different date, clear the pre-selected slot
+  const handleSelectDate = (date: Date) => {
+    setSelectedDate(date);
+    const sameAsInitial =
+      initialDate && date.toDateString() === new Date(initialDate).toDateString();
+    setSelectedSlot(sameAsInitial && initialSlot ? initialSlot : null);
+  };
 
   const handleConfirm = async () => {
     if (!selectedSlot) return;
@@ -103,15 +144,18 @@ export function BookingDetail({ amenity, onBack, onBookingSuccess }: BookingDeta
     try {
       await apiPost('/api/bookings', {
         amenityId: amenity.id,
-        facility: amenity.name,
-        date: selectedDate.toISOString().split('T')[0],
+        date: formatDateKey(selectedDate),
         startTime: selectedSlot,
         endTime: calculateEndTime(selectedSlot, amenity.slotDurationMins || 60),
       });
 
+      const dayName = selectedDate.toLocaleDateString('en-US', { weekday: 'short' });
+      const dayNum = selectedDate.getDate();
+      toast.success(`Booking confirmed · ${amenity.name}, ${dayName} ${dayNum} at ${selectedSlot}`);
       onBookingSuccess();
     } catch (error) {
       log.error({}, 'Failed to create booking', error);
+      toast.error(error instanceof ApiClientError ? error.message : 'Failed to create booking');
     } finally {
       setSubmitting(false);
     }
@@ -190,7 +234,7 @@ export function BookingDetail({ amenity, onBack, onBookingSuccess }: BookingDeta
             {dateOptions.map(option => (
               <button
                 key={option.date.toISOString()}
-                onClick={() => setSelectedDate(option.date)}
+                onClick={() => handleSelectDate(option.date)}
                 className={cn(
                   'flex-1 min-w-[60px] py-2 px-1 text-sm rounded-md border-2 transition',
                   selectedDate.toDateString() === option.date.toDateString()
