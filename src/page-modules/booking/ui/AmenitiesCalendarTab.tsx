@@ -373,9 +373,7 @@ export function AmenitiesCalendarTab({ onBookSlot }: AmenitiesCalendarTabProps) 
                 </div>
                 <div
                   className="w-[3px] self-stretch rounded-sm shrink-0"
-                  style={{
-                    backgroundColor: isAvailable ? '#d1d5db' : slot.colorHex,
-                  }}
+                  style={{ backgroundColor: slot.colorHex }}
                 />
                 <div className="flex-1 min-w-0">
                   <div className="font-medium text-sm text-gray-900 truncate">
