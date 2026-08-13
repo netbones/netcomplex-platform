@@ -37,6 +37,7 @@ const ALL_FLAGS_ON: PlatformPageFlags = {
   dWallet: false,
   providers: true,
   bookings: true,
+  security: true,
   messages: true,
   marketplacePaypal: false,
   headerLinks: [],

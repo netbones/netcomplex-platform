@@ -24,7 +24,8 @@ export type ModuleKey =
   | 'analytics'
   | 'adminIntermediate'
   | 'adminAdvanced'
-  | 'proxyVote';
+  | 'proxyVote'
+  | 'security';
 
 export interface ModuleDefinition {
   key: ModuleKey;
@@ -196,6 +197,12 @@ export const MODULES: Record<ModuleKey, ModuleDefinition> = {
     description: 'HOA governance proxy appointments and resident nominations',
     tier: 'pro-max',
   },
+  security: {
+    key: 'security',
+    label: 'Security',
+    description: 'Panic button and community security contacts',
+    tier: 'core',
+  },
 };
 
 export const TIERS: Record<TierLevel, TierDefinition> = {
@@ -219,6 +226,7 @@ export const TIERS: Record<TierLevel, TierDefinition> = {
       'bookings',
       'surveys',
       'maintenance',
+      'security',
     ],
     limits: {
       announcements: 5,
@@ -247,6 +255,7 @@ export const TIERS: Record<TierLevel, TierDefinition> = {
       'bookings',
       'surveys',
       'maintenance',
+      'security',
       'adminIntermediate',
       'surveysAdvanced',
       'marketplace',
@@ -281,6 +290,7 @@ export const TIERS: Record<TierLevel, TierDefinition> = {
       'bookings',
       'surveys',
       'maintenance',
+      'security',
       'adminIntermediate',
       'surveysAdvanced',
       'marketplace',

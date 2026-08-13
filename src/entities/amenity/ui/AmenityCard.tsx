@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { Phone, Info } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
 import type { AmenityWithStatus } from '../model/types';
@@ -30,12 +31,18 @@ export function AmenityCard({
       {/* Left: Photo or Icon tile */}
       <div
         className={cn(
-          'w-[120px] min-w-[120px] h-[100px] flex items-center justify-center',
+          'relative w-[120px] min-w-[120px] h-[100px] flex items-center justify-center',
           colors.bg
         )}
       >
         {amenity.photoUrl ? (
-          <img src={amenity.photoUrl} alt={amenity.name} className="w-full h-full object-cover" />
+          <Image
+            src={amenity.photoUrl}
+            alt={amenity.name}
+            fill
+            className="object-cover"
+            unoptimized
+          />
         ) : (
           <i className={`ti ti-${amenity.icon} text-3xl ${colors.text}`} aria-hidden="true" />
         )}

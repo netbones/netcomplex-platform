@@ -195,9 +195,7 @@ export const usersRelations = relations(users, helpers => ({
   securityAlertsAcknowledged: helpers.many(securityAlerts, {
     relationName: 'SecurityAlertAcknowledgedBy',
   }),
-  securityAlertsResolved: helpers.many(securityAlerts, {
-    relationName: 'SecurityAlertResolvedBy',
-  }),
+  securityAlertsResolved: helpers.many(securityAlerts, { relationName: 'SecurityAlertResolvedBy' }),
   securityContactsCreated: helpers.many(securityContacts, {
     relationName: 'SecurityContactCreatedBy',
   }),

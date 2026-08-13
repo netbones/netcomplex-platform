@@ -54,6 +54,13 @@ export function ManageSecurityContacts({ backHref = '/security' }: { backHref?: 
   return (
     <ErrorBoundary>
       <div className="max-w-md mx-auto px-4 py-8">
+        <Breadcrumbs
+          items={[
+            { label: 'Admin', href: '/admin' },
+            { label: 'Security', href: '/admin/security' },
+            { label: 'Contacts' },
+          ]}
+        />
         <Link href={backHref} className="text-sm text-gray-500 hover:text-gray-800">
           &larr; Back to security
         </Link>

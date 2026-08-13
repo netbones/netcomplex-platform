@@ -65,6 +65,8 @@ import { surveys } from './surveys';
 import { surveySections } from './survey-sections';
 import { walletTransactions } from './wallet-transactions';
 import { amenities } from './amenities';
+import { securityAlerts } from './security-alerts';
+import { securityContacts } from './security-contacts';
 import { billingAdjustments } from './billing-adjustments';
 import { billingEvents } from './billing-events';
 import { billingPlans } from './billing-plans';
@@ -101,8 +103,6 @@ import { tenantSetups } from './tenant-setups';
 import { tenantFeatureFlags } from './tenant-feature-flags';
 import { meetingProxies } from './meeting-proxies';
 import { agentReviews } from './agent-reviews';
-import { securityAlerts } from './security-alerts';
-import { securityContacts } from './security-contacts';
 
 export const tenantsRelations = relations(tenants, helpers => ({
   owner: helpers.one(users, {
@@ -192,6 +192,8 @@ export const tenantsRelations = relations(tenants, helpers => ({
     relationName: 'TenantToWalletTransaction',
   }),
   Amenity: helpers.many(amenities, { relationName: 'AmenityToTenant' }),
+  SecurityAlert: helpers.many(securityAlerts, { relationName: 'SecurityAlertToTenant' }),
+  SecurityContact: helpers.many(securityContacts, { relationName: 'SecurityContactToTenant' }),
   BillingAdjustment: helpers.many(billingAdjustments, {
     relationName: 'BillingAdjustmentToTenant',
   }),
@@ -260,6 +262,4 @@ export const tenantsRelations = relations(tenants, helpers => ({
   }),
   meetingProxies: helpers.many(meetingProxies, { relationName: 'MeetingProxyToTenant' }),
   AgentReview: helpers.many(agentReviews, { relationName: 'AgentReviewToTenant' }),
-  SecurityAlert: helpers.many(securityAlerts, { relationName: 'SecurityAlertToTenant' }),
-  SecurityContact: helpers.many(securityContacts, { relationName: 'SecurityContactToTenant' }),
 }));

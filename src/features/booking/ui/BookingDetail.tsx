@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import Image from 'next/image';
 import { ChevronLeft, Clock, Users, Info } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
 import type { AmenityWithStatus, TimeSlot } from '@entities/amenity';
@@ -192,9 +193,15 @@ export function BookingDetail({
 
       <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
         {/* Header with icon/photo */}
-        <div className="h-[140px] bg-green-100 flex items-center justify-center">
+        <div className="relative h-[140px] bg-green-100 flex items-center justify-center">
           {amenity.photoUrl ? (
-            <img src={amenity.photoUrl} alt={amenity.name} className="w-full h-full object-cover" />
+            <Image
+              src={amenity.photoUrl}
+              alt={amenity.name}
+              fill
+              className="object-cover"
+              unoptimized
+            />
           ) : (
             <i className={`ti ti-${amenity.icon} text-5xl text-green-600`} aria-hidden="true" />
           )}

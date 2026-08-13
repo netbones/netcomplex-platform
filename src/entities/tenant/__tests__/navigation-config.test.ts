@@ -29,6 +29,7 @@ const defaultFlags: PlatformPageFlags = {
   disputes: false,
   dWallet: false,
   bookings: true,
+  security: true,
   messages: true,
   providers: true,
   marketplacePaypal: false,

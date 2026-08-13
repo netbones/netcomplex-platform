@@ -145,6 +145,7 @@ describe('Mapping completeness', () => {
     'messages',
     'dWallet',
     'merits',
+    'security',
   ];
 
   describe('FEATURE_TO_MODULE', () => {
@@ -163,8 +164,8 @@ describe('Mapping completeness', () => {
       }
     });
 
-    it('should have exactly 16 entries (one per FeatureKey)', () => {
-      expect(Object.keys(FEATURE_TO_MODULE)).toHaveLength(16);
+    it('should have exactly 17 entries (one per FeatureKey)', () => {
+      expect(Object.keys(FEATURE_TO_MODULE)).toHaveLength(17);
     });
   });
 
@@ -197,6 +198,7 @@ describe('Mapping completeness', () => {
         dWallet: false,
         providers: true,
         bookings: true,
+        security: true,
         messages: true,
         disputes: false,
         marketplacePaypal: false,
@@ -210,8 +212,8 @@ describe('Mapping completeness', () => {
       }
     });
 
-    it('should have exactly 15 entries (one per FeatureKey)', () => {
-      expect(Object.keys(FEATURE_TO_FLAG).length).toBeGreaterThan(0);
+    it('should have exactly 17 entries (one per FeatureKey)', () => {
+      expect(Object.keys(FEATURE_TO_FLAG)).toHaveLength(17);
     });
   });
 
@@ -231,8 +233,8 @@ describe('Mapping completeness', () => {
       }
     });
 
-    it('should have exactly 16 entries (one per FeatureKey)', () => {
-      expect(Object.keys(FEATURE_TO_REGISTRY)).toHaveLength(16);
+    it('should have exactly 17 entries (one per FeatureKey)', () => {
+      expect(Object.keys(FEATURE_TO_REGISTRY)).toHaveLength(17);
     });
   });
 
@@ -273,6 +275,7 @@ const ALL_FLAGS_ENABLED: PlatformPageFlags = {
   disputes: true,
   providers: true,
   bookings: true,
+  security: true,
   messages: true,
   marketplacePaypal: false,
   headerLinks: ['directory', 'groups', 'services', 'resources'],

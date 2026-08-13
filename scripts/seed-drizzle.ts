@@ -801,6 +801,12 @@ async function main() {
       defaultEnabled: true,
       minTier: 'STANDARD' as const,
     },
+    {
+      key: 'security',
+      label: 'Security',
+      defaultEnabled: true,
+      minTier: 'STANDARD' as const,
+    },
     { key: 'dWallet', label: 'dWallet', defaultEnabled: false, minTier: 'PREMIUM' as const },
     {
       key: 'agent-marketplace',

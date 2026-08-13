@@ -9,7 +9,7 @@ import {
   generateTimeSlots,
   parseDateKey,
 } from '@entities/amenity';
-import type { Amenity } from '@entities/amenity';
+import type { Amenity, AmenityCalendarColor } from '@entities/amenity';
 import { and, asc, desc, eq, gte, inArray, isNotNull, isNull, lt } from 'drizzle-orm';
 
 /** Catalog fallback TTL — primary freshness via `CACHE_TAGS.AMENITIES` invalidation. */
@@ -170,10 +170,15 @@ export const getUserAmenityBookings = unstable_cache(
   }
 );
 
+export interface CalendarAmenity extends Amenity {
+  calendarColor: AmenityCalendarColor;
+  colorIndex: number;
+}
+
 export interface CalendarMonthPayload {
   year: number;
   month: number;
-  amenities: ReturnType<typeof assignCalendarColors>;
+  amenities: CalendarAmenity[];
   days: Record<string, string[]>;
   dotCap: number;
 }

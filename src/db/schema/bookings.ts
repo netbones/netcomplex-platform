@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, date } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 import { bookingStatusEnum } from './booking-status-enum';
 
 export const bookings = pgTable('Booking', {
@@ -8,7 +8,7 @@ export const bookings = pgTable('Booking', {
   propertyId: text('propertyId'),
   userId: text('userId').notNull(),
   facility: text('facility'),
-  date: date('date', { mode: 'date' }).notNull(),
+  date: timestamp('date', { mode: 'date', precision: 3 }).notNull(),
   startTime: text('startTime').notNull(),
   endTime: text('endTime').notNull(),
   startAt: timestamp('startAt', { mode: 'date', precision: 3 }),

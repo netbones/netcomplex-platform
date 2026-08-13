@@ -11,8 +11,8 @@ import { propertyListings } from './property-listings';
 import { propertyPremiumSeats } from './property-premium-seats';
 import { residentDelegations } from './resident-delegations';
 import { soloSeats } from './solo-seats';
-import { standardSeats } from './standard-seats';
 import { securityAlerts } from './security-alerts';
+import { standardSeats } from './standard-seats';
 
 export const propertiesRelations = relations(properties, helpers => ({
   agentAccess: helpers.many(agentAccesses, { relationName: 'AgentAccessToProperty' }),
@@ -44,6 +44,6 @@ export const propertiesRelations = relations(properties, helpers => ({
     relationName: 'PropertyToResidentDelegation',
   }),
   soloSeat: helpers.many(soloSeats, { relationName: 'PropertyToSoloSeat' }),
-  standardSeat: helpers.many(standardSeats, { relationName: 'PropertyToStandardSeat' }),
   SecurityAlert: helpers.many(securityAlerts, { relationName: 'PropertyToSecurityAlert' }),
+  standardSeat: helpers.many(standardSeats, { relationName: 'PropertyToStandardSeat' }),
 }));
