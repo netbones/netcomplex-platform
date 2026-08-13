@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { db, apiSuccess, apiError, withErrorHandler } from '@api/server';
+import { db, apiSuccess, apiError, withErrorHandler, revalidateAmenities } from '@api/server';
 import { requireAuth } from '@/shared/api/auth-utils';
 import { withTenant, assertModuleEnabled } from '@entities/tenant/server';
 import { amenities } from '@/db/schema/amenities';
@@ -49,5 +49,6 @@ export const PATCH = withErrorHandler(async (request: NextRequest) => {
     )
   );
 
+  revalidateAmenities();
   return apiSuccess({ success: true });
 });

@@ -1,5 +1,12 @@
 import { NextRequest } from 'next/server';
-import { db, apiSuccess, apiError, apiInternalError, withErrorHandler } from '@api/server';
+import {
+  db,
+  apiSuccess,
+  apiError,
+  apiInternalError,
+  withErrorHandler,
+  revalidateAmenities,
+} from '@api/server';
 import { requireAuth } from '@/shared/api/auth-utils';
 import { withTenant, assertModuleEnabled } from '@entities/tenant/server';
 import { amenities } from '@/db/schema/amenities';
@@ -82,6 +89,7 @@ export const PATCH = withErrorHandler(async (request: NextRequest, context: Rout
       .set({ active: body.active, updatedAt: now })
       .where(and(eq(amenities.id, id), eq(amenities.tenantId, tenantId)));
     const updated = await loadAmenity(tenantId, id);
+    revalidateAmenities();
     return apiSuccess(updated);
   }
 
@@ -104,6 +112,7 @@ export const PATCH = withErrorHandler(async (request: NextRequest, context: Rout
   }
 
   const updated = await loadAmenity(tenantId, id);
+  revalidateAmenities();
   return apiSuccess(updated);
 });
 
@@ -131,5 +140,6 @@ export const DELETE = withErrorHandler(async (request: NextRequest, context: Rou
 
   await db.delete(amenities).where(and(eq(amenities.id, id), eq(amenities.tenantId, tenantId)));
 
+  revalidateAmenities();
   return apiSuccess({ success: true });
 });

@@ -1,5 +1,12 @@
 import { NextRequest } from 'next/server';
-import { db, apiSuccess, apiError, apiInternalError, withErrorHandler } from '@api/server';
+import {
+  db,
+  apiSuccess,
+  apiError,
+  apiInternalError,
+  withErrorHandler,
+  revalidateAmenities,
+} from '@api/server';
 import { requireAuth } from '@/shared/api/auth-utils';
 import { withTenant, assertModuleEnabled } from '@entities/tenant/server';
 import { amenities } from '@/db/schema/amenities';
@@ -160,5 +167,6 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
   }
 
   const [created] = await db.select().from(amenities).where(eq(amenities.id, id)).limit(1);
+  revalidateAmenities();
   return apiSuccess(created, undefined, 201);
 });

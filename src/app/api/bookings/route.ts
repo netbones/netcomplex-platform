@@ -2,6 +2,7 @@ import { requireAuth } from '@/shared/api/auth-utils';
 
 import {
   revalidateDashboard,
+  revalidateAmenityAvailability,
   apiCreated,
   apiError,
   apiInternalError,
@@ -155,6 +156,7 @@ export async function POST(request: Request) {
       });
 
       revalidateDashboard();
+      revalidateAmenityAvailability();
 
       emitEvent('booking.created', {
         tenantId,

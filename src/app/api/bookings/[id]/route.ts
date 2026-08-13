@@ -9,6 +9,8 @@ import {
   now,
   notDeleted,
   withErrorHandler,
+  revalidateDashboard,
+  revalidateAmenityAvailability,
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
@@ -50,7 +52,12 @@ export const DELETE = withErrorHandler(
     const { tenantId } = await withTenant();
 
     const [booking] = await db
-      .select({ id: bookings.id, userId: bookings.userId, status: bookings.status })
+      .select({
+        id: bookings.id,
+        userId: bookings.userId,
+        status: bookings.status,
+        amenityId: bookings.amenityId,
+      })
       .from(bookings)
       .where(and(eq(bookings.id, id), eq(bookings.tenantId, tenantId), notDeleted(bookings)))
       .limit(1);
@@ -66,6 +73,11 @@ export const DELETE = withErrorHandler(
       .update(bookings)
       .set({ status: 'CANCELLED', cancelledAt: now(), updatedAt: now() })
       .where(eq(bookings.id, booking.id));
+
+    revalidateDashboard();
+    if (booking.amenityId) {
+      revalidateAmenityAvailability();
+    }
 
     return apiSuccess({ success: true });
   }

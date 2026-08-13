@@ -33,6 +33,10 @@ export default defineConfig({
         replacement: path.resolve(__dirname, './src/entities/booking/index.server'),
       },
       {
+        find: '@entities/amenity/server',
+        replacement: path.resolve(__dirname, './src/entities/amenity/index.server'),
+      },
+      {
         find: '@entities/dispute/server',
         replacement: path.resolve(__dirname, './src/entities/dispute/index.server'),
       },

@@ -1,8 +1,7 @@
-import { auth, db, apiSuccess, apiInternalError, withErrorHandler } from '@api/server';
-import { amenities } from '@/db/schema/amenities';
-import { eq, and, asc } from 'drizzle-orm';
+import { auth, apiSuccess, withErrorHandler } from '@api/server';
 import { withTenant, assertModuleEnabled } from '@entities/tenant/server';
 import { computeAmenityStatus } from '@entities/amenity';
+import { getActiveAmenitiesCatalog } from '@entities/amenity/server';
 
 export const maxDuration = 8;
 
@@ -11,21 +10,9 @@ export const GET = withErrorHandler(async (_request: Request) => {
   await assertModuleEnabled('bookings');
 
   const { tenantId } = await withTenant();
+  const results = await getActiveAmenitiesCatalog(tenantId);
 
-  const results = await db
-    .select()
-    .from(amenities)
-    .where(and(eq(amenities.tenantId, tenantId), eq(amenities.active, true)))
-    .orderBy(asc(amenities.sortOrder));
-
-  const amenitiesWithStatus = results.map(amenity =>
-    computeAmenityStatus({
-      ...amenity,
-      createdAt: amenity.createdAt ?? new Date(),
-      updatedAt: amenity.updatedAt ?? new Date(),
-      deletedAt: amenity.deletedAt ?? null,
-    })
-  );
+  const amenitiesWithStatus = results.map(amenity => computeAmenityStatus(amenity));
 
   return apiSuccess(amenitiesWithStatus);
 });

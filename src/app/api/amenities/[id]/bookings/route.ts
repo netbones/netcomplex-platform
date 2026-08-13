@@ -1,7 +1,6 @@
-import { db, apiSuccess, apiError, withErrorHandler } from '@api/server';
-import { bookings } from '@/db/schema/bookings';
-import { eq, and } from 'drizzle-orm';
+import { apiSuccess, apiError, withErrorHandler } from '@api/server';
 import { withTenant, assertModuleEnabled } from '@entities/tenant/server';
+import { getAmenityBookingsForDate } from '@entities/amenity/server';
 
 export const maxDuration = 8;
 
@@ -18,22 +17,7 @@ export const GET = withErrorHandler(
       return apiError('MISSING_PARAM', 'Missing date parameter', 400);
     }
 
-    const dateObj = new Date(dateStr);
-
-    const results = await db
-      .select({
-        startTime: bookings.startTime,
-        endTime: bookings.endTime,
-      })
-      .from(bookings)
-      .where(
-        and(
-          eq(bookings.tenantId, tenantId),
-          eq(bookings.amenityId, amenityId),
-          eq(bookings.date, dateObj),
-          eq(bookings.status, 'CONFIRMED')
-        )
-      );
+    const results = await getAmenityBookingsForDate(tenantId, amenityId, dateStr);
 
     return apiSuccess(results);
   }

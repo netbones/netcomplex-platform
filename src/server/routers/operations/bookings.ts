@@ -7,6 +7,7 @@ import {
   bookings,
   users,
   revalidateDashboard,
+  revalidateAmenityAvailability,
   emitEvent,
   now,
 } from '@api/server';
@@ -286,6 +287,9 @@ export const bookingsRouter = router({
         .returning();
 
       revalidateDashboard();
+      if (booking.amenityId) {
+        revalidateAmenityAvailability();
+      }
 
       return toEnvelope({ success: true, booking: bookingDto.parse(updated) });
     }),

@@ -17,6 +17,8 @@ export const CACHE_TAGS = {
   STATS: 'stats',
   MAINTENANCE: 'maintenance',
   BOOKINGS: 'bookings',
+  AMENITIES: 'amenities',
+  AMENITY_AVAILABILITY: 'amenity-availability',
   MESSAGES: 'messages',
   NOTIFICATIONS: 'notifications',
   CONTENT: 'content',
@@ -47,6 +49,32 @@ export function revalidateDashboard() {
   revalidatePath('/api/bookings');
   revalidatePath('/api/conversations');
   revalidatePath('/api/notifications');
+}
+
+/**
+ * Revalidate resident amenity catalog caches (admin CRUD, reorder, activate/deactivate).
+ * Tag invalidation reaches every `unstable_cache` wrapper that declared
+ * `CACHE_TAGS.AMENITIES`; path sweep covers ISR'd `/amenities` surface.
+ */
+export function revalidateAmenities(): void {
+  revalidateTag(CACHE_TAGS.AMENITIES);
+  // Catalog shape (names, hours, bookable flag, sort order) feeds calendar surfaces.
+  revalidateTag(CACHE_TAGS.AMENITY_AVAILABILITY);
+  revalidatePath('/amenities');
+  revalidatePath('/api/amenities');
+  revalidatePath('/api/amenities/calendar');
+  revalidatePath('/api/amenities/calendar/day');
+}
+
+/**
+ * Revalidate slot/calendar availability caches after booking mutations.
+ * Uses a short TTL as a safety net; tag invalidation gives immediate freshness.
+ */
+export function revalidateAmenityAvailability(): void {
+  revalidateTag(CACHE_TAGS.AMENITY_AVAILABILITY);
+  revalidatePath('/api/amenities/calendar');
+  revalidatePath('/api/amenities/calendar/day');
+  revalidatePath('/api/amenities/bookings');
 }
 
 /**
