@@ -4,3 +4,4 @@ export { TenantFeaturePage } from './ui/TenantFeaturePage';
 export { NewTenantPage } from './ui/NewTenantPage';
 export * from './surveys';
 export * from './merits';
+export * from './amenities';

@@ -19,6 +19,7 @@ import {
   Tag,
   CalendarPlus,
   Check,
+  Building2,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -101,6 +102,13 @@ const EXTENDED_SHORTCUTS: ShortcutDef[] = [
     icon: Users,
     href: '/admin/groups?action=new',
     flag: 'groups',
+  },
+  {
+    id: 'manage-amenities',
+    label: 'Manage Amenities',
+    icon: Building2,
+    href: '/admin/amenities',
+    flag: 'bookings',
   },
   {
     id: 'new-booking',

@@ -70,6 +70,7 @@ Audit evidence in the advisory. Cross-cutting with `z76s` (platform hardening) a
 | `sm23` | task    | Agent Gateway: Phase 111 ADDENDUM gaps                                                 | ○      |
 | `hh1t` | feature | Provider Platform: Paystack/PayPal gateway integration — remote subscription lifecycle | ○      |
 | `5m7l` | task    | Confirm Schedule F Table 2 revenue share % with anchor tenant (dWallet addendum)       | ○      |
+| `bvlu` | feature | Admin Amenities console — CRUD, reorder, stats, delete-if-no-bookings                  | ✅     |
 
 ---
 
