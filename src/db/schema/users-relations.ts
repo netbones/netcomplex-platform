@@ -63,6 +63,8 @@ import { passkeys } from './passkeys';
 import { sessions } from './sessions';
 import { twoFactors } from './two-factors';
 import { meetingProxies } from './meeting-proxies';
+import { securityAlerts } from './security-alerts';
+import { securityContacts } from './security-contacts';
 
 export const usersRelations = relations(users, helpers => ({
   agentAccess_agentAccess_agentIdTouser: helpers.many(agentAccesses, {
@@ -187,4 +189,16 @@ export const usersRelations = relations(users, helpers => ({
   meetingProxiesOwner: helpers.many(meetingProxies, { relationName: 'MeetingProxyOwner' }),
   meetingProxiesProxy: helpers.many(meetingProxies, { relationName: 'MeetingProxyProxy' }),
   meetingProxiesApprover: helpers.many(meetingProxies, { relationName: 'MeetingProxyApprover' }),
+  securityAlertsTriggered: helpers.many(securityAlerts, {
+    relationName: 'SecurityAlertTriggeredBy',
+  }),
+  securityAlertsAcknowledged: helpers.many(securityAlerts, {
+    relationName: 'SecurityAlertAcknowledgedBy',
+  }),
+  securityAlertsResolved: helpers.many(securityAlerts, {
+    relationName: 'SecurityAlertResolvedBy',
+  }),
+  securityContactsCreated: helpers.many(securityContacts, {
+    relationName: 'SecurityContactCreatedBy',
+  }),
 }));

@@ -1,0 +1,66 @@
+enum SecurityAlertType {
+  PANIC
+  ANONYMOUS_TIP
+}
+
+enum SecurityAlertStatus {
+  SENT
+  ACKNOWLEDGED
+  RESPONDING
+  RESOLVED
+  FAILED
+}
+
+enum SecurityContactType {
+  INTERNAL_SECURITY
+  EMERGENCY_SERVICES
+  ARMED_RESPONSE
+}
+
+model SecurityAlert {
+  id                    String              @id @default(uuid())
+  tenantId              String
+  propertyId            String?
+  triggeredByUserId     String?
+  alertType             SecurityAlertType
+  latitude              Decimal?            @db.Decimal(10, 7)
+  longitude             Decimal?            @db.Decimal(10, 7)
+  locationAccuracyM     Decimal?            @db.Decimal(8, 2)
+  withinBoundary        Boolean?
+  message               String?
+  status                SecurityAlertStatus @default(SENT)
+  createdAt             DateTime            @default(now())
+  acknowledgedAt        DateTime?
+  acknowledgedByUserId  String?
+  resolvedAt            DateTime?
+  resolvedByUserId      String?
+  updatedAt             DateTime            @default(now()) @updatedAt
+
+  tenant              Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  property            Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  triggeredByUser     user?     @relation("SecurityAlertTriggeredBy", fields: [triggeredByUserId], references: [id], onDelete: SetNull)
+  acknowledgedByUser  user?     @relation("SecurityAlertAcknowledgedBy", fields: [acknowledgedByUserId], references: [id], onDelete: SetNull)
+  resolvedByUser        user?     @relation("SecurityAlertResolvedBy", fields: [resolvedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, status, createdAt])
+  @@index([tenantId, alertType, createdAt])
+  @@index([triggeredByUserId])
+}
+
+model SecurityContact {
+  id                 String              @id @default(uuid())
+  tenantId           String
+  label              String
+  phone              String
+  contactType        SecurityContactType
+  isDefaultCallTarget Boolean            @default(false)
+  createdByUserId    String
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @default(now()) @updatedAt
+
+  tenant        Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdByUser user   @relation("SecurityContactCreatedBy", fields: [createdByUserId], references: [id], onDelete: Restrict)
+
+  @@index([tenantId])
+  @@index([tenantId, isDefaultCallTarget])
+}

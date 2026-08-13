@@ -106,6 +106,10 @@ model Tenant {
   // ── Amenities ──
   Amenity                 Amenity[]
 
+  // ── Security ──
+  SecurityAlert           SecurityAlert[]
+  SecurityContact         SecurityContact[]
+
   // ── Batch B back-links (Maintenance & Providers + Billing & Commerce) ──
   BillingAdjustment       BillingAdjustment[]
   BillingEvent            BillingEvent[]

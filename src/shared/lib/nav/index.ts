@@ -47,6 +47,12 @@ export const NAV_REGISTRY: NavItem[] = [
     flag: 'maintenance',
     permission: 'requests',
   },
+  {
+    id: 'security',
+    nameKey: 'nav.security',
+    href: '/security',
+    flag: 'security',
+  },
 
   // ═══════════════════════════════════════════════════════════════
   // DASHBOARD FOCUS SPACES (Phase 30-B)

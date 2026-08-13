@@ -29,7 +29,8 @@ export type FeatureKey =
   | 'conservation'
   | 'services'
   | 'messages'
-  | 'merits';
+  | 'merits'
+  | 'security';
 
 export type GateReason = 'role' | 'tier' | 'module' | 'flag' | 'feature' | 'allowed';
 
@@ -65,6 +66,7 @@ export const FEATURE_TO_MODULE: Record<FeatureKey, string | null> = {
   messages: 'chat',
   competitions: null,
   merits: 'merits',
+  security: 'security',
 };
 
 type PlatformPageFlagKey = keyof PlatformPageFlags;
@@ -86,6 +88,7 @@ export const FEATURE_TO_FLAG: Record<FeatureKey, PlatformPageFlagKey | null> = {
   competitions: 'competitions',
   messages: 'messages',
   merits: null,
+  security: 'security',
 };
 
 export const FEATURE_TO_REGISTRY: Record<FeatureKey, string | null> = {
@@ -105,6 +108,7 @@ export const FEATURE_TO_REGISTRY: Record<FeatureKey, string | null> = {
   messages: 'page.chat',
   competitions: null,
   merits: 'page.merits',
+  security: 'page.security',
 };
 
 export const GATE_REASON_TO_ERROR: Record<GateReason, string> = {

@@ -102,6 +102,13 @@ const modules = [
     description: 'Book community facilities',
   },
   {
+    key: 'security',
+    label: 'Security & Panic',
+    minTier: tierMap.STANDARD,
+    defaultEnabled: true,
+    description: 'Community security panic button and emergency contacts',
+  },
+  {
     key: 'premium-seats',
     label: 'Premium Seats',
     minTier: tierMap.PREMIUM,

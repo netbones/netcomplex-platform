@@ -101,6 +101,8 @@ import { tenantSetups } from './tenant-setups';
 import { tenantFeatureFlags } from './tenant-feature-flags';
 import { meetingProxies } from './meeting-proxies';
 import { agentReviews } from './agent-reviews';
+import { securityAlerts } from './security-alerts';
+import { securityContacts } from './security-contacts';
 
 export const tenantsRelations = relations(tenants, helpers => ({
   owner: helpers.one(users, {
@@ -258,4 +260,6 @@ export const tenantsRelations = relations(tenants, helpers => ({
   }),
   meetingProxies: helpers.many(meetingProxies, { relationName: 'MeetingProxyToTenant' }),
   AgentReview: helpers.many(agentReviews, { relationName: 'AgentReviewToTenant' }),
+  SecurityAlert: helpers.many(securityAlerts, { relationName: 'SecurityAlertToTenant' }),
+  SecurityContact: helpers.many(securityContacts, { relationName: 'SecurityContactToTenant' }),
 }));

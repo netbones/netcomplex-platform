@@ -37,6 +37,10 @@ export default defineConfig({
         replacement: path.resolve(__dirname, './src/entities/amenity/index.server'),
       },
       {
+        find: '@entities/security/server',
+        replacement: path.resolve(__dirname, './src/entities/security/index.server'),
+      },
+      {
         find: '@entities/dispute/server',
         replacement: path.resolve(__dirname, './src/entities/dispute/index.server'),
       },
@@ -59,6 +63,10 @@ export default defineConfig({
       { find: '@entities', replacement: path.resolve(__dirname, './src/entities') },
       { find: '@features', replacement: path.resolve(__dirname, './src/features') },
       { find: '@widgets', replacement: path.resolve(__dirname, './src/widgets') },
+      {
+        find: '@pages/admin/server',
+        replacement: path.resolve(__dirname, './src/page-modules/admin/server'),
+      },
       { find: '@pages', replacement: path.resolve(__dirname, './src/page-modules') },
       { find: '@processes', replacement: path.resolve(__dirname, './src/processes') },
       { find: '@prisma', replacement: path.resolve(__dirname, './prisma/drizzle') },

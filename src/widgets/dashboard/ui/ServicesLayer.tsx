@@ -10,11 +10,13 @@ import { DomainIconBadge } from './DomainIconBadge';
 
 const SERVICES_ROUTE_OVERRIDES: Record<string, string> = {
   disputes: '/disputes',
+  security: '/security',
 };
 
 const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.maintenance': 'Maintenance',
   'domains.amenities': 'Amenities',
+  'domains.security': 'Security',
   'domains.myServices': 'My Services',
   'domains.events': 'Events',
   'domains.surveys': 'Surveys',
@@ -22,6 +24,7 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.communication': 'Communication',
   'domains.descriptions.maintenance': 'Submit and track maintenance requests',
   'domains.descriptions.amenities': 'Book community facilities and amenities',
+  'domains.descriptions.security': 'Panic button and community security contacts',
   'domains.descriptions.myServices': 'View your service history and inquiries',
   'domains.descriptions.events': 'Upcoming community events',
   'domains.descriptions.surveys': 'Share your feedback',
@@ -229,7 +232,14 @@ export function ServicesLayer() {
 
   const isAdmin = role === 'ADMIN' || role === 'BOARD';
 
-  const coreDomainIds = ['maintenance', 'amenities', 'my-services', 'events', 'disputes'];
+  const coreDomainIds = [
+    'maintenance',
+    'amenities',
+    'security',
+    'my-services',
+    'events',
+    'disputes',
+  ];
   const engagementDomainIds = ['competitions', 'surveys', 'communication'];
 
   return (

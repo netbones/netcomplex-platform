@@ -1,4 +1,4 @@
-import { TenantFeaturePage } from '@pages/admin';
+import { TenantFeaturePage } from '@pages/admin/server';
 
 interface Props {
   params: Promise<{ id: string }>;

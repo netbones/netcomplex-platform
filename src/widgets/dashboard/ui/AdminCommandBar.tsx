@@ -20,6 +20,7 @@ import {
   CalendarPlus,
   Check,
   Building2,
+  ShieldAlert,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -109,6 +110,13 @@ const EXTENDED_SHORTCUTS: ShortcutDef[] = [
     icon: Building2,
     href: '/admin/amenities',
     flag: 'bookings',
+  },
+  {
+    id: 'security-dashboard',
+    label: 'Security Dashboard',
+    icon: ShieldAlert,
+    href: '/admin/security',
+    flag: 'security',
   },
   {
     id: 'new-booking',

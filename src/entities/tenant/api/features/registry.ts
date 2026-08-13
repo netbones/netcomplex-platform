@@ -83,6 +83,14 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
     description: 'Book community facilities',
     icon: 'calendar-check',
   },
+  'page.security': {
+    key: 'page.security',
+    tier: 'core',
+    category: 'page',
+    label: 'Security',
+    description: 'Panic button and community security contacts',
+    icon: 'shield',
+  },
   'page.conservation': {
     key: 'page.conservation',
     tier: 'core',

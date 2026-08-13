@@ -198,6 +198,10 @@ model user {
   meetingProxiesOwner                                   MeetingProxy[]            @relation("MeetingProxyOwner")
   meetingProxiesProxy                                   MeetingProxy[]            @relation("MeetingProxyProxy")
   meetingProxiesApprover                                MeetingProxy[]            @relation("MeetingProxyApprover")
+  securityAlertsTriggered                               SecurityAlert[]           @relation("SecurityAlertTriggeredBy")
+  securityAlertsAcknowledged                            SecurityAlert[]           @relation("SecurityAlertAcknowledgedBy")
+  securityAlertsResolved                                SecurityAlert[]           @relation("SecurityAlertResolvedBy")
+  securityContactsCreated                               SecurityContact[]         @relation("SecurityContactCreatedBy")
 }
 
 model Profile {
@@ -645,6 +649,7 @@ model Property {
   PropertyPremiumSeat PropertyPremiumSeat[]
   residentDelegations ResidentDelegation[]
   soloSeat            SoloSeat[]
+  SecurityAlert       SecurityAlert[]
   standardSeat        StandardSeat[]
 
   @@index([ownerId])

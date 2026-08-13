@@ -45,7 +45,7 @@ export function Footer() {
     item =>
       isNavItemVisible(item, flags, role) &&
       !item.id.startsWith('dashboard') &&
-      !['dashboard', 'bookings', 'messages', 'maintenance'].includes(item.id)
+      !['dashboard', 'bookings', 'messages', 'maintenance', 'security'].includes(item.id)
   );
 
   return (
@@ -105,7 +105,7 @@ export function Footer() {
               )}
               <li>
                 <Link
-                  href="/services#security"
+                  href="/security"
                   className="text-gray-300 hover:text-soralia-accent transition-colors text-sm"
                 >
                   {t('footer.security')}

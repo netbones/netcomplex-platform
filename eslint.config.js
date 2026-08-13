@@ -54,8 +54,9 @@ export default tseslint.config(
               message: 'Use public API from @widgets/<slice> instead of deep imports.',
             },
             {
-              group: ['@pages/*/*'],
-              message: 'Use public API from @pages/<slice> instead of deep imports.',
+              regex: '^@pages/(?!.*/server$)[^/]+/[^/@]',
+              message:
+                'Use public API from @pages/<slice> instead of deep imports. For server-only exports, use @pages/<slice>/server.',
             },
             {
               group: ['@processes/*/*'],
@@ -101,8 +102,9 @@ export default tseslint.config(
               message: 'Use public API from @widgets/<slice> instead of deep imports.',
             },
             {
-              group: ['@pages/*/*'],
-              message: 'Use public API from @pages/<slice> instead of deep imports.',
+              regex: '^@pages/(?!.*/server$)[^/]+/[^/@]',
+              message:
+                'Use public API from @pages/<slice> instead of deep imports. For server-only exports, use @pages/<slice>/server.',
             },
             {
               group: ['@processes/*/*'],

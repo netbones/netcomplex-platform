@@ -45,7 +45,8 @@
     "community": "Community",
     "mySpace": "My Space",
     "administration": "Administration",
-    "amenities": "Bookings"
+    "amenities": "Bookings",
+    "security": "Security"
   },
   "spaces": {
     "home": "Home",

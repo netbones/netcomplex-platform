@@ -41,6 +41,13 @@ export const SERVICES_DOMAIN_DEFINITIONS: ServicesDomainDef[] = [
     description: 'Book community facilities and amenities',
   },
   {
+    id: 'security',
+    labelKey: 'domains.security',
+    descriptionKey: 'domains.descriptions.security',
+    icon: '/platform/merits.svg',
+    description: 'Panic button and community security contacts',
+  },
+  {
     id: 'my-services',
     labelKey: 'domains.myServices',
     descriptionKey: 'domains.descriptions.myServices',
