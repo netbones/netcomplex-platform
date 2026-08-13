@@ -41,6 +41,10 @@ export default defineConfig({
         replacement: path.resolve(__dirname, './src/entities/security/index.server'),
       },
       {
+        find: '@entities/access-control/server',
+        replacement: path.resolve(__dirname, './src/entities/access-control/index.server'),
+      },
+      {
         find: '@entities/dispute/server',
         replacement: path.resolve(__dirname, './src/entities/dispute/index.server'),
       },

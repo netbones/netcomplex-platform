@@ -56,6 +56,7 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.bookings': 'Bookings',
   'domains.amenities': 'Amenities',
   'domains.security': 'Security',
+  'domains.accessControl': 'Access control',
   'domains.services': 'Services',
   'domains.carousel': 'Carousel',
   'domains.dwallet': 'dWallet',
@@ -79,6 +80,8 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.descriptions.adminBookings': 'Manage bookable facilities and settings',
   'domains.descriptions.adminAmenities': 'Create, reorder, and manage community amenities',
   'domains.descriptions.adminSecurity': 'Panic alerts, security contacts, and anonymous tips',
+  'domains.descriptions.adminAccessControl':
+    'Live access stream, manual entry, and visitor audit log',
   'domains.descriptions.gallery': 'Manage system gallery images',
   'domains.teams': 'Teams',
   'domains.descriptions.teams': 'Manage in-house maintenance teams',

@@ -8,7 +8,7 @@
 > `soralia-village-zbvq` (401 hotfix, committed), `soralia-village-0jh1` (Setup Center).
 > Docs: `docs/advisories/ADVISORY-031.md` (supersedes ADVISORY-030), `ONBOARDING_REFACTOR.md`.
 
-> **Last updated:** 2026-08-08 (Session 20 — Agent Reviews delivered + migration tooling bugs filed)
+> **Last updated:** 2026-08-13 (Security domain shell shipped; go-live + v1.1 follow-ups filed)
 > **Total remaining:** 50 issues (49 open, 1 in-progress)
 > **Note:** BD is for quick fixes and small tasks. **Any BD issue touching 5+ files across multiple FSD slices, or requiring new directories/types, is GSD territory — escalate it.**
 
@@ -70,6 +70,9 @@ Audit evidence in the advisory. Cross-cutting with `z76s` (platform hardening) a
 | `sm23` | task    | Agent Gateway: Phase 111 ADDENDUM gaps                                                 | ○      |
 | `hh1t` | feature | Provider Platform: Paystack/PayPal gateway integration — remote subscription lifecycle | ○      |
 | `5m7l` | task    | Confirm Schedule F Table 2 revenue share % with anchor tenant (dWallet addendum)       | ○      |
+| `bxh6` | task    | Security v1 go-live: dispatch, seed, legal, UAT                                        | ○      |
+| `xpwe` | feature | Security domain: panic button, contacts, and admin dashboard shell                     | ✅     |
+| `3o6b` | feature | Access Control domain — visitors, codes, inbox, admin stream                           | ◐      |
 | `bvlu` | feature | Admin Amenities console — CRUD, reorder, stats, delete-if-no-bookings                  | ✅     |
 | `6lg2` | feature | Amenities Calendar tab — month grid, filter chips, day agenda                          | ✅     |
 
@@ -133,6 +136,7 @@ Phase 47 is an **M5 optional addendum** (not launch-blocking). dWallet requires 
 
 | ID     | Title                                                                    | Status | Source                   |
 | ------ | ------------------------------------------------------------------------ | ------ | ------------------------ |
+| `ngjk` | Security v1.1: Call resident + tip photo                                 | ○      | INSTRUCTIONS_SECURITY    |
 | `dvex` | Remove dual-write to Tenant.featureFlags JSONB after migration confirmed | ○      | Phase 44 follow-up       |
 | `qzll` | Incomplete v1 API migration — flat legacy routes still primary           | ○      | API_REVIEW.md finding #6 |
 | `3m0h` | REST routes: missing rate limiting on mutation endpoints                 | ○      | API_REVIEW.md finding #5 |
@@ -191,6 +195,12 @@ Phase 47 is an **M5 optional addendum** (not launch-blocking). dWallet requires 
 ---
 
 ## Closed Recently
+
+### Session — Security shell (2026-08-13)
+
+| ID     | Title                                                              | Reason                                    |
+| ------ | ------------------------------------------------------------------ | ----------------------------------------- |
+| `xpwe` | Security domain: panic button, contacts, and admin dashboard shell | Shell shipped; follow-ups `bxh6` / `ngjk` |
 
 ### Session 18 — BD.md Reconciliation (14+ closed)
 

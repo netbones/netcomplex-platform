@@ -91,6 +91,14 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
     description: 'Panic button and community security contacts',
     icon: 'shield',
   },
+  'page.accessControl': {
+    key: 'page.accessControl',
+    tier: 'core',
+    category: 'page',
+    label: 'Access Control',
+    description: 'Visitor and vehicle gate access codes and live requests',
+    icon: 'shield-check',
+  },
   'page.conservation': {
     key: 'page.conservation',
     tier: 'core',

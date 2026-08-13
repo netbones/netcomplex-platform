@@ -67,6 +67,11 @@ import { walletTransactions } from './wallet-transactions';
 import { amenities } from './amenities';
 import { securityAlerts } from './security-alerts';
 import { securityContacts } from './security-contacts';
+import { visitors } from './visitors';
+import { accessCodes } from './access-codes';
+import { accessRequests } from './access-requests';
+import { gates } from './gates';
+import { accessEvents } from './access-events';
 import { billingAdjustments } from './billing-adjustments';
 import { billingEvents } from './billing-events';
 import { billingPlans } from './billing-plans';
@@ -194,6 +199,11 @@ export const tenantsRelations = relations(tenants, helpers => ({
   Amenity: helpers.many(amenities, { relationName: 'AmenityToTenant' }),
   SecurityAlert: helpers.many(securityAlerts, { relationName: 'SecurityAlertToTenant' }),
   SecurityContact: helpers.many(securityContacts, { relationName: 'SecurityContactToTenant' }),
+  Visitor: helpers.many(visitors, { relationName: 'TenantToVisitor' }),
+  AccessCode: helpers.many(accessCodes, { relationName: 'AccessCodeToTenant' }),
+  AccessRequest: helpers.many(accessRequests, { relationName: 'AccessRequestToTenant' }),
+  Gate: helpers.many(gates, { relationName: 'GateToTenant' }),
+  AccessEvent: helpers.many(accessEvents, { relationName: 'AccessEventToTenant' }),
   BillingAdjustment: helpers.many(billingAdjustments, {
     relationName: 'BillingAdjustmentToTenant',
   }),

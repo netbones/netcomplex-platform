@@ -65,6 +65,9 @@ import { twoFactors } from './two-factors';
 import { meetingProxies } from './meeting-proxies';
 import { securityAlerts } from './security-alerts';
 import { securityContacts } from './security-contacts';
+import { visitors } from './visitors';
+import { accessRequests } from './access-requests';
+import { accessEvents } from './access-events';
 
 export const usersRelations = relations(users, helpers => ({
   agentAccess_agentAccess_agentIdTouser: helpers.many(agentAccesses, {
@@ -199,4 +202,9 @@ export const usersRelations = relations(users, helpers => ({
   securityContactsCreated: helpers.many(securityContacts, {
     relationName: 'SecurityContactCreatedBy',
   }),
+  visitorsRequested: helpers.many(visitors, { relationName: 'VisitorRequestedBy' }),
+  accessRequestsResponded: helpers.many(accessRequests, {
+    relationName: 'AccessRequestRespondedBy',
+  }),
+  accessEventsActed: helpers.many(accessEvents, { relationName: 'AccessEventActor' }),
 }));

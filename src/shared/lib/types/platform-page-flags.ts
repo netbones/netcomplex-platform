@@ -39,6 +39,7 @@ export interface PlatformPageFlags {
   providers: boolean;
   bookings: boolean;
   security: boolean;
+  accessControl: boolean;
   marketplacePaypal: boolean;
   messages: boolean;
   headerLinks: HeaderLinkId[];

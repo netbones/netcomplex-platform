@@ -34,6 +34,7 @@
       "@entities/booking/server": ["./src/entities/booking/index.server"],
       "@entities/amenity/server": ["./src/entities/amenity/index.server"],
       "@entities/security/server": ["./src/entities/security/index.server"],
+      "@entities/access-control/server": ["./src/entities/access-control/index.server"],
       "@entities/dwallet/server": ["./src/entities/dwallet/index.server"],
       "@entities/dispute/server": ["./src/entities/dispute/index.server"],
       "@entities/comment/server": ["./src/entities/comment/index.server"],

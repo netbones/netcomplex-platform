@@ -25,7 +25,8 @@ export type ModuleKey =
   | 'adminIntermediate'
   | 'adminAdvanced'
   | 'proxyVote'
-  | 'security';
+  | 'security'
+  | 'accessControl';
 
 export interface ModuleDefinition {
   key: ModuleKey;
@@ -203,6 +204,12 @@ export const MODULES: Record<ModuleKey, ModuleDefinition> = {
     description: 'Panic button and community security contacts',
     tier: 'core',
   },
+  accessControl: {
+    key: 'accessControl',
+    label: 'Access Control',
+    description: 'Visitor and vehicle gate access management',
+    tier: 'core',
+  },
 };
 
 export const TIERS: Record<TierLevel, TierDefinition> = {
@@ -227,6 +234,7 @@ export const TIERS: Record<TierLevel, TierDefinition> = {
       'surveys',
       'maintenance',
       'security',
+      'accessControl',
     ],
     limits: {
       announcements: 5,
@@ -256,6 +264,7 @@ export const TIERS: Record<TierLevel, TierDefinition> = {
       'surveys',
       'maintenance',
       'security',
+      'accessControl',
       'adminIntermediate',
       'surveysAdvanced',
       'marketplace',
@@ -291,6 +300,7 @@ export const TIERS: Record<TierLevel, TierDefinition> = {
       'surveys',
       'maintenance',
       'security',
+      'accessControl',
       'adminIntermediate',
       'surveysAdvanced',
       'marketplace',

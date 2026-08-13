@@ -1,3 +1,8 @@
+import * as visitors from './visitors';
+import * as accessCodes from './access-codes';
+import * as accessRequests from './access-requests';
+import * as gates from './gates';
+import * as accessEvents from './access-events';
 import * as amenities from './amenities';
 import * as bookings from './bookings';
 import * as accounts from './accounts';
@@ -133,6 +138,11 @@ import * as securityAlerts from './security-alerts';
 import * as securityContacts from './security-contacts';
 import * as tenants from './tenants';
 import * as tenantFeatureFlags from './tenant-feature-flags';
+import * as visitorsRelations from './visitors-relations';
+import * as accessCodesRelations from './access-codes-relations';
+import * as accessRequestsRelations from './access-requests-relations';
+import * as gatesRelations from './gates-relations';
+import * as accessEventsRelations from './access-events-relations';
 import * as amenitiesRelations from './amenities-relations';
 import * as bookingsRelations from './bookings-relations';
 import * as accountsRelations from './accounts-relations';
@@ -265,6 +275,11 @@ import * as tenantsRelations from './tenants-relations';
 import * as tenantFeatureFlagsRelations from './tenant-feature-flags-relations';
 
 export const schema = {
+  ...visitors,
+  ...accessCodes,
+  ...accessRequests,
+  ...gates,
+  ...accessEvents,
   ...amenities,
   ...bookings,
   ...accounts,
@@ -400,6 +415,11 @@ export const schema = {
   ...securityContacts,
   ...tenants,
   ...tenantFeatureFlags,
+  ...visitorsRelations,
+  ...accessCodesRelations,
+  ...accessRequestsRelations,
+  ...gatesRelations,
+  ...accessEventsRelations,
   ...amenitiesRelations,
   ...bookingsRelations,
   ...accountsRelations,

@@ -125,6 +125,12 @@ const SETTING_DEFS = [
     defaultValue: true,
   },
   {
+    dbKey: 'page_access_control_enabled',
+    flagKey: 'accessControl',
+    type: 'boolean',
+    defaultValue: true,
+  },
+  {
     dbKey: 'page_marketplace_paypal_enabled',
     flagKey: 'marketplacePaypal',
     type: 'boolean',
@@ -186,6 +192,7 @@ export const SETTINGS_KEYS = {
   PAGE_DWALLET_ENABLED: 'page_dwallet_enabled',
   PAGE_BOOKINGS_ENABLED: 'page_bookings_enabled',
   PAGE_SECURITY_ENABLED: 'page_security_enabled',
+  PAGE_ACCESS_CONTROL_ENABLED: 'page_access_control_enabled',
   PAGE_MARKETPLACE_PAYPAL_ENABLED: 'page_marketplace_paypal_enabled',
   PAGE_MESSAGES_ENABLED: 'page_messages_enabled',
   PAGE_PROVIDERS_ENABLED: 'page_providers_enabled',

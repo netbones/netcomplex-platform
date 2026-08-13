@@ -48,6 +48,13 @@ export const SERVICES_DOMAIN_DEFINITIONS: ServicesDomainDef[] = [
     description: 'Panic button and community security contacts',
   },
   {
+    id: 'access-control',
+    labelKey: 'domains.accessControl',
+    descriptionKey: 'domains.descriptions.accessControl',
+    icon: '/platform/merits.svg',
+    description: 'Visitor codes, access inbox, and gate requests',
+  },
+  {
     id: 'my-services',
     labelKey: 'domains.myServices',
     descriptionKey: 'domains.descriptions.myServices',

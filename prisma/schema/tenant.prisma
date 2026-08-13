@@ -110,6 +110,13 @@ model Tenant {
   SecurityAlert           SecurityAlert[]
   SecurityContact         SecurityContact[]
 
+  // ── Access Control ──
+  Visitor                 Visitor[]
+  AccessCode              AccessCode[]
+  AccessRequest           AccessRequest[]
+  Gate                    Gate[]
+  AccessEvent             AccessEvent[]
+
   // ── Batch B back-links (Maintenance & Providers + Billing & Commerce) ──
   BillingAdjustment       BillingAdjustment[]
   BillingEvent            BillingEvent[]

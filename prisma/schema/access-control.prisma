@@ -1,0 +1,177 @@
+// Access Control — visitor/vehicle gate access (docs/plans/INSTRUCTIONS_ACCESS_CONTROL.md)
+
+enum VisitorType {
+  WALK_IN
+  VEHICLE
+}
+
+enum VisitType {
+  SINGLE
+  RECURRING
+}
+
+enum VisitorStatus {
+  PENDING
+  ACTIVE
+  EXPIRED
+  CANCELLED
+  DENIED
+}
+
+enum AccessRequestStatus {
+  PENDING
+  ALLOWED
+  DENIED
+  EXPIRED
+}
+
+enum GateIntegrationType {
+  MANUAL
+  THIRD_PARTY_API
+}
+
+enum AccessEventState {
+  GRANTED
+  DENIED
+  PENDING
+}
+
+enum AccessEventMethod {
+  QR
+  CODE
+  MANUAL
+  ANPR
+  INTERCOM
+  AUTO_LIST
+}
+
+enum AccessEventActorType {
+  RESIDENT
+  MANAGER
+  AUTO_LIST
+  AUTO_DENY
+  GUARD
+  AWAITING_RESIDENT
+}
+
+model Visitor {
+  id                 String        @id @default(uuid())
+  tenantId           String
+  propertyId         String
+  requestedByUserId  String
+  fullName           String
+  phone              String?
+  photoUrl           String?
+  visitorType        VisitorType
+  vehicleReg         String?
+  roleLabel          String?
+  visitType          VisitType     @default(SINGLE)
+  validFrom          DateTime
+  validUntil         DateTime?
+  recurrenceRule     String?
+  status             VisitorStatus @default(PENDING)
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @default(now()) @updatedAt
+
+  tenant      Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  property    Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  requestedBy user          @relation("VisitorRequestedBy", fields: [requestedByUserId], references: [id], onDelete: Restrict)
+  accessCodes AccessCode[]
+  accessEvents AccessEvent[]
+
+  @@index([tenantId, propertyId, status])
+  @@index([tenantId, status, validFrom])
+  @@index([requestedByUserId])
+}
+
+model AccessCode {
+  id         String    @id @default(uuid())
+  tenantId   String
+  visitorId  String
+  code       String
+  qrPayload  String
+  shareUrl   String
+  usedAt     DateTime?
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+
+  tenant  Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  visitor Visitor @relation(fields: [visitorId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, code])
+  @@index([visitorId])
+  @@unique([tenantId, code])
+}
+
+model AccessRequest {
+  id                 String              @id @default(uuid())
+  tenantId           String
+  propertyId         String
+  gateId             String
+  visitorName        String
+  visitorPhotoUrl    String?
+  roleLabel          String?
+  vehicleReg         String?
+  status             AccessRequestStatus @default(PENDING)
+  requestedAt        DateTime            @default(now())
+  respondedAt        DateTime?
+  respondedByUserId  String?
+  expiresAt          DateTime
+
+  tenant      Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  property    Property       @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  gate        Gate           @relation(fields: [gateId], references: [id], onDelete: Restrict)
+  respondedBy user?          @relation("AccessRequestRespondedBy", fields: [respondedByUserId], references: [id], onDelete: SetNull)
+  accessEvents AccessEvent[]
+
+  @@index([tenantId, propertyId, status])
+  @@index([tenantId, status, expiresAt])
+  @@index([gateId])
+}
+
+model Gate {
+  id               String              @id @default(uuid())
+  tenantId         String
+  name             String
+  integrationType  GateIntegrationType @default(MANUAL)
+  active           Boolean             @default(true)
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @default(now()) @updatedAt
+
+  tenant         Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  accessRequests AccessRequest[]
+  accessEvents   AccessEvent[]
+
+  @@index([tenantId, active])
+}
+
+model AccessEvent {
+  id              String               @id @default(uuid())
+  tenantId        String
+  gateId          String
+  propertyId      String?
+  visitorId       String?
+  accessRequestId String?
+  visitorLabel    String
+  vehicleReg      String?
+  state           AccessEventState
+  method          AccessEventMethod
+  actorType       AccessEventActorType
+  actorUserId     String?
+  occurredAt      DateTime             @default(now())
+
+  tenant        Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  gate          Gate           @relation(fields: [gateId], references: [id], onDelete: Restrict)
+  property      Property?      @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  visitor       Visitor?       @relation(fields: [visitorId], references: [id], onDelete: SetNull)
+  accessRequest AccessRequest? @relation(fields: [accessRequestId], references: [id], onDelete: SetNull)
+  actorUser     user?          @relation("AccessEventActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, occurredAt])
+  @@index([tenantId, state, occurredAt])
+  @@index([tenantId, method, occurredAt])
+  @@index([gateId])
+  @@index([propertyId])
+  @@index([visitorId])
+  @@index([accessRequestId])
+}

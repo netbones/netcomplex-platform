@@ -146,6 +146,7 @@ describe('Mapping completeness', () => {
     'dWallet',
     'merits',
     'security',
+    'accessControl',
   ];
 
   describe('FEATURE_TO_MODULE', () => {
@@ -164,8 +165,8 @@ describe('Mapping completeness', () => {
       }
     });
 
-    it('should have exactly 17 entries (one per FeatureKey)', () => {
-      expect(Object.keys(FEATURE_TO_MODULE)).toHaveLength(17);
+    it('should have exactly 18 entries (one per FeatureKey)', () => {
+      expect(Object.keys(FEATURE_TO_MODULE)).toHaveLength(18);
     });
   });
 
@@ -199,6 +200,7 @@ describe('Mapping completeness', () => {
         providers: true,
         bookings: true,
         security: true,
+        accessControl: true,
         messages: true,
         disputes: false,
         marketplacePaypal: false,
@@ -213,7 +215,7 @@ describe('Mapping completeness', () => {
     });
 
     it('should have exactly 17 entries (one per FeatureKey)', () => {
-      expect(Object.keys(FEATURE_TO_FLAG)).toHaveLength(17);
+      expect(Object.keys(FEATURE_TO_FLAG)).toHaveLength(18);
     });
   });
 
@@ -234,7 +236,7 @@ describe('Mapping completeness', () => {
     });
 
     it('should have exactly 17 entries (one per FeatureKey)', () => {
-      expect(Object.keys(FEATURE_TO_REGISTRY)).toHaveLength(17);
+      expect(Object.keys(FEATURE_TO_REGISTRY)).toHaveLength(18);
     });
   });
 
@@ -276,6 +278,7 @@ const ALL_FLAGS_ENABLED: PlatformPageFlags = {
   providers: true,
   bookings: true,
   security: true,
+  accessControl: true,
   messages: true,
   marketplacePaypal: false,
   headerLinks: ['directory', 'groups', 'services', 'resources'],

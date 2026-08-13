@@ -53,6 +53,12 @@ export const NAV_REGISTRY: NavItem[] = [
     href: '/security',
     flag: 'security',
   },
+  {
+    id: 'accessControl',
+    nameKey: 'nav.accessControl',
+    href: '/access-control',
+    flag: 'accessControl',
+  },
 
   // ═══════════════════════════════════════════════════════════════
   // DASHBOARD FOCUS SPACES (Phase 30-B)

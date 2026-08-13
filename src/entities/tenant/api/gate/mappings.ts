@@ -30,7 +30,8 @@ export type FeatureKey =
   | 'services'
   | 'messages'
   | 'merits'
-  | 'security';
+  | 'security'
+  | 'accessControl';
 
 export type GateReason = 'role' | 'tier' | 'module' | 'flag' | 'feature' | 'allowed';
 
@@ -67,6 +68,7 @@ export const FEATURE_TO_MODULE: Record<FeatureKey, string | null> = {
   competitions: null,
   merits: 'merits',
   security: 'security',
+  accessControl: 'accessControl',
 };
 
 type PlatformPageFlagKey = keyof PlatformPageFlags;
@@ -89,6 +91,7 @@ export const FEATURE_TO_FLAG: Record<FeatureKey, PlatformPageFlagKey | null> = {
   messages: 'messages',
   merits: null,
   security: 'security',
+  accessControl: 'accessControl',
 };
 
 export const FEATURE_TO_REGISTRY: Record<FeatureKey, string | null> = {
@@ -109,6 +112,7 @@ export const FEATURE_TO_REGISTRY: Record<FeatureKey, string | null> = {
   competitions: null,
   merits: 'page.merits',
   security: 'page.security',
+  accessControl: 'page.accessControl',
 };
 
 export const GATE_REASON_TO_ERROR: Record<GateReason, string> = {

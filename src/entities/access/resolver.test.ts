@@ -38,6 +38,7 @@ const ALL_FLAGS_ON: PlatformPageFlags = {
   providers: true,
   bookings: true,
   security: true,
+  accessControl: true,
   messages: true,
   marketplacePaypal: false,
   headerLinks: [],

@@ -202,6 +202,9 @@ model user {
   securityAlertsAcknowledged                            SecurityAlert[]           @relation("SecurityAlertAcknowledgedBy")
   securityAlertsResolved                                SecurityAlert[]           @relation("SecurityAlertResolvedBy")
   securityContactsCreated                               SecurityContact[]         @relation("SecurityContactCreatedBy")
+  visitorsRequested                                     Visitor[]                 @relation("VisitorRequestedBy")
+  accessRequestsResponded                               AccessRequest[]           @relation("AccessRequestRespondedBy")
+  accessEventsActed                                     AccessEvent[]             @relation("AccessEventActor")
 }
 
 model Profile {
@@ -651,6 +654,9 @@ model Property {
   soloSeat            SoloSeat[]
   SecurityAlert       SecurityAlert[]
   standardSeat        StandardSeat[]
+  Visitor             Visitor[]
+  AccessRequest       AccessRequest[]
+  AccessEvent         AccessEvent[]
 
   @@index([ownerId])
   @@index([addressId])

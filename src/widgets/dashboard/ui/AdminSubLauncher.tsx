@@ -142,6 +142,14 @@ export const ADMIN_DOMAIN_DEFINITIONS: AdminDomainDef[] = [
     category: 'operations',
   },
   {
+    id: 'access-control',
+    labelKey: 'domains.accessControl',
+    descriptionKey: 'domains.descriptions.adminAccessControl',
+    icon: '/platform/merits.svg',
+    description: 'Live access stream, manual entry, and visitor audit log',
+    category: 'operations',
+  },
+  {
     id: 'bookings',
     labelKey: 'domains.bookings',
     descriptionKey: 'domains.descriptions.adminBookings',
@@ -261,6 +269,7 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.bookings': 'Bookings',
   'domains.amenities': 'Amenities',
   'domains.security': 'Security',
+  'domains.accessControl': 'Access control',
   'domains.descriptions.users': 'Manage community members and roles',
   'domains.descriptions.maintenance': 'Maintenance request management and analytics',
   'domains.descriptions.content': 'Content publishing and moderation',
@@ -281,6 +290,8 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.descriptions.adminBookings': 'Manage bookable facilities and settings',
   'domains.descriptions.adminAmenities': 'Create, reorder, and manage community amenities',
   'domains.descriptions.adminSecurity': 'Panic alerts, security contacts, and anonymous tips',
+  'domains.descriptions.adminAccessControl':
+    'Live access stream, manual entry, and visitor audit log',
   'domains.descriptions.education': 'Manage education portal content',
   'domains.descriptions.teams': 'Manage in-house maintenance teams',
   'domains.descriptions.providers': 'Provider management, revenue, and moderation',

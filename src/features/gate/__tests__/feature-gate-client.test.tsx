@@ -43,6 +43,7 @@ function makeFlags(overrides: Partial<PlatformPageFlags> = {}): PlatformPageFlag
     dWallet: false,
     bookings: true,
     security: true,
+    accessControl: true,
     messages: true,
     providers: true,
     marketplacePaypal: false,

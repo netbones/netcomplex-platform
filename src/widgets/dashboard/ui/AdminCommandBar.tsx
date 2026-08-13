@@ -21,6 +21,7 @@ import {
   Check,
   Building2,
   ShieldAlert,
+  ShieldCheck,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -117,6 +118,13 @@ const EXTENDED_SHORTCUTS: ShortcutDef[] = [
     icon: ShieldAlert,
     href: '/admin/security',
     flag: 'security',
+  },
+  {
+    id: 'access-control-dashboard',
+    label: 'Access Control',
+    icon: ShieldCheck,
+    href: '/admin/access-control',
+    flag: 'accessControl',
   },
   {
     id: 'new-booking',
