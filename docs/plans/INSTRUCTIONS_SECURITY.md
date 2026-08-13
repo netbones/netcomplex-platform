@@ -28,12 +28,12 @@ A reference screen from a comparable vendor was supplied for flow context
 only — do not copy branding, colors, or copy; match the existing Netcomplex
 design system already used for Amenities and Access Control.
 
-**Do not begin building the panic-trigger and dispatch pipeline (§3–§5)
-without DavDev explicitly confirming the security/armed-response provider
-integration and reviewing the security disclaimer copy with appropriate
-legal input first.** The UI shell (§2) can be built ahead of that, but must
-not go live wired to a fake/no-op backend that could give residents false
-confidence that help is coming.
+**Do not enable production dispatch (§3–§5) until DavDev provides signed
+disclaimer copy (§8.5) and seeds real `security_contacts` for Soralia (§8a).
+Product decisions in §8 are resolved; vendor API integration remains v2
+(§8.1).** The UI shell (§2) can be built ahead of that, but must not go live
+wired to a fake/no-op backend that could give residents false confidence
+that help is coming.
 
 ---
 
@@ -73,12 +73,11 @@ security_contacts
 Notes:
 
 - `triggered_by_user_id` is nullable specifically for `anonymous_tip` alerts
-  — the whole point of that path is the reporter's identity is not attached
-  to the record residents/board can see. Confirm with DavDev whether
-  "anonymous" means anonymous to other residents/board only, or fully
-  anonymous even from Netbones/Netcomplex operators — this has real privacy
-  and liability implications and must be decided before building, not
-  inferred.
+  — the reporter's identity is **never shown** to other residents, board,
+  or tenant security/admin UI (see §8.3). For abuse prevention and legal
+  compliance, the platform **may store** the authenticated user's id
+  server-side on anonymous tips, but it is excluded from all tenant-scoped
+  API responses and admin surfaces.
 - `within_boundary` requires a tenant-level geofence polygon (property
   boundary) to compute against. If that geofence doesn't exist yet for a
   tenant, do not block the alert on it — send the alert regardless and log
@@ -117,8 +116,8 @@ Reference: `security_panic_screen_v2`
 - **Anonymous tip-off** — opens a short form (free text + optional photo,
   no location requirement) that creates a `security_alerts` row with
   `alert_type = anonymous_tip`. This is not urgent-response routed the same
-  way as a panic alert — confirm with DavDev whether tips go to
-  security's queue or a separate community-management inbox.
+  way as a panic alert — tips land in the admin **Anonymous tips** tab only
+  (§7, §8.4); no dispatch/SMS in v1.
 - **Call response** — two tap-to-call shortcuts. `Call 10111` dials South
   Africa's national emergency number directly (`tel:10111`), no in-app
   logic needed beyond firing the system dialer. `Call security` dials the
@@ -127,19 +126,20 @@ Reference: `security_panic_screen_v2`
   backend availability, since network issues are exactly when a resident
   might need to fall back to a plain phone call.
 - **Security disclaimer** link at the bottom — static content page/modal,
-  copy owned by DavDev/legal, not to be drafted by the agent.
+  copy owned by **DavDev + legal counsel** (§8.5). Agent must not draft
+  production disclaimer text; dev/staging may use a visible
+  `[PENDING LEGAL SIGN-OFF]` placeholder until signed copy is loaded.
 
 ---
 
 ## 3. Panic button trigger flow
 
-1. Tap panic button → **confirmation step**, not immediate dispatch. Show a
-   brief (2–3 second) countdown or a clear "Hold to confirm" / "Confirm
-   alert" interaction — prevents accidental pocket-taps from dispatching a
-   false alarm, while staying fast enough not to slow down a real emergency.
-   Confirm the exact interaction pattern (countdown vs hold vs tap-twice)
-   with DavDev before building — this is a UX decision with real safety
-   tradeoffs, not a cosmetic one.
+1. Tap panic button → **confirmation step**, not immediate dispatch. Use
+   **hold-to-confirm (3 seconds)**: resident presses and holds the panic
+   button; a progress ring fills over 3s; releasing early cancels. On
+   completion, dispatch proceeds. This pattern minimizes pocket-dial false
+   alarms while staying faster than a separate confirmation screen + countdown
+   (see §8.2).
 2. On confirm: capture device GPS location. If location permission is
    denied or unavailable, **still send the alert** with
    `latitude/longitude = null` rather than blocking — a panic alert with no
@@ -169,12 +169,14 @@ liability at worst.
 Build the dispatch layer behind an interface so the initial implementation
 can be:
 
-- **v1 (safe default)**: alert creation triggers an SMS/push/call to the
-  tenant's configured `security_contacts` (community security desk), not a
-  third-party API. This requires no vendor integration and is honest about
-  what it does — notifies the humans configured for that estate.
+- **v1 (safe default — ship this)**: alert creation triggers **SMS + in-app
+  push** to the tenant's default `internal_security` contact (community
+  security desk). Armed-response rows in `security_contacts` are **`tel:`
+  shortcuts only** in v1 — no vendor API. Soralia Village seeds its real desk
+  numbers manually before go-live; mockup labels like "SecureForce" are
+  illustrative, not a vendor integration commitment (see §8.1).
 - **v2 (future)**: pluggable adapter per tenant for a real armed-response
-  provider's API, once one is confirmed. Schema (`security_contacts.
+  provider's API, once DavDev confirms the vendor. Schema (`security_contacts.
 contact_type`) already anticipates this.
 
 Whichever v1 channel is chosen (SMS gateway, push notification, or a
@@ -236,11 +238,9 @@ not just have the buttons disabled — don't show controls a role can't use.
   checkbox.
 - If "set as default" is checked, apply the same atomic single-default
   transaction described above on save.
-- Deleting a contact: if it's the current default, block the delete (or
-  require picking a new default first) rather than silently leaving
-  `Call security` pointed at nothing — confirm the exact UX for this edge
-  case with DavDev, but the underlying rule (never leave zero or the wrong
-  default set) is not optional.
+- Deleting a contact: if it's the current default, **block the delete** and
+  show inline guidance: "Set another contact as default before deleting this
+  one." Never leave `Call security` with zero default (see §8.6).
 - Save/Cancel — standard form conventions already used elsewhere in the
   app (e.g. the booking detail flow), no new pattern needed.
 
@@ -269,9 +269,7 @@ writing its own actor + timestamp:
 
 ```
 sent -> acknowledged   (acknowledged_at, acknowledged_by_user_id)
-acknowledged -> responding   (optional intermediate state — confirm with
-                               DavDev whether this is a distinct admin
-                               action or implied by acknowledgement)
+acknowledged -> responding   (manual admin action — "Mark responding", see §8.7)
 responding -> resolved   (resolved_at, resolved_by_user_id)
 sent -> failed             (dispatch failure, see §5 — not admin-triggered)
 ```
@@ -279,32 +277,29 @@ sent -> failed             (dispatch failure, see §5 — not admin-triggered)
 Acknowledge and Resolve are deliberately separate actions/buttons, not one
 toggle — "someone has seen this" and "this is actually over" are different
 facts, and given DavDev's ongoing CSOS/dispute work, the audit trail should
-distinguish them rather than collapse to a single timestamp. Confirm this
-two-step model with DavDev before building if there's a simpler existing
-convention elsewhere in the app worth reusing instead.
+distinguish them rather than collapse to a single timestamp. **`responding`
+is a distinct manual step** between acknowledge and resolve (see §8.7).
 
 **Card actions**:
 
 - `Acknowledge` — sets `acknowledged_at`/`acknowledged_by_user_id`, moves
   card state, does not remove it from the live stream.
+- `Mark responding` — sets status to `responding` (no extra timestamp column
+  in v1 — `updated_at` on the row suffices; optional note field deferred).
+  Available only after acknowledge.
 - `Mark resolved` — sets `resolved_at`/`resolved_by_user_id`, moves the
   row out of the live stream into Resolved.
 - `View on map` — opens the alert's `latitude`/`longitude` on a map view;
   if null (location unavailable, per §3 step 2), show that explicitly
   rather than a broken/blank map.
-- `Call resident` — **not currently supported by the schema as written**.
-  Requires joining to the triggering resident's phone number (via
-  `users`/`property_id`), which is fine for non-anonymous alerts but must
-  never resolve to anything for `anonymous_tip` rows — don't let this
-  button leak an identity that §1 explicitly keeps anonymous. Confirm with
-  DavDev whether this action ships in v1 or is deferred; if it ships, add
-  the necessary join/lookup, not a new column on `security_alerts`.
+- `Call resident` — **deferred to v1.1** (§8.8). Not shown in v1 admin
+  dashboard cards. When it ships, join via `triggered_by_user_id` → user
+  phone; never for `anonymous_tip` rows.
 
 **Anonymous tips tab** — read-only list of `alert_type = anonymous_tip`
 rows, deliberately visually de-emphasized in the mockup (lower-contrast
 card) since these are not urgent-response items the way panic alerts are.
-Routing/triage of tips (§8 open question 4) still needs to be confirmed —
-this tab is just the display, not the resolution of that open question.
+Tips are **not** mixed into the live panic stream (§8.4).
 
 **Live-update requirement**: "Live stream" must actually update in near
 real time (new alerts appear without a manual refresh, elapsed-time labels
@@ -320,29 +315,57 @@ do not build a second, separate contacts UI for admin. This dashboard is
 where defaults actually get set in practice, but the underlying screens
 and role gate are shared with §6, not duplicated.
 
+- **Security disclaimer** link at the bottom — static content page/modal,
+  copy owned by **DavDev + legal counsel** (§8.5). Agent must not draft
+  production disclaimer text; dev/staging may use a visible
+  `[PENDING LEGAL SIGN-OFF]` placeholder until signed copy is loaded.
+
 ---
 
-## 8. Open questions to confirm before/during build
+## 8. Decisions (resolved 2026-08-13)
 
-1. Which security/armed-response provider(s) does Soralia Village (and any
-   other early tenant) actually use today? Determines whether v1 dispatch
-   (§4) is SMS-to-guard-desk or something else.
-2. Confirmation interaction on the panic button — countdown, hold-to-confirm,
-   or double-tap? Needs a UX + safety-tradeoff decision, not an assumption.
-3. Is "anonymous" tip-off anonymous to the board/security only, or also to
-   Netbones/Netcomplex as the platform operator? Affects what's stored in
-   `triggered_by_user_id`.
-4. Where does anonymous tip-off content route — security's live queue, or a
-   separate community-management inbox reviewed less urgently?
-5. Who owns and signs off on the security disclaimer copy before it ships?
-6. What should happen when management tries to delete the current default
-   security contact — block outright, or force picking a replacement
-   default first?
-7. Does the admin dashboard need a distinct `responding` state as a manual
-   admin action, or is it implied automatically once `acknowledged`?
-8. Does "Call resident" ship in v1 of the admin dashboard, and if so, what's
-   the correct data join to reach their phone number without touching
-   anonymous-tip identity protections?
+1. **Security / armed-response provider (Soralia v1)** — **No third-party
+   vendor API in v1.** Dispatch = SMS + in-app push to the tenant's default
+   `internal_security` contact. `armed_response` contacts exist as configured
+   `tel:` targets only (`Call security` / contacts list). v2 vendor adapter
+   waits on DavDev naming the actual provider. Mockup names (e.g.
+   "SecureForce") are placeholders — seed Soralia's real desk numbers before
+   go-live.
+2. **Panic confirmation UX** — **Hold-to-confirm, 3 seconds.** Press and
+   hold the panic button; progress ring fills over 3s; release early =
+   cancel. Faster than a two-step tap + countdown screen; safer against
+   pocket dials than single-tap or double-tap.
+3. **Anonymous tip identity scope** — **Anonymous to residents, board, and
+   tenant security/admin UI.** `triggered_by_user_id` is stored server-side
+   for authenticated submitters (abuse audit, legal subpoena) but **never
+   returned** in tenant-scoped APIs or shown on the Anonymous tips tab.
+   Platform break-glass access is out of scope for v1 UI.
+4. **Anonymous tip routing** — **Anonymous tips tab only** (admin dashboard).
+   Tips do **not** enter the live panic stream and do **not** trigger
+   dispatch/SMS in v1. Management triages at lower urgency.
+5. **Disclaimer ownership** — **DavDev + legal counsel** sign off before
+   production. Link targets a static page/CMS entry; no agent-drafted copy
+   ships to residents.
+6. **Delete default contact** — **Block delete** when `is_default_call_target
+= true`. Error: set another default first. Same "never leave a broken
+   primary action" rule as amenity delete-with-bookings (Policy A).
+7. **`responding` state** — **Distinct manual admin action.** Flow:
+   `Acknowledge` → optional **Mark responding** → **Mark resolved**.
+   Acknowledge alone does not auto-advance to `responding`.
+8. **Call resident (admin dashboard)** — **Defer to v1.1.** v1 card actions:
+   Acknowledge, Mark responding, Mark resolved, View on map only. When v1.1
+   ships, join `triggered_by_user_id` → user phone; hide entirely for
+   `anonymous_tip` rows.
+
+### 8a. Still requires DavDev before go-live (not open product questions)
+
+These are operational gates, not build blockers for the UI shell:
+
+- **Legal sign-off** on disclaimer copy (§8.5) before enabling dispatch in
+  production.
+- **Seed real `security_contacts`** for Soralia (desk numbers, default
+  target) before go-live.
+- **Named armed-response vendor** only needed for §4 v2 adapter work.
 
 ---
 
@@ -357,33 +380,38 @@ and role gate are shared with §6, not duplicated.
 - Bulk-import of security contacts (single add/edit only, per mockup).
 - Live map clustering or multi-alert map view (single-alert "View on map"
   only for this pass).
+- **Call resident** on admin dashboard cards (v1.1 — §8.8).
+- Platform break-glass UI for anonymous-tip submitter identity (stored
+  server-side per §8.3 but no operator tooling in v1).
 
 ---
 
 ## 10. Acceptance criteria
 
 - [ ] Panic button requires an explicit confirmation step before dispatch —
-      never fires on a single accidental tap.
+      never fires on a single accidental tap (**hold-to-confirm 3s**, §8.2).
 - [ ] Alert is sent even when GPS location is unavailable or denied.
 - [ ] UI never claims an alert was sent if the dispatch call actually failed
       — failure state surfaces the call fallbacks immediately.
 - [ ] `Call 10111` and `Call security` work independent of backend/network
       availability (plain `tel:` links).
-- [ ] Anonymous tip-off never stores `triggered_by_user_id` for that alert
-      type.
+- [ ] Anonymous tip-off never exposes submitter identity in tenant-scoped UI
+      or APIs; server-side storage per §8.3 is acceptable.
 - [ ] All `security_alerts` rows are append-only (status transitions logged,
       no edit/delete).
-- [ ] No vendor-specific dispatch integration is built before DavDev
-      confirms the actual provider.
+- [ ] No vendor-specific dispatch integration in v1 (§8.1); SMS/push to
+      default internal security contact only.
 - [ ] Only management/admin roles can see or use "Manage security contacts";
       regular residents don't see the option in the overflow menu.
 - [ ] Exactly one `security_contacts` row per tenant is ever
       `is_default_call_target = true`, enforced atomically on every write.
-- [ ] Deleting or unsetting the default contact cannot silently leave
-      `Call security` pointed at nothing.
+- [ ] Deleting the default contact is blocked until another default is set
+      (§8.6).
 - [ ] Admin dashboard's Live stream tab updates in near real time without a
       manual page refresh.
-- [ ] Acknowledge and Resolve are logged as distinct actions with separate
-      actor + timestamp fields, never collapsed into one status flip.
-- [ ] Anonymous tip-off rows never expose a resident identity anywhere in
-      the admin dashboard, including via the "Call resident" action.
+- [ ] Acknowledge, Mark responding, and Resolve are logged as distinct
+      actions with separate actor + timestamp fields (§8.7).
+- [ ] Anonymous tips appear only on the Anonymous tips tab, not the live
+      panic stream (§8.4).
+- [ ] Anonymous tip rows never expose a resident identity anywhere in the
+      admin dashboard (including no Call resident in v1, §8.8).
