@@ -315,11 +315,6 @@ do not build a second, separate contacts UI for admin. This dashboard is
 where defaults actually get set in practice, but the underlying screens
 and role gate are shared with §6, not duplicated.
 
-- **Security disclaimer** link at the bottom — static content page/modal,
-  copy owned by **DavDev + legal counsel** (§8.5). Agent must not draft
-  production disclaimer text; dev/staging may use a visible
-  `[PENDING LEGAL SIGN-OFF]` placeholder until signed copy is loaded.
-
 ---
 
 ## 8. Decisions (resolved 2026-08-13)
