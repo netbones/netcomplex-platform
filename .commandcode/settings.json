@@ -5,7 +5,14 @@
       "Shell(grep:*)",
       "Shell(sed:*)",
       "Shell(npx prisma migrate status 2 >& 1)",
-      "Shell(node_modules/.bin/tsx:*)"
+      "Shell(node_modules/.bin/tsx:*)",
+      "Shell(npx tsc --noEmit --pretty 2 >& 1)",
+      "Shell(npx tsc --noEmit 2 >& 1)",
+      "Shell(npx tsx repro-date.ts 2 >& 1)",
+      "Shell(npx tsc --noEmit -p tsconfig.json 2 >& 1)",
+      "Shell(npx vitest run src/app/api/events src/shared/api/dto/__tests__/dto-event.test.ts 2 >& 1)",
+      "Shell(npx eslint src/features/events/ui/ResidentEventsList.tsx src/app/(tenant)/dashboard/services/events/page.tsx src/app/(tenant)/dashboard/services/events/[id]/edit/page.tsx src/features/events/index.ts src/entities/event/services/index.ts src/server/routers/community/events.ts src/app/api/events/route.ts src/app/api/events/[id]/route.ts src/app/api/events/[id]/register/route.ts 2 >& 1)",
+      "Shell(bd:*)"
     ],
     "deny": [],
     "defaultMode": "default"

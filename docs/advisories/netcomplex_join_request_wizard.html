@@ -1,0 +1,192 @@
+<div style="display:flex;justify-content:center;padding:1rem 0;">
+<div style="width:360px;background:var(--surface-2);border:0.5px solid var(--border);border-radius:24px;padding:20px 18px;">
+
+<h2 class="sr-only">Four step resident self registration wizard for NetComplex, mirroring the identity plus property, relationship type, vehicles, and review steps</h2>
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+  <i class="ti ti-chevron-left" id="backBtn" style="font-size:20px;color:var(--text-primary);cursor:pointer;" aria-hidden="true"></i>
+  <span style="font-size:16px;font-weight:500;">Join your community</span>
+  <span style="width:20px;"></span>
+</div>
+
+<div id="stepDots" style="display:flex;align-items:center;gap:6px;margin:14px 0 16px;"></div>
+
+<div id="stepLabel" style="font-size:13px;color:var(--text-secondary);margin-bottom:14px;"></div>
+
+<div id="step0">
+  <input type="text" id="fName" placeholder="Name" style="width:100%;margin-bottom:10px;" />
+  <input type="text" id="fSurname" placeholder="Surname (optional)" style="width:100%;margin-bottom:10px;" />
+  <input type="email" id="fEmail" placeholder="Email" style="width:100%;margin-bottom:10px;" />
+  <input type="tel" id="fPhone" placeholder="Phone" style="width:100%;margin-bottom:10px;" />
+  <input type="text" id="fCommunity" placeholder="Community (e.g. Soralia Village)" style="width:100%;margin-bottom:10px;" />
+  <input type="text" id="fPropNum" placeholder="Property number" style="width:100%;margin-bottom:10px;" />
+  <div id="fErr" style="font-size:13px;color:var(--text-danger);min-height:16px;margin-bottom:4px;"></div>
+  <label style="display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--text-secondary);margin-top:8px;">
+    <input type="checkbox" id="fRules" style="margin-top:2px;" />
+    <span>I've read the estate rules for this community</span>
+  </label>
+</div>
+
+<div id="step1" style="display:none;">
+  <div class="relOpt" data-val="OWNER_RESIDENT" style="padding:14px;border:0.5px solid var(--border);border-radius:var(--radius);margin-bottom:10px;cursor:pointer;font-size:14px;">I'm the owner and reside in the property</div>
+  <div class="relOpt" data-val="OWNER_LEASING" style="padding:14px;border:0.5px solid var(--border);border-radius:var(--radius);margin-bottom:10px;cursor:pointer;font-size:14px;">I'm the owner and lease the property</div>
+  <div class="relOpt" data-val="TENANT_RENTER" style="padding:14px;border:0.5px solid var(--border);border-radius:var(--radius);margin-bottom:10px;cursor:pointer;font-size:14px;">I'm a tenant and rent this property</div>
+  <div class="relOpt" data-val="ADDITIONAL_USER" style="padding:14px;border:0.5px solid var(--border);border-radius:var(--radius);margin-bottom:10px;cursor:pointer;font-size:14px;">I'm an additional user</div>
+  <div id="relErr" style="font-size:13px;color:var(--text-danger);min-height:16px;"></div>
+</div>
+
+<div id="step2" style="display:none;">
+  <div id="vehicleList"></div>
+  <button id="addVehicleBtn" type="button" style="width:100%;margin-top:6px;">
+    <i class="ti ti-plus" style="font-size:16px;vertical-align:-2px;margin-right:6px;" aria-hidden="true"></i>Add vehicle
+  </button>
+  <div style="background:var(--bg-success);border-radius:var(--radius);padding:12px 14px;margin-top:16px;font-size:13px;color:var(--text-success);">
+    <i class="ti ti-info-circle" style="font-size:15px;vertical-align:-2px;margin-right:6px;" aria-hidden="true"></i>
+    Vehicle details are only visible to your community's managing agency and management committee.
+  </div>
+</div>
+
+<div id="step3" style="display:none;">
+  <p style="font-size:13px;color:var(--text-secondary);margin:0 0 12px;">Review your request before sending it for approval.</p>
+  <div id="reviewCard" style="background:var(--surface-1);border-radius:var(--radius);padding:14px;font-size:13px;line-height:1.9;"></div>
+  <div style="background:var(--bg-warning);border-radius:var(--radius);padding:12px 14px;margin-top:14px;font-size:13px;color:var(--text-warning);">
+    <i class="ti ti-clock" style="font-size:15px;vertical-align:-2px;margin-right:6px;" aria-hidden="true"></i>
+    You won't be able to sign in until your community admin approves this request.
+  </div>
+</div>
+
+<button id="nextBtn" style="width:100%;margin-top:18px;background:var(--fill-primary);color:var(--on-primary);border:none;">
+  Next<i class="ti ti-chevron-right" style="font-size:16px;vertical-align:-2px;margin-left:4px;" aria-hidden="true"></i>
+</button>
+
+</div>
+</div>
+
+<script>
+(function(){
+  var step = 0;
+  var totalSteps = 4;
+  var vehicles = [];
+  var vehicleCount = 0;
+
+  function renderDots(){
+    var dots = document.getElementById('stepDots');
+    dots.innerHTML = '';
+    for (var i = 0; i < totalSteps; i++){
+      var d = document.createElement('div');
+      var filled = i <= step;
+      d.style.cssText = 'flex:1;height:4px;border-radius:2px;background:' + (filled ? 'var(--fill-primary)' : 'var(--border)');
+      dots.appendChild(d);
+    }
+  }
+
+  var labels = ['Your details', 'Relationship to property', 'Vehicles (optional)', 'Review and submit'];
+
+  function showStep(){
+    for (var i = 0; i < totalSteps; i++){
+      document.getElementById('step' + i).style.display = (i === step ? 'block' : 'none');
+    }
+    document.getElementById('stepLabel').textContent = 'Step ' + (step + 1) + ' of ' + totalSteps + ' \u2014 ' + labels[step];
+    document.getElementById('nextBtn').innerHTML = (step === totalSteps - 1 ? 'Submit request' : 'Next<i class="ti ti-chevron-right" style="font-size:16px;vertical-align:-2px;margin-left:4px;" aria-hidden="true"></i>');
+    document.getElementById('backBtn').style.visibility = (step === 0 ? 'hidden' : 'visible');
+    renderDots();
+  }
+
+  document.getElementById('backBtn').addEventListener('click', function(){
+    if (step > 0){ step--; showStep(); }
+  });
+
+  var relSelected = null;
+  document.querySelectorAll('.relOpt').forEach(function(el){
+    el.addEventListener('click', function(){
+      document.querySelectorAll('.relOpt').forEach(function(o){
+        o.style.borderColor = 'var(--border)';
+        o.style.background = 'transparent';
+      });
+      el.style.borderColor = 'var(--border-accent)';
+      el.style.background = 'var(--bg-accent-muted)';
+      relSelected = el.getAttribute('data-val');
+      document.getElementById('relErr').textContent = '';
+    });
+  });
+
+  function addVehicleRow(){
+    vehicleCount++;
+    var id = vehicleCount;
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;gap:8px;margin-bottom:10px;align-items:center;';
+    row.innerHTML =
+      '<input type="text" placeholder="Make and model" data-id="' + id + '" data-f="mm" style="flex:2;" />' +
+      '<input type="text" placeholder="Registration" data-id="' + id + '" data-f="reg" style="flex:1;" />' +
+      '<i class="ti ti-x" data-remove="' + id + '" style="font-size:16px;color:var(--text-muted);cursor:pointer;" aria-label="Remove vehicle"></i>';
+    document.getElementById('vehicleList').appendChild(row);
+    vehicles.push({id: id});
+    row.querySelector('[data-remove]').addEventListener('click', function(){
+      row.remove();
+      vehicles = vehicles.filter(function(v){ return v.id !== id; });
+    });
+  }
+  document.getElementById('addVehicleBtn').addEventListener('click', addVehicleRow);
+
+  function buildReview(){
+    var name = document.getElementById('fName').value + ' ' + document.getElementById('fSurname').value;
+    var email = document.getElementById('fEmail').value;
+    var community = document.getElementById('fCommunity').value;
+    var propNum = document.getElementById('fPropNum').value;
+    var relLabels = {
+      OWNER_RESIDENT: "Owner, resides in property",
+      OWNER_LEASING: "Owner, leases the property",
+      TENANT_RENTER: "Tenant, rents this property",
+      ADDITIONAL_USER: "Additional user"
+    };
+    var rows = [
+      ['Name', name.trim()],
+      ['Email', email],
+      ['Community', community],
+      ['Property number', propNum],
+      ['Relationship', relLabels[relSelected] || '\u2014'],
+      ['Vehicles', vehicles.length + ' added']
+    ];
+    var html = '';
+    rows.forEach(function(r){
+      html += '<div style="display:flex;justify-content:space-between;"><span style="color:var(--text-secondary);">' + r[0] + '</span><span>' + (r[1] || '\u2014') + '</span></div>';
+    });
+    document.getElementById('reviewCard').innerHTML = html;
+  }
+
+  document.getElementById('nextBtn').addEventListener('click', function(){
+    if (step === 0){
+      var name = document.getElementById('fName').value.trim();
+      var email = document.getElementById('fEmail').value.trim();
+      var community = document.getElementById('fCommunity').value.trim();
+      var propNum = document.getElementById('fPropNum').value.trim();
+      var rules = document.getElementById('fRules').checked;
+      if (!name || !email || !community || !propNum){
+        document.getElementById('fErr').textContent = 'Fill in name, email, community, and property number.';
+        return;
+      }
+      if (!rules){
+        document.getElementById('fErr').textContent = 'Please confirm you\'ve read the estate rules.';
+        return;
+      }
+      document.getElementById('fErr').textContent = '';
+    }
+    if (step === 1){
+      if (!relSelected){
+        document.getElementById('relErr').textContent = 'Choose how you relate to this property.';
+        return;
+      }
+    }
+    if (step === totalSteps - 1){
+      document.getElementById('nextBtn').textContent = 'Request sent';
+      document.getElementById('nextBtn').disabled = true;
+      return;
+    }
+    step++;
+    if (step === 3){ buildReview(); }
+    showStep();
+  });
+
+  showStep();
+})();
+</script>

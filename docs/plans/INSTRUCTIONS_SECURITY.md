@@ -1,5 +1,33 @@
 # INSTRUCTIONS: Security domain (panic button / emergency response)
 
+## Status (2026-08-13)
+
+| Layer                 | State                                                                               |
+| --------------------- | ----------------------------------------------------------------------------------- |
+| UI shell (§2, §6, §7) | **Built** — resident panic page, contacts CRUD, admin dashboard                     |
+| Schema + APIs         | **Built** — migration applied; panic / tips / contacts / dashboard / alert history  |
+| Dispatch (§4)         | **Fails closed** — `SECURITY_DISPATCH_ENABLED` gate; SMS/push adapter **not wired** |
+| Legal / seed (§8a)    | **Blocked** — disclaimer placeholder; no Soralia contact seed yet                   |
+| Acceptance (§10)      | **Not verified** — criteria below are unchecked; no UAT / QA pass yet               |
+
+**BD tracking**
+
+| ID                     | Scope                                                | Status    |
+| ---------------------- | ---------------------------------------------------- | --------- |
+| `soralia-village-xpwe` | Shell (UI + APIs, fail-closed dispatch)              | ✅ closed |
+| `soralia-village-bxh6` | **v1 go-live** — SMS/push, legal, seed, RLS, §10 UAT | ○ open    |
+| `soralia-village-ngjk` | **v1.1** — Call resident, tip photo                  | ○ open    |
+
+**v1 shipped (code):** hold-to-confirm panic UI, anonymous tips (tab only), contacts admin, dashboard with 10s poll, append-only status actions, honest dispatch failure → call fallbacks.
+
+**v1 incomplete (must finish before production go-live):** track in `bxh6` — real SMS + in-app push with delivery confirmation; signed disclaimer; seeded Soralia contacts; geofence/`within_boundary` computation (currently always `null`); RLS policies on security tables (API role-gate only today).
+
+**v1.1:** track in `ngjk` — Call resident on admin cards (§8.8); optional tip photo.
+
+**v2:** Armed-response vendor API adapter (§4 / §8.1) — not filed yet (needs DavDev vendor name).
+
+---
+
 ## Context
 
 This is a life-safety feature, not a convenience feature — treat it with a
@@ -31,9 +59,8 @@ design system already used for Amenities and Access Control.
 **Do not enable production dispatch (§3–§5) until DavDev provides signed
 disclaimer copy (§8.5) and seeds real `security_contacts` for Soralia (§8a).
 Product decisions in §8 are resolved; vendor API integration remains v2
-(§8.1).** The UI shell (§2) can be built ahead of that, but must not go live
-wired to a fake/no-op backend that could give residents false confidence
-that help is coming.
+(§8.1).** The UI shell (§2) is built ahead of that; dispatch fails closed so
+residents are not given false confidence that help is coming.
 
 ---
 
@@ -70,6 +97,10 @@ security_contacts
   updated_at
 ```
 
+**Implementation:** ✅ Prisma `security.prisma` + migration
+`20260813160000_add_security_model` applied. Drizzle tables/relations wired.
+Enums use Prisma casing (`PANIC`, `INTERNAL_SECURITY`, etc.).
+
 Notes:
 
 - `triggered_by_user_id` is nullable specifically for `anonymous_tip` alerts
@@ -78,46 +109,60 @@ Notes:
   compliance, the platform **may store** the authenticated user's id
   server-side on anonymous tips, but it is excluded from all tenant-scoped
   API responses and admin surfaces.
+  **Status:** ✅ Tips store `triggeredByUserId` server-side; tips API/admin
+  tab omit it; resident contacts API returns public fields only.
 - `within_boundary` requires a tenant-level geofence polygon (property
   boundary) to compute against. If that geofence doesn't exist yet for a
   tenant, do not block the alert on it — send the alert regardless and log
   `within_boundary = null`. **Never silently drop or delay a panic alert
   because location data is incomplete or ambiguous.**
+  **Status:** ⬜ Always written as `null` today — geofence compute is
+  **v1 incomplete** (not blocking alerts).
 - RLS: `security_alerts` visible to the triggering resident (except
   anonymous ones, per above), plus security/management roles at the tenant
   level. This table is an audit trail with real-world safety and liability
   weight — do not allow deletion, only status transitions.
+  **Status:** ⬜ No RLS policies on security tables yet (API
+  `requireAuth` / admin permission + module gate only) — **v1 incomplete**,
+  same debt pattern as other new domains.
 - RLS: `security_contacts` is readable by all residents on the tenant (so
   `Call security` and the contacts list work for everyone), but writable
   (create/edit/delete/set-default) only by management or admin roles —
   never by a regular resident. This is enforced both at the API layer and
   restated in the UI (see §6) so residents aren't shown controls they can't
   use.
+  **Status:** ✅ API + overflow menu role-gated; RLS still outstanding.
 
 ---
 
 ## 2. Screen layout
 
-Reference: `security_panic_screen_v2`
+Reference: `security_panic_screen_v2` — **✅ built** (`/security`)
 
 - **Overflow menu (`⋮`)**, top right — opens: "Manage security contacts"
   (§6) and "View alert history" (a filtered view into the resident's own
   `security_alerts` rows, reusing the History pattern already established
   for Amenities/Access Control — no separate mockup needed, follow that
   existing list convention).
+  **Status:** ✅ Admin-only manage link; history at `/security/history`
+  via `GET /api/security/alerts` (panic-only, own rows).
 - **Panic button** — full-width prominent button, danger-colored, always the
   single most visually dominant element on the screen. Tapping it does not
   fire immediately (see §3 confirmation step) — it opens a confirmation
   state, it does not silently dispatch on first tap.
+  **Status:** ✅ Hold-to-confirm (`HoldPanicButton`, 3s).
 - Caption below the button: static disclaimer text that alerts only work
   within the community boundary — copy to be confirmed with DavDev/legal,
   do not alter the meaning of this sentence without sign-off since it sets
   resident expectations about coverage.
+  **Status:** ✅ Placeholder copy present; legal sign-off still open (§8a).
 - **Anonymous tip-off** — opens a short form (free text + optional photo,
   no location requirement) that creates a `security_alerts` row with
   `alert_type = anonymous_tip`. This is not urgent-response routed the same
   way as a panic alert — tips land in the admin **Anonymous tips** tab only
   (§7, §8.4); no dispatch/SMS in v1.
+  **Status:** ✅ Free-text tip form + `POST /api/security/tips`. ⬜ Optional
+  photo upload **not built** — defer to **v1.1** unless product re-prioritises.
 - **Call response** — two tap-to-call shortcuts. `Call 10111` dials South
   Africa's national emergency number directly (`tel:10111`), no in-app
   logic needed beyond firing the system dialer. `Call security` dials the
@@ -125,10 +170,12 @@ Reference: `security_panic_screen_v2`
   These are just `tel:` links — they must work with zero dependency on
   backend availability, since network issues are exactly when a resident
   might need to fall back to a plain phone call.
+  **Status:** ✅ Implemented.
 - **Security disclaimer** link at the bottom — static content page/modal,
   copy owned by **DavDev + legal counsel** (§8.5). Agent must not draft
   production disclaimer text; dev/staging may use a visible
   `[PENDING LEGAL SIGN-OFF]` placeholder until signed copy is loaded.
+  **Status:** ✅ `/security/disclaimer` with pending placeholder.
 
 ---
 
@@ -140,21 +187,29 @@ Reference: `security_panic_screen_v2`
    completion, dispatch proceeds. This pattern minimizes pocket-dial false
    alarms while staying faster than a separate confirmation screen + countdown
    (see §8.2).
+   **Status:** ✅
 2. On confirm: capture device GPS location. If location permission is
    denied or unavailable, **still send the alert** with
    `latitude/longitude = null` rather than blocking — a panic alert with no
    location is still far more useful than no alert at all.
+   **Status:** ✅ Client captures GPS best-effort; API accepts nulls.
 3. Create `security_alerts` row (`alert_type = panic`, `status = sent`).
+   **Status:** ✅ `POST /api/security/panic`
 4. Dispatch to the configured response channel — see §4. This must happen
    synchronously enough that the resident gets confirmation the alert was
    sent, not just that the local record was created. Do not mark the UI as
    "sent" if the dispatch call to the security provider actually failed —
    surface a clear failure state and prompt the resident to use the
    `Call security` / `Call 10111` fallback immediately.
+   **Status:** ✅ Failure path marks `FAILED` + UI error/fallbacks.
+   SMS/push adapter itself is **not wired** (§4).
 5. Show a persistent in-app state (not just a toast) while `status` is
    `sent` or `acknowledged` — e.g. "Alert sent — security has been
    notified" with a way to see status update to `responding`/`resolved`.
    Resident should never be left wondering whether the button "worked."
+   **Status:** 🟡 Persistent message on send/fail. Live status progression
+   on the panic screen itself is minimal (history page shows later status) —
+   polish if needed before go-live.
 
 ---
 
@@ -175,9 +230,13 @@ can be:
   shortcuts only** in v1 — no vendor API. Soralia Village seeds its real desk
   numbers manually before go-live; mockup labels like "SecureForce" are
   illustrative, not a vendor integration commitment (see §8.1).
+  **Status:** 🟡 Interface exists (`dispatchPanicAlert`); returns failure
+  unless `SECURITY_DISPATCH_ENABLED=true`, and even then fails closed until
+  SMS/push is wired. **v1 incomplete — go-live blocker.**
 - **v2 (future)**: pluggable adapter per tenant for a real armed-response
   provider's API, once DavDev confirms the vendor. Schema (`security_contacts.
 contact_type`) already anticipates this.
+  **Status:** ⬜ Deferred to **v2**.
 
 Whichever v1 channel is chosen (SMS gateway, push notification, or a
 placed phone call via a telephony provider), it must have its own delivery
@@ -192,19 +251,24 @@ guarantee is not acceptable for this feature.
   show this clearly and immediately surface the `Call 10111` / `Call
 security` buttons as the fallback — do not fail silently or show a
   generic error.
+  **Status:** ✅ Failure message + call buttons remain available.
 - Log every `security_alerts` status transition with a timestamp for audit
   purposes — this data may matter for real incident review, insurance, or
   a dispute, consistent with the record-keeping rigor already expected
   elsewhere in DavDev's HOA/CSOS work.
+  **Status:** 🟡 Status + actor timestamps on acknowledge/responding/resolve;
+  no separate append-only event/audit table yet (acceptable for v1 shell;
+  revisit if CSOS needs a full timeline).
 - Alerts must never be edited or deleted after creation, only appended to
   via status transitions.
+  **Status:** ✅ No edit/delete alert APIs; status PATCH only.
 
 ---
 
 ## 6. Manage security contacts flow
 
 References: `manage_security_contacts` (list), `add_edit_security_contact`
-(form)
+(form) — **✅ built** (`/admin/security/contacts`)
 
 This is the setup/admin path behind the overflow menu — infrequent, so it's
 kept off the main panic screen entirely (see §2). Build access-gated: only
@@ -219,15 +283,20 @@ not just have the buttons disabled — don't show controls a role can't use.
   it, matching the mockup — this reflects that exactly one
   `security_contacts` row per tenant should have
   `is_default_call_target = true` at any time.
+  **Status:** ✅
 - Each row shows label, phone, contact type icon, edit icon; non-default
   rows also get a "set as default" (star) action.
+  **Status:** ✅ (type shown as label text, not a dedicated icon set)
 - Setting a new default must be atomic — flipping one row's
   `is_default_call_target` to `true` must flip any previously-default row
   to `false` in the same transaction. Never allow two contacts to be
   default simultaneously, since `Call security` on the main screen resolves
   to whichever row has that flag set.
+  **Status:** ✅ `setDefaultSecurityContact` / `clearDefaultSecurityContact`
 - "Add" button opens the form (below) with no pre-filled values.
+  **Status:** ✅
 - Tapping a row's edit icon opens the same form pre-filled for that row.
+  **Status:** ✅
 
 **Add/edit form (`add_edit_security_contact`)**:
 
@@ -236,19 +305,23 @@ not just have the buttons disabled — don't show controls a role can't use.
   button, so validate format before save), contact type (radio: internal
   security / armed response / emergency services), and a "set as default"
   checkbox.
+  **Status:** ✅ Zod-validated form
 - If "set as default" is checked, apply the same atomic single-default
   transaction described above on save.
+  **Status:** ✅
 - Deleting a contact: if it's the current default, **block the delete** and
   show inline guidance: "Set another contact as default before deleting this
   one." Never leave `Call security` with zero default (see §8.6).
+  **Status:** ✅ API 409 + form surfaces error
 - Save/Cancel — standard form conventions already used elsewhere in the
   app (e.g. the booking detail flow), no new pattern needed.
+  **Status:** ✅
 
 ---
 
 ## 7. Admin security dashboard
 
-Reference: `admin_security_dashboard`
+Reference: `admin_security_dashboard` — **✅ built** (`/admin/security`)
 
 Separate surface from the resident-facing panic screen — built for
 management/security-desk roles (same role gate as §6). Shows stat tiles
@@ -263,6 +336,7 @@ shows alert type, resident name (or "Anonymous tip-off" with no name, per
 (`property_id` address, plus "within boundary" / "outside boundary" /
 blank if `within_boundary` is null per §1), and who's acknowledged it if
 anyone has.
+**Status:** ✅ Panic-only live query; tips stay on their own tab.
 
 **State machine** — enforce these as the only legal transitions, each
 writing its own actor + timestamp:
@@ -279,27 +353,34 @@ toggle — "someone has seen this" and "this is actually over" are different
 facts, and given DavDev's ongoing CSOS/dispute work, the audit trail should
 distinguish them rather than collapse to a single timestamp. **`responding`
 is a distinct manual step** between acknowledge and resolve (see §8.7).
+**Status:** ✅ `PATCH /api/admin/security/alerts/[id]` actions.
 
 **Card actions**:
 
 - `Acknowledge` — sets `acknowledged_at`/`acknowledged_by_user_id`, moves
   card state, does not remove it from the live stream.
+  **Status:** ✅
 - `Mark responding` — sets status to `responding` (no extra timestamp column
   in v1 — `updated_at` on the row suffices; optional note field deferred).
   Available only after acknowledge.
+  **Status:** ✅
 - `Mark resolved` — sets `resolved_at`/`resolved_by_user_id`, moves the
   row out of the live stream into Resolved.
+  **Status:** ✅
 - `View on map` — opens the alert's `latitude`/`longitude` on a map view;
   if null (location unavailable, per §3 step 2), show that explicitly
   rather than a broken/blank map.
+  **Status:** ✅ External maps link or "No GPS for map"
 - `Call resident` — **deferred to v1.1** (§8.8). Not shown in v1 admin
   dashboard cards. When it ships, join via `triggered_by_user_id` → user
   phone; never for `anonymous_tip` rows.
+  **Status:** ⬜ **v1.1**
 
 **Anonymous tips tab** — read-only list of `alert_type = anonymous_tip`
 rows, deliberately visually de-emphasized in the mockup (lower-contrast
 card) since these are not urgent-response items the way panic alerts are.
 Tips are **not** mixed into the live panic stream (§8.4).
+**Status:** ✅ Message-only cards; no reporter identity.
 
 **Live-update requirement**: "Live stream" must actually update in near
 real time (new alerts appear without a manual refresh, elapsed-time labels
@@ -308,12 +389,15 @@ or short-poll requirement, not a page that's merely fresh on load. Flag
 this explicitly to whoever scopes the infra work; it's a materially
 different requirement than the mostly-static admin views elsewhere in the
 platform (e.g. Amenities config).
+**Status:** 🟡 10s short-poll implemented. Not websocket; not UAT'd for
+latency under load.
 
 **Manage contacts** entry point in the header routes to the same
 `manage_security_contacts` / `add_edit_security_contact` flow from §6 —
 do not build a second, separate contacts UI for admin. This dashboard is
 where defaults actually get set in practice, but the underlying screens
 and role gate are shared with §6, not duplicated.
+**Status:** ✅ Shared contacts routes.
 
 ---
 
@@ -357,10 +441,18 @@ and role gate are shared with §6, not duplicated.
 These are operational gates, not build blockers for the UI shell:
 
 - **Legal sign-off** on disclaimer copy (§8.5) before enabling dispatch in
-  production.
+  production. ⬜
 - **Seed real `security_contacts`** for Soralia (desk numbers, default
-  target) before go-live.
-- **Named armed-response vendor** only needed for §4 v2 adapter work.
+  target) before go-live. ⬜
+- **Named armed-response vendor** only needed for §4 v2 adapter work. ⬜
+
+### 8b. Version backlog (code follow-ups)
+
+| Version                     | Items                                                                                                                                                     |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **v1 incomplete (go-live)** | Wire SMS + push with delivery confirmation; enable only after §8a; seed contacts; optional geofence → `within_boundary`; RLS policies for security tables |
+| **v1.1**                    | Call resident on admin cards; optional tip photo upload                                                                                                   |
+| **v2**                      | Pluggable armed-response vendor API adapter                                                                                                               |
 
 ---
 
@@ -378,10 +470,15 @@ These are operational gates, not build blockers for the UI shell:
 - **Call resident** on admin dashboard cards (v1.1 — §8.8).
 - Platform break-glass UI for anonymous-tip submitter identity (stored
   server-side per §8.3 but no operator tooling in v1).
+- Optional anonymous-tip **photo** upload (listed in §2; not built — v1.1).
 
 ---
 
 ## 10. Acceptance criteria
+
+**Not tested.** Boxes stay unchecked until a human/UAT pass against a
+tenant with seeded contacts. Implementation claims in §1–§7 are
+code-complete markers only — they do **not** mean these criteria passed.
 
 - [ ] Panic button requires an explicit confirmation step before dispatch —
       never fires on a single accidental tap (**hold-to-confirm 3s**, §8.2).
@@ -396,6 +493,8 @@ These are operational gates, not build blockers for the UI shell:
       no edit/delete).
 - [ ] No vendor-specific dispatch integration in v1 (§8.1); SMS/push to
       default internal security contact only.
+      _(Note: SMS/push adapter itself is still unwired — fail-closed is
+      intentional until §8a + §4 complete.)_
 - [ ] Only management/admin roles can see or use "Manage security contacts";
       regular residents don't see the option in the overflow menu.
 - [ ] Exactly one `security_contacts` row per tenant is ever
@@ -404,6 +503,7 @@ These are operational gates, not build blockers for the UI shell:
       (§8.6).
 - [ ] Admin dashboard's Live stream tab updates in near real time without a
       manual page refresh.
+      _(Note: 10s poll is implemented; not load-tested.)_
 - [ ] Acknowledge, Mark responding, and Resolve are logged as distinct
       actions with separate actor + timestamp fields (§8.7).
 - [ ] Anonymous tips appear only on the Anonymous tips tab, not the live

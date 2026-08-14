@@ -1,0 +1,17 @@
+{
+  "tasks": [
+    { "task_description": "Read docs/plans/INSTRUCTIONS.md", "completed": true },
+    { "task_description": "List and read mockup files in docs/plans/mockups/", "completed": true },
+    { "task_description": "Review existing phase-127 worktree state", "completed": false },
+    {
+      "task_description": "Synthesize plan based on instructions + mockups + decisions",
+      "completed": false
+    }
+  ],
+  "description": "Read INSTRUCTIONS.md and mockups, then plan amenities redesign implementation for phase-127",
+  "context": [
+    "INSTRUCTIONS.md fully read. Three mockups read. Key visual details: amenities_page_mockup — vertical card list, icon tile left (120x100px), status badge top-right, action row with Book/Join waitlist/info/phone buttons. tennis_court_booking_detail — back link, hero icon tile, date strip (5 days), 3-col time grid (disabled past/taken, accent-outline selected), rules box, full-width confirm button with echoed date/time. my_bookings_tab — Upcoming section (confirmed/waitlisted rows with cancel ×), Past section (opacity:0.7, completed/no_show/cancelled rows with Book again). Decisions from DavDev: 1) waitlist=auto-promote+notify, 2) booking window=per-amenity/per-tenant, schema carries fields, default no limit, 3) no no_show auto-transition (no check-in UI), 4) cancelled shows in Past with Cancelled badge, 5) non-bookable no contact_phone → chat-to-management flow."
+  ],
+  "modified_files": [],
+  "id": "1786533468981"
+}

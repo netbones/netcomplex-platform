@@ -1,0 +1,54 @@
+<div>
+<h2 class="sr-only">Resident-facing self-service Billing and Plan Centre, showing current seat, available upgrades, payment method, and billing history</h2>
+
+<p style="font-size:13px;color:var(--text-secondary);margin:0 0 1.25rem;">Manage your own seat and payments. Community roles and roster status are managed by your admin.</p>
+
+<div style="background:var(--surface-1);border-radius:var(--radius);padding:1.25rem;margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:center;">
+  <div>
+    <p style="font-size:12px;color:var(--text-secondary);margin:0 0 4px;">Current seat</p>
+    <p style="font-size:18px;font-weight:500;margin:0 0 4px;">Standard seat</p>
+    <p style="font-size:13px;color:var(--text-muted);margin:0;">Included with your community · Conebrush Rd 5</p>
+  </div>
+  <span style="background:var(--bg-success);color:var(--text-success);font-size:12px;padding:4px 10px;border-radius:var(--radius);">Included</span>
+</div>
+
+<h3 style="margin:0 0 12px;">Available upgrades</h3>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.75rem;">
+
+  <div style="background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:1.25rem;">
+    <i class="ti ti-key" style="font-size:20px;color:var(--text-accent);" aria-hidden="true"></i>
+    <p style="font-weight:500;margin:12px 0 4px;">Solo seat</p>
+    <p style="font-size:13px;color:var(--text-secondary);margin:0 0 14px;">Your own independent login and platform presence, separate from the household.</p>
+    <p style="font-size:18px;font-weight:500;margin:0 0 14px;">R89<span style="font-size:13px;color:var(--text-secondary);font-weight:400;">/month</span></p>
+    <button style="width:100%;background:var(--fill-primary);color:var(--on-primary);border:none;">Upgrade to Solo seat</button>
+  </div>
+
+  <div style="background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:1.25rem;opacity:0.6;">
+    <i class="ti ti-building-community" style="font-size:20px;color:var(--text-secondary);" aria-hidden="true"></i>
+    <p style="font-weight:500;margin:12px 0 4px;">Premium seat</p>
+    <p style="font-size:13px;color:var(--text-secondary);margin:0 0 14px;">Manage multiple properties from one dashboard with volume pricing.</p>
+    <p style="font-size:13px;color:var(--text-muted);margin:0 0 14px;">Requires 2 or more properties</p>
+    <button style="width:100%;" disabled disabledreason="Requires 2 or more properties">Not eligible yet</button>
+  </div>
+
+</div>
+
+<h3 style="margin:0 0 12px;">Payment method</h3>
+
+<div style="background:var(--surface-1);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1.75rem;display:flex;justify-content:space-between;align-items:center;">
+  <p style="font-size:13px;color:var(--text-muted);margin:0;">No payment method on file. Add one when you upgrade to a paid seat.</p>
+  <button>Add payment method</button>
+</div>
+
+<h3 style="margin:0 0 12px;">Billing history</h3>
+
+<div style="display:grid;grid-template-columns:1fr 2fr 1fr 1fr 24px;padding:8px 4px;font-size:12px;color:var(--text-muted);border-bottom:0.5px solid var(--border);">
+  <span>DATE</span><span>DESCRIPTION</span><span>AMOUNT</span><span>STATUS</span><span></span>
+</div>
+
+<div style="display:flex;align-items:center;justify-content:center;padding:2rem 0;color:var(--text-muted);font-size:13px;">
+  No billing history yet
+</div>
+
+</div>
