@@ -7,6 +7,7 @@ export interface UserProfile {
   name?: string | null;
   image?: string | null;
   avatar?: string | null;
+  isPublic?: boolean;
   showEmail?: boolean;
   showPhone?: boolean;
   standardSeats?: Array<{

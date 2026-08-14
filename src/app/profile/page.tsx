@@ -47,6 +47,7 @@ export default function SettingsPage() {
   const [language, setLanguage] = useState<string>('en');
   const [langSaving, setLangSaving] = useState(false);
   const [langSaved, setLangSaved] = useState(false);
+  const [isPublic, setIsPublic] = useState(true);
   const [showEmail, setShowEmail] = useState(true);
   const [showPhone, setShowPhone] = useState(true);
   const [householdId, setHouseholdId] = useState<string | null>(null);
@@ -66,6 +67,7 @@ export default function SettingsPage() {
     if (!userData) return;
     const data = userData;
 
+    if (data.isPublic !== undefined) setIsPublic(data.isPublic);
     if (data.showEmail !== undefined) setShowEmail(data.showEmail);
     if (data.showPhone !== undefined) setShowPhone(data.showPhone);
     if (data.avatar || data.image) setUserAvatar(data.avatar || data.image || '');
@@ -171,7 +173,7 @@ export default function SettingsPage() {
     if (!session?.user?.id) return;
     setPrivacySaving(true);
     try {
-      await apiPatch(`/api/users/${session.user.id}`, { showEmail, showPhone });
+      await apiPatch(`/api/users/${session.user.id}`, { isPublic, showEmail, showPhone });
       toast.success(tToast('updated', 'Privacy settings'));
     } catch {
       toast.error(tToast('failedToSave', 'settings'));
@@ -233,8 +235,10 @@ export default function SettingsPage() {
         />
 
         <PrivacySection
+          isPublic={isPublic}
           showEmail={showEmail}
           showPhone={showPhone}
+          onTogglePublic={setIsPublic}
           onToggleEmail={setShowEmail}
           onTogglePhone={setShowPhone}
           onSave={savePrivacySettings}

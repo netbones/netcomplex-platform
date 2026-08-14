@@ -1,8 +1,10 @@
 'use client';
 
 interface PrivacySectionProps {
+  isPublic: boolean;
   showEmail: boolean;
   showPhone: boolean;
+  onTogglePublic: (checked: boolean) => void;
   onToggleEmail: (checked: boolean) => void;
   onTogglePhone: (checked: boolean) => void;
   onSave: () => Promise<void>;
@@ -10,8 +12,10 @@ interface PrivacySectionProps {
 }
 
 export function PrivacySection({
+  isPublic,
   showEmail,
   showPhone,
+  onTogglePublic,
   onToggleEmail,
   onTogglePhone,
   onSave,
@@ -24,6 +28,15 @@ export function PrivacySection({
         Control what information is visible on your public profile.
       </p>
       <div className="space-y-4">
+        <label className="flex items-center gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={isPublic}
+            onChange={e => onTogglePublic(e.target.checked)}
+            className="w-4 h-4 text-soralia-primary border-gray-300 rounded focus:ring-soralia-primary"
+          />
+          <span className="text-gray-700">Public profile</span>
+        </label>
         <label className="flex items-center gap-3 cursor-pointer">
           <input
             type="checkbox"
