@@ -2,7 +2,6 @@ import { z } from 'zod';
 import {
   router,
   tenantProcedure,
-  privilegedProcedure,
   rateLimitMiddleware,
   db,
   events,
@@ -20,12 +19,36 @@ import { toEnvelope } from '@api/server';
 import { eventDto } from '@api/server';
 
 import { TRPCError } from '@trpc/server';
-import { requireContentPermission } from '../core/content';
 
 import { eq, and, count, inArray, isNull } from 'drizzle-orm';
 
 import { listEvents, createEvent } from '@entities/event/server';
+import { hasPermission } from '@shared/lib';
 import { createId } from '@shared/lib/id';
+
+/** Management can edit any event; residents only events they created. */
+async function assertCanManageEvent(
+  eventId: string,
+  tenantId: string,
+  userId: string,
+  role: string | null
+): Promise<void> {
+  if (hasPermission(role, 'content')) return;
+
+  const [event] = await db
+    .select({ createdByUserId: events.createdByUserId })
+    .from(events)
+    .where(and(eq(events.id, eventId), eq(events.tenantId, tenantId), notDeleted(events)))
+    .limit(1);
+
+  if (!event) {
+    throw new TRPCError({ code: 'NOT_FOUND', message: 'Event not found' });
+  }
+
+  if (event.createdByUserId !== userId) {
+    throw new TRPCError({ code: 'FORBIDDEN', message: 'You can only manage your own events' });
+  }
+}
 
 // ──────────────────────────────────────────
 // Input schemas
@@ -46,10 +69,12 @@ const CreateEventInput = z.object({
   title: z.string().min(1).max(200).trim(),
   description: z.string().min(1).max(5000).trim(),
   date: z.string().min(1),
+  endDate: z.string().optional().nullable(),
   location: z.string().min(1).max(200).trim(),
   organizer: z.string().min(1).max(200).trim(),
   image: z.string().optional().nullable(),
   isPublic: z.boolean().default(true),
+  isDraft: z.boolean().default(false),
   category: z.string().optional().nullable(),
   maxAttendees: z.coerce.number().int().positive().optional().nullable(),
 });
@@ -59,10 +84,12 @@ const UpdateEventInput = z.object({
   title: z.string().min(1).max(200).trim().optional(),
   description: z.string().min(1).max(5000).trim().optional(),
   date: z.string().optional(),
+  endDate: z.string().optional().nullable(),
   location: z.string().min(1).max(200).trim().optional(),
   organizer: z.string().min(1).max(200).trim().optional(),
   image: z.string().optional().nullable(),
   isPublic: z.boolean().optional(),
+  isDraft: z.boolean().optional(),
   category: z.string().optional().nullable(),
   maxAttendees: z.coerce.number().int().positive().optional().nullable(),
 });
@@ -135,11 +162,14 @@ export const eventsRouter = router({
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
 
+      // Residents see public non-draft events plus their own; management sees all.
+      const canViewAll = hasPermission(ctx.role, 'content');
       const eventItems = await listEvents({
         tenantId,
         limit: input?.limit,
         upcoming: input?.upcoming,
         category: input?.category,
+        viewerId: canViewAll ? undefined : ctx.userId,
       });
 
       const enriched = await enrichEvents(eventItems, ctx.userId, tenantId);
@@ -159,21 +189,30 @@ export const eventsRouter = router({
 
       const event = await getTenantEvent(input.id, tenantId);
 
+      // Residents can only view public (non-draft) events or their own events.
+      if (
+        !hasPermission(ctx.role, 'content') &&
+        event.createdByUserId !== ctx.userId &&
+        (!event.isPublic || event.isDraft)
+      ) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Event not found' });
+      }
+
       const enriched = await enrichEvents([event!], ctx.userId, tenantId);
 
       return toEnvelope(eventDto.parse(enriched[0]));
     }),
 
   /**
-   * Create a new event — staff only.
-   * @privileged
+   * Create a new event — any authenticated resident or staff member.
+   * The creator is recorded as the owner for resident edit/cancel rights.
+   * @tenant
    */
-  createEvent: privilegedProcedure
+  createEvent: tenantProcedure
+    .use(rateLimitMiddleware({ windowMs: 60_000, maxRequests: 10 }))
     .input(CreateEventInput)
     .meta({ openapi: { method: 'POST', path: '/events/create', protect: true, tags: ['events'] } })
     .mutation(async ({ input, ctx }) => {
-      requireContentPermission(ctx.role);
-
       const tenantId = ctx.tenantId;
 
       const event = await createEvent({
@@ -182,12 +221,15 @@ export const eventsRouter = router({
         title: input.title,
         description: input.description,
         date: new Date(input.date),
+        endDate: input.endDate ? new Date(input.endDate) : null,
         location: input.location,
         organizer: input.organizer,
         image: input.image || null,
         isPublic: input.isPublic,
+        isDraft: input.isDraft,
         category: input.category ?? null,
         maxAttendees: input.maxAttendees ?? null,
+        createdByUserId: ctx.userId,
       });
 
       revalidateContent();
@@ -196,18 +238,17 @@ export const eventsRouter = router({
     }),
 
   /**
-   * Update an existing event — staff only.
-   * @privileged
+   * Update an existing event — owner or management.
+   * @tenant
    */
-  updateEvent: privilegedProcedure
+  updateEvent: tenantProcedure
     .input(UpdateEventInput)
     .meta({ openapi: { method: 'PATCH', path: '/events/update', protect: true, tags: ['events'] } })
     .mutation(async ({ input, ctx }) => {
-      requireContentPermission(ctx.role);
-
-      await getTenantEvent(input.id, ctx.tenantId);
-
       const tenantId = ctx.tenantId;
+
+      await assertCanManageEvent(input.id, tenantId, ctx.userId, ctx.role);
+
       const updateData: Record<string, unknown> = {
         updatedAt: now(),
       };
@@ -215,10 +256,13 @@ export const eventsRouter = router({
       if (input.title !== undefined) updateData.title = input.title;
       if (input.description !== undefined) updateData.description = input.description;
       if (input.date !== undefined) updateData.date = new Date(input.date);
+      if (input.endDate !== undefined)
+        updateData.endDate = input.endDate ? new Date(input.endDate) : null;
       if (input.location !== undefined) updateData.location = input.location;
       if (input.organizer !== undefined) updateData.organizer = input.organizer;
       if (input.image !== undefined) updateData.image = input.image || null;
       if (input.isPublic !== undefined) updateData.isPublic = input.isPublic;
+      if (input.isDraft !== undefined) updateData.isDraft = input.isDraft;
       if (input.category !== undefined) updateData.category = input.category ?? null;
       if (input.maxAttendees !== undefined) updateData.maxAttendees = input.maxAttendees ?? null;
 
@@ -234,20 +278,18 @@ export const eventsRouter = router({
     }),
 
   /**
-   * Soft-delete an event — staff only.
-   * @privileged
+   * Soft-delete an event — owner or management.
+   * @tenant
    */
-  deleteEvent: privilegedProcedure
+  deleteEvent: tenantProcedure
     .input(EventIdInput)
     .meta({
       openapi: { method: 'DELETE', path: '/events/delete', protect: true, tags: ['events'] },
     })
     .mutation(async ({ input, ctx }) => {
-      requireContentPermission(ctx.role);
-
       const tenantId = ctx.tenantId;
 
-      await getTenantEvent(input.id, tenantId);
+      await assertCanManageEvent(input.id, tenantId, ctx.userId, ctx.role);
 
       await db
         .update(events)
@@ -273,7 +315,16 @@ export const eventsRouter = router({
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
 
-      await getTenantEvent(input.id, tenantId);
+      const event = await getTenantEvent(input.id, tenantId);
+
+      // Residents can only view attendees for public (non-draft) events or their own.
+      if (
+        !hasPermission(ctx.role, 'content') &&
+        event.createdByUserId !== ctx.userId &&
+        (!event.isPublic || event.isDraft)
+      ) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Event not found' });
+      }
 
       const attendees = await db
         .select({
@@ -306,7 +357,12 @@ export const eventsRouter = router({
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
 
-      await getTenantEvent(input.id, tenantId);
+      const event = await getTenantEvent(input.id, tenantId);
+
+      // Residents can only RSVP to public (non-draft) events or their own.
+      if (event.createdByUserId !== ctx.userId && (!event.isPublic || event.isDraft)) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Event not found' });
+      }
 
       const [existing] = await db
         .select({ id: eventAttendees.id })
@@ -323,6 +379,23 @@ export const eventsRouter = router({
 
       if (existing) {
         throw new TRPCError({ code: 'CONFLICT', message: 'Already registered for this event' });
+      }
+
+      if (event.maxAttendees != null) {
+        const [{ count: activeCount }] = await db
+          .select({ count: count() })
+          .from(eventAttendees)
+          .where(
+            and(
+              eq(eventAttendees.eventId, input.id),
+              eq(eventAttendees.tenantId, tenantId),
+              isNull(eventAttendees.deletedAt)
+            )
+          );
+
+        if (activeCount >= event.maxAttendees) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Event is full' });
+        }
       }
 
       const [attendee] = await db

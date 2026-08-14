@@ -86,13 +86,22 @@ export const POST = withErrorHandler(
     }
 
     const event = await db
-      .select({ maxAttendees: events.maxAttendees })
+      .select({
+        maxAttendees: events.maxAttendees,
+        isPublic: events.isPublic,
+        isDraft: events.isDraft,
+        createdByUserId: events.createdByUserId,
+      })
       .from(events)
       .where(and(eq(events.id, id), eq(events.tenantId, tenantId)))
       .limit(1)
       .then(rows => rows[0] ?? null);
 
     if (!event) {
+      return apiNotFound('Event not found');
+    }
+
+    if (event.createdByUserId !== userId && (!event.isPublic || event.isDraft)) {
       return apiNotFound('Event not found');
     }
 

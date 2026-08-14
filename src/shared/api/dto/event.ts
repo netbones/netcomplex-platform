@@ -7,8 +7,14 @@ const dateSchema = z
   .nullable()
   .transform(d => (d ? d.toISOString() : new Date().toISOString()));
 
+const nullableDateSchema = z
+  .date()
+  .nullable()
+  .transform(d => (d ? d.toISOString() : null));
+
 export const eventDto = createSelectSchema(events, {
   date: dateSchema,
+  endDate: nullableDateSchema,
   createdAt: dateSchema,
   updatedAt: dateSchema,
 }).pick({
@@ -16,12 +22,15 @@ export const eventDto = createSelectSchema(events, {
   title: true,
   description: true,
   date: true,
+  endDate: true,
   location: true,
   organizer: true,
   image: true,
   isPublic: true,
+  isDraft: true,
   category: true,
   maxAttendees: true,
+  createdByUserId: true,
   createdAt: true,
   updatedAt: true,
 });

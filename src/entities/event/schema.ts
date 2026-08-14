@@ -15,12 +15,19 @@ export const adminEventSchema = z.object({
     .string()
     .min(1, 'Date is required')
     .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, 'Date must be YYYY-MM-DDTHH:MM'),
+  endDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, 'End must be YYYY-MM-DDTHH:MM')
+    .optional()
+    .or(z.literal('')),
   location: z.string().min(1, 'Location is required').max(200, 'Location too long').trim(),
   organizer: z.string().min(1, 'Organizer is required').max(200, 'Organizer too long').trim(),
   image: z.string().url('Must be a valid URL').optional().or(z.literal('')),
   isPublic: z.boolean(),
+  isDraft: z.boolean().optional(),
   category: z.string().optional().nullable(),
   maxAttendees: z.coerce.number().int().positive().optional().nullable(),
+  createdByUserId: z.string().optional().nullable(),
 });
 
 export type AdminEventFormData = z.infer<typeof adminEventSchema>;

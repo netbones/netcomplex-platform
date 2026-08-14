@@ -1,0 +1,124 @@
+<div style="width:100%">
+  <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-muted);margin-bottom:1rem">
+    <i class="ti ti-home" style="font-size:14px" aria-hidden="true"></i>
+    <i class="ti ti-chevron-right" style="font-size:12px" aria-hidden="true"></i>
+    <span>Events</span>
+  </div>
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:10px">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="width:32px;height:32px;border-radius:50%;background:var(--bg-accent);display:flex;align-items:center;justify-content:center">
+        <i class="ti ti-calendar-event" style="font-size:16px;color:var(--text-accent)" aria-hidden="true"></i>
+      </div>
+      <h1 style="margin:0">Events</h1>
+    </div>
+    <button style="padding:8px 14px;font-size:13px;display:flex;align-items:center;gap:6px;background:var(--fill-primary);color:var(--on-primary);border:none">
+      <i class="ti ti-plus" style="font-size:15px" aria-hidden="true"></i>New event
+    </button>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:1.25rem">
+    <div style="background:var(--surface-1);border-radius:var(--radius);padding:1rem">
+      <div style="font-size:13px;color:var(--text-secondary)">Upcoming</div>
+      <div style="font-size:24px;font-weight:500">3</div>
+    </div>
+    <div style="background:var(--surface-1);border-radius:var(--radius);padding:1rem">
+      <div style="font-size:13px;color:var(--text-secondary)">This week</div>
+      <div style="font-size:24px;font-weight:500">1</div>
+    </div>
+    <div style="background:var(--surface-1);border-radius:var(--radius);padding:1rem">
+      <div style="font-size:13px;color:var(--text-secondary)">Total RSVPs</div>
+      <div style="font-size:24px;font-weight:500">86</div>
+    </div>
+    <div style="background:var(--surface-1);border-radius:var(--radius);padding:1rem">
+      <div style="font-size:13px;color:var(--text-secondary)">Draft</div>
+      <div style="font-size:24px;font-weight:500">1</div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:10px;margin-bottom:1rem;flex-wrap:wrap">
+    <input type="text" placeholder="Search events" style="flex:2;min-width:200px" />
+    <select style="flex:1;min-width:140px"><option>Status: any</option><option>Upcoming</option><option>Past</option><option>Draft</option></select>
+    <select style="flex:1;min-width:140px"><option>Visibility: any</option><option>Public</option><option>Residents only</option></select>
+  </div>
+
+  <table style="width:100%;border-collapse:collapse;font-size:13px">
+    <thead>
+      <tr style="border-bottom:0.5px solid var(--border)">
+        <th style="text-align:left;padding:8px 6px;color:var(--text-secondary);font-weight:500">Event</th>
+        <th style="text-align:left;padding:8px 6px;color:var(--text-secondary);font-weight:500">Date</th>
+        <th style="text-align:left;padding:8px 6px;color:var(--text-secondary);font-weight:500">Location</th>
+        <th style="text-align:left;padding:8px 6px;color:var(--text-secondary);font-weight:500">Organizer</th>
+        <th style="text-align:left;padding:8px 6px;color:var(--text-secondary);font-weight:500">RSVPs</th>
+        <th style="text-align:left;padding:8px 6px;color:var(--text-secondary);font-weight:500">Status</th>
+        <th style="padding:8px 6px"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="border-bottom:0.5px solid var(--border)">
+        <td style="padding:10px 6px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:34px;height:34px;border-radius:8px;background:var(--bg-accent);display:flex;align-items:center;justify-content:center;min-width:34px">
+              <i class="ti ti-confetti" style="font-size:16px;color:var(--text-accent)" aria-hidden="true"></i>
+            </div>
+            <span style="font-weight:500">Spring Fair &amp; Market</span>
+          </div>
+        </td>
+        <td style="padding:10px 6px;color:var(--text-secondary)">Sat 16 Aug, 10:00</td>
+        <td style="padding:10px 6px;color:var(--text-secondary)">Clubhouse lawn</td>
+        <td style="padding:10px 6px;color:var(--text-secondary)">Community Committee</td>
+        <td style="padding:10px 6px;color:var(--text-secondary)">42</td>
+        <td style="padding:10px 6px"><span style="background:var(--bg-success);color:var(--text-success);padding:2px 8px;border-radius:var(--radius)">Upcoming</span></td>
+        <td style="padding:10px 6px;text-align:right"><i class="ti ti-dots" style="font-size:16px;color:var(--text-muted)" aria-hidden="true"></i></td>
+      </tr>
+      <tr style="border-bottom:0.5px solid var(--border)">
+        <td style="padding:10px 6px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:34px;height:34px;border-radius:8px;background:var(--bg-warning);display:flex;align-items:center;justify-content:center;min-width:34px">
+              <i class="ti ti-tools" style="font-size:16px;color:var(--text-warning)" aria-hidden="true"></i>
+            </div>
+            <span style="font-weight:500">Water Committee AGM</span>
+          </div>
+        </td>
+        <td style="padding:10px 6px;color:var(--text-secondary)">Wed 20 Aug, 18:30</td>
+        <td style="padding:10px 6px;color:var(--text-secondary)">Boardroom</td>
+        <td style="padding:10px 6px;color:var(--text-secondary)">HOA Trustees</td>
+        <td style="padding:10px 6px;color:var(--text-secondary)">19</td>
+        <td style="padding:10px 6px"><span style="background:var(--bg-success);color:var(--text-success);padding:2px 8px;border-radius:var(--radius)">Upcoming</span></td>
+        <td style="padding:10px 6px;text-align:right"><i class="ti ti-dots" style="font-size:16px;color:var(--text-muted)" aria-hidden="true"></i></td>
+      </tr>
+      <tr style="border-bottom:0.5px solid var(--border)">
+        <td style="padding:10px 6px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:34px;height:34px;border-radius:8px;background:var(--surface-1);display:flex;align-items:center;justify-content:center;min-width:34px">
+              <i class="ti ti-pennant" style="font-size:16px;color:var(--text-secondary)" aria-hidden="true"></i>
+            </div>
+            <span style="font-weight:500">Greening Challenge Kickoff</span>
+          </div>
+        </td>
+        <td style="padding:10px 6px;color:var(--text-secondary)">Draft — no date set</td>
+        <td style="padding:10px 6px;color:var(--text-secondary)">—</td>
+        <td style="padding:10px 6px;color:var(--text-secondary)">D. Lewis</td>
+        <td style="padding:10px 6px;color:var(--text-secondary)">—</td>
+        <td style="padding:10px 6px"><span style="background:var(--surface-1);color:var(--text-secondary);padding:2px 8px;border-radius:var(--radius)">Draft</span></td>
+        <td style="padding:10px 6px;text-align:right"><i class="ti ti-dots" style="font-size:16px;color:var(--text-muted)" aria-hidden="true"></i></td>
+      </tr>
+      <tr>
+        <td style="padding:10px 6px;opacity:0.6">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:34px;height:34px;border-radius:8px;background:var(--surface-1);display:flex;align-items:center;justify-content:center;min-width:34px">
+              <i class="ti ti-tree" style="font-size:16px;color:var(--text-secondary)" aria-hidden="true"></i>
+            </div>
+            <span style="font-weight:500">Arbor Day Planting</span>
+          </div>
+        </td>
+        <td style="padding:10px 6px;color:var(--text-secondary);opacity:0.6">Sat 2 Aug, 09:00</td>
+        <td style="padding:10px 6px;color:var(--text-secondary);opacity:0.6">Wetland corridor</td>
+        <td style="padding:10px 6px;color:var(--text-secondary);opacity:0.6">D. Lewis</td>
+        <td style="padding:10px 6px;color:var(--text-secondary);opacity:0.6">25</td>
+        <td style="padding:10px 6px"><span style="background:var(--surface-1);color:var(--text-secondary);padding:2px 8px;border-radius:var(--radius)">Past</span></td>
+        <td style="padding:10px 6px;text-align:right"><i class="ti ti-dots" style="font-size:16px;color:var(--text-muted)" aria-hidden="true"></i></td>
+      </tr>
+    </tbody>
+  </table>
+</div>

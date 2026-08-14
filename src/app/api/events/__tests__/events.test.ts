@@ -146,6 +146,16 @@ vi.mock('@shared/lib', () => ({
     if (permission === 'content')
       return role === 'ADMIN' || role === 'MANAGER' || role === 'COMMITTEE';
     if (permission === 'contentOwn') return role === 'ADMIN' || role === 'COMMITTEE';
+    if (permission === 'events')
+      return [
+        'ADMIN',
+        'MANAGER',
+        'COMMITTEE',
+        'BOARD',
+        'RESIDENT',
+        'GROUP_ADMIN',
+        'ASSOCIATE',
+      ].includes(role);
     return false;
   },
   createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
@@ -262,21 +272,35 @@ describe('Events API', () => {
       expect(response.status).toBe(401);
     });
 
-    it('returns 403 for user without content permission', async () => {
+    it('allows resident to create their own event', async () => {
       mocks.sessionResult = { user: { id: 'resident-user' } };
       mocks.mockRole = 'RESIDENT';
 
       const roleChain = makeSelectChain([{ role: 'RESIDENT' }]);
       mocks.dbMock.select.mockImplementation(() => roleChain);
+      mocks.createEvent.mockResolvedValue({
+        id: 'event-1',
+        title: 'Test Event',
+        createdByUserId: 'resident-user',
+      });
 
       const request = new Request('http://localhost:3000/api/events', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: 'Test Event', description: 'Testing', date: '2026-06-15' }),
+        body: JSON.stringify({
+          title: 'Test Event',
+          description: 'Testing',
+          date: '2026-06-15',
+          location: 'Clubhouse',
+          organizer: 'Resident',
+        }),
       });
 
       const response = await POST(request);
-      expect(response.status).toBe(403);
+      expect(response.status).toBe(201);
+      expect(mocks.createEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ createdByUserId: 'resident-user' })
+      );
     });
 
     it('returns 400 when required fields are missing', async () => {

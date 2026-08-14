@@ -26,6 +26,7 @@ export const GET = withErrorHandler(async (request: Request) => {
   const conditions = [
     eq(events.tenantId, tenantId),
     eq(events.isPublic, true),
+    eq(events.isDraft, false),
     isNull(events.deletedAt),
   ];
 

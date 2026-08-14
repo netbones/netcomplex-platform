@@ -93,8 +93,15 @@ export const GET = withErrorHandler(async (request: Request) => {
   const limit = limitParam ? parseInt(limitParam, 10) : undefined;
   const upcoming = upcomingParam === 'true';
 
-  // Delegate to entity service
-  const eventItems = await listEvents({ tenantId, limit, upcoming });
+  // Management sees everything; residents see only public (non-draft) events
+  // plus their own. Ownership is enforced by createdByUserId in the service.
+  const canViewAll = hasPermission(auth.data.role, 'content');
+  const eventItems = await listEvents({
+    tenantId,
+    limit,
+    upcoming,
+    viewerId: canViewAll ? undefined : auth.data.userId,
+  });
 
   const enriched = await enrichWithAttendees(
     eventItems as Array<Record<string, unknown>>,
@@ -113,7 +120,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   const auth = await requireAuth(request);
   if (!auth.success) return auth.response;
 
-  if (!hasPermission(auth.data.role, 'content') && !hasPermission(auth.data.role, 'contentOwn')) {
+  if (!hasPermission(auth.data.role, 'events')) {
     return apiForbidden();
   }
 
@@ -141,12 +148,15 @@ export const POST = withErrorHandler(async (request: Request) => {
     title: body.title,
     description: body.description,
     date: new Date(body.date),
+    endDate: body.endDate ? new Date(body.endDate) : null,
     location: body.location,
     organizer: body.organizer,
     image: body.image || null,
     isPublic: body.isPublic !== undefined ? body.isPublic : true,
+    isDraft: body.isDraft !== undefined ? body.isDraft : false,
     category: body.category ?? null,
     maxAttendees: body.maxAttendees ? parseInt(body.maxAttendees, 10) : null,
+    createdByUserId: auth.data.userId,
   });
 
   // Revalidate content caches

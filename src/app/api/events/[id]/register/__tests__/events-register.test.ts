@@ -35,6 +35,9 @@ vi.mock('@api/server', () => ({
     tenantId: 'tenantId',
     title: 'title',
     maxAttendees: 'maxAttendees',
+    isPublic: 'isPublic',
+    isDraft: 'isDraft',
+    createdByUserId: 'createdByUserId',
     createdAt: 'createdAt',
   },
   db: mocks.dbMock,
@@ -217,6 +220,18 @@ describe('POST /api/events/[id]/register', () => {
 
     // First select (existing check) → no existing registration
     mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([]));
+
+    // Second select (event lookup) → public, non-draft event
+    mocks.dbMock.select.mockReturnValueOnce(
+      makeSelectChain([
+        {
+          maxAttendees: null,
+          isPublic: true,
+          isDraft: false,
+          createdByUserId: 'someone-else',
+        },
+      ])
+    );
 
     // Insert → returning the new attendee
     const newAttendee = {

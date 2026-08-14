@@ -36,6 +36,12 @@ export const GET = withErrorHandler(
       return apiUnauthorized();
     }
 
+    const [user] = await db
+      .select({ role: users.role })
+      .from(users)
+      .where(eq(users.id, session.user.id))
+      .limit(1);
+
     // Enforce tenant isolation
     const { tenantId } = await withTenant();
 
@@ -46,6 +52,16 @@ export const GET = withErrorHandler(
       .limit(1);
 
     if (!event) {
+      return apiNotFound('Not found');
+    }
+
+    // Residents can only view public (non-draft) events or their own events.
+    const isManagement = hasPermission(user?.role || 'RESIDENT', 'content');
+    if (
+      !isManagement &&
+      event.createdByUserId !== session.user.id &&
+      (!event.isPublic || event.isDraft)
+    ) {
       return apiNotFound('Not found');
     }
 
@@ -86,23 +102,8 @@ export const PATCH = withErrorHandler(
     // Enforce tenant isolation
     const { tenantId } = await withTenant();
 
-    const updateData: Record<string, unknown> = {
-      updatedAt: now(),
-    };
-
-    if (body.title !== undefined) updateData.title = body.title;
-    if (body.description !== undefined) updateData.description = body.description;
-    if (body.date !== undefined) updateData.date = new Date(body.date);
-    if (body.location !== undefined) updateData.location = body.location;
-    if (body.organizer !== undefined) updateData.organizer = body.organizer;
-    if (body.image !== undefined) updateData.image = body.image || null;
-    if (body.isPublic !== undefined) updateData.isPublic = body.isPublic;
-    if (body.category !== undefined) updateData.category = body.category ?? null;
-    if (body.maxAttendees !== undefined)
-      updateData.maxAttendees = body.maxAttendees ? parseInt(body.maxAttendees, 10) : null;
-
     const [existing] = await db
-      .select({ deletedAt: events.deletedAt })
+      .select({ deletedAt: events.deletedAt, createdByUserId: events.createdByUserId })
       .from(events)
       .where(and(eq(events.id, id), eq(events.tenantId, tenantId)))
       .limit(1);
@@ -114,6 +115,30 @@ export const PATCH = withErrorHandler(
     if (existing.deletedAt) {
       return apiGone('This record has been deleted');
     }
+
+    // Management can edit any event; residents can only edit their own.
+    const isManagement = hasPermission(user?.role || 'RESIDENT', 'content');
+    if (!isManagement && existing.createdByUserId !== session.user.id) {
+      return apiForbidden();
+    }
+
+    const updateData: Record<string, unknown> = {
+      updatedAt: now(),
+    };
+
+    if (body.title !== undefined) updateData.title = body.title;
+    if (body.description !== undefined) updateData.description = body.description;
+    if (body.date !== undefined) updateData.date = new Date(body.date);
+    if (body.endDate !== undefined)
+      updateData.endDate = body.endDate ? new Date(body.endDate) : null;
+    if (body.location !== undefined) updateData.location = body.location;
+    if (body.organizer !== undefined) updateData.organizer = body.organizer;
+    if (body.image !== undefined) updateData.image = body.image || null;
+    if (body.isPublic !== undefined) updateData.isPublic = body.isPublic;
+    if (body.isDraft !== undefined) updateData.isDraft = body.isDraft;
+    if (body.category !== undefined) updateData.category = body.category ?? null;
+    if (body.maxAttendees !== undefined)
+      updateData.maxAttendees = body.maxAttendees ? parseInt(body.maxAttendees, 10) : null;
 
     const [event] = await db
       .update(events)
@@ -161,6 +186,22 @@ export const DELETE = withErrorHandler(
 
     // Enforce tenant isolation
     const { tenantId } = await withTenant();
+
+    const [existing] = await db
+      .select({ createdByUserId: events.createdByUserId })
+      .from(events)
+      .where(and(eq(events.id, id), eq(events.tenantId, tenantId)))
+      .limit(1);
+
+    if (!existing) {
+      return apiNotFound('Not found');
+    }
+
+    // Management can cancel any event; residents can only cancel their own.
+    const isManagement = hasPermission(user?.role || 'RESIDENT', 'content');
+    if (!isManagement && existing.createdByUserId !== session.user.id) {
+      return apiForbidden();
+    }
 
     const [event] = await db
       .update(events)

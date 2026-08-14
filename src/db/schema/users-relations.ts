@@ -28,6 +28,7 @@ import { disputeEvidences } from './dispute-evidences';
 import { disputeMessages } from './dispute-messages';
 import { disputeNotifications } from './dispute-notifications';
 import { eventAttendees } from './event-attendees';
+import { events } from './events';
 import { groups } from './groups';
 import { groupMembers } from './group-members';
 import { groupMembershipRequests } from './group-membership-requests';
@@ -129,6 +130,7 @@ export const usersRelations = relations(users, helpers => ({
     relationName: 'DisputeNotificationUser',
   }),
   EventAttendee: helpers.many(eventAttendees, { relationName: 'EventAttendeeTouser' }),
+  EventCreatedBy: helpers.many(events, { relationName: 'EventCreatedBy' }),
   Group: helpers.many(groups, { relationName: 'GroupTouser' }),
   GroupMember: helpers.many(groupMembers, { relationName: 'GroupMemberTouser' }),
   GroupMembershipRequest: helpers.many(groupMembershipRequests, {
