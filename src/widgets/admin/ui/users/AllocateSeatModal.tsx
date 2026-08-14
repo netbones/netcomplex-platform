@@ -17,6 +17,7 @@ const defaultAllocForm: AllocateSeatFormData = {
   platformAddress: '',
   soloSeatType: 'RESIDENT',
   portfolioName: '',
+  isComplimentary: false,
 };
 
 export function AllocateSeatModal({ user, seatType, onClose, onConfirm }: AllocateSeatModalProps) {

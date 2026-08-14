@@ -87,6 +87,8 @@ export interface AllocateSeatFormData {
   platformAddress: string;
   soloSeatType: string;
   portfolioName: string;
+  /** Whether this seat is a complimentary (board/committee) grant. ADVISORY-039 Amendment B. */
+  isComplimentary: boolean;
 }
 
 export const roleOptions = ['RESIDENT', 'BOARD', 'ADMIN', 'COMMITTEE'] as const;

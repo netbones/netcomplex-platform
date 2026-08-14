@@ -5,23 +5,14 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { ChevronDown, ChevronRight, UserPlus, X, Search } from 'lucide-react';
 import { ErrorBoundary } from '@shared/ui';
-import { apiPost, apiDelete, apiDeleteWithBody, apiPatch, apiGet } from '@/shared/api/http-client';
-import type {
-  AdminUser,
-  Invitation,
-  InviteFormData,
-  AllocateSeatFormData,
-  SuspensionFormData,
-} from '@entities/user';
+import { apiPost, apiDelete, apiPatch } from '@/shared/api/http-client';
+import type { AdminUser, Invitation, InviteFormData, SuspensionFormData } from '@entities/user';
 import { roleOptions } from '@entities/user';
-import { resolveSeatInfo } from './helpers/resolve-user-helpers';
 import { useUsersData } from './helpers/use-users-data';
 import { UserTable } from './UserTable';
 import { InviteModal } from './InviteModal';
 import { DeleteUserModal } from './DeleteUserModal';
 import { SuspendUserModal } from './SuspendUserModal';
-import { AllocateSeatModal } from './AllocateSeatModal';
-import { RemoveSeatModal } from './RemoveSeatModal';
 
 export function UsersListSection() {
   const { t } = useTranslation('admin');
@@ -53,10 +44,6 @@ export function UsersListSection() {
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
   const [editingForm, setEditingForm] = useState<Record<string, string | string[] | boolean>>({});
   const [saving, setSaving] = useState<string | null>(null);
-  const [allocatingUser, setAllocatingUser] = useState<AdminUser | null>(null);
-  const [allocSeatType, setAllocSeatType] = useState<'solo' | 'premium'>('solo');
-  const [removingUser, setRemovingUser] = useState<AdminUser | null>(null);
-  const [removingSeatAddress, setRemovingSeatAddress] = useState<string | null>(null);
 
   // --- Action handlers ---
 
@@ -179,73 +166,6 @@ export function UsersListSection() {
     }
   };
 
-  const handleAllocateSeat = (
-    user: AdminUser,
-    seatType: 'solo' | 'premium',
-    _platformAddress: string
-  ) => {
-    setAllocatingUser(user);
-    setAllocSeatType(seatType);
-  };
-
-  const handleAllocateSeatConfirm = async (form: AllocateSeatFormData) => {
-    const u = allocatingUser;
-    if (!u) return;
-    try {
-      await apiPost('/api/seats', {
-        userId: u.id,
-        seatType: allocSeatType,
-        platformAddress: form.platformAddress,
-        soloSeatType: allocSeatType === 'solo' ? form.soloSeatType : undefined,
-        portfolioName: allocSeatType === 'premium' ? form.portfolioName || null : undefined,
-      });
-      const { data: updatedUser } = await apiGet<AdminUser>(`/api/users/${u.id}`);
-      setUsers(users.map(x => (x.id === u.id ? { ...x, ...updatedUser } : x)));
-      toast.success(allocSeatType === 'solo' ? 'Solo seat allocated' : 'Premium seat allocated');
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to allocate seat');
-    }
-    setAllocatingUser(null);
-    setAllocSeatType('solo');
-  };
-
-  const handleRemoveSeat = (user: AdminUser, seatAddress: string | null) => {
-    setRemovingSeatAddress(seatAddress);
-    setRemovingUser(user);
-  };
-
-  const handleRemoveSeatConfirm = async () => {
-    const u = removingUser;
-    if (!u) return;
-    const si = resolveSeatInfo(u);
-    if (!si) return;
-    const seatType = si.label.toLowerCase().startsWith('vanity')
-      ? 'solo'
-      : si.label.toLowerCase() === 'premium'
-        ? 'premium'
-        : null;
-    if (!seatType) {
-      toast.error('Cannot remove a standard seat from here');
-      setRemovingUser(null);
-      setRemovingSeatAddress(null);
-      return;
-    }
-    try {
-      await apiDeleteWithBody('/api/seats', {
-        userId: u.id,
-        seatType,
-        platformAddress: seatType === 'solo' ? removingSeatAddress : undefined,
-      });
-      const { data: updatedUser } = await apiGet<AdminUser>(`/api/users/${u.id}`);
-      setUsers(users.map(x => (x.id === u.id ? { ...x, ...updatedUser } : x)));
-      toast.success('Seat removed');
-    } catch {
-      toast.error('Failed to remove seat');
-    }
-    setRemovingUser(null);
-    setRemovingSeatAddress(null);
-  };
-
   // --- Render ---
 
   return (
@@ -360,8 +280,6 @@ export function UsersListSection() {
               onRoleChange={updateUser}
               onStatusToggle={handleStatusToggle}
               onDelete={setDeleteUser}
-              onAllocateSeat={handleAllocateSeat}
-              onRemoveSeat={handleRemoveSeat}
             />
           </div>
         )}
@@ -377,24 +295,6 @@ export function UsersListSection() {
         user={suspendUser}
         onClose={() => setSuspendUser(null)}
         onConfirm={handleSuspend}
-      />
-      <AllocateSeatModal
-        user={allocatingUser}
-        seatType={allocSeatType}
-        onClose={() => {
-          setAllocatingUser(null);
-          setAllocSeatType('solo');
-        }}
-        onConfirm={handleAllocateSeatConfirm}
-      />
-      <RemoveSeatModal
-        user={removingUser}
-        seatAddress={removingSeatAddress}
-        onClose={() => {
-          setRemovingUser(null);
-          setRemovingSeatAddress(null);
-        }}
-        onConfirm={handleRemoveSeatConfirm}
       />
     </ErrorBoundary>
   );

@@ -86,6 +86,7 @@ vi.mock('@api/server', () => ({
   },
   auth: mocks.authMock,
   getSessionAndRole: mocks.getSessionAndRole,
+  writeAuditLog: vi.fn(),
   now: vi.fn(() => new Date()),
   notDeleted: vi.fn(() => true),
   guardSuspension: vi.fn(() => null),

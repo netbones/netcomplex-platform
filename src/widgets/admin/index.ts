@@ -21,5 +21,6 @@ export * from './ui/AdminAnnouncementsWidget';
 export * from './ui/SurveysWidget';
 export * from './ui/GroupModerationWidget';
 export * from './ui/UsersListSection';
+export * from './ui/users/PlanSeatsSection';
 export * from './ui/AdminAchievementsWidget';
 export * from './ui/maintenance';

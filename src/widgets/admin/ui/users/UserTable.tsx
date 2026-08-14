@@ -23,8 +23,6 @@ interface UserTableProps {
   onRoleChange: (id: string, data: Record<string, string>) => void;
   onStatusToggle: (user: AdminUser) => void;
   onDelete: (user: AdminUser) => void;
-  onAllocateSeat: (user: AdminUser, seatType: 'solo' | 'premium', platformAddress: string) => void;
-  onRemoveSeat: (user: AdminUser, seatAddress: string | null) => void;
 }
 
 export function UserTable({
@@ -43,8 +41,6 @@ export function UserTable({
   onRoleChange,
   onStatusToggle,
   onDelete,
-  onAllocateSeat,
-  onRemoveSeat,
 }: UserTableProps) {
   const { t } = useTranslation('admin');
 
@@ -94,8 +90,6 @@ export function UserTable({
                     onRoleChange={onRoleChange}
                     onStatusToggle={onStatusToggle}
                     onDelete={onDelete}
-                    onAllocateSeat={onAllocateSeat}
-                    onRemoveSeat={onRemoveSeat}
                   />
                   {expandedUserId === u.id && (
                     <UserEditRow

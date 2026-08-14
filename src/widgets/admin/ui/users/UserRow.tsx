@@ -1,6 +1,6 @@
 'use client';
 
-import { X, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { AdminUser } from '@entities/user';
 import { roleOptions } from '@entities/user';
@@ -14,8 +14,6 @@ interface UserRowProps {
   onRoleChange: (id: string, data: Record<string, string>) => void;
   onStatusToggle: (user: AdminUser) => void;
   onDelete: (user: AdminUser) => void;
-  onAllocateSeat: (user: AdminUser, seatType: 'solo' | 'premium', platformAddress: string) => void;
-  onRemoveSeat: (user: AdminUser, seatAddress: string | null) => void;
 }
 
 export function UserRow({
@@ -25,14 +23,9 @@ export function UserRow({
   onRoleChange,
   onStatusToggle,
   onDelete,
-  onAllocateSeat,
-  onRemoveSeat,
 }: UserRowProps) {
   const { t } = useTranslation('admin');
   const si = resolveSeatInfo(user);
-
-  const makeDefaultAddress = (u: AdminUser) =>
-    `${u.name.toLowerCase().replace(/\s+/g, '.')}@soralia.org`;
 
   return (
     <tr
@@ -62,35 +55,7 @@ export function UserRow({
       <td className="px-4 py-3 text-sm text-gray-500">{resolveAddress(user) || '-'}</td>
       <td className="px-4 py-3 text-sm">
         {!si.label && !si.address ? (
-          <div className="flex items-center gap-1">
-            <span className="text-gray-400">&mdash;</span>
-            <div className="flex items-center gap-1">
-              {(user.soloSeats?.length ?? 0) < 5 && (
-                <button
-                  onClick={e => {
-                    e.stopPropagation();
-                    onAllocateSeat(user, 'solo', makeDefaultAddress(user));
-                  }}
-                  className="px-1.5 py-0.5 text-xs border border-amber-300 text-amber-700 rounded hover:bg-amber-50"
-                  type="button"
-                >
-                  +Solo
-                </button>
-              )}
-              {(user.standardSeats?.length ?? 0) > 0 && !user.premiumSeat && (
-                <button
-                  onClick={e => {
-                    e.stopPropagation();
-                    onAllocateSeat(user, 'premium', makeDefaultAddress(user));
-                  }}
-                  className="px-1.5 py-0.5 text-xs border border-purple-300 text-purple-700 rounded hover:bg-purple-50"
-                  type="button"
-                >
-                  +Premium
-                </button>
-              )}
-            </div>
-          </div>
+          <span className="text-gray-400">&mdash;</span>
         ) : (
           <div className="flex items-center gap-1 flex-wrap">
             {si.label && (
@@ -101,46 +66,6 @@ export function UserRow({
               </span>
             )}
             {si.address && <span className="text-gray-500 text-xs">{si.address}</span>}
-            <div className="flex items-center gap-1">
-              {(user.soloSeats?.length ?? 0) < 5 && (
-                <button
-                  onClick={e => {
-                    e.stopPropagation();
-                    onAllocateSeat(user, 'solo', makeDefaultAddress(user));
-                  }}
-                  className="px-1.5 py-0.5 text-xs border border-amber-300 text-amber-700 rounded hover:bg-amber-50"
-                  type="button"
-                >
-                  +Solo
-                </button>
-              )}
-              {(user.standardSeats?.length ?? 0) > 0 && !user.premiumSeat && (
-                <button
-                  onClick={e => {
-                    e.stopPropagation();
-                    onAllocateSeat(user, 'premium', makeDefaultAddress(user));
-                  }}
-                  className="px-1.5 py-0.5 text-xs border border-purple-300 text-purple-700 rounded hover:bg-purple-50"
-                  type="button"
-                >
-                  +Premium
-                </button>
-              )}
-              {(user.soloSeats?.length || user.premiumSeat) && (
-                <button
-                  onClick={e => {
-                    e.stopPropagation();
-                    const seatAddr = user.soloSeats?.[0]?.platformAddress || null;
-                    onRemoveSeat(user, seatAddr);
-                  }}
-                  className="p-0.5 text-red-400 hover:text-red-600"
-                  title="Remove seat"
-                  type="button"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
           </div>
         )}
       </td>

@@ -14,6 +14,7 @@ import {
   AddressService,
   AddressConflictError,
   AddressValidationError,
+  writeAuditLog,
 } from '@api/server';
 
 import { count, eq, and } from 'drizzle-orm';
@@ -25,13 +26,13 @@ export const maxDuration = 8;
 
 export const POST = withErrorHandler(async (request: Request) => {
   const session = await auth.api.getSession({ headers: request.headers });
-  if (!session?.user?.id || !hasPermission(session.user.role as string, 'users')) {
+  if (!session?.user?.id || !hasPermission(session.user.role as string, 'manageBilling')) {
     return apiForbidden();
   }
 
   const { tenantId } = await withTenant();
   const body = await request.json();
-  const { userId, seatType, platformAddress, soloSeatType, portfolioName } = body;
+  const { userId, seatType, platformAddress, soloSeatType, portfolioName, isComplimentary } = body;
 
   if (!userId || !seatType || !platformAddress) {
     return apiError('VALIDATION_ERROR', 'userId, seatType, and platformAddress required', 400);
@@ -51,6 +52,10 @@ export const POST = withErrorHandler(async (request: Request) => {
   if (!user) {
     return apiNotFound('User not found');
   }
+
+  // Complimentary grants are only valid for solo seats (the schema carries isComplimentary
+  // on SoloSeat only). Premium/paid seats are provisioned via tenant billing, not this route.
+  const isComp = seatType === 'solo' ? Boolean(isComplimentary ?? true) : false;
 
   // Check if user already has a seat of this type
   if (seatType === 'solo') {
@@ -79,7 +84,7 @@ export const POST = withErrorHandler(async (request: Request) => {
             tenantId,
             platformAddress,
             seatType: soloSeatType || 'RESIDENT',
-            isComplimentary: true,
+            isComplimentary: isComp,
           })
           .returning();
 
@@ -95,6 +100,14 @@ export const POST = withErrorHandler(async (request: Request) => {
       if (e instanceof AddressValidationError) return apiError('VALIDATION_ERROR', e.message, 400);
       throw e;
     }
+
+    writeAuditLog({
+      action: isComp ? 'SEAT_GRANTED_COMPLIMENTARY' : 'SEAT_ALLOCATED',
+      actorId: session.user.id,
+      targetId: userId,
+      tenantId,
+      details: { seatType, platformAddress, isComplimentary: isComp },
+    });
 
     return apiSuccess({ seat });
   }
@@ -152,7 +165,7 @@ export const POST = withErrorHandler(async (request: Request) => {
 
 export const DELETE = withErrorHandler(async (request: Request) => {
   const session = await auth.api.getSession({ headers: request.headers });
-  if (!session?.user?.id || !hasPermission(session.user.role as string, 'users')) {
+  if (!session?.user?.id || !hasPermission(session.user.role as string, 'manageBilling')) {
     return apiForbidden();
   }
 
@@ -182,6 +195,13 @@ export const DELETE = withErrorHandler(async (request: Request) => {
       .update(soloSeats)
       .set({ archivedAt: now(), status: 'ARCHIVED', updatedAt: now() })
       .where(eq(soloSeats.id, seat[0].id));
+    writeAuditLog({
+      action: 'SEAT_REMOVED',
+      actorId: session.user.id,
+      targetId: userId,
+      tenantId,
+      details: { seatType, platformAddress },
+    });
     return apiSuccess({ success: true });
   }
 
@@ -200,6 +220,13 @@ export const DELETE = withErrorHandler(async (request: Request) => {
       .update(premiumSeats)
       .set({ archivedAt: now(), status: 'ARCHIVED', updatedAt: now() })
       .where(eq(premiumSeats.id, seat.id));
+    writeAuditLog({
+      action: 'SEAT_REMOVED',
+      actorId: session.user.id,
+      targetId: userId,
+      tenantId,
+      details: { seatType },
+    });
     return apiSuccess({ success: true });
   }
 

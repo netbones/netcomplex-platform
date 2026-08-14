@@ -4,6 +4,7 @@ import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { DomainIconBadge } from '@widgets/dashboard';
 import { AdminUserWidget } from '@widgets/admin';
 import { UsersListSection } from '@widgets/admin';
+import { UsersSubNav } from './users-sub-nav';
 
 export default function AdminUsersPage() {
   return (
@@ -27,15 +28,19 @@ export default function AdminUsersPage() {
           </div>
         </div>
 
-        <ErrorBoundary>
-          <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-            <AdminUserWidget />
-          </div>
-        </ErrorBoundary>
+        <UsersSubNav />
 
-        <ErrorBoundary>
-          <UsersListSection />
-        </ErrorBoundary>
+        <div className="mt-6">
+          <ErrorBoundary>
+            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+              <AdminUserWidget />
+            </div>
+          </ErrorBoundary>
+
+          <ErrorBoundary>
+            <UsersListSection />
+          </ErrorBoundary>
+        </div>
       </div>
     </div>
   );
