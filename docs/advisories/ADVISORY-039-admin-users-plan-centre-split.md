@@ -8,7 +8,7 @@ audience: developer
 
 # ADVISORY-039: Split Admin Users Management from Self-Service Billing & Plan Centre
 
-**Status:** Discovery complete (Gate G0 ✅)
+**Status:** Execution-ready (Discovery ✅, all gates G0–G5 resolved ✅)
 **Priority:** Medium-High (scope-of-power correctness; not blocking but actively risky as-is)
 **Related Advisories:** ADVISORY-038 (Resident Self-Registration — this advisory's Amendment A resolves ADVISORY-038 Gate placement)
 **Related Docs:** IDENTITY_MODEL.md (Seat pricing: Solo Seat liberation fee, Premium Seat volume pricing, complimentary board allocation), UBIQUITOUS_LANGUAGE.md (Role, Seat)
@@ -171,19 +171,19 @@ Run §5 checklist, produce findings note. **Gate: G0**
 
 ### Phase 1 — Permission scope
 
-Add `manage:roster` and `manage:billing` as distinct entries in `ROLE_PERMISSIONS`, both currently granted to `ADMIN` (no behavior change yet — this phase is purely additive scaffolding). **Gate: G1**
+Add `manage:roster` and `manage:billing` as distinct entries in `ROLE_PERMISSIONS`. **Both default to `true` for `ADMIN`** (no behavior change for existing admins). **`MANAGER` receives `manage:roster: true` but `manage:billing: false`** — per Gate G1 resolution, MANAGER loses seat-allocation power and becomes the narrower support-desk role Option 3 envisions (consistent with MANAGER already lacking the `admin` flag). `manage:billing` stays `true` only for `ADMIN`. **Gate: G1 ✅**
 
 ### Phase 2 — Roster page reduction
 
-Remove seat-allocation and visibility-toggle fields from `UserEditRow`; keep identity correction, role, status, invite/resend only. **Gate: G2**
+Remove seat-allocation and visibility-toggle fields from `UserEditRow`; keep identity correction, role, status, invite/resend only. **Gate: G2 ✅** (status/role editing stays on the Roster & Access page — no separate access-control surface)
 
 ### Phase 3 — Plan & Seats view (see Amendment B)
 
-New page gated by `manage:billing`. **Must add `isComplimentary` to `AllocateSeatFormData` and the zod schema (`src/server/routers/core/soloSeats.ts:41`)** — this field does not exist in the API today (see §5.1 finding 3). Seat allocation actions split into "Grant complimentary seat" (explicit, logged, board/committee only per IDENTITY_MODEL.md's five-seat allocation) versus a read-only view of paid seats with a deep link to tenant billing. Add new audit actions `seat.allocated`, `seat.removed`, `seat.granted_complimentary` (reuse `writeAuditLog` — no schema change). **Gate: G3**
+New page gated by `manage:billing`. **Must add `isComplimentary` to `AllocateSeatFormData` and the zod schema (`src/server/routers/core/soloSeats.ts:41`)** — this field does not exist in the API today (see §5.1 finding 3). Seat allocation actions split into "Grant complimentary seat" (explicit, logged, board/committee only per IDENTITY_MODEL.md's five-seat allocation) versus a read-only view of paid seats with a deep link to tenant billing. Add new audit actions `seat.allocated`, `seat.removed`, `seat.granted_complimentary` (reuse `writeAuditLog` — no schema change). **Gate: G3 ✅** (Plan & Seats links out to `dashboard/tenant/billing` for paid-seat changes; no inline edit/embed)
 
 ### Phase 4 — Visibility settings ownership (Gate G4-preliminary required: see Amendment C)
 
-Confirm `PrivacySection.tsx` (resident self-service) is the sole write path for `Public Profile`/`Show Email`/`Show Phone`. **Note:** `PrivacySection.tsx` today covers `Show Email` and `Show Phone` only — the `Public Profile` toggle has no resident write surface (§5.1 finding 4). Gate G4-preliminary must decide: extend `PrivacySection.tsx` to include public-profile (default), rescope out, or keep a narrow admin override. Only after that decision can Phase 4 remove the corresponding fields from the admin roster form. **Gate: G4**
+Confirm `PrivacySection.tsx` (resident self-service) is the sole write path for `Public Profile`/`Show Email`/`Show Phone`. **Per Gate G4-preliminary ✅: extend `PrivacySection.tsx` to add a `Public Profile` toggle** (currently covers only Show Email / Show Phone — §5.1 finding 4), then remove all three fields from the admin roster form. No admin override retained. **Gate: G4 ✅** (no legitimate admin-assisted scenario identified; if one surfaces post-launch, add a narrow override rather than block)
 
 ### Phase 5 — Amendment A wiring
 
@@ -215,12 +215,14 @@ Wire the `Pending` stat card and a `status = Pending` roster filter to `Property
 
 ## 9. Decision Gates
 
-| Gate          | Question for DavDev                                                                                                                                                                                                                                                             | Blocks         | Status    |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | --------- |
-| **G0**        | Confirm advisory number (039) against the register                                                                                                                                                                                                                              | All execution  | ✅ Passed |
-| **G1**        | Confirm `manage:roster` / `manage:billing` as the right two-way split, versus a finer-grained permission set (e.g. separate `manage:invites`). Also confirm whether `MANAGER` role retains seat-allocation power (currently `users: true` but no `admin` flag — §5.1 finding 1) | Phase 1        | Open      |
-| **G2**        | Confirm status/role editing stays on the roster page rather than also moving to a separate "access control" surface                                                                                                                                                             | Phase 2        | Open      |
-| **G3**        | Confirm whether the Plan & Seats view should link out to tenant billing (existing `dashboard/tenant/billing`) or embed a read-only summary inline                                                                                                                               | Phase 3        | Open      |
-| **G4-prelim** | **New.** Resolves Amendment C: extend `PrivacySection.tsx`, rescope the advisory, or keep narrow admin override for `Public Profile`?                                                                                                                                           | Phase 4 begins | Open      |
-| **G4**        | Confirm no legitimate admin-assisted privacy-edit scenario exists before the admin write path is fully removed                                                                                                                                                                  | Phase 4        | Open      |
-| **G5**        | Confirm sequencing: this advisory's Phase 5 should not begin before ADVISORY-038 Phases 1–2 (schema + wizard) land, since it depends on `PropertyJoinRequest` existing                                                                                                          | Phase 5        | Open      |
+| Gate          | Question for DavDev                                                                                                                                                                                                                     | Blocks         | Status    |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | --------- |
+| **G0**        | Confirm advisory number (039) against the register                                                                                                                                                                                      | All execution  | ✅ Passed |
+| **G1**        | Confirm `manage:roster` / `manage:billing` split; does `MANAGER` retain seat power? → **Resolved: ADMIN gets both; MANAGER gets `manage:roster` only (loses billing); this creates the support-desk role**                              | Phase 1        | ✅ Passed |
+| **G2**        | Confirm status/role editing stays on the roster page rather than also moving to a separate "access control" surface → **Resolved: stays on Roster & Access page**                                                                       | Phase 2        | ✅ Passed |
+| **G3**        | Link out to tenant billing, or embed read-only inline? → **Resolved: link out to `dashboard/tenant/billing`; Plan & Seats is read-only summary + deep link**                                                                            | Phase 3        | ✅ Passed |
+| **G4-prelim** | Resolves Amendment C: extend `PrivacySection.tsx`, rescope, or keep admin override for `Public Profile`? → **Resolved: extend `PrivacySection.tsx` with a Public Profile toggle; remove all three from admin**                          | Phase 4 begins | ✅ Passed |
+| **G4**        | Confirm no legitimate admin-assisted privacy-edit scenario exists before the admin write path is fully removed → **Resolved: none identified; if one surfaces post-launch, add narrow override rather than block**                      | Phase 4        | ✅ Passed |
+| **G5**        | Confirm sequencing: this advisory's Phase 5 should not begin before ADVISORY-038 Phases 1–2 (schema + wizard) land, since it depends on `PropertyJoinRequest` existing → **Resolved: Phase 5 gated on ADVISORY-038 Phases 1–2 landing** | Phase 5        | ✅ Passed |
+
+**All gates resolved 2026-08-14. Advisory is execution-ready (Option 3).**
