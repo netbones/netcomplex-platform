@@ -124,7 +124,6 @@ export function UsersListSection() {
       setExpandedUserId(null);
       setEditingForm({});
     } else {
-      const si = resolveSeatInfo(u);
       setExpandedUserId(u.id);
       setEditingForm({
         name: u.name,
@@ -132,10 +131,6 @@ export function UsersListSection() {
         phone: u.phone ?? '',
         profileSlug: u.profileSlug ?? '',
         interests: u.interests ?? [],
-        isPublic: u.isPublic ?? true,
-        showEmail: u.showEmail ?? true,
-        showPhone: u.showPhone ?? true,
-        platformAddress: si?.address ?? '',
       });
     }
   };
@@ -152,15 +147,8 @@ export function UsersListSection() {
     if (editingForm.phone !== (u.phone ?? '')) payload.phone = editingForm.phone;
     if (editingForm.profileSlug !== (u.profileSlug ?? ''))
       payload.profileSlug = editingForm.profileSlug;
-    if (editingForm.isPublic !== u.isPublic) payload.isPublic = editingForm.isPublic;
-    if (editingForm.showEmail !== u.showEmail) payload.showEmail = editingForm.showEmail;
-    if (editingForm.showPhone !== u.showPhone) payload.showPhone = editingForm.showPhone;
     if (JSON.stringify(editingForm.interests) !== JSON.stringify(u.interests ?? [])) {
       payload.interests = editingForm.interests;
-    }
-    const si = resolveSeatInfo(u);
-    if (editingForm.platformAddress !== (si?.address ?? '')) {
-      payload.platformAddress = editingForm.platformAddress;
     }
     if (Object.keys(payload).length === 0) {
       setSaving(null);
@@ -168,43 +156,8 @@ export function UsersListSection() {
       return;
     }
     try {
-      const { data: updated } = await apiPatch<AdminUser & { updatedSeat?: unknown }>(
-        `/api/users/${u.id}`,
-        payload
-      );
-      setUsers(
-        users.map(x => {
-          if (x.id !== u.id) return x;
-          const merged = { ...x, ...updated };
-          if (updated.updatedSeat) {
-            const { type, platformAddress } = updated.updatedSeat as {
-              type: 'premium' | 'solo' | 'standard';
-              platformAddress: string;
-            };
-            if (type === 'premium') {
-              merged.premiumSeat = {
-                ...(x.premiumSeat ?? {
-                  id: '',
-                  platformAddress,
-                  portfolioName: null,
-                  tier: null,
-                  isActive: null,
-                }),
-                platformAddress,
-              };
-            } else if (type === 'solo' && x.soloSeats?.length) {
-              const seats = [...x.soloSeats];
-              if (seats.length) seats[0] = { ...seats[0], platformAddress };
-              merged.soloSeats = seats;
-            } else if (type === 'standard' && x.standardSeats?.length) {
-              const seats = [...x.standardSeats];
-              if (seats.length) seats[0] = { ...seats[0], platformAddress };
-              merged.standardSeats = seats;
-            }
-          }
-          return merged;
-        })
-      );
+      const { data: updated } = await apiPatch<AdminUser>(`/api/users/${u.id}`, payload);
+      setUsers(users.map(x => (x.id === u.id ? { ...x, ...updated } : x)));
       toast.success(t('userUpdated'));
     } catch {
       toast.error(t('inviteFailed'));

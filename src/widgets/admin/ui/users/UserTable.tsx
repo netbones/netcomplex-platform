@@ -104,8 +104,6 @@ export function UserTable({
                       onFieldChange={onFieldChange}
                       onSave={() => onSaveUser(u)}
                       saving={saving === u.id}
-                      onAllocateSeat={onAllocateSeat}
-                      onRemoveSeat={onRemoveSeat}
                     />
                   )}
                 </Fragment>
