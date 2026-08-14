@@ -8,7 +8,7 @@ audience: developer
 
 # ADVISORY-039: Split Admin Users Management from Self-Service Billing & Plan Centre
 
-**Status:** Execution-ready (Discovery ✅, all gates G0–G5 resolved ✅)
+**Status:** Phases 0–4 complete; **Phase 5 BLOCKED on ADVISORY-038** (Discovery ✅, gates G0–G5 resolved ✅, but G5's prerequisite — `PropertyJoinRequest` from ADVISORY-038 — has not landed)
 **Priority:** Medium-High (scope-of-power correctness; not blocking but actively risky as-is)
 **Related Advisories:** ADVISORY-038 (Resident Self-Registration — this advisory's Amendment A resolves ADVISORY-038 Gate placement)
 **Related Docs:** IDENTITY_MODEL.md (Seat pricing: Solo Seat liberation fee, Premium Seat volume pricing, complimentary board allocation), UBIQUITOUS_LANGUAGE.md (Role, Seat)
@@ -189,6 +189,8 @@ Confirm `PrivacySection.tsx` (resident self-service) is the sole write path for 
 
 Wire the `Pending` stat card and a `status = Pending` roster filter to `PropertyJoinRequest` per ADVISORY-038 Phase 3, now that the roster page has a defined scope to receive it. **Gate: G5 (depends on ADVISORY-038 Phase 1–2 landing first)**
 
+> **🚫 BLOCKED (2026-08-14).** Gate G5's prerequisite is not met: `PropertyJoinRequest` does not exist in the codebase, and **ADVISORY-038 is still `status: proposed` (not started — Gate G0 not passed)**. Phase 1 of ADVISORY-038 is the schema that creates `PropertyJoinRequest`; Phase 3 is the approval queue that produces `PENDING` rows. Until ADVISORY-038 Phases 1–2 land, there is no entity to wire the `Pending` card to. Phase 5 must not invent `PropertyJoinRequest` (that is ADVISORY-038's scope). **Do not begin until ADVISORY-038 Phases 1–2 are merged.**
+
 ---
 
 ## 7. Risk Register
@@ -210,7 +212,7 @@ Wire the `Pending` stat card and a `status = Pending` roster filter to `Property
 - [ ] ⏳ New Plan & Seats view exists, complimentary-seat grant is an explicit logged action distinct from paid-seat display
 - [ ] ⏳ `AllocateSeatFormData` and zod schema carry `isComplimentary`; "Grant complimentary seat" action sets it (Amendment B)
 - [ ] ⏳ `PrivacySection.tsx` confirmed as sole write path for visibility settings (Amendment C / Gate G4-preliminary resolved)
-- [ ] ⏳ `Pending` stat card on `/admin/users` reflects live `PropertyJoinRequest` count (Amendment A / ADVISORY-038 Phase 3)
+- [ ] 🚫 `Pending` stat card on `/admin/users` reflects live `PropertyJoinRequest` count (Amendment A / ADVISORY-038 Phase 3) — **BLOCKED: ADVISORY-038 not started; Phase 5 gated on ADVISORY-038 Phases 1–2**
 - [ ] ⏳ Audit actions `seat.allocated`, `seat.removed`, `seat.granted_complimentary` logged distinctly from `user.updated`
 
 ## 9. Decision Gates
