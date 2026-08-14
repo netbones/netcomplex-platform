@@ -24,11 +24,23 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock('@api/server', async () => {
   const { NextResponse } = await import('next/server');
+  const table = { id: 'id', deletedAt: 'deletedAt' };
   return {
     auth: { api: { getSession: mocks.getSession } },
     db: mocks.dbMock,
     users: { id: 'id', role: 'role' },
-    messages: { id: 'id', deletedAt: 'deletedAt' },
+    messages: table,
+    bookings: table,
+    events: table,
+    communityServiceListings: table,
+    communityServiceReviews: table,
+    communityServiceInquiries: table,
+    contents: table,
+    announcements: table,
+    competitions: table,
+    groupMembers: table,
+    notifications: table,
+    surveys: table,
     apiSuccess: (data: unknown) =>
       NextResponse.json({ success: true, data }, { status: 200 }) as any,
     apiUnauthorized: (_message = 'Authentication required') =>
@@ -52,6 +64,10 @@ vi.mock('@api/server', async () => {
 vi.mock('@shared/lib', () => ({
   hasPermission: mocks.hasPermission,
   createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn() }),
+}));
+
+vi.mock('@/shared/lib/logger', () => ({
+  apiLogger: { error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() },
 }));
 
 import { GET } from '@/app/api/purge/route';
@@ -119,7 +135,7 @@ describe('GET /api/purge', () => {
     const body = await res.json();
 
     expect(res.status).toBe(200);
-    expect((body as any).data).toEqual({ purged: { messages: 3 } });
+    expect((body as any).data.purged.messages).toBe(3);
   });
 
   it('returns 0 count when no messages to purge', async () => {
@@ -132,7 +148,7 @@ describe('GET /api/purge', () => {
     const body = await res.json();
 
     expect(res.status).toBe(200);
-    expect((body as any).data).toEqual({ purged: { messages: 0 } });
+    expect((body as any).data.purged.messages).toBe(0);
   });
 
   it('returns 500 when database operation fails', async () => {

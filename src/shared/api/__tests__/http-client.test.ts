@@ -40,7 +40,7 @@ describe('envelope unwrapping', () => {
       json: () => Promise.resolve({ success: true, data: { id: '1', name: 'test' } }),
     });
     const result = await apiGet<{ id: string; name: string }>('/api/test');
-    expect(result).toEqual({ id: '1', name: 'test' });
+    expect(result).toEqual({ data: { id: '1', name: 'test' } });
   });
 
   it('passes through unwrapped responses', async () => {
@@ -50,7 +50,7 @@ describe('envelope unwrapping', () => {
       json: () => Promise.resolve([{ id: '1' }, { id: '2' }]),
     });
     const result = await apiGet<Array<{ id: string }>>('/api/test');
-    expect(result).toEqual([{ id: '1' }, { id: '2' }]);
+    expect(result).toEqual({ data: [{ id: '1' }, { id: '2' }] });
   });
 
   it('throws ApiClientError on non-ok response', async () => {
@@ -90,7 +90,7 @@ describe('envelope unwrapping', () => {
       },
     });
     const result = await apiDelete('/api/test');
-    expect(result).toBeUndefined();
+    expect(result).toEqual({ data: undefined });
   });
 });
 
@@ -102,7 +102,7 @@ describe('apiPost sends POST with body', () => {
       json: () => Promise.resolve({ success: true, data: { id: 'new' } }),
     });
     const result = await apiPost('/api/test', { name: 'new-item' });
-    expect(result).toEqual({ id: 'new' });
+    expect(result).toEqual({ data: { id: 'new' } });
     expect(global.fetch).toHaveBeenCalledWith(
       expect.stringContaining('/api/test'),
       expect.objectContaining({
@@ -121,7 +121,7 @@ describe('apiPatch sends PATCH with body', () => {
       json: () => Promise.resolve({ success: true, data: { id: '1', name: 'updated' } }),
     });
     const result = await apiPatch('/api/test/1', { name: 'updated' });
-    expect(result).toEqual({ id: '1', name: 'updated' });
+    expect(result).toEqual({ data: { id: '1', name: 'updated' } });
     expect(global.fetch).toHaveBeenCalledWith(
       expect.stringContaining('/api/test/1'),
       expect.objectContaining({ method: 'PATCH' })

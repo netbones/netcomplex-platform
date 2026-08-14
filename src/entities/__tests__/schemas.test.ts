@@ -165,7 +165,7 @@ describe('schemas', () => {
         startTime: '09:00',
         endTime: '10:00',
       };
-      expect(() => bookingSchema.parse(data)).toThrow('Facility is required');
+      expect(() => bookingSchema.parse(data)).toThrow('Either amenityId or facility is required');
     });
 
     it('requires date', () => {

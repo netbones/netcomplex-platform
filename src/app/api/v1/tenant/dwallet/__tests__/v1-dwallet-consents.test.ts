@@ -136,6 +136,10 @@ vi.mock('@entities/dwallet/server', () => ({
   consentSchema: { parse: vi.fn((body: unknown) => body) },
 }));
 
+vi.mock('@entities/dwallet', () => ({
+  consentSchema: { parse: vi.fn((body: unknown) => body) },
+}));
+
 vi.mock('@shared/lib', () => ({
   createComponentLogger: () => mocks.logger,
   createLogger: () => mocks.logger,

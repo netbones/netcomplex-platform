@@ -149,6 +149,32 @@ vi.mock('next/cache', () => ({
   revalidatePath: vi.fn(),
 }));
 
+vi.mock('@/shared/api/auth-utils', () => ({
+  requireAuth: vi.fn(async (_request: Request, _options?: unknown) => {
+    if (!mocks.sessionResult) {
+      return {
+        success: false as const,
+        response: new Response(
+          JSON.stringify({
+            success: false,
+            error: { code: 'AUTH_REQUIRED', message: 'Authentication required' },
+          }),
+          { status: 401, headers: { 'content-type': 'application/json' } }
+        ),
+      };
+    }
+    return {
+      success: true as const,
+      data: {
+        session: { user: { id: mocks.sessionResult.user.id, email: '', name: '' } },
+        userId: mocks.sessionResult.user.id,
+        role: mocks.mockRole,
+        suspension: null,
+      },
+    };
+  }),
+}));
+
 vi.mock('@entities/tenant', () => ({
   withTenant: () => Promise.resolve(mocks.tenantResult),
   assertModuleEnabled: vi.fn(() => Promise.resolve(null)),

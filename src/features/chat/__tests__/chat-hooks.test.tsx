@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, beforeAll } from 'vitest';
 import { renderHook } from '@testing-library/react';
 
 process.env.NEXT_PUBLIC_SUPABASE_URL = 'http://localhost:54321';
@@ -38,6 +38,12 @@ vi.mock('@supabase/supabase-js', () => ({
 }));
 
 describe('usePresence hook', () => {
+  // Pre-warm imports to avoid i18n cold-start timeout when run in parallel
+  beforeAll(async () => {
+    await import('@entities/chat');
+    await import('@/features/chat/model/useMessageSend');
+  });
+
   beforeEach(() => {
     vi.clearAllMocks();
   });

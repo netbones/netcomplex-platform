@@ -20,6 +20,14 @@ vi.mock('next/navigation', () => ({
 }));
 
 // ── Mock shared UI components ──────────────────────────────────────────────
+// ── Mock auth client (http-client imports ./auth-client directly) ─────────
+vi.mock('@api/auth-client', () => ({
+  authClient: {
+    getSession: vi.fn(() => Promise.resolve({ data: { session: { token: 'test-token' } } })),
+  },
+  getSession: vi.fn(() => Promise.resolve({ data: { session: { token: 'test-token' } } })),
+}));
+
 vi.mock('@shared/ui', () => ({
   Breadcrumbs: () => null,
   ErrorBoundary: ({ children }: { children: React.ReactNode }) => <>{children}</>,

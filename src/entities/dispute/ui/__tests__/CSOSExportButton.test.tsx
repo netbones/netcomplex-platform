@@ -2,7 +2,7 @@
  * Tests for CSOSExportButton component — binary PDF download behavior.
  * Plan 108-02 Task 1 — TDD RED phase.
  */
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, beforeAll } from 'vitest';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 
 vi.mock('sonner', () => ({
@@ -14,8 +14,34 @@ vi.mock('sonner', () => ({
   },
 }));
 
+vi.mock('@api/auth-client', () => ({
+  authClient: {
+    getSession: vi.fn(() => Promise.resolve({ data: { session: { token: 'test-token' } } })),
+  },
+  getSession: vi.fn(() => Promise.resolve({ data: { session: { token: 'test-token' } } })),
+}));
+
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({ t: (k: string) => k }),
+}));
+
+vi.mock('@shared/lib/i18n', () => ({
+  default: { t: (k: string) => k, language: 'en' },
+  supportedLanguages: ['en'],
+  defaultLanguage: 'en',
+  languageNames: {},
+  contentLocales: [],
+  getContentLocales: () => [],
+  getLocalizedValue: (v: unknown) => v,
+  namespaces: ['common'],
+}));
+
 import { toast } from 'sonner';
 import { CSOSExportButton } from '../CSOSExportButton';
+
+beforeAll(async () => {
+  await import('@/shared/api/http-client');
+});
 
 describe('CSOSExportButton', () => {
   let mockFetch: ReturnType<typeof vi.fn>;
@@ -87,7 +113,10 @@ describe('CSOSExportButton', () => {
     });
 
     // Verify fetch URL
-    expect(mockFetch).toHaveBeenCalledWith('/api/disputes/test-dispute-123/csos-export');
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining('/api/disputes/test-dispute-123/csos-export'),
+      expect.anything()
+    );
 
     // Verify blob was created from response
     expect(mockCreateObjectURL).toHaveBeenCalledTimes(1);

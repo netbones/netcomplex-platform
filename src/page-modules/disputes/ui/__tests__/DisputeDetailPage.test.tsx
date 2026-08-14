@@ -80,6 +80,14 @@ vi.mock('@api/client', () => ({
   trpc: {},
 }));
 
+// ── Mock http-client session lookup (apiGet calls authClient.getSession) ──
+vi.mock('@api/auth-client', () => ({
+  authClient: {
+    getSession: vi.fn(() => Promise.resolve({ data: { session: { token: 'test-token' } } })),
+  },
+  getSession: vi.fn(() => Promise.resolve({ data: { session: { token: 'test-token' } } })),
+}));
+
 // ── Mock shared UI ──
 vi.mock('@shared/ui', async () => {
   const actual = await vi.importActual<typeof import('@shared/ui')>('@shared/ui');

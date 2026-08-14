@@ -19,6 +19,15 @@ vi.mock('sonner', () => ({
   },
 }));
 
+// http-client calls authClient.getSession() before fetch — mock it so the
+// global fetch mock isn't consumed by session lookup
+vi.mock('@api/auth-client', () => ({
+  authClient: {
+    getSession: vi.fn(() => Promise.resolve({ data: { session: { token: 'test-token' } } })),
+  },
+  getSession: vi.fn(() => Promise.resolve({ data: { session: { token: 'test-token' } } })),
+}));
+
 import { DisputeForm } from '../../DisputeForm';
 import { toast } from 'sonner';
 
@@ -101,7 +110,9 @@ describe('DisputeForm', () => {
       expect(mockFetch).toHaveBeenCalled();
     });
 
-    const disputeCall = mockFetch.mock.calls.find((c: unknown[]) => c[0] === '/api/disputes');
+    const disputeCall = mockFetch.mock.calls.find(
+      (c: unknown[]) => typeof c[0] === 'string' && c[0].includes('/api/disputes')
+    );
     expect(disputeCall).toBeDefined();
     const callArgs = disputeCall!;
     expect(callArgs[1]).toBeDefined();

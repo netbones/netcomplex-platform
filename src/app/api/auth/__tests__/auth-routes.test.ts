@@ -1,5 +1,8 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, beforeAll } from 'vitest';
 import type { NextRequest } from 'next/server';
+
+const mockFetch = vi.fn();
+vi.stubGlobal('fetch', mockFetch);
 
 function jsonMock(data: unknown, status: number) {
   return new Response(JSON.stringify(data), {
@@ -106,6 +109,12 @@ vi.mock('@entities/tenant', () => ({
   withTenant: vi.fn().mockResolvedValue({ tenantId: '00000000-0000-0000-0000-000000000001' }),
 }));
 
+// Mock tenant server (signup route dynamically imports getTenantByDomain)
+vi.mock('@entities/tenant/server', () => ({
+  getTenantByDomain: vi.fn().mockResolvedValue(null),
+  withTenant: vi.fn().mockResolvedValue({ tenantId: '00000000-0000-0000-0000-000000000001' }),
+}));
+
 // Mock logger
 vi.mock('@shared/lib', () => ({
   authLogger: {
@@ -131,6 +140,10 @@ vi.mock('varlock/env', () => ({
 }));
 
 describe('POST /api/auth/signup', () => {
+  beforeAll(async () => {
+    await import('@/app/api/auth/signup/route');
+  }, 30000);
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -181,7 +194,14 @@ describe('POST /api/auth/signup', () => {
     expect(data.error).toBe('Email, password, and name are required');
   });
 
-  it('returns 400 when password is too short', async () => {
+  it('returns 400 when password is too short', { timeout: 15000 }, async () => {
+    mockFetch.mockResolvedValue(
+      new Response(JSON.stringify({ message: 'Password must be at least 8 characters' }), {
+        status: 400,
+        headers: { 'content-type': 'application/json' },
+      })
+    );
+
     const { POST } = await import('@/app/api/auth/signup/route');
     // Don't include turnstileToken to skip verification
     const request = new Request('http://localhost:3000/api/auth/signup', {

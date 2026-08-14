@@ -38,6 +38,29 @@ vi.mock('@api/server', () => ({
   guardSuspension: vi.fn(() => null),
 }));
 
+vi.mock('@/shared/api/auth-utils', () => ({
+  requireAuth: vi.fn(async () => {
+    if (!mocks.sessionResult) {
+      return {
+        success: false as const,
+        response: new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401,
+          headers: { 'content-type': 'application/json' },
+        }),
+      };
+    }
+    return {
+      success: true as const,
+      data: {
+        session: { user: { id: mocks.sessionResult.user.id, email: '', name: '' } },
+        userId: mocks.sessionResult.user.id,
+        role: 'RESIDENT',
+        suspension: null,
+      },
+    };
+  }),
+}));
+
 vi.mock('@entities/tenant/server', () => ({
   withTenant: () => Promise.resolve({ tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' }),
 }));

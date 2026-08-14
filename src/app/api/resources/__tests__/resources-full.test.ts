@@ -145,10 +145,52 @@ vi.mock('@entities/tenant', () => ({
   withTenant: () => Promise.resolve(mocks.tenantResult),
 }));
 
+// Mock @entities/tenant/server
 vi.mock('@entities/tenant/server', () => ({
   withTenant: () => Promise.resolve(mocks.tenantResult),
   assertModuleEnabled: () => Promise.resolve(null),
   isModuleEnabled: () => Promise.resolve(true),
+}));
+
+vi.mock('@/shared/api/auth-utils', () => ({
+  requireAuth: vi.fn(async (_request: Request, options?: { permission?: string }) => {
+    if (!mocks.sessionResult) {
+      return {
+        success: false as const,
+        response: new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401,
+          headers: { 'content-type': 'application/json' },
+        }),
+      };
+    }
+    if (options?.permission === 'admin' && mocks.mockRole !== 'ADMIN') {
+      return {
+        success: false as const,
+        response: new Response(JSON.stringify({ error: 'Forbidden' }), {
+          status: 403,
+          headers: { 'content-type': 'application/json' },
+        }),
+      };
+    }
+    if (options?.permission === 'content' && mocks.mockRole === 'RESIDENT') {
+      return {
+        success: false as const,
+        response: new Response(JSON.stringify({ error: 'Forbidden' }), {
+          status: 403,
+          headers: { 'content-type': 'application/json' },
+        }),
+      };
+    }
+    return {
+      success: true as const,
+      data: {
+        session: { user: { id: mocks.sessionResult.user.id, email: '', name: '' } },
+        userId: mocks.sessionResult.user.id,
+        role: mocks.mockRole,
+        suspension: null,
+      },
+    };
+  }),
 }));
 
 // Mock @shared/lib

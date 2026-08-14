@@ -17,6 +17,15 @@ vi.mock('next/link', () => ({
   ),
 }));
 
+// http-client calls authClient.getSession() before fetch — mock it so the
+// global fetch mock isn't consumed by session lookup
+vi.mock('@api/auth-client', () => ({
+  authClient: {
+    getSession: vi.fn(() => Promise.resolve({ data: { session: { token: 'test-token' } } })),
+  },
+  getSession: vi.fn(() => Promise.resolve({ data: { session: { token: 'test-token' } } })),
+}));
+
 // Mock entity components
 vi.mock('@entities/dispute', () => ({
   DisputeStatusBadge: ({ status }: { status: string }) => (

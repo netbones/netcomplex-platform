@@ -63,6 +63,13 @@ vi.mock('@api/client', () => ({
   },
 }));
 
+vi.mock('@api/auth-client', () => ({
+  authClient: {
+    getSession: vi.fn(() => Promise.resolve({ data: { session: { token: 'test-token' } } })),
+  },
+  getSession: vi.fn(() => Promise.resolve({ data: { session: { token: 'test-token' } } })),
+}));
+
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (k: string) => k }),
 }));
@@ -81,6 +88,7 @@ vi.mock('@shared/lib', () => ({
     info: vi.fn(),
     warn: vi.fn(),
   }),
+  subscribeChatMessages: vi.fn(() => () => {}),
 }));
 
 vi.mock('@entities/chat', () => ({
@@ -129,12 +137,8 @@ beforeEach(() => {
 function setupConversationsFetch() {
   const fetchMock = vi.mocked(fetch);
   fetchMock
-    .mockResolvedValueOnce(
-      new Response(JSON.stringify({ data: mockConversations }), { status: 200 })
-    )
-    .mockResolvedValueOnce(
-      new Response(JSON.stringify({ data: { users: mockUsers } }), { status: 200 })
-    );
+    .mockResolvedValueOnce(new Response(JSON.stringify(mockConversations), { status: 200 }))
+    .mockResolvedValueOnce(new Response(JSON.stringify({ users: mockUsers }), { status: 200 }));
 }
 
 describe('MessagesPage', () => {
@@ -152,7 +156,7 @@ describe('MessagesPage', () => {
   it('loads and displays messages when a conversation is clicked', async () => {
     setupConversationsFetch();
     vi.mocked(fetch).mockResolvedValueOnce(
-      new Response(JSON.stringify({ data: mockMessages }), { status: 200 })
+      new Response(JSON.stringify(mockMessages), { status: 200 })
     );
 
     const { MessagesPage } = await import('../ui/MessagesPage');
@@ -195,10 +199,8 @@ describe('MessagesPage', () => {
     setupConversationsFetch();
     const fetchMock = vi
       .mocked(fetch)
-      .mockResolvedValueOnce(new Response(JSON.stringify({ data: mockMessages }), { status: 200 }))
-      .mockResolvedValueOnce(
-        new Response(JSON.stringify({ data: { id: 'msg-3' } }), { status: 200 })
-      );
+      .mockResolvedValueOnce(new Response(JSON.stringify(mockMessages), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ id: 'msg-3' }), { status: 200 }));
 
     const { MessagesPage } = await import('../ui/MessagesPage');
     render(<MessagesPage />);
@@ -220,7 +222,7 @@ describe('MessagesPage', () => {
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(
-        '/api/messages',
+        expect.stringContaining('/api/messages'),
         expect.objectContaining({
           method: 'POST',
         })

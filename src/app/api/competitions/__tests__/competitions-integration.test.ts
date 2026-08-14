@@ -132,6 +132,35 @@ vi.mock('@api/server', () => ({
   now: vi.fn(() => new Date('2026-06-21T12:00:00Z')),
 }));
 
+vi.mock('@/shared/api/auth-utils', () => ({
+  requireAuth: vi.fn(async (_request: Request) => {
+    const session = await authSessionMock();
+    if (!session) {
+      return {
+        success: false as const,
+        response: new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401,
+          headers: { 'content-type': 'application/json' },
+        }),
+      };
+    }
+    return {
+      success: true as const,
+      data: {
+        session,
+        userId: session.user.id,
+        role: mockRole.current,
+        suspension: null,
+      },
+    };
+  }),
+  getSessionAndRole: vi.fn(async () => {
+    const session = await authSessionMock();
+    if (!session) return null;
+    return { session, userId: session.user.id, role: mockRole.current, suspension: null };
+  }),
+}));
+
 // ── Mock @entities/tenant/server to prevent transitive imports ──
 vi.mock('@entities/tenant/server', () => ({
   withTenant: vi.fn(() =>
@@ -158,7 +187,13 @@ vi.mock('@entities/tenant', () => ({
 // ── @shared/lib mock (logError + hasPermission) ──
 vi.mock('@shared/lib', () => ({
   logError: vi.fn(),
-  createComponentLogger: vi.fn(() => vi.fn()),
+  createLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
+  createComponentLogger: vi.fn(() => ({
+    error: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+  })),
   hasPermission: vi.fn((role: string | null | undefined, permission: string) => {
     if (!role) return false;
     if (permission === 'content')

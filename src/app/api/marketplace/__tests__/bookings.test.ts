@@ -166,6 +166,25 @@ vi.mock('@api/server', () => {
         { status: 409 }
       )
     ),
+    apiForbidden: vi.fn((message?: string) =>
+      Response.json(
+        {
+          success: false,
+          error: { code: 'FORBIDDEN', message: message || 'Forbidden' },
+        },
+        { status: 403 }
+      )
+    ),
+    apiValidationError: vi.fn((message?: string) =>
+      Response.json(
+        {
+          success: false,
+          error: { code: 'VALIDATION_ERROR', message: message || 'Validation error' },
+        },
+        { status: 400 }
+      )
+    ),
+    rateLimitByUser: vi.fn(() => Promise.resolve(null)),
     now: vi.fn(() => new Date('2026-06-27T12:00:00Z')),
   };
 });

@@ -232,7 +232,7 @@ vi.mock('@shared/lib', () => ({
 beforeAll(async () => {
   await import('../route');
   await import('../[id]/route');
-});
+}, 30000);
 
 describe('Dispute API — route.ts (GET list, POST create)', () => {
   beforeEach(() => {

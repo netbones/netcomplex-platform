@@ -48,8 +48,28 @@ vi.mock('@entities/tenant/server', () => ({
   withTenant: () => Promise.resolve(mocks.withTenant()),
 }));
 
+vi.mock('@/shared/api/auth-utils', () => ({
+  requireAuth: vi.fn(async () => {
+    const authData = await mocks.getSessionAndRole();
+    if (!authData) {
+      return {
+        success: false as const,
+        response: new Response(
+          JSON.stringify({
+            success: false,
+            error: { code: 'AUTH_REQUIRED', message: 'Authentication required' },
+          }),
+          { status: 401, headers: { 'Content-Type': 'application/json' } }
+        ),
+      };
+    }
+    return { success: true as const, data: { ...authData, suspension: null } };
+  }),
+}));
+
 vi.mock('@shared/lib', () => ({
   apiLogger: { error: vi.fn(), info: vi.fn(), warn: vi.fn() },
+  createLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
   createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
 }));
 

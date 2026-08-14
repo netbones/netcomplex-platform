@@ -10,6 +10,15 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
+// http-client calls authClient.getSession() before fetch — mock it so the
+// global fetch mock isn't consumed by session lookup
+vi.mock('@api/auth-client', () => ({
+  authClient: {
+    getSession: vi.fn(() => Promise.resolve({ data: { session: { token: 'test-token' } } })),
+  },
+  getSession: vi.fn(() => Promise.resolve({ data: { session: { token: 'test-token' } } })),
+}));
+
 import { FrivolityScreen } from '../FrivolityScreen';
 
 const mockProceed = vi.fn();
@@ -62,13 +71,15 @@ describe('FrivolityScreen', () => {
     );
 
     await waitFor(() => {
-      expect(mockFetch).toHaveBeenCalledWith('/api/disputes/intake-screen', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          description: 'Test description text for AI analysis',
-        }),
-      });
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/disputes/intake-screen'),
+        expect.objectContaining({
+          method: 'POST',
+          body: JSON.stringify({
+            description: 'Test description text for AI analysis',
+          }),
+        })
+      );
     });
   });
 

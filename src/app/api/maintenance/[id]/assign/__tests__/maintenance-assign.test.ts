@@ -391,8 +391,8 @@ describe('POST /api/maintenance/[id]/assign', () => {
     expect(body.data.assignedTeamId).toBe(TEAM_ID);
     expect(body.data.assignedTeam).toEqual({ id: TEAM_ID, name: 'Plumbers', trade: 'PLUMBING' });
     expect(body.data.status).toBe('ASSIGNED');
-    // Should have created 2 history entries (team assignment + status auto-transition)
-    expect(mocks.dbMock.insert).toHaveBeenCalledTimes(2);
+    // 3 inserts: team assignment history + status auto-transition history + resident notification
+    expect(mocks.dbMock.insert).toHaveBeenCalledTimes(3);
     expect(mocks.revalidateDashboard).toHaveBeenCalled();
   });
 

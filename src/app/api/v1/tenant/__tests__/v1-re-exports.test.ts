@@ -157,6 +157,19 @@ vi.mock('@shared/lib', () => ({
     if (!role) return false;
     return ['ADMIN', 'BOARD'].includes(role);
   },
+  tenantConfig: {
+    defaultSlug: 'soralia',
+    auth: {
+      issuer: 'test-issuer',
+      cookiePrefix: 'test_',
+      allowedHosts: ['localhost'],
+    },
+    location: {
+      name: 'Soralia Village',
+      latitude: 0,
+      longitude: 0,
+    },
+  },
 }));
 
 vi.mock('@entities/tenant/server', () => ({

@@ -65,7 +65,7 @@ export function DirectoryChatModal({
 
     const fetchMessages = async () => {
       try {
-        const data = await apiGet<ConversationMessage[]>(`/api/messages`, { conversationId });
+        const { data } = await apiGet<ConversationMessage[]>(`/api/messages`, { conversationId });
         setMessages(Array.isArray(data) ? data : []);
       } catch {
         // Silently fail

@@ -29,6 +29,7 @@ vi.mock('@shared/lib', () => ({
     debug: vi.fn(),
   }),
   logError: vi.fn(),
+  broadcastNotification: vi.fn(),
   createLogger: () => ({
     error: vi.fn(),
     info: vi.fn(),

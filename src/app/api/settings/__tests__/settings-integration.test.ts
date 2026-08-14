@@ -75,6 +75,27 @@ vi.mock('@api/server', () => ({
   now: vi.fn(() => new Date('2026-06-30T12:00:00Z')),
 }));
 
+vi.mock('@/shared/api/auth-utils', () => ({
+  requireAuth: vi.fn(async () => {
+    if (!mocks.authSession) {
+      return {
+        success: false as const,
+        response: new Response(
+          JSON.stringify({
+            success: false,
+            error: { code: 'UNAUTHORIZED', message: 'Unauthorized' },
+          }),
+          { status: 401, headers: { 'content-type': 'application/json' } }
+        ),
+      };
+    }
+    return {
+      success: true as const,
+      data: { userId: mocks.authSession.userId, role: mocks.authSession.role, suspension: null },
+    };
+  }),
+}));
+
 vi.mock('@entities/tenant/server', () => ({
   assertModuleEnabled: vi.fn(),
   withTenant: () => Promise.resolve({ tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' }),
@@ -85,6 +106,7 @@ vi.mock('@entities/tenant/server', () => ({
 
 vi.mock('@shared/lib', () => ({
   hasPermission: vi.fn((role: string) => role === 'ADMIN'),
+  createLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
   createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() }),
 }));
 

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, beforeAll } from 'vitest';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 
 // Mock Next.js router
@@ -58,6 +58,13 @@ vi.mock('@shared/ui', async () => {
 });
 
 describe('SignInPage component', () => {
+  // Pre-warm page imports to avoid i18n timeout on first test
+  beforeAll(async () => {
+    await import('@/app/(auth)/sign-in/page');
+    await import('@/app/(auth)/forgot-password/page');
+    await import('@/app/(auth)/reset-password/page');
+  });
+
   beforeEach(() => {
     mockSignInEmail.mockReset();
     vi.clearAllMocks();

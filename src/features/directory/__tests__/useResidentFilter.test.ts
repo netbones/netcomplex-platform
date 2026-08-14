@@ -118,7 +118,7 @@ describe('useResidentFilter', () => {
       ok: true,
       status: 200,
       headers: new Headers({ 'Content-Type': 'application/json' }),
-      json: () => Promise.resolve({ data: { users: [] }, meta: { total: 12 } }),
+      json: () => Promise.resolve({ success: true, data: { users: [] }, meta: { total: 12 } }),
     });
 
     const { result } = renderHook(() => useResidentFilter({ defaultLimit: 6 }));

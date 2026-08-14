@@ -70,6 +70,10 @@ const MarkWinnerInput = z.object({
 });
 
 export const competitionsRouter = router({
+  /**
+   * List active competitions for the tenant. Public read.
+   * @public
+   */
   listPublicCompetitions: publicProcedure
     .meta({
       openapi: {
@@ -119,6 +123,10 @@ export const competitionsRouter = router({
       return toEnvelope(enriched);
     }),
 
+  /**
+   * Get competition detail for the tenant.
+   * @public
+   */
   getCompetitionDetail: publicProcedure
     .meta({
       openapi: {
@@ -174,6 +182,10 @@ export const competitionsRouter = router({
       return toEnvelope(detail);
     }),
 
+  /**
+   * Join a competition for the signed-in tenant member.
+   * @tenant
+   */
   joinCompetition: tenantProcedure
     .meta({
       openapi: {
@@ -191,6 +203,10 @@ export const competitionsRouter = router({
       return toEnvelope(participant);
     }),
 
+  /**
+   * Submit a photo entry to a competition.
+   * @tenant
+   */
   submitPhotoEntry: tenantProcedure
     .meta({
       openapi: {
@@ -217,6 +233,10 @@ export const competitionsRouter = router({
       return toEnvelope(participant);
     }),
 
+  /**
+   * List competition participants. Requires elevated permissions.
+   * @privileged
+   */
   listParticipants: privilegedProcedure
     .meta({
       openapi: {
@@ -241,6 +261,10 @@ export const competitionsRouter = router({
       return toEnvelope(result);
     }),
 
+  /**
+   * Update an entry. Requires elevated permissions.
+   * @privileged
+   */
   updateEntry: privilegedProcedure
     .meta({
       openapi: {
@@ -258,6 +282,10 @@ export const competitionsRouter = router({
       return toEnvelope(participant);
     }),
 
+  /**
+   * Mark an entry as winner. Requires elevated permissions.
+   * @privileged
+   */
   markWinner: privilegedProcedure
     .meta({
       openapi: {
@@ -275,6 +303,10 @@ export const competitionsRouter = router({
       return toEnvelope(participant);
     }),
 
+  /**
+   * Draw random winners. Requires elevated permissions.
+   * @privileged
+   */
   drawWinners: privilegedProcedure
     .meta({
       openapi: {
@@ -292,6 +324,10 @@ export const competitionsRouter = router({
       return toEnvelope(winners);
     }),
 
+  /**
+   * List competition winners. Public read.
+   * @public
+   */
   listWinners: publicProcedure
     .meta({
       openapi: {

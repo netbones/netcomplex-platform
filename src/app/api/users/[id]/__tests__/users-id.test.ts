@@ -66,6 +66,20 @@ const mocks = vi.hoisted(() => {
         headers: { 'Content-Type': 'application/json' },
       })
   );
+  const apiConflict = vi.fn(
+    (message = 'Conflict') =>
+      new Response(JSON.stringify({ success: false, error: { code: 'CONFLICT', message } }), {
+        status: 409,
+        headers: { 'Content-Type': 'application/json' },
+      })
+  );
+  const apiError = vi.fn(
+    (code: string, message: string, status = 400) =>
+      new Response(JSON.stringify({ success: false, error: { code, message } }), {
+        status,
+        headers: { 'Content-Type': 'application/json' },
+      })
+  );
 
   return {
     sessionResult: null as { user: { id: string } } | null,
@@ -80,6 +94,9 @@ const mocks = vi.hoisted(() => {
     apiSuccess,
     apiNotFound,
     apiUnauthorized,
+    apiConflict,
+    apiError,
+    revalidateUserData: vi.fn(),
     writeAuditLog: vi.fn(),
     MockAddressService,
     MockAddressConflictError,
@@ -113,6 +130,7 @@ vi.mock('@api/server', () => ({
     isPlatformAdmin: 'isPlatformAdmin',
     residencyType: 'residencyType',
     profileSlug: 'profileSlug',
+    profileData: 'profileData',
     createdAt: 'createdAt',
   },
   profiles: {
@@ -178,6 +196,9 @@ vi.mock('@api/server', () => ({
   apiSuccess: mocks.apiSuccess,
   apiNotFound: mocks.apiNotFound,
   apiUnauthorized: mocks.apiUnauthorized,
+  apiConflict: mocks.apiConflict,
+  apiError: mocks.apiError,
+  revalidateUserData: mocks.revalidateUserData,
   throwIfSuspended: vi.fn(() => Promise.resolve(mocks.throwIfSuspendedResult)),
   writeAuditLog: (...args: unknown[]) => mocks.writeAuditLog(...args),
   withErrorHandler: (handler: any) => handler,
@@ -625,6 +646,8 @@ describe('PATCH /api/users/[id]', () => {
   });
 
   it('updates residencyType and profileData', async () => {
+    mocks.dbMock.select.mockReturnValue(makeSelectChain([{ profileData: null }]));
+
     const res = await PATCH(
       req('http://localhost:3000/api/users/' + UUID, {
         method: 'PATCH',
