@@ -2,6 +2,8 @@ export {
   hasPermission,
   isAdmin,
   canManageUsers,
+  canManageRoster,
+  canManageBilling,
   canManageRequests,
   canManageContent,
   canManageGroups,

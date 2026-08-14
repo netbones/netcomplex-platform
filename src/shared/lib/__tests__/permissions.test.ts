@@ -3,6 +3,8 @@ import {
   hasPermission,
   isAdmin,
   canManageUsers,
+  canManageRoster,
+  canManageBilling,
   canManageRequests,
   canManageContent,
   canManageGroups,
@@ -64,6 +66,31 @@ describe('permissions', () => {
       expect(canManageUsers('ADMIN')).toBe(true);
       expect(canManageUsers('BOARD')).toBe(false);
       expect(canManageUsers('COMMITTEE')).toBe(false);
+    });
+  });
+
+  describe('manageRoster / manageBilling (ADVISORY-039 Phase 1)', () => {
+    it('ADMIN has both roster and billing scope', () => {
+      expect(canManageRoster('ADMIN')).toBe(true);
+      expect(canManageBilling('ADMIN')).toBe(true);
+    });
+
+    it('MANAGER has roster scope but NOT billing scope', () => {
+      expect(canManageRoster('MANAGER')).toBe(true);
+      expect(canManageBilling('MANAGER')).toBe(false);
+    });
+
+    it('BOARD/COMMITTEE have neither roster nor billing scope', () => {
+      expect(canManageRoster('BOARD')).toBe(false);
+      expect(canManageBilling('BOARD')).toBe(false);
+      expect(canManageRoster('COMMITTEE')).toBe(false);
+      expect(canManageBilling('COMMITTEE')).toBe(false);
+    });
+
+    it('exposes both flags on the Permission object', () => {
+      const perms = getPermissions('ADMIN');
+      expect(perms.manageRoster).toBe(true);
+      expect(perms.manageBilling).toBe(true);
     });
   });
 

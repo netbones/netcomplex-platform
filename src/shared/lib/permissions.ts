@@ -3,6 +3,8 @@ import type { Role } from './constants';
 export interface Permission {
   admin: boolean;
   users: boolean;
+  manageRoster: boolean;
+  manageBilling: boolean;
   households: boolean;
   requests: boolean;
   content: boolean;
@@ -21,6 +23,8 @@ export interface Permission {
 export const ROLE_PERMISSIONS: Record<Role, Permission> = {
   RESIDENT: {
     admin: false,
+    manageRoster: false,
+    manageBilling: false,
     users: false,
     households: false,
     requests: false,
@@ -38,6 +42,8 @@ export const ROLE_PERMISSIONS: Record<Role, Permission> = {
   },
   GROUP_ADMIN: {
     admin: false,
+    manageRoster: false,
+    manageBilling: false,
     users: false,
     households: false,
     requests: false,
@@ -55,6 +61,8 @@ export const ROLE_PERMISSIONS: Record<Role, Permission> = {
   },
   COMMITTEE: {
     admin: false,
+    manageRoster: false,
+    manageBilling: false,
     users: false,
     households: false,
     requests: true,
@@ -72,6 +80,8 @@ export const ROLE_PERMISSIONS: Record<Role, Permission> = {
   },
   BOARD: {
     admin: false,
+    manageRoster: false,
+    manageBilling: false,
     users: false,
     households: true,
     requests: true,
@@ -89,6 +99,8 @@ export const ROLE_PERMISSIONS: Record<Role, Permission> = {
   },
   ADMIN: {
     admin: true,
+    manageRoster: true,
+    manageBilling: true,
     users: true,
     households: true,
     requests: true,
@@ -106,6 +118,8 @@ export const ROLE_PERMISSIONS: Record<Role, Permission> = {
   },
   AGENT: {
     admin: false,
+    manageRoster: false,
+    manageBilling: false,
     users: false,
     households: false,
     requests: false,
@@ -123,6 +137,8 @@ export const ROLE_PERMISSIONS: Record<Role, Permission> = {
   },
   MANAGER: {
     admin: false,
+    manageRoster: true,
+    manageBilling: false,
     users: true,
     households: true,
     requests: true,
@@ -140,6 +156,8 @@ export const ROLE_PERMISSIONS: Record<Role, Permission> = {
   },
   ASSOCIATE: {
     admin: false,
+    manageRoster: false,
+    manageBilling: false,
     users: false,
     households: false,
     requests: false,
@@ -157,6 +175,8 @@ export const ROLE_PERMISSIONS: Record<Role, Permission> = {
   },
   PROVIDER: {
     admin: false,
+    manageRoster: false,
+    manageBilling: false,
     users: false,
     households: false,
     requests: false,
@@ -176,6 +196,8 @@ export const ROLE_PERMISSIONS: Record<Role, Permission> = {
 
 const ZERO_PERMISSIONS: Permission = {
   admin: false,
+  manageRoster: false,
+  manageBilling: false,
   users: false,
   households: false,
   requests: false,
@@ -207,6 +229,14 @@ export function isAdmin(role: string | null | undefined): boolean {
 
 export function canManageUsers(role: string | null | undefined): boolean {
   return hasPermission(role, 'users');
+}
+
+export function canManageRoster(role: string | null | undefined): boolean {
+  return hasPermission(role, 'manageRoster');
+}
+
+export function canManageBilling(role: string | null | undefined): boolean {
+  return hasPermission(role, 'manageBilling');
 }
 
 export function canManageRequests(role: string | null | undefined): boolean {
