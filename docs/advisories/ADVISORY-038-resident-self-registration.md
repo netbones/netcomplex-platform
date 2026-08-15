@@ -215,19 +215,44 @@ WHERE h."occupancyType" = 'RENTAL'
 
 ---
 
+## 5b. Discovery Findings (2026-08-15)
+
+Discovery was run against `dev` (code + live DB read-only queries). Findings:
+
+| #   | Discovery item                      | Result                                                                                                                                                                                                                                                                                                                                                                                      |
+| --- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Existing self-registration path     | **None.** `grep` found only `provider-platform.ts:341` ("self-registration" in a comment), which is the provider-stub path (`createProviderStub`), not resident onboarding. No `JoinRequest`/`selfRegister`/`self-registration` implementation exists.                                                                                                                                      |
+| 2   | `Invitation` acceptance inputs      | `CreateInvitationInput` requires `email`, `name`; optional `street`, `unit`, `residencyType` (`FAMILY\|RENTER\|OWNER`), `role`, `organizationId`. `createInvitation` additionally sets `inviterId` (approving admin), `token`, `status=PENDING`, `expiresAt` (7d). **`Invitation` has no `propertyId`** — promotion must map `Property.street`/`unit` into the free-text invitation fields. |
+| 3   | `GroupModerationWidget` precedent   | Confirmed present and working (`src/widgets/admin/ui/GroupModerationWidget.tsx`). PENDING/ALL filter, approve/reject buttons, per-tenant scoping.                                                                                                                                                                                                                                           |
+| 4   | Bot protection                      | **Reusable as-is.** `Honeypot` + `checkHoneypot` and `TurnstileWidget` + `verifyTurnstile` are exported from `@shared/ui` and `@api/server`. The public signup route already demonstrates the pattern (rate-limit + Turnstile + Better Auth forward).                                                                                                                                       |
+| 5   | `Property` duplicate-address risk   | **Live data clean, constraint absent.** Query returned **0** duplicate `(tenantId, street, unit)` rows (6 properties). But `Property` has no `@@unique([tenantId, street, unit])` — only indexes. A uniqueness constraint must be added before shipping exact-match property lookup, otherwise duplicates are schema-legal and can appear later.                                            |
+| 6   | RENTAL household without owner seat | **Live data clean, invariant unenforced.** Query returned **0** RENTAL households missing an owner `StandardSeat` (1 RENTAL household; 6 seats, all `isPrimaryOwner`). Nothing in the schema enforces this, so the `TENANT_RENTER` branch must still surface the "no RENTAL household / no owner seat" discrepancy rather than assume it.                                                   |
+| 7   | `Vehicle` model                     | **Confirmed absent.** Only `vehicleReg` free-text on `Visitor`, `AccessEvent`, `AccessRequest` in `access-control.prisma`. The proposed `Vehicle` table has no landing zone collision.                                                                                                                                                                                                      |
+| 8   | Email templates                     | `teamInvitation` exists and is the promotion path's email. A rejection notification needs either a new template or reuse of `emailNotification`.                                                                                                                                                                                                                                            |
+
+**Discovery deliverable conclusions:**
+
+- (a) Property lookup can ship as **exact-match**, but the `Property` uniqueness constraint must be part of Phase 1 (not deferred), since the current absence of duplicates is data luck, not schema law.
+- (b) `PropertyJoinRequest` → `Invitation` promotion needs an explicit **street/unit extraction** step; `Invitation` does not reference `Property` directly.
+- (c) `Honeypot`/`Turnstile` can be dropped onto the new public wizard route unchanged.
+
+---
+
 ## 6. Phased Execution Plan
 
 ### Phase 0 — Discovery (prerequisite)
 
 Run §5 checklist, produce findings note. **Gate: G0**
 
+**Status: COMPLETE (2026-08-15).** See §5b. G0 blocker cleared.
+
 ### Phase 1 — Schema (additive only)
 
-Add `PropertyJoinRequest`, `Vehicle`, `JoinRequestStatus`, `RelationshipType` per §4. No changes to any existing model. **Gate: G1**
+Add `PropertyJoinRequest`, `Vehicle`, `JoinRequestStatus`, `RelationshipType` per §4. **Also add a `Property` `@@unique([tenantId, street, unit])` constraint** — discovery confirmed no live duplicates, but the constraint is the schema guarantee exact-match lookup depends on (see §5b). **Gate: G1**
 
 ### Phase 2 — Public wizard (4 screens, no auth required)
 
-1. Identity (name, surname optional, email, phone) + Community/Property lookup (tenant slug typeahead → property-number match against `Property`, replacing EstateMate's free-text field with a real lookup) + estate rules acknowledgment link
+1. Identity (name, surname optional, email, phone) + Community/Property lookup (tenant slug typeahead → **exact** property-number match against `Property`) + estate rules acknowledgment link
 2. Relationship-type selector (four options per §4 table)
 3. Vehicle capture (optional, repeatable, staged against the `PropertyJoinRequest`, not yet linked to any Profile/Seat)
 4. Review + submit → creates `PropertyJoinRequest` with `status = PENDING`
@@ -236,11 +261,13 @@ Honeypot + Turnstile applied to the submission endpoint per existing bot-protect
 
 ### Phase 3 — Admin approval queue
 
-New widget analogous to `GroupModerationWidget`: list of `PENDING` requests scoped by tenant, showing requested relationship type, property match confidence, and staged vehicles. Approve action creates the `Invitation` (prefilled) and links `resultingInvitationId`; reject action requires a reason and notifies the requester by email (reusing existing email templates infrastructure). **Gate: G3**
+New widget analogous to `GroupModerationWidget`: list of `PENDING` requests scoped by tenant, showing requested relationship type, property match confidence, and staged vehicles. Approve action **extracts `street`/`unit` from the linked `Property`** and calls the existing `createInvitation` path (which has no `propertyId` field); reject action requires a reason and notifies the requester by email (reusing existing email templates infrastructure). **Gate: G3**
 
 ### Phase 4 — Invitation acceptance re-parents vehicles
 
 On `Invitation` acceptance, any `Vehicle` rows still attached to the originating `PropertyJoinRequest` are re-parented to the newly created `Profile` or `StandardSeat`. On rejection or withdrawal, vehicles are soft-deleted alongside the request. **Gate: G4**
+
+**Note:** invitation acceptance currently only sets `user.role`/`tenantId`; the seat/profile/household provisioning is a separate downstream concern that this phase must not assume is automatic. Flag the exact acceptance-side provisioning boundary for DavDev before building re-parenting.
 
 ### Phase 5 (out of scope here) — IDENTITY_MODEL.md decision closure
 
@@ -250,25 +277,28 @@ Formally update IDENTITY_MODEL.md's "Design Decision Pending" section to record 
 
 ## 7. Risk Register
 
-| Risk                                                                                 | Likelihood                             | Impact | Mitigation                                                                                                                                                                                                                          |
-| ------------------------------------------------------------------------------------ | -------------------------------------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Public registration endpoint abused (bot spam, scraping property numbers)            | Medium                                 | Medium | Reuse existing Honeypot + Turnstile components (SPEC.md §16) unmodified; rate-limit via existing `rate-limit.ts` utility                                                                                                            |
-| Property-number lookup returns ambiguous/duplicate matches                           | Medium (pending discovery query in §5) | Medium | If discovery finds duplicate `(tenantId, street, unit)` rows, this advisory must be revised to either add a uniqueness constraint first or route ambiguous matches to manual admin resolution rather than auto-linking `propertyId` |
-| `TENANT_RENTER` requests submitted against a property with no `RENTAL` household yet | Medium                                 | Low    | Approval queue surfaces this as a flagged discrepancy rather than blocking or silently creating a `Household`; admin decides                                                                                                        |
-| Vehicle registration numbers are personal data under POPIA                           | Low                                    | Medium | `Vehicle` follows the same tenant-scoped, soft-deletable pattern as other PII-adjacent models; no new RLS table needed since it's not in the ADR-019 sensitive-table set, but flag for inclusion if POPIA review says otherwise     |
-| Duplicate `PropertyJoinRequest` submissions for the same person/property             | Medium                                 | Low    | `@@index([requestedEmail])` supports a pre-submit duplicate check in the API layer; not a hard DB constraint since a legitimately rejected-then-resubmitted request must be allowed                                                 |
-| Rejected requests leave orphaned staged vehicles                                     | Low                                    | Low    | Phase 4 handles cascade soft-delete on reject/withdraw explicitly                                                                                                                                                                   |
+| Risk                                                                                 | Likelihood                    | Impact | Mitigation                                                                                                                                                                                                                           |
+| ------------------------------------------------------------------------------------ | ----------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Public registration endpoint abused (bot spam, scraping property numbers)            | Medium                        | Medium | Reuse existing Honeypot + Turnstile components (SPEC.md §16) unmodified; rate-limit via existing `rate-limit.ts` utility. **Confirmed reusable in §5b.**                                                                             |
+| Property-number lookup returns ambiguous/duplicate matches                           | Low (live data: 0 duplicates) | Medium | Discovery found no live duplicates, but no schema constraint exists. **Phase 1 must add `Property` `@@unique([tenantId, street, unit])`**; exact-match lookup only after that lands.                                                 |
+| `TENANT_RENTER` requests submitted against a property with no `RENTAL` household yet | Medium                        | Low    | Approval queue surfaces this as a flagged discrepancy rather than blocking or silently creating a `Household`; admin decides. Live data currently has 1 RENTAL household and 0 missing owner seats.                                  |
+| Vehicle registration numbers are personal data under POPIA                           | Low                           | Medium | `Vehicle` follows the same tenant-scoped, soft-deletable pattern as other PII-adjacent models; no new RLS table needed since it's not in the ADR-019 sensitive-table set, but flag for inclusion if POPIA review says otherwise      |
+| Duplicate `PropertyJoinRequest` submissions for the same person/property             | Medium                        | Low    | `@@index([requestedEmail])` supports a pre-submit duplicate check in the API layer; not a hard DB constraint since a legitimately rejected-then-resubmitted request must be allowed                                                  |
+| Rejected requests leave orphaned staged vehicles                                     | Low                           | Low    | Phase 4 handles cascade soft-delete on reject/withdraw explicitly                                                                                                                                                                    |
+| Promotion produces an `Invitation` missing seat/profile/household provisioning       | Medium                        | High   | `Invitation` acceptance currently only sets `user.role`/`tenantId`; seat/profile/household creation is a separate flow. Phase 3/4 must confirm the provisioning boundary explicitly instead of assuming acceptance provisions seats. |
 
 ---
 
 ## 8. Done Criteria
 
 - [ ] ⏳ `PropertyJoinRequest`, `Vehicle`, `JoinRequestStatus`, `RelationshipType` exist in `prisma/schema.prisma`, Drizzle schema regenerated
-- [ ] ⏳ Discovery findings note (§5) attached, including the `Property` duplicate-address query result
+- [x] ✅ Discovery findings note (§5b) attached, including the `Property` duplicate-address query result (0 duplicates)
+- [ ] ⏳ `Property` gains `@@unique([tenantId, street, unit])` before exact-match property lookup ships
 - [ ] ⏳ Public wizard live behind Honeypot + Turnstile, no Better Auth account created at any point in the flow
 - [ ] ⏳ Admin approval queue widget mirrors `GroupModerationWidget` UX conventions (approve/reject, reason on reject)
-- [ ] ⏳ Approval creates a normal `Invitation` indistinguishable from an admin-authored one downstream
+- [ ] ⏳ Approval creates a normal `Invitation` indistinguishable from an admin-authored one downstream, with `street`/`unit` extracted from the linked `Property`
 - [ ] ⏳ Vehicle re-parenting on acceptance and cascade soft-delete on reject both covered by tests
+- [ ] ⏳ Invitation-acceptance provisioning boundary (seat/profile/household) confirmed with DavDev before Phase 4
 - [ ] ⏳ IDENTITY_MODEL.md "Design Decision Pending" section updated to record per-profile-email as adopted
 
 ---
@@ -277,8 +307,9 @@ Formally update IDENTITY_MODEL.md's "Design Decision Pending" section to record 
 
 | Gate   | Question for DavDev                                                                                                                                                                                                                                                                  | Blocks               |
 | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------- |
-| **G0** | Confirm advisory number (038, confirmed 2026-08-14) and confirm this is scoped to Phases 1–4 only, with Phase 5 (docs) following automatically                                                                                                                                       | All execution        |
+| **G0** | ~~Confirm advisory number (038) and scope to Phases 1–4~~ **SATISFIED 2026-08-15 — discovery complete (§5b)**                                                                                                                                                                        | All execution        |
 | **G1** | Confirm the `RelationshipType` four-way split matches your actual product intent for `OWNER_LEASING` (does the owner get any dashboard access at all, or purely a legal/billing record with no login flow triggered until a tenant separately registers?)                            | Phase 1              |
-| **G2** | Confirm property lookup UX: exact property-number match only, or fuzzy match with admin-assisted disambiguation if the discovery query in §5 finds duplicates                                                                                                                        | Phase 2              |
+| **G2** | Confirm property lookup UX: **exact property-number match only** (discovery found 0 live duplicates), and that Phase 1 adds the `Property` `@@unique([tenantId, street, unit])` constraint as the schema guarantee                                                                   | Phase 2              |
 | **G3** | Confirm rejection notifications reuse the existing email templates infrastructure (`src/shared/api/email/templates.ts`) rather than a new template set                                                                                                                               | Phase 3              |
 | **G4** | Confirm this advisory is intentionally scoped away from ADVISORY-034 (Platform Identity Layer) — i.e. `PropertyJoinRequest`/`Invitation` continue keying identity off `user.email` uniqueness as they do today, with no dependency on `Identity`/`Credential` entities landing first | Phase 1 (sequencing) |
+| **G5** | Confirm the invitation-acceptance provisioning boundary: does acceptance need to create `StandardSeat`/`Profile`/`Household` records, or is that a separate existing flow that `PropertyJoinRequest` promotion must not assume?                                                      | Phase 4              |
