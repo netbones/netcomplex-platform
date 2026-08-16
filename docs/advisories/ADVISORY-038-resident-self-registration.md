@@ -264,13 +264,17 @@ Honeypot + Turnstile applied to the submission endpoint per existing bot-protect
 
 ### Phase 3 — Admin approval queue
 
-New widget analogous to `GroupModerationWidget`: list of `PENDING` requests scoped by tenant, showing requested relationship type, property match confidence, and staged vehicles. Approve action **extracts `street`/`unit` from the linked `Property`** and calls the existing `createInvitation` path (which has no `propertyId` field); reject action requires a reason and notifies the requester by email (reusing existing email templates infrastructure). **Gate: G3**
+New widget analogous to `GroupModerationWidget`: list of `PENDING` requests scoped by tenant, showing requested relationship type, property match confidence, and staged vehicles. Approve action **extracts `street`/`unit` from the linked `Property`** and calls the existing `createInvitation` path (which has no `propertyId` field); reject action requires a reason and notifies the requester by email. **Gate: G3**
+
+**Status: SHIPPED (2026-08-16).** Widget, list/approve/reject APIs, and `joinRequestRejected` template all committed.
 
 ### Phase 4 — Invitation acceptance re-parents vehicles
 
 On `Invitation` acceptance, any `Vehicle` rows still attached to the originating `PropertyJoinRequest` are re-parented to the newly created `Profile` or `StandardSeat`. On rejection or withdrawal, vehicles are soft-deleted alongside the request. **Gate: G4**
 
-**Note:** invitation acceptance currently only sets `user.role`/`tenantId`; the seat/profile/household provisioning is a separate downstream concern that this phase must not assume is automatic. Flag the exact acceptance-side provisioning boundary for DavDev before building re-parenting.
+**Status: SHIPPED (2026-08-16) with G5 boundary respected.** `@entities/vehicle` provides `reparentVehiclesForAcceptedInvitation` and `softDeleteVehiclesForJoinRequest`; both REST and tRPC acceptance paths call re-parenting, and reject soft-deletes staged vehicles. The helper does **not** provision a seat/profile — it only moves vehicles if provisioning already produced one.
+
+**Note:** invitation acceptance currently only sets `user.role`/`tenantId`; the seat/profile/household provisioning is a separate downstream concern that this phase must not assume is automatic. The G5 boundary is enforced in the vehicle helper.
 
 ### Phase 5 (out of scope here) — IDENTITY_MODEL.md decision closure
 

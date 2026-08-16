@@ -19,6 +19,7 @@ import { withTenant } from '@entities/tenant/server';
 import { hasPermission, createComponentLogger } from '@shared/lib';
 import { and, eq } from 'drizzle-orm';
 import { createId } from '@shared/lib/id';
+import { softDeleteVehiclesForJoinRequest } from '@entities/vehicle/server';
 
 export const maxDuration = 8;
 
@@ -154,6 +155,8 @@ export const POST = withErrorHandler(
       .where(eq(propertyJoinRequests.id, id));
 
     // Reject — G3 resolved: use the dedicated joinRequestRejected template.
+    await softDeleteVehiclesForJoinRequest(id, tenantId);
+
     void sendEmail({
       to: joinRequest.requestedEmail,
       subject: templates.joinRequestRejected.subject(),

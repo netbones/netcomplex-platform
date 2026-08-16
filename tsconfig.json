@@ -40,6 +40,7 @@
       "@entities/comment/server": ["./src/entities/comment/index.server"],
       "@entities/marketplace/server": ["./src/entities/marketplace/index.server"],
       "@entities/setup/server": ["./src/entities/setup/index.server"],
+      "@entities/vehicle/server": ["./src/entities/vehicle/index.server"],
       "@features/*": ["./src/features/*"],
       "@widgets/*": ["./src/widgets/*"],
       "@pages/admin/server": ["./src/page-modules/admin/server"],

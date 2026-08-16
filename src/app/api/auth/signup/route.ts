@@ -17,6 +17,7 @@ import {
 } from '@api/server';
 
 import { eq, and } from 'drizzle-orm';
+import { reparentVehiclesForAcceptedInvitation } from '@entities/vehicle/server';
 
 export const maxDuration = 8;
 
@@ -217,6 +218,11 @@ async function processInvitation(
       .update(invitations)
       .set({ status: 'ACCEPTED' })
       .where(eq(invitations.id, invitation.id));
+
+    // ADVISORY-038 Phase 4: re-parent staged vehicles once the user exists.
+    // G5 boundary: this does not provision a seat/profile — it only moves
+    // vehicles if provisioning has already produced one.
+    await reparentVehiclesForAcceptedInvitation(invitation.id, user.id, invitation.tenantId);
 
     apiLogger.info(
       { userId: user.id, invitationId: invitation.id, role: invitation.role },

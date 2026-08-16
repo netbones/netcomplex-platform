@@ -22,6 +22,7 @@ import { hasPermission, createComponentLogger } from '@shared/lib';
 
 import { eq, and, desc } from 'drizzle-orm';
 import { createId } from '@shared/lib/id';
+import { reparentVehiclesForAcceptedInvitation } from '@entities/vehicle/server';
 
 const IdInput = z.object({ id: z.string() });
 const TokenInput = z.object({ token: z.string() });
@@ -341,6 +342,13 @@ export const invitationsRouter = router({
           .update(invitations)
           .set({ status: 'ACCEPTED' })
           .where(eq(invitations.id, invitation.id));
+
+        // ADVISORY-038 Phase 4: re-parent staged vehicles for existing users.
+        await reparentVehiclesForAcceptedInvitation(
+          invitation.id,
+          existingUser.id,
+          invitation.tenantId
+        );
 
         return toEnvelope({
           success: true,

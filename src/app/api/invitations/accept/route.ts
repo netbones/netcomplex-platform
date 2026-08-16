@@ -14,6 +14,7 @@ import { eq } from 'drizzle-orm';
 
 import { apiLogger } from '@shared/lib';
 import { createProviderStub } from '@shared/api';
+import { reparentVehiclesForAcceptedInvitation } from '@entities/vehicle/server';
 
 export const maxDuration = 8;
 
@@ -94,6 +95,14 @@ export async function POST(request: Request) {
         .update(invitations)
         .set({ status: 'ACCEPTED' })
         .where(eq(invitations.id, invitation.id));
+
+      // ADVISORY-038 Phase 4: re-parent any staged vehicles from the originating
+      // join request to the existing user's Profile or StandardSeat.
+      await reparentVehiclesForAcceptedInvitation(
+        invitation.id,
+        existingUser.id,
+        invitation.tenantId
+      );
 
       return apiSuccess({
         success: true,
