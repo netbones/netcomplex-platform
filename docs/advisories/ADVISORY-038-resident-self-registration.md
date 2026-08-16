@@ -280,6 +280,8 @@ On `Invitation` acceptance, any `Vehicle` rows still attached to the originating
 
 Formally update IDENTITY_MODEL.md's "Design Decision Pending" section to record that per-profile personal email is the adopted model, with this advisory as the evidence trail (accounts are only ever created via `Invitation` acceptance, which is already personal-email-scoped). Documentation-only, no gate required beyond DavDev sign-off.
 
+**Status: COMPLETE (2026-08-16).** `IDENTITY_MODEL.md` updated to record per-profile personal email as adopted; magic-link/household-name-picker rejected.
+
 ---
 
 ## 7. Risk Register
@@ -301,12 +303,12 @@ Formally update IDENTITY_MODEL.md's "Design Decision Pending" section to record 
 - [x] ✅ `PropertyJoinRequest`, `Vehicle`, `JoinRequestStatus`, `RelationshipType` exist in `prisma/schema.prisma`, Drizzle schema regenerated (migration not yet applied)
 - [x] ✅ Discovery findings note (§5b) attached, including the `Property` duplicate-address query result (0 duplicates)
 - [x] ✅ `Property` gains `@@unique([tenantId, street, unit])` before exact-match property lookup ships (constraint added, migration pending)
-- [ ] ⏳ Public wizard live behind Honeypot + Turnstile, no Better Auth account created at any point in the flow
-- [ ] ⏳ Admin approval queue widget mirrors `GroupModerationWidget` UX conventions (approve/reject, reason on reject)
-- [ ] ⏳ Approval creates a normal `Invitation` indistinguishable from an admin-authored one downstream, with `street`/`unit` extracted from the linked `Property`
-- [ ] ⏳ Vehicle re-parenting on acceptance and cascade soft-delete on reject both covered by tests
-- [ ] ⏳ Invitation-acceptance provisioning boundary (seat/profile/household) confirmed with DavDev before Phase 4
-- [ ] ⏳ IDENTITY_MODEL.md "Design Decision Pending" section updated to record per-profile-email as adopted
+- [x] ✅ Public wizard live behind Honeypot + Turnstile, no Better Auth account created at any point in the flow
+- [x] ✅ Admin approval queue widget mirrors `GroupModerationWidget` UX conventions (approve/reject, reason on reject)
+- [x] ✅ Approval creates a normal `Invitation` indistinguishable from an admin-authored one downstream, with `street`/`unit` extracted from the linked `Property`
+- [x] ✅ Vehicle re-parenting on acceptance and cascade soft-delete on reject both covered by tests
+- [x] ✅ Invitation-acceptance provisioning boundary (seat/profile/household) confirmed with DavDev before Phase 4
+- [x] ✅ IDENTITY_MODEL.md "Design Decision Pending" section updated to record per-profile-email as adopted
 
 ---
 

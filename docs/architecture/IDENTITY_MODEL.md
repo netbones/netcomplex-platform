@@ -1,7 +1,7 @@
 ---
 title: Platform Identity Model
 status: current
-reviewed: 2026-07-28
+reviewed: 2026-08-16
 tags: [architecture, design]
 audience: developer
 ---
@@ -191,12 +191,35 @@ If password management is a concern, consider magic link authentication:
 
 ### Design Decision Pending
 
+**Status: RESOLVED (2026-08-16) via ADVISORY-038.**
+
+The platform has adopted **per-profile personal email** as the canonical login
+model. Evidence trail:
+
+- Accounts are only ever created via `Invitation` acceptance, which is
+  already personal-email-scoped (`Invitation.email`, `user.email` uniqueness).
+- The self-registration join-request flow (ADVISORY-038) submits a personal
+  `requestedEmail` and promotes to a normal `Invitation` on admin approval —
+  it does **not** introduce a household-credential or name-picker path.
+- `Profile.userId` remains nullable to represent non-login household occupants,
+  while login-capable members each have their own `user` row.
+
+The magic-link + household-name-picker alternative (Option 2 below) is
+**rejected** for this codebase. It would require a second account-creation
+code path alongside `Invitation` and contradicts the existing
+personal-email-per-person acceptance flow.
+
+<details>
+<summary>Original open decision (retained for history)</summary>
+
 We need to decide between:
 
 1. **Per-profile personal email** (recommended) - each user has own email for auth
 2. **Magic link system** - single household email, identity selection on login
 
 This affects Better Auth configuration and onboarding flow.
+
+</details>
 
 ---
 
