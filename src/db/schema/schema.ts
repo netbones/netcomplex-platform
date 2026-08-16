@@ -33,6 +33,8 @@ import * as setupMissions from './setup-missions';
 import * as setupSettings from './setup-settings';
 import * as properties from './properties';
 import * as households from './households';
+import * as propertyJoinRequests from './property-join-requests';
+import * as vehicles from './vehicles';
 import * as propertyListings from './property-listings';
 import * as propertyPremiumSeats from './property-premium-seats';
 import * as invitations from './invitations';
@@ -172,6 +174,8 @@ import * as setupMissionsRelations from './setup-missions-relations';
 import * as setupSettingsRelations from './setup-settings-relations';
 import * as propertiesRelations from './properties-relations';
 import * as householdsRelations from './households-relations';
+import * as propertyJoinRequestsRelations from './property-join-requests-relations';
+import * as vehiclesRelations from './vehicles-relations';
 import * as propertyListingsRelations from './property-listings-relations';
 import * as propertyPremiumSeatsRelations from './property-premium-seats-relations';
 import * as invitationsRelations from './invitations-relations';
@@ -310,6 +314,8 @@ export const schema = {
   ...setupSettings,
   ...properties,
   ...households,
+  ...propertyJoinRequests,
+  ...vehicles,
   ...propertyListings,
   ...propertyPremiumSeats,
   ...invitations,
@@ -449,6 +455,8 @@ export const schema = {
   ...setupSettingsRelations,
   ...propertiesRelations,
   ...householdsRelations,
+  ...propertyJoinRequestsRelations,
+  ...vehiclesRelations,
   ...propertyListingsRelations,
   ...propertyPremiumSeatsRelations,
   ...invitationsRelations,

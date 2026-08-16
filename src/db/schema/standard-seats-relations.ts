@@ -4,6 +4,7 @@ import { addresses } from './addresses';
 import { properties } from './properties';
 import { tenants } from './tenants';
 import { users } from './users';
+import { vehicles } from './vehicles';
 
 export const standardSeatsRelations = relations(standardSeats, helpers => ({
   address: helpers.one(addresses, {
@@ -26,4 +27,5 @@ export const standardSeatsRelations = relations(standardSeats, helpers => ({
     fields: [standardSeats.userId],
     references: [users.id],
   }),
+  vehicles: helpers.many(vehicles, { relationName: 'StandardSeatToVehicle' }),
 }));

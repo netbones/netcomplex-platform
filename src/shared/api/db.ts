@@ -162,6 +162,8 @@ import { outboxes } from '@schema/outboxes';
 import { outboxDeadLetters } from '@schema/outbox-dead-letters';
 import { contentVersions } from '@schema/content-versions';
 import { contentAuditLogs } from '@schema/content-audit-logs';
+import { propertyJoinRequests } from '@schema/property-join-requests';
+import { vehicles } from '@schema/vehicles';
 
 import { ENV } from 'varlock/env';
 import { dbLogger } from '@shared/lib';
@@ -285,6 +287,8 @@ const dbSchema = {
   setupSettings,
   meetingProxies,
   agentReviews,
+  propertyJoinRequests,
+  vehicles,
 } as const;
 
 export type DbSchema = typeof dbSchema;
@@ -538,4 +542,6 @@ export {
   setupSettings,
   meetingProxies,
   agentReviews,
+  propertyJoinRequests,
+  vehicles,
 };

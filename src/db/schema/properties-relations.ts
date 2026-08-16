@@ -16,6 +16,7 @@ import { standardSeats } from './standard-seats';
 import { visitors } from './visitors';
 import { accessRequests } from './access-requests';
 import { accessEvents } from './access-events';
+import { propertyJoinRequests } from './property-join-requests';
 
 export const propertiesRelations = relations(properties, helpers => ({
   agentAccess: helpers.many(agentAccesses, { relationName: 'AgentAccessToProperty' }),
@@ -52,4 +53,7 @@ export const propertiesRelations = relations(properties, helpers => ({
   Visitor: helpers.many(visitors, { relationName: 'PropertyToVisitor' }),
   AccessRequest: helpers.many(accessRequests, { relationName: 'AccessRequestToProperty' }),
   AccessEvent: helpers.many(accessEvents, { relationName: 'AccessEventToProperty' }),
+  joinRequests: helpers.many(propertyJoinRequests, {
+    relationName: 'PropertyToPropertyJoinRequest',
+  }),
 }));

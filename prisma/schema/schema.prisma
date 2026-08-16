@@ -239,6 +239,7 @@ model Profile {
   Tenant                        Tenant               @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   user_profile_userIdTouser     user?                @relation("profile_userIdTouser", fields: [userId], references: [id])
   residentDelegations           ResidentDelegation[]
+  vehicles                      Vehicle[]
 
   @@unique([householdId, profileAddress])
   @@index([householdId])
@@ -459,6 +460,7 @@ model StandardSeat {
   property        Property   @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   Tenant          Tenant     @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   user            user       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vehicles        Vehicle[]
 
   @@unique([userId, propertyId])
   @@index([propertyId])
@@ -658,10 +660,12 @@ model Property {
   Visitor             Visitor[]
   AccessRequest       AccessRequest[]
   AccessEvent         AccessEvent[]
+  joinRequests        PropertyJoinRequest[]
 
   @@index([ownerId])
   @@index([addressId])
   @@index([tenantId])
+  @@unique([tenantId, street, unit])
 }
 
 model Household {
@@ -683,6 +687,59 @@ model Household {
   @@index([propertyId])
   @@index([organizationId])
   @@index([tenantId])
+}
+
+model PropertyJoinRequest {
+  id                     String            @id @default(uuid())
+  tenantId               String
+  propertyId             String?
+  propertyNumberRaw      String
+  relationshipType       RelationshipType
+  requestedName          String
+  requestedSurname       String?
+  requestedEmail         String
+  requestedPhone         String?
+  rulesAcceptedAt        DateTime?
+  status                 JoinRequestStatus @default(PENDING)
+  reviewedByUserId       String?
+  reviewedAt             DateTime?
+  rejectionReason        String?
+  resultingInvitationId  String?
+  createdAt              DateTime          @default(now())
+  updatedAt              DateTime          @updatedAt
+  deletedAt              DateTime?
+
+  Tenant   Tenant     @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  property Property?  @relation(fields: [propertyId], references: [id])
+  vehicles Vehicle[]
+
+  @@index([tenantId, status])
+  @@index([propertyId])
+  @@index([requestedEmail])
+}
+
+model Vehicle {
+  id             String    @id @default(uuid())
+  tenantId       String
+  joinRequestId  String?
+  profileId      String?
+  standardSeatId String?
+  make           String?
+  model          String?
+  color          String?
+  registration   String
+  createdAt      DateTime  @default(now())
+  deletedAt      DateTime?
+
+  Tenant       Tenant                @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  joinRequest  PropertyJoinRequest?  @relation(fields: [joinRequestId], references: [id], onDelete: Cascade)
+  profile      Profile?              @relation(fields: [profileId], references: [id])
+  standardSeat StandardSeat?         @relation(fields: [standardSeatId], references: [id])
+
+  @@index([tenantId])
+  @@index([joinRequestId])
+  @@index([profileId])
+  @@index([registration])
 }
 
 model PropertyListing {
@@ -2965,6 +3022,20 @@ enum OccupancyType {
   OWNER_OCCUPIED
   RENTAL
   VACANT
+}
+
+enum JoinRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  WITHDRAWN
+}
+
+enum RelationshipType {
+  OWNER_RESIDENT
+  OWNER_LEASING
+  TENANT_RENTER
+  ADDITIONAL_USER
 }
 
 enum HouseholdStatus {

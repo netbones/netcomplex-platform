@@ -31,6 +31,8 @@ import { resources } from './resources';
 import { serviceBookings } from './service-bookings';
 import { soloSeats } from './solo-seats';
 import { standardSeats } from './standard-seats';
+import { propertyJoinRequests } from './property-join-requests';
+import { vehicles } from './vehicles';
 import { addresses } from './addresses';
 import { agentAccesses } from './agent-accesses';
 import { agentTokens } from './agent-tokens';
@@ -151,6 +153,10 @@ export const tenantsRelations = relations(tenants, helpers => ({
   ServiceBooking: helpers.many(serviceBookings, { relationName: 'ServiceBookingToTenant' }),
   SoloSeat: helpers.many(soloSeats, { relationName: 'SoloSeatToTenant' }),
   StandardSeat: helpers.many(standardSeats, { relationName: 'StandardSeatToTenant' }),
+  PropertyJoinRequest: helpers.many(propertyJoinRequests, {
+    relationName: 'PropertyJoinRequestToTenant',
+  }),
+  Vehicle: helpers.many(vehicles, { relationName: 'TenantToVehicle' }),
   Address: helpers.many(addresses, { relationName: 'AddressToTenant' }),
   AgentAccess: helpers.many(agentAccesses, { relationName: 'AgentAccessToTenant' }),
   AgentToken: helpers.many(agentTokens, { relationName: 'AgentTokenToTenant' }),

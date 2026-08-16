@@ -132,6 +132,8 @@ export {
   setupSettings,
   meetingProxies,
   agentReviews,
+  propertyJoinRequests,
+  vehicles,
 } from '../db';
 export { auth } from '../auth';
 export {

@@ -65,6 +65,8 @@ model Tenant {
   ServiceBooking          ServiceBooking[]
   SoloSeat                SoloSeat[]
   StandardSeat            StandardSeat[]
+  PropertyJoinRequest     PropertyJoinRequest[]
+  Vehicle                 Vehicle[]
 
   // ── Batch D back-links (Admin & Agents + Achievements & Disputes + Address & AI) ──
   Address                 Address[]

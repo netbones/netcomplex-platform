@@ -5,6 +5,7 @@ import { households } from './households';
 import { users } from './users';
 import { tenants } from './tenants';
 import { residentDelegations } from './resident-delegations';
+import { vehicles } from './vehicles';
 
 export const profilesRelations = relations(profiles, helpers => ({
   aliasAddress: helpers.one(addresses, {
@@ -35,4 +36,5 @@ export const profilesRelations = relations(profiles, helpers => ({
   residentDelegations: helpers.many(residentDelegations, {
     relationName: 'ProfileToResidentDelegation',
   }),
+  vehicles: helpers.many(vehicles, { relationName: 'ProfileToVehicle' }),
 }));
