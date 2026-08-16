@@ -128,6 +128,7 @@ export const SPACES: Record<SpaceId, SpaceDefinition> = {
       'admin-events',
       'admin-surveys',
       'group-moderation',
+      'admin-join-requests',
       'admin-announcements',
       'admin-competitions',
       'admin-resources',

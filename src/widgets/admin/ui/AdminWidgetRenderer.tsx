@@ -17,6 +17,7 @@ import { ResourceList } from './ResourceList';
 import { SurveysWidget } from './SurveysWidget';
 import { AdminAnnouncementsWidget } from './AdminAnnouncementsWidget';
 import { GroupModerationWidgetWithErrorBoundary } from './GroupModerationWidget';
+import { AdminJoinRequestsWidget } from './AdminJoinRequestsWidget';
 import { EducationList } from './EducationList';
 
 interface WidgetRendererProps {
@@ -142,6 +143,12 @@ export function AdminWidgetRenderer({ widgetId }: WidgetRendererProps): ReactNod
       );
     case 'group-moderation':
       return <GroupModerationWidgetWithErrorBoundary />;
+    case 'admin-join-requests':
+      return (
+        <WidgetWithBoundary widgetId={widgetId}>
+          <AdminJoinRequestsWidget />
+        </WidgetWithBoundary>
+      );
     case 'admin-education':
       return (
         <WidgetWithBoundary widgetId={widgetId}>

@@ -144,6 +144,7 @@ export function JoinRequestWizard() {
     try {
       await apiPost('/api/join-requests', {
         tenantId,
+        propertyId: propertyMatch?.id ?? null,
         propertyNumberRaw: propertyNumber,
         relationshipType,
         requestedName: name,

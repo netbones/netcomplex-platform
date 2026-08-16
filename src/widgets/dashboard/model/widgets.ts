@@ -641,6 +641,24 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
   });
 
   registry.register({
+    id: 'admin-join-requests',
+    version: '1.0.0',
+    name: 'Join Requests',
+    description: 'Pending resident join-request approvals',
+    author: 'internal',
+    category: 'core',
+    icon: User,
+    permissions: ['admin'],
+    component: lazy(() =>
+      import('@widgets/admin').then(m => ({ default: m.AdminJoinRequestsWidget }))
+    ),
+    defaultSize: { width: 3, height: 3 },
+    minSize: { width: 2, height: 2 },
+    dragHandleClassName: 'widget-drag-handle',
+    spaces: ['admin'],
+  });
+
+  registry.register({
     id: 'page-settings',
     version: '1.0.0',
     name: 'Page Settings',

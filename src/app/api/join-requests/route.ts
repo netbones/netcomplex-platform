@@ -26,6 +26,7 @@ const vehicleSchema = z.object({
 
 const joinRequestSchema = z.object({
   tenantId: z.string().min(1),
+  propertyId: z.string().min(1).optional().nullable(),
   propertyNumberRaw: z.string().trim().min(1).max(100),
   relationshipType: z.enum(['OWNER_RESIDENT', 'OWNER_LEASING', 'TENANT_RENTER', 'ADDITIONAL_USER']),
   requestedName: z.string().trim().min(1).max(200),
@@ -88,7 +89,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   await db.insert(propertyJoinRequests).values({
     id: requestId,
     tenantId: input.tenantId,
-    propertyId: null,
+    propertyId: input.propertyId || null,
     propertyNumberRaw: input.propertyNumberRaw,
     relationshipType: input.relationshipType,
     requestedName: input.requestedName,
