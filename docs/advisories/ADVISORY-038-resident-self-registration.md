@@ -251,7 +251,7 @@ Run §5 checklist, produce findings note. **Gate: G0**
 
 Add `PropertyJoinRequest`, `Vehicle`, `JoinRequestStatus`, `RelationshipType` per §4. **Also add a `Property` `@@unique([tenantId, street, unit])` constraint** — discovery confirmed no live duplicates, but the constraint is the schema guarantee exact-match lookup depends on (see §5b). **Gate: G1**
 
-**Status: IN PROGRESS (2026-08-15).** Prisma models + enums + `Property` unique constraint added and `prisma validate` passes; Drizzle regenerated (`property-join-requests`, `vehicles`, `join-request-status-enum`, `relationship-type-enum`); `db.ts` + server barrel exports wired. Migration `20260815000000_add_property_join_request_and_vehicle` created but **not yet applied**. G1 (relationship-type semantics) still open with DavDev.
+**Status: IN PROGRESS (2026-08-15).** Prisma models + enums + `Property` unique constraint added and `prisma validate` passes; Drizzle regenerated (`property-join-requests`, `vehicles`, `join-request-status-enum`, `relationship-type-enum`); `db.ts` + server barrel exports wired. Migration `20260815000000_add_property_join_request_and_vehicle` created and **applied 2026-08-16** (verified `PropertyJoinRequest`/`Vehicle` tables + `Property_tenantId_street_unit_key` unique index live). G1 (relationship-type semantics) resolved via `ADVISORY-38_G1_ADDENDUM_AMENDED.md`.
 
 ### Phase 2 — Public wizard (4 screens, no auth required)
 
@@ -300,9 +300,9 @@ Formally update IDENTITY_MODEL.md's "Design Decision Pending" section to record 
 
 ## 8. Done Criteria
 
-- [x] ✅ `PropertyJoinRequest`, `Vehicle`, `JoinRequestStatus`, `RelationshipType` exist in `prisma/schema.prisma`, Drizzle schema regenerated (migration not yet applied)
+- [x] ✅ `PropertyJoinRequest`, `Vehicle`, `JoinRequestStatus`, `RelationshipType` exist in `prisma/schema.prisma`, Drizzle schema regenerated (migration applied 2026-08-16)
 - [x] ✅ Discovery findings note (§5b) attached, including the `Property` duplicate-address query result (0 duplicates)
-- [x] ✅ `Property` gains `@@unique([tenantId, street, unit])` before exact-match property lookup ships (constraint added, migration pending)
+- [x] ✅ `Property` gains `@@unique([tenantId, street, unit])` before exact-match property lookup ships (constraint added + applied)
 - [x] ✅ Public wizard live behind Honeypot + Turnstile, no Better Auth account created at any point in the flow
 - [x] ✅ Admin approval queue widget mirrors `GroupModerationWidget` UX conventions (approve/reject, reason on reject)
 - [x] ✅ Approval creates a normal `Invitation` indistinguishable from an admin-authored one downstream, with `street`/`unit` extracted from the linked `Property`
