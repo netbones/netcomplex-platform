@@ -4,6 +4,16 @@ Discovery (Phase 0) is complete and Phase 1 schema has shipped. Phases 2–4
 are blocked on the five gates below. Please confirm each with a short answer;
 defaults are proposed where the advisory already leans one way.
 
+**Resolution status (2026-08-15):**
+
+| Gate | Resolution                                                                                                                            |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| G1   | **RESOLVED** — OWNER_LEASING retains dashboard access; derived state on live schema. See `ADVISORY-38_G1_ADDENDUM_AMENDED.md`         |
+| G2   | **ACCEPTED** — exact-match lookup + `Property @@unique([tenantId, street, unit])`                                                     |
+| G3   | **RESOLVED** — new rejection template (not reuse `emailNotification`)                                                                 |
+| G4   | **ACCEPTED** — no ADVISORY-034 (`Identity`/`Credential`) dependency; `PropertyJoinRequest`/`Invitation` key off `user.email` as today |
+| G5   | **ACCEPTED** — provisioning boundary must be explicit                                                                                 |
+
 ---
 
 ## G1 — `RelationshipType` four-way split
@@ -22,6 +32,14 @@ defaults are proposed where the advisory already leans one way.
 access, or is it a legal/billing record only with no login flow until a tenant
 registers separately?
 
+owner dashboard access see @docs/advisories/ADVISORY-38_G1_ADDENDUM_AMENDED.md
+
+> **Implementation note (superseded):** the original G1 addendum proposed
+> `UnitMembership`/`Tenancy`/`Unit`, but `ADVISORY-38_G1_ADDENDUM_AMENDED.md`
+> remaps this onto the live schema: OWNER_LEASING is a _derived state_
+> (`StandardSeat` + `Household.occupancyType = RENTAL`), not a new enum or
+> parallel entity set. The amended addendum is authoritative.
+
 ---
 
 ## G2 — Property lookup UX + uniqueness constraint
@@ -36,6 +54,8 @@ DB, so exact-match is viable today. The constraint prevents future duplicates.
 **Proposed:** exact-match only; ambiguous/missing matches route to admin manual
 resolution (no fuzzy auto-linking).
 
+Accepted
+
 ---
 
 ## G3 — Rejection notification template
@@ -47,6 +67,8 @@ wanted?
 **Proposed:** reuse `emailNotification` (or add a single `joinRequestRejected`
 template alongside `teamInvitation`). No new email service.
 
+New template
+
 ---
 
 ## G4 — ADVISORY-034 scoping
@@ -57,6 +79,8 @@ continue keying identity off `user.email` uniqueness as today, with no
 dependency on `Identity`/`Credential` entities landing first.
 
 **Proposed:** confirmed — no dependency on ADVISORY-034.
+
+accepted
 
 ---
 
@@ -71,6 +95,8 @@ profile/household creation is a separate downstream concern.
 
 **Proposed:** Phase 4 (vehicle re-parenting) must not assume acceptance
 provisions seats; the provisioning boundary needs an explicit owner.
+
+accepted
 
 ---
 
