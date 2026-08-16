@@ -153,11 +153,14 @@ export const POST = withErrorHandler(
       })
       .where(eq(propertyJoinRequests.id, id));
 
-    // G3: new rejection template is pending; fall back to a generic email for now.
+    // Reject — G3 resolved: use the dedicated joinRequestRejected template.
     void sendEmail({
       to: joinRequest.requestedEmail,
-      subject: 'Your community join request was not approved',
-      html: `<p>Hi ${joinRequest.requestedName},</p><p>Your request to join this community could not be approved at this time.${rejectionReason ? ` Reason: ${rejectionReason}` : ''}</p>`,
+      subject: templates.joinRequestRejected.subject(),
+      html: templates.joinRequestRejected.getHtml(
+        joinRequest.requestedName,
+        rejectionReason ?? null
+      ),
     }).catch(err => {
       log.error({ joinRequestId: id }, 'Failed to send join-request rejection', err);
     });

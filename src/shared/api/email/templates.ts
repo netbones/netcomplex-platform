@@ -313,6 +313,41 @@ export const templates = {
 </html>
 `,
   },
+
+  joinRequestRejected: {
+    subject: (tenantName = 'Netcomplex') =>
+      `Your join request to ${escapeHtml(tenantName)} was not approved`,
+    getHtml: (requestName: string, reason: string | null, tenantName = 'Netcomplex') => `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Join Request Not Approved</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="text-align: center; margin-bottom: 30px;">
+    <h1 style="color: #4F46E5; margin: 0;">${escapeHtml(tenantName)}</h1>
+  </div>
+
+  <h2 style="color: #1f2937;">Your request was not approved</h2>
+
+  <p style="margin: 20px 0;">Hi${requestName ? `, ${escapeHtml(requestName)}` : ''},</p>
+
+  <p style="margin: 20px 0;">Thank you for requesting to join this community. Unfortunately, your request could not be approved at this time.</p>
+
+  ${reason ? `<div style="background: #fef2f2; border-radius: 8px; padding: 16px; margin: 20px 0;"><p style="margin: 0; color: #b91c1c; font-size: 14px;"><strong>Reason:</strong> ${escapeHtml(reason)}</p></div>` : ''}
+
+  <p style="color: #6b7280; font-size: 14px;">If you believe this was a mistake, please contact your community's management team.</p>
+
+  <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+  <p style="color: #9ca3af; font-size: 12px; text-align: center;">
+    &copy; ${new Date().getFullYear()} ${escapeHtml(tenantName)}. All rights reserved.
+  </p>
+</body>
+</html>
+`,
+  },
 } as const;
 
 export type TemplateKey = keyof typeof templates;
