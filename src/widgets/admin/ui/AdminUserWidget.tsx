@@ -2,10 +2,13 @@
 
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
 import { ErrorBoundary } from '@shared/ui';
 import { useAdminUsers } from '@shared/lib/hooks';
+import { apiGet } from '@/shared/api/http-client';
 
 import { Clock, UserCheck, UserPlus, Users } from 'lucide-react';
+
 export interface UserItem {
   id: string;
   name: string;
@@ -14,19 +17,37 @@ export interface UserItem {
   [key: string]: unknown;
 }
 
+interface JoinRequestSummary {
+  id: string;
+  status: string;
+}
+
 export function AdminUserWidget() {
   const { t } = useTranslation('admin');
   const { data, isLoading } = useAdminUsers<UserItem>();
+
+  // ADVISORY-039 Amendment A: the Pending card reflects live PropertyJoinRequest
+  // count, not inactive-user count.
+  const { data: joinRequests } = useQuery({
+    queryKey: ['admin', 'join-requests', 'pending'],
+    queryFn: async () => {
+      const { data } = await apiGet<{ requests: JoinRequestSummary[] }>(
+        '/api/admin/join-requests?status=PENDING'
+      );
+      return data?.requests ?? [];
+    },
+    staleTime: 30 * 1000,
+  });
 
   const userStats = useMemo(() => {
     if (!data) return { total: 0, active: 0, pending: 0, recentSignups: 0 };
     const users = data.users;
     const total = data.total;
     const active = users.filter(u => u.isActive).length;
-    const pending = total - active;
+    const pending = joinRequests?.length ?? 0;
     const recentSignups = Math.floor(Math.random() * 5) + 1;
     return { total, active, pending, recentSignups };
-  }, [data]);
+  }, [data, joinRequests]);
 
   if (isLoading) {
     return (

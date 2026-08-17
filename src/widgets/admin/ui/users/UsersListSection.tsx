@@ -10,6 +10,7 @@ import type { AdminUser, Invitation, InviteFormData, SuspensionFormData } from '
 import { roleOptions } from '@entities/user';
 import { useUsersData } from './helpers/use-users-data';
 import { UserTable } from './UserTable';
+import { AdminJoinRequestsWidget } from '../AdminJoinRequestsWidget';
 import { InviteModal } from './InviteModal';
 import { DeleteUserModal } from './DeleteUserModal';
 import { SuspendUserModal } from './SuspendUserModal';
@@ -254,6 +255,7 @@ export function UsersListSection() {
                 <option value="OWNER">Owner</option>
                 <option value="RENTER">Renter</option>
                 <option value="SUSPENDED">Suspended</option>
+                <option value="PENDING">Pending</option>
               </select>
               <button
                 onClick={() => setShowInvite(true)}
@@ -264,23 +266,27 @@ export function UsersListSection() {
               </button>
             </div>
 
-            <UserTable
-              filteredUsers={filteredUsers}
-              loading={loading}
-              total={total}
-              page={page}
-              totalPages={totalPages}
-              expandedUserId={expandedUserId}
-              editingForm={editingForm}
-              saving={saving}
-              onPageChange={setPage}
-              onToggleRow={handleRowClick}
-              onFieldChange={handleFieldChange}
-              onSaveUser={handleSaveUser}
-              onRoleChange={updateUser}
-              onStatusToggle={handleStatusToggle}
-              onDelete={setDeleteUser}
-            />
+            {filterType === 'PENDING' ? (
+              <AdminJoinRequestsWidget />
+            ) : (
+              <UserTable
+                filteredUsers={filteredUsers}
+                loading={loading}
+                total={total}
+                page={page}
+                totalPages={totalPages}
+                expandedUserId={expandedUserId}
+                editingForm={editingForm}
+                saving={saving}
+                onPageChange={setPage}
+                onToggleRow={handleRowClick}
+                onFieldChange={handleFieldChange}
+                onSaveUser={handleSaveUser}
+                onRoleChange={updateUser}
+                onStatusToggle={handleStatusToggle}
+                onDelete={setDeleteUser}
+              />
+            )}
           </div>
         )}
       </div>
