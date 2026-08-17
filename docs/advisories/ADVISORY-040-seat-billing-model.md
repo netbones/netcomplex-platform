@@ -176,6 +176,24 @@ WHERE conrelid = '"PaymentTransaction"'::regclass AND contype = 'f';
 
 **Discovery deliverable:** confirmation that (a) payment gateway adapters are already subject-agnostic and need no changes, (b) the `PaymentTransaction` FK loosening is safe against existing provider-billing data, and (c) ADVISORY-039's permission split has landed so the complimentary-grant wiring has something to gate on.
 
+### 5.1 Discovery Results (2026-08-17, Gate G0 ✅)
+
+| #   | Check                                        | Result                                                                                                                                                                                                                                                                                                   |
+| --- | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | ProviderSubscription shape                   | **Confirmed.** `providerId`, `tenantId`, `tierId`, `status`, `startDate`/`endDate`/`nextBillingDate`, `price`, `currency`, `paymentGateway`, `transactions[]`, `charges[]`, `invoices[]`. The exact shape to mirror.                                                                                     |
+| 2   | PaymentTransaction FKs                       | **Confirmed, safe to loosen.** `providerId` (NOT NULL → ServiceProvider, ON DELETE RESTRICT), `subscriptionId` (NOT NULL → ProviderSubscription, RESTRICT), `tenantId` (NOT NULL → Tenant, RESTRICT). **0 existing PaymentTransaction rows**, so the optional-FK migration has no data to protect today. |
+| 3   | Payment gateway subject-agnosticism          | **Confirmed.** `PaystackService`/`PayPalService` take only `reference`, `email`, `amount`, `currency`, `metadata` — no hardcoded `ServiceProvider`/`providerId`. No changes needed.                                                                                                                      |
+| 4   | `manage:billing` permission                  | **Landed.** Present in `src/shared/lib/permissions.ts` and already gating `src/app/api/seats/route.ts` + the plan-centre page.                                                                                                                                                                           |
+| 5   | `SoloSeat`/`PremiumSeat.tier` as price proxy | **Not used as price.** Only display-field reads; no UI or API reads seat `.tier` as a price/interval. No existing behavior breaks when `SeatPlan` becomes the price source.                                                                                                                              |
+
+**Discovery deliverable conclusions:**
+
+- (a) Payment gateways require **no changes**.
+- (b) `PaymentTransaction` FK loosening is **safe** (0 existing rows), but the advisory's optional-FK migration should still add a `CHECK` enforcing exactly one of `providerId`/`seatSubscriptionId`, since future provider rows will coexist.
+- (c) ADVISORY-039's `manage:billing` permission **has landed**; Phase 4's complimentary-grant wiring has a permission to gate on.
+
+**Note:** `SoloSeat` and `PremiumSeat` both still carry a bare `tier String` (display-only). This advisory does not propose removing it — `SeatPlan` becomes the authoritative billing source, and the legacy `tier` string remains a non-billing display field until a later cleanup.
+
 ---
 
 ## 6. Phased Execution Plan
@@ -183,6 +201,8 @@ WHERE conrelid = '"PaymentTransaction"'::regclass AND contype = 'f';
 ### Phase 0 — Discovery
 
 Run §5 checklist, produce findings note. **Gate: G0**
+
+**Status: COMPLETE (2026-08-17).** See §5.1. G0 blocker cleared.
 
 ### Phase 1 — `SeatPlan` (additive only)
 
@@ -220,6 +240,7 @@ If a third near-duplicate billing stack becomes a maintenance burden, revisit Op
 
 ## 8. Done Criteria
 
+- [x] ✅ Discovery findings note (§5.1) attached; G0 passed
 - [ ] ⏳ `SeatPlan`, `SeatSubscription`, `SeatType` exist in `prisma/schema.prisma`
 - [ ] ⏳ `PaymentTransaction` FKs loosened with a verified-safe migration against existing provider data
 - [ ] ⏳ Resident Billing & Plan Centre "Upgrade" button creates a real `SeatSubscription` and routes to real checkout, no hardcoded prices remain in UI code
@@ -233,7 +254,7 @@ If a third near-duplicate billing stack becomes a maintenance burden, revisit Op
 
 | Gate   | Question for DavDev                                                                                                                                                 | Blocks         |
 | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- |
-| **G0** | Confirm advisory number (040) against the register                                                                                                                  | All execution  |
+| **G0** | ~~Confirm advisory number (040) against the register~~ **SATISFIED 2026-08-17 — discovery complete (§5.1)**                                                         | All execution  |
 | **G1** | Confirm real Solo Seat / Premium Seat pricing figures (the R89/month in the mockup was illustrative, not sourced)                                                   | Phase 1        |
 | **G2** | Confirm `PaymentTransaction` FK loosening is acceptable versus a stricter alternative (e.g. a `CHECK` constraint enforcing exactly one subject FK)                  | Phase 2        |
 | **G3** | Confirm Premium Seat's eligibility rule is genuinely just `minProperties` for now, or whether other conditions (tenure, tier) need to be representable from day one | Phase 3        |
