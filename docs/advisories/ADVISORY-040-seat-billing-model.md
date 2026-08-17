@@ -194,6 +194,16 @@ WHERE conrelid = '"PaymentTransaction"'::regclass AND contype = 'f';
 
 **Note:** `SoloSeat` and `PremiumSeat` both still carry a bare `tier String` (display-only). This advisory does not propose removing it — `SeatPlan` becomes the authoritative billing source, and the legacy `tier` string remains a non-billing display field until a later cleanup.
 
+**Tentative ballpark pricing (DavDev, 2026-08-17):**
+
+| Seat offering                                               | Price                     |
+| ----------------------------------------------------------- | ------------------------- |
+| StandardSeat + 5 Alias logins (per household, per property) | R12.50 / month            |
+| SoloSeat (Vanity Address)                                   | additional R12.50 / month |
+| PremiumSeat                                                 | R36 / month               |
+
+These are **tentative ballpark figures**, not final signed-off pricing. They supersede the mockup's illustrative R89/month Solo figure for Phase 1 seeding, but Gate G1 (real pricing sign-off) remains open until DavDev confirms them as final.
+
 ---
 
 ## 6. Phased Execution Plan
@@ -252,11 +262,11 @@ If a third near-duplicate billing stack becomes a maintenance burden, revisit Op
 
 ## 9. Decision Gates
 
-| Gate   | Question for DavDev                                                                                                                                                 | Blocks         |
-| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- |
-| **G0** | ~~Confirm advisory number (040) against the register~~ **SATISFIED 2026-08-17 — discovery complete (§5.1)**                                                         | All execution  |
-| **G1** | Confirm real Solo Seat / Premium Seat pricing figures (the R89/month in the mockup was illustrative, not sourced)                                                   | Phase 1        |
-| **G2** | Confirm `PaymentTransaction` FK loosening is acceptable versus a stricter alternative (e.g. a `CHECK` constraint enforcing exactly one subject FK)                  | Phase 2        |
-| **G3** | Confirm Premium Seat's eligibility rule is genuinely just `minProperties` for now, or whether other conditions (tenure, tier) need to be representable from day one | Phase 3        |
-| **G4** | Confirm sequencing against ADVISORY-039 — this phase should not begin before that advisory's `manage:billing` permission and Plan & Seats admin view exist          | Phase 4        |
-| **G5** | Confirm Phase 5 (billing stack consolidation) stays explicitly out of scope and unscheduled, not silently expected as part of this advisory                         | Scope boundary |
+| Gate   | Question for DavDev                                                                                                                                                                                                                              | Blocks         |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------- |
+| **G0** | ~~Confirm advisory number (040) against the register~~ **SATISFIED 2026-08-17 — discovery complete (§5.1)**                                                                                                                                      | All execution  |
+| **G1** | Confirm real Solo Seat / Premium Seat pricing figures (the R89/month in the mockup was illustrative, not sourced). **Tentative figures noted 2026-08-17: Standard+5 aliases R12.50, Solo vanity R12.50, Premium R36 — awaiting final sign-off.** | Phase 1        |
+| **G2** | Confirm `PaymentTransaction` FK loosening is acceptable versus a stricter alternative (e.g. a `CHECK` constraint enforcing exactly one subject FK)                                                                                               | Phase 2        |
+| **G3** | Confirm Premium Seat's eligibility rule is genuinely just `minProperties` for now, or whether other conditions (tenure, tier) need to be representable from day one                                                                              | Phase 3        |
+| **G4** | Confirm sequencing against ADVISORY-039 — this phase should not begin before that advisory's `manage:billing` permission and Plan & Seats admin view exist                                                                                       | Phase 4        |
+| **G5** | Confirm Phase 5 (billing stack consolidation) stays explicitly out of scope and unscheduled, not silently expected as part of this advisory                                                                                                      | Scope boundary |
