@@ -78,6 +78,7 @@ import { billingAdjustments } from './billing-adjustments';
 import { billingEvents } from './billing-events';
 import { billingPlans } from './billing-plans';
 import { seatPlans } from './seat-plans';
+import { seatSubscriptions } from './seat-subscriptions';
 import { bursaryFields } from './bursary-fields';
 import { communityServiceInquiries } from './community-service-inquiries';
 import { communityServiceListings } from './community-service-listings';
@@ -217,6 +218,7 @@ export const tenantsRelations = relations(tenants, helpers => ({
   BillingEvent: helpers.many(billingEvents, { relationName: 'BillingEventToTenant' }),
   BillingPlan: helpers.many(billingPlans, { relationName: 'BillingPlanToTenant' }),
   SeatPlan: helpers.many(seatPlans, { relationName: 'SeatPlanToTenant' }),
+  SeatSubscription: helpers.many(seatSubscriptions, { relationName: 'SeatSubscriptionToTenant' }),
   BursaryField: helpers.many(bursaryFields, { relationName: 'BursaryFieldToTenant' }),
   CommunityServiceInquiry: helpers.many(communityServiceInquiries, {
     relationName: 'CommunityServiceInquiryToTenant',

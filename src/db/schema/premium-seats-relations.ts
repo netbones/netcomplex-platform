@@ -4,6 +4,7 @@ import { addresses } from './addresses';
 import { tenants } from './tenants';
 import { users } from './users';
 import { propertyPremiumSeats } from './property-premium-seats';
+import { seatSubscriptions } from './seat-subscriptions';
 
 export const premiumSeatsRelations = relations(premiumSeats, helpers => ({
   address: helpers.one(addresses, {
@@ -23,5 +24,8 @@ export const premiumSeatsRelations = relations(premiumSeats, helpers => ({
   }),
   propertyPremiumSeats: helpers.many(propertyPremiumSeats, {
     relationName: 'PremiumSeatToPropertyPremiumSeat',
+  }),
+  seatSubscriptions: helpers.many(seatSubscriptions, {
+    relationName: 'PremiumSeatToSeatSubscription',
   }),
 }));

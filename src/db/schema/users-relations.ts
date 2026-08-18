@@ -53,6 +53,7 @@ import { serviceBookings } from './service-bookings';
 import { serviceProviders } from './service-providers';
 import { soloSeats } from './solo-seats';
 import { standardSeats } from './standard-seats';
+import { seatSubscriptions } from './seat-subscriptions';
 import { supports } from './supports';
 import { tenants } from './tenants';
 import { userAchievements } from './user-achievements';
@@ -178,6 +179,7 @@ export const usersRelations = relations(users, helpers => ({
   serviceProviders: helpers.many(serviceProviders, { relationName: 'ServiceProviderTouser' }),
   soloSeat: helpers.many(soloSeats, { relationName: 'SoloSeatTouser' }),
   standardSeat: helpers.many(standardSeats, { relationName: 'StandardSeatTouser' }),
+  seatSubscription: helpers.many(seatSubscriptions, { relationName: 'SeatSubscriptionTouser' }),
   receivedSupports: helpers.many(supports, { relationName: 'ReceivedSupports' }),
   sentSupports: helpers.many(supports, { relationName: 'SentSupports' }),
   ownedTenants: helpers.many(tenants, { relationName: 'TenantOwner' }),

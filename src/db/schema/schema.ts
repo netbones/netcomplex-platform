@@ -22,6 +22,7 @@ import * as premiumSeats from './premium-seats';
 import * as soloSeats from './solo-seats';
 import * as standardSeats from './standard-seats';
 import * as seatPlans from './seat-plans';
+import * as seatSubscriptions from './seat-subscriptions';
 import * as userKeys from './user-keys';
 import * as userDevices from './user-devices';
 import * as platformModules from './platform-modules';
@@ -164,6 +165,7 @@ import * as premiumSeatsRelations from './premium-seats-relations';
 import * as soloSeatsRelations from './solo-seats-relations';
 import * as standardSeatsRelations from './standard-seats-relations';
 import * as seatPlansRelations from './seat-plans-relations';
+import * as seatSubscriptionsRelations from './seat-subscriptions-relations';
 import * as userKeysRelations from './user-keys-relations';
 import * as userDevicesRelations from './user-devices-relations';
 import * as platformModulesRelations from './platform-modules-relations';
@@ -305,6 +307,7 @@ export const schema = {
   ...soloSeats,
   ...standardSeats,
   ...seatPlans,
+  ...seatSubscriptions,
   ...userKeys,
   ...userDevices,
   ...platformModules,
@@ -447,6 +450,7 @@ export const schema = {
   ...soloSeatsRelations,
   ...standardSeatsRelations,
   ...seatPlansRelations,
+  ...seatSubscriptionsRelations,
   ...userKeysRelations,
   ...userDevicesRelations,
   ...platformModulesRelations,

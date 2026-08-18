@@ -3,6 +3,7 @@ import { paymentTransactions } from './payment-transactions';
 import { tenants } from './tenants';
 import { serviceProviders } from './service-providers';
 import { providerSubscriptions } from './provider-subscriptions';
+import { seatSubscriptions } from './seat-subscriptions';
 import { providerCharges } from './provider-charges';
 import { providerInvoices } from './provider-invoices';
 import { revenueRecords } from './revenue-records';
@@ -22,6 +23,11 @@ export const paymentTransactionsRelations = relations(paymentTransactions, helpe
     relationName: 'PaymentTransactionToProviderSubscription',
     fields: [paymentTransactions.subscriptionId],
     references: [providerSubscriptions.id],
+  }),
+  seatSubscription: helpers.one(seatSubscriptions, {
+    relationName: 'PaymentTransactionToSeatSubscription',
+    fields: [paymentTransactions.seatSubscriptionId],
+    references: [seatSubscriptions.id],
   }),
   charges: helpers.many(providerCharges, { relationName: 'PaymentTransactionToProviderCharge' }),
   invoices: helpers.many(providerInvoices, { relationName: 'PaymentTransactionToProviderInvoice' }),

@@ -4,6 +4,7 @@ import { addresses } from './addresses';
 import { properties } from './properties';
 import { tenants } from './tenants';
 import { users } from './users';
+import { seatSubscriptions } from './seat-subscriptions';
 
 export const soloSeatsRelations = relations(soloSeats, helpers => ({
   address: helpers.one(addresses, {
@@ -25,5 +26,8 @@ export const soloSeatsRelations = relations(soloSeats, helpers => ({
     relationName: 'SoloSeatTouser',
     fields: [soloSeats.userId],
     references: [users.id],
+  }),
+  seatSubscriptions: helpers.many(seatSubscriptions, {
+    relationName: 'SeatSubscriptionToSoloSeat',
   }),
 }));

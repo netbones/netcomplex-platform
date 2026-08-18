@@ -4,9 +4,10 @@ import { paymentGatewayEnum } from './payment-gateway-enum';
 
 export const paymentTransactions = pgTable('PaymentTransaction', {
   id: text('id').primaryKey(),
-  providerId: text('providerId').notNull(),
+  providerId: text('providerId'),
   tenantId: text('tenantId').notNull(),
-  subscriptionId: text('subscriptionId').notNull(),
+  subscriptionId: text('subscriptionId'),
+  seatSubscriptionId: text('seatSubscriptionId'),
   amount: decimal('amount', { precision: 65, scale: 30 }).notNull(),
   currency: text('currency').default('ZAR').notNull(),
   platformFee: decimal('platformFee', { precision: 65, scale: 30 }).notNull(),

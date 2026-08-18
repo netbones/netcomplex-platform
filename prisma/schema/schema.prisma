@@ -185,6 +185,7 @@ model user {
   serviceProviders                                      ServiceProvider[]
   soloSeat                                              SoloSeat[]
   standardSeat                                          StandardSeat[]
+  seatSubscription                                      SeatSubscription[]
   receivedSupports                                      Support[]                 @relation("ReceivedSupports")
   sentSupports                                          Support[]                 @relation("SentSupports")
   ownedTenants                                          Tenant[]                  @relation("TenantOwner")
@@ -409,6 +410,7 @@ model PremiumSeat {
   Tenant               Tenant                @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   user                 user                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   propertyPremiumSeats PropertyPremiumSeat[]
+  seatSubscriptions    SeatSubscription[]
 
   @@index([organizationId])
   @@index([userId])
@@ -435,6 +437,7 @@ model SoloSeat {
   property            Property?    @relation(fields: [propertyId], references: [id])
   Tenant              Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   user                user         @relation(fields: [userId], references: [id])
+  seatSubscriptions   SeatSubscription[]
 
   @@index([propertyId])
   @@index([organizationId])
@@ -1747,31 +1750,34 @@ model ProviderSubscription {
 }
 
 model PaymentTransaction {
-  id             String               @id @default(uuid())
-  providerId     String
-  tenantId       String
-  Tenant         Tenant               @relation(fields: [tenantId], references: [id], onDelete: Restrict)
-  subscriptionId String
-  amount         Decimal              @db.Decimal(10, 2)
-  currency       String               @default("ZAR")
-  platformFee    Decimal              @db.Decimal(10, 2)
-  processorFee   Decimal              @db.Decimal(10, 2)
-  netAmount      Decimal              @db.Decimal(10, 2)
-  status         TransactionStatus    @default(PENDING)
-  gateway        PaymentGateway
-  externalRef    String?
-  invoiceUrl     String?
-  createdAt      DateTime             @default(now())
-  deletedAt      DateTime?
-  provider       ServiceProvider      @relation(fields: [providerId], references: [id])
-  subscription   ProviderSubscription @relation(fields: [subscriptionId], references: [id])
-  charges        ProviderCharge[]
-  invoices       ProviderInvoice[]
-  revenue        RevenueRecord[]
+  id                 String               @id @default(uuid())
+  providerId         String?
+  tenantId           String
+  Tenant             Tenant               @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  subscriptionId     String?
+  seatSubscriptionId String?
+  amount             Decimal              @db.Decimal(10, 2)
+  currency           String               @default("ZAR")
+  platformFee        Decimal              @db.Decimal(10, 2)
+  processorFee       Decimal              @db.Decimal(10, 2)
+  netAmount          Decimal              @db.Decimal(10, 2)
+  status             TransactionStatus    @default(PENDING)
+  gateway            PaymentGateway
+  externalRef        String?
+  invoiceUrl         String?
+  createdAt          DateTime             @default(now())
+  deletedAt          DateTime?
+  provider           ServiceProvider?     @relation(fields: [providerId], references: [id])
+  subscription       ProviderSubscription? @relation(fields: [subscriptionId], references: [id])
+  seatSubscription   SeatSubscription?    @relation(fields: [seatSubscriptionId], references: [id])
+  charges            ProviderCharge[]
+  invoices           ProviderInvoice[]
+  revenue            RevenueRecord[]
 
   @@index([tenantId])
   @@index([providerId])
   @@index([subscriptionId])
+  @@index([seatSubscriptionId])
 }
 
 model RevenueRecord {
@@ -1892,8 +1898,41 @@ model SeatPlan {
   createdAt       DateTime            @default(now())
   updatedAt       DateTime            @updatedAt
 
+  subscriptions SeatSubscription[]
+
   @@unique([tenantId, seatType, minimumHomes])
   @@index([tenantId, seatType])
+}
+
+model SeatSubscription {
+  id              String             @id @default(uuid())
+  tenantId        String
+  userId          String
+  seatType        SeatType
+  soloSeatId      String?
+  premiumSeatId   String?
+  planId          String
+  status          SubscriptionStatus @default(PENDING)
+  isComplimentary Boolean            @default(false)
+  grantedByUserId String?
+  startDate       DateTime?
+  endDate         DateTime?
+  nextBillingDate DateTime?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  deletedAt       DateTime?
+
+  Tenant         Tenant              @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  user           user                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  soloSeat       SoloSeat?           @relation(fields: [soloSeatId], references: [id])
+  premiumSeat    PremiumSeat?        @relation(fields: [premiumSeatId], references: [id])
+  plan           SeatPlan            @relation(fields: [planId], references: [id])
+  transactions   PaymentTransaction[]
+
+  @@index([tenantId, userId])
+  @@index([soloSeatId])
+  @@index([premiumSeatId])
+  @@index([planId])
 }
 
 model TenantSubscription {
