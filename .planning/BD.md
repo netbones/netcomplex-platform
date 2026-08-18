@@ -8,7 +8,7 @@
 > `soralia-village-zbvq` (401 hotfix, committed), `soralia-village-0jh1` (Setup Center).
 > Docs: `docs/advisories/ADVISORY-031.md` (supersedes ADVISORY-030), `ONBOARDING_REFACTOR.md`.
 
-> **Last updated:** 2026-08-13 (Security domain shell shipped; go-live + v1.1 follow-ups filed)
+> **Last updated:** 2026-08-18 (ADVISORY-040 Phase 1 seat-plan schema + seed shipped)
 > **Total remaining:** 50 issues (49 open, 1 in-progress)
 > **Note:** BD is for quick fixes and small tasks. **Any BD issue touching 5+ files across multiple FSD slices, or requiring new directories/types, is GSD territory — escalate it.**
 
@@ -70,6 +70,7 @@ Audit evidence in the advisory. Cross-cutting with `z76s` (platform hardening) a
 | `sm23` | task    | Agent Gateway: Phase 111 ADDENDUM gaps                                                 | ○      |
 | `hh1t` | feature | Provider Platform: Paystack/PayPal gateway integration — remote subscription lifecycle | ○      |
 | `5m7l` | task    | Confirm Schedule F Table 2 revenue share % with anchor tenant (dWallet addendum)       | ○      |
+| `a8pg` | task    | ADVISORY-040 Phase 1: SeatPlan + SeatType schema, migration, ADVISORY-041 seed         | ✅     |
 | `bxh6` | task    | Security v1 go-live: dispatch, seed, legal, UAT                                        | ○      |
 | `xpwe` | feature | Security domain: panic button, contacts, and admin dashboard shell                     | ✅     |
 | `3o6b` | feature | Access Control domain — visitors, codes, inbox, admin stream                           | ◐      |
