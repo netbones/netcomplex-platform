@@ -54,6 +54,7 @@ import { revenueRecords } from '@schema/revenue-records';
 import { billingPlans } from '@schema/billing-plans';
 import { addresses } from '@schema/addresses';
 import { getOrCreateDefaultBillingPlans } from '@shared/lib/billing/seed-plans';
+import { seedSeatPlans } from '@shared/lib/billing/seed-seat-plans';
 import { platformModules } from '@schema/platform-modules';
 import { dataRevenueStreams } from '@schema/data-revenue-streams';
 
@@ -834,6 +835,10 @@ async function main() {
       .onConflictDoNothing({ target: [platformModules.key] });
   }
   console.log(`  ✓ ${PLATFORM_MODULE_SEEDS.length} platform modules`);
+
+  // Global seed: seat plans (platform-wide ADVISORY-041 default rate rows)
+  const seatPlanRows = await seedSeatPlans(db);
+  console.log(`  ✓ ${seatPlanRows.length} seat plans`);
 
   // Global seed: achievement definitions (not per-tenant)
   const ACHIEVEMENT_SEEDS = [

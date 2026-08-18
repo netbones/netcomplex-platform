@@ -123,6 +123,7 @@ model Tenant {
   BillingAdjustment       BillingAdjustment[]
   BillingEvent            BillingEvent[]
   BillingPlan             BillingPlan[]
+  SeatPlan                SeatPlan[]
   BursaryField            BursaryField[]
   CommunityServiceInquiry   CommunityServiceInquiry[]
   CommunityServiceListing   CommunityServiceListing[]

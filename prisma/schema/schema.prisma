@@ -1876,6 +1876,26 @@ model BillingPlan {
   @@index([tenantId])
 }
 
+model SeatPlan {
+  id              String              @id @default(uuid())
+  tenantId        String?
+  Tenant          Tenant?             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  seatType        SeatType
+  name            String
+  price           Decimal             @default(0) @db.Decimal(10, 2)
+  multiplier      Decimal             @default(1) @db.Decimal(4, 2)
+  currency        String              @default("ZAR")
+  interval        BillingPlanInterval @default(MONTHLY)
+  minimumHomes    Int?
+  eligibilityRule Json?
+  isActive        Boolean             @default(true)
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  @@unique([tenantId, seatType, minimumHomes])
+  @@index([tenantId, seatType])
+}
+
 model TenantSubscription {
   id                 String                   @id @default(uuid())
   tenantId           String
@@ -3522,6 +3542,12 @@ enum SeatStatus {
   ACTIVE
   ARCHIVED
   COOLING_OFF
+}
+
+enum SeatType {
+  STANDARD
+  SOLO
+  PREMIUM
 }
 
 enum AiOveragePolicy {
