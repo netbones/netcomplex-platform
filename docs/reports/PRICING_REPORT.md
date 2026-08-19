@@ -11,7 +11,9 @@
 > report's open gates (D2, D3) and keeps this report's _mechanism_ (`SeatPlan` = base ×
 > multiplier, zero hardcoded prices), but collapses the public rate to a single flagship
 > figure with a 60-home floor. Read §2.5, §4.1, §6, and §7 below in the light of §2.5a / §5 P2a.
-> Gates G1/D2/D3 are closed by ADVISORY-041; G2/D1, G3, G4, and the new G5/D7 remain open.
+> Gates G1/D2/D3 are closed by ADVISORY-041; **G5/D7 closed 2026-08-19** (see §2.5a
+> and §6 — labour subsidy funded until the third scheme, R12.50 stays all-in);
+> G2/D1, G3, G4 remain open.
 
 ---
 
@@ -132,6 +134,23 @@ Key structural points for anyone reading ADVISORY-040/041 together:
 - **The 60–99 home band is new commercial territory**: the SaaS Licence Agreement v10 has no
   tier below 100 homes. This band's R15.00 rate is provisional until the contract is amended —
   ADVISORY-041 Gate G3.
+
+### 2.5b G5/D7 decision (2026-08-19) — RESOLVED
+
+DavDev confirmed **R12.50/household is marketed all-in**, seat-licence only, competing head-on
+with EstateMate (which has no direct upsell path). The infra-vs-labour gap named in §P2a/§6-D7
+is funded as a **time-boxed growth subsidy**: seat revenue covers resource costs (infra
+R1,050/mo) from ~84 homes/one scheme; **labour (R5,500/mo retainer) is absorbed until the
+third scheme** rolls on. At three 180-home schemes (540 homes × R12.50 = R6,750/mo) the full
+R6,550 operating floor is covered; every scheme after the third is ~full margin. This matches
+the infra cost model §5.3 multi-tenant amortisation case. Consequences:
+
+- R12.50 remains a single, all-in, customer-facing rate — no new per-household line items
+  before the third scheme.
+- The labour subsidy is a CAC/growth investment, not a silent operating loss; it must be
+  revisited if the third scheme has not contracted after N quarters (see infra model annex).
+- Premium/Solo multipliers (1.5× / 1.0×) are unaffected and remain additive revenue above the
+  R12.50 base.
 
 ### 2.6 Surface F — Stale / legacy fields still in the schema
 
@@ -311,17 +330,16 @@ customer-facing UI.
    the remaining task is adding it to the next licence-agreement amendment (Gate G3), since
    the contract still has no Solo line.
 
-### P2a — Residual tension introduced by the flat rate (NEW, 2026-08-18)
+### P2a — Residual tension introduced by the flat rate (NEW, 2026-08-18; **decision 08-19**)
 
 8. **Sanity-check the flat rate against the operating floor.** The flagship price
    R12.50/household yields **R2,250/mo at Soralia's 180 homes**, versus the R6,550/mo
    operating floor (R1,050 infra + R5,500 labour retainer) and the R9,357/mo 30%-margin
    target from the infra cost model §4–5. ADVISORY-041's floor math (60 homes × R12.50 =
    R750) covers **infra only** — its own risk register concedes support/labour is not
-   covered. The gap to breakeven must be explicitly sourced — flat platform fee, transaction
-   take, dWallet revenue-share, or multi-tenant amortisation — or R12.50 must be understood
-   as the **seat-licence line item only**, on top of a separate platform fee. **Do not market
-   R12.50 as "all-in per household" until this is signed off by treasury.** `[Gate G5]`
+   covered. **RESOLVED 2026-08-19:** treasury approved R12.50 as the all-in marketed rate;
+   the labour gap is funded as a growth subsidy until the third scheme (~540 homes) covers
+   the full operating floor — see §2.5b.
 
 ### P3 — Visibility & governance
 
@@ -346,7 +364,7 @@ customer-facing UI.
 | D4  | "Standard = free" (billing seed) vs R299 core (marketing)                                                                                              | seed-plans vs pricing API                                  | Free plan only if a genuine free tier exists; otherwise align to treasury                                                                                                                                                   | `[Gate G2]` |
 | D5  | Infra-model per-home R20–60 "seat prices" used as list prices                                                                                          | cost model vs licence                                      | Reclassify as planning targets (§5 P3.9)                                                                                                                                                                                    | —           |
 | D6  | Anchor-subsidy pricing not surfaced anywhere in UI                                                                                                     | infra §9 vs Surface A                                      | Store Soralia's subsidized rate as a tenant override so admin/board see the real deal — deferred by ADVISORY-041 Phase 4                                                                                                    | `[Gate G4]` |
-| D7  | **NEW 2026-08-18:** flagship R12.50/household (R2,250/mo at 180 homes) vs R6,550/mo operating floor — ADVISORY-041's R750 floor math covers infra only | ADVISORY-041 vs infra cost model §4–5                      | Confirm whether R12.50 is "all-in" or a seat-licence line item atop a separate platform fee; source the gap explicitly                                                                                                      | `[Gate G5]` |
+| D7  | **NEW 2026-08-18:** flagship R12.50/household (R2,250/mo at 180 homes) vs R6,550/mo operating floor — ADVISORY-041's R750 floor math covers infra only | ADVISORY-041 vs infra cost model §4–5                      | ✅ **RESOLVED 2026-08-19:** R12.50 marketed all-in (seat-licence only, vs EstateMate); labour absorbed as a growth subsidy until the third scheme (~540 homes) covers the full floor — see §2.5b                            | closed      |
 
 ---
 
@@ -396,9 +414,11 @@ ADVISORY-041 went further than this report's own recommendation: it replaced the
 with a single flagship number to win the EstateMate comparison on simplicity, kept the
 mechanism (DB price table, zero hardcoded prices), resolved Solo and Premium pricing, and
 left three genuinely open items for sign-off: **D1 (Foundation R599 vs R299, Gate G2)**,
-**the 60–99 home contract gap (G3)**, and **Soralia's anchor subsidy reconciliation (G4)** —
-plus this report's new **D7 (G5)**: R12.50/household revenue does not cover the labour+infra
-operating floor, and the gap's source must be named before R12.50 is marketed as "all-in."
+**the 60–99 home contract gap (G3)**, and **Soralia's anchor subsidy reconciliation (G4)**.
+The report's own **D7 (Gate G5)** — R12.50/household revenue not covering the labour+infra
+operating floor — was **resolved 2026-08-19**: R12.50 is marketed all-in, and labour is
+absorbed as a growth subsidy until the third scheme covers the full floor.
 
-_Report updated 2026-08-18 to incorporate ADVISORY-041 / ADVISORY-040-SUPPLEMENTAL-1. Figures
-marked `[Gate]` require DavDev (or treasury) sign-off before any surface is updated._
+_Report updated 2026-08-19 to close G5/D7 and record the all-in R12.50 labour-subsidy
+decision. Figures marked `[Gate]` require DavDev (or treasury) sign-off before any surface
+is updated._

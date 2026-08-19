@@ -200,3 +200,43 @@ Once NetComplex rolls out beyond Soralia, pricing is structured across three tie
 - **No production telemetry yet** on realtime chat command volume (Supabase Realtime + any Redis usage) — the "realistic" column is an estimate, not measured. Recommend instrumenting actual usage during Soralia's first live month to replace this with real numbers before the next board cycle.
 - **AI/LLM costs are not included** — if `TenantAiUsage`/`AiUsageEvent` (per schema) draws meaningfully on Anthropic/OpenAI API costs, that's a separate line not covered by Vercel/Supabase/Upstash and should be modeled separately.
 - **Prices verified July 2026** — Vercel, Supabase, and Upstash all publish usage-based components that can shift with traffic; treat the "realistic" column as a floor, not a ceiling, once real users are live.
+
+---
+
+## 11. Addendum — All-in R12.50 Pricing Decision (2026-08-19)
+
+**Decision (DavDev):** R12.50/household is marketed **all-in** (seat-licence only, no separate
+platform fee), competitive stance against EstateMate's flat R10 (which has no direct upsell
+path — NetComplex's 1.5× Premium margin and add-on seats are the upside lever). Resource
+costs are covered from seat revenue; **labour is absorbed as a growth subsidy until the
+third scheme** is contracted.
+
+### 11.1 What this changes in Sections 4–5
+
+The R6,550 operating floor (R1,050 infra + R5,500 labour) remains the long-run breakeven
+target, but Sections 5.1–5.2's revenue targets are **not** marketing constraints under this
+decision:
+
+| Schemes (180 homes each) | Homes   | Seat revenue (R12.50/hh) | vs R6,550 floor | Labour subsidy                   |
+| ------------------------ | ------- | ------------------------ | --------------- | -------------------------------- |
+| 1                        | 180     | R2,250                   | (R4,300)        | infra covered; R4,300/mo subsidy |
+| 2                        | 360     | R4,500                   | (R2,050)        | R2,050/mo subsidy                |
+| **3**                    | **540** | **R6,750**               | **+R200**       | **~zero — full floor covered**   |
+
+- Infra (R1,050/mo) is covered from ~84 homes — practically one scheme; the 60-home floor
+  (R750/mo) is R69 short of infra, matching ADVISORY-041's "limited headroom" note.
+- The labour line then behaves as a time-boxed **customer-acquisition cost**, not an
+  operating failure — the identical framing already applied to Soralia's anchor subsidy in
+  §9(3).
+- **Review trigger:** if the third scheme has not contracted after eight quarters from
+  first paid seat, re-run this addendum and re-surface the subsidy decision to treasury.
+
+### 11.2 Upside levers above the R12.50 base
+
+- **PremiumSeat 1.5×** (R18.75/hh), SoloSeat 1.0× add-ons, and transaction/partnership
+  revenue sit **above** the all-in base and shorten the path to 30% margin (Section 5.2's
+  R75/hh blended target is still the margin-planning reference).
+- Onboarding schemes after the third are ~full margin, since infra and the labour retainer
+  are largely fixed across tenants (Section 5.3).
+
+_Revision 2026-08-19: added Section 11 recording the all-in R12.50 + absorbed-labour-until-third-scheme decision; closes PRICING_REPORT Gate G5/D7._
