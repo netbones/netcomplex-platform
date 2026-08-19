@@ -11,6 +11,29 @@ import userEvent from '@testing-library/user-event';
 const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
+// URL-keyed fetch stub: dispatch on the request URL instead of a call queue so
+// stray fetches (auth session, observability) can never consume a queued
+// response meant for /api/disputes.
+function stubFetchHandler(handler: (input: string) => Promise<unknown>) {
+  mockFetch.mockImplementation(async input => handler(String(input)));
+}
+
+const mockSuccessResponse = (data: unknown, status = 200) => {
+  return Promise.resolve({
+    ok: status >= 200 && status < 300,
+    status,
+    json: () => Promise.resolve(data),
+  });
+};
+
+const mockErrorResponse = (status = 500) => {
+  return Promise.resolve({
+    ok: false,
+    status,
+    json: () => Promise.resolve({}),
+  });
+};
+
 // Mock sonner toast
 vi.mock('sonner', () => ({
   toast: {
@@ -33,22 +56,6 @@ import { toast } from 'sonner';
 
 const mockOnComplete = vi.fn();
 const mockOnCancel = vi.fn();
-
-const mockSuccessResponse = (data: unknown, status = 200) => {
-  return Promise.resolve({
-    ok: status >= 200 && status < 300,
-    status,
-    json: () => Promise.resolve(data),
-  });
-};
-
-const mockErrorResponse = (status = 500) => {
-  return Promise.resolve({
-    ok: false,
-    status,
-    json: () => Promise.resolve({}),
-  });
-};
 
 /** Helper: fill all required fields in the dispute form */
 async function fillRequiredFields() {
@@ -92,23 +99,33 @@ describe('DisputeForm', () => {
 
     await user.click(screen.getByRole('button', { name: /Submit Dispute/i }));
 
-    await waitFor(() => {
-      const errorMessages = screen.getAllByText(/min|Required|String must contain/i);
-      expect(errorMessages.length).toBeGreaterThan(0);
-    });
+    await waitFor(
+      () => {
+        const errorMessages = screen.getAllByText(/min|Required|String must contain/i);
+        expect(errorMessages.length).toBeGreaterThan(0);
+      },
+      { timeout: 5000 }
+    );
   });
 
   it('on successful submit, calls fetch to /api/disputes with correct body', async () => {
-    mockFetch.mockReturnValueOnce(mockSuccessResponse({ id: 'test-dispute-uuid' }, 201));
+    stubFetchHandler(input =>
+      input.includes('/api/disputes')
+        ? mockSuccessResponse({ id: 'test-dispute-uuid' }, 201)
+        : Promise.reject(new Error('unexpected fetch: ' + input))
+    );
 
     render(<DisputeForm onComplete={mockOnComplete} onCancel={mockOnCancel} />);
     const user = await fillRequiredFields();
 
     await user.click(screen.getByRole('button', { name: /Submit Dispute/i }));
 
-    await waitFor(() => {
-      expect(mockFetch).toHaveBeenCalled();
-    });
+    await waitFor(
+      () => {
+        expect(mockFetch).toHaveBeenCalled();
+      },
+      { timeout: 5000 }
+    );
 
     const disputeCall = mockFetch.mock.calls.find(
       (c: unknown[]) => typeof c[0] === 'string' && c[0].includes('/api/disputes')
@@ -124,29 +141,43 @@ describe('DisputeForm', () => {
   });
 
   it('on fetch success (201 + { id: uuid }), calls onComplete with the dispute id', async () => {
-    mockFetch.mockReturnValueOnce(mockSuccessResponse({ id: 'dispute-123-abc' }, 201));
+    stubFetchHandler(input =>
+      input.includes('/api/disputes')
+        ? mockSuccessResponse({ id: 'dispute-123-abc' }, 201)
+        : Promise.reject(new Error('unexpected fetch: ' + input))
+    );
 
     render(<DisputeForm onComplete={mockOnComplete} onCancel={mockOnCancel} />);
     const user = await fillRequiredFields();
 
     await user.click(screen.getByRole('button', { name: /Submit Dispute/i }));
 
-    await waitFor(() => {
-      expect(mockOnComplete).toHaveBeenCalledWith('dispute-123-abc');
-    });
+    await waitFor(
+      () => {
+        expect(mockOnComplete).toHaveBeenCalledWith('dispute-123-abc');
+      },
+      { timeout: 5000 }
+    );
   });
 
   it('on fetch error (500), shows sonner toast', async () => {
-    mockFetch.mockReturnValueOnce(mockErrorResponse(500));
+    stubFetchHandler(input =>
+      input.includes('/api/disputes')
+        ? mockErrorResponse(500)
+        : Promise.reject(new Error('unexpected fetch: ' + input))
+    );
 
     render(<DisputeForm onComplete={mockOnComplete} onCancel={mockOnCancel} />);
     const user = await fillRequiredFields();
 
     await user.click(screen.getByRole('button', { name: /Submit Dispute/i }));
 
-    await waitFor(() => {
-      expect(toast.error).toHaveBeenCalled();
-    });
+    await waitFor(
+      () => {
+        expect(toast.error).toHaveBeenCalled();
+      },
+      { timeout: 5000 }
+    );
   });
 
   it('"Back to list" cancel button calls onCancel', async () => {

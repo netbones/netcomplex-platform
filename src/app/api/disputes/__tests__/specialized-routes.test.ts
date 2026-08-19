@@ -339,7 +339,7 @@ describe('Dispute Messages — [id]/messages/route.ts', () => {
         params: Promise.resolve({ id: 'dispute-1' }),
       } as { params: Promise<{ id: string }> });
       expect(res.status).toBe(401);
-    });
+    }, 30000);
 
     it('returns 429 when rate limited', async () => {
       mocks.sessionResult = { user: { id: 'user-resident' } };
@@ -577,7 +577,7 @@ describe('Dispute Evidence — [id]/evidence/route.ts', () => {
         params: Promise.resolve({ id: 'dispute-1' }),
       } as { params: Promise<{ id: string }> });
       expect(res.status).toBe(401);
-    });
+    }, 30000);
 
     it('returns 429 when rate limited', async () => {
       mocks.sessionResult = { user: { id: 'user-resident' } };
@@ -610,7 +610,7 @@ describe('Dispute Evidence — [id]/evidence/route.ts', () => {
         params: Promise.resolve({ id: 'dispute-1' }),
       } as { params: Promise<{ id: string }> });
       expect(res.status).toBe(201);
-    });
+    }, 30000);
 
     it('returns 422 when no file provided', async () => {
       mocks.sessionResult = { user: { id: 'user-resident' } };

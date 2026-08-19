@@ -252,31 +252,19 @@ describe('DirectoryChatModal component', () => {
   });
 
   it('shows loading state initially', async () => {
-    // Delay both fetch responses to show loading
-    const delayedConversation = new Promise(resolve =>
-      setTimeout(
-        () =>
-          resolve({
-            ok: true,
-            json: async () => ({ conversation: { id: 'conv-123' } }),
-          }),
-        100
-      )
-    );
+    // Keep both fetches pending until after we assert the loading state, so
+    // the test is deterministic regardless of machine load.
+    let resolveConversation!: (v: unknown) => void;
+    let resolveMessages!: (v: unknown) => void;
+    const pendingConversation = new Promise(resolve => {
+      resolveConversation = resolve;
+    });
+    const pendingMessages = new Promise(resolve => {
+      resolveMessages = resolve;
+    });
 
-    const delayedMessages = new Promise(resolve =>
-      setTimeout(
-        () =>
-          resolve({
-            ok: true,
-            json: async () => [],
-          }),
-        100
-      )
-    );
-
-    mockFetch.mockResolvedValueOnce(delayedConversation);
-    mockFetch.mockResolvedValueOnce(delayedMessages);
+    mockFetch.mockReturnValueOnce(pendingConversation);
+    mockFetch.mockReturnValueOnce(pendingMessages);
 
     const { DirectoryChatModal } = await import('@/features/directory/ui/DirectoryChatModal');
 
@@ -291,6 +279,19 @@ describe('DirectoryChatModal component', () => {
     });
 
     expect(screen.getByText('Loading...')).toBeInTheDocument();
+
+    // Resolve the pending fetches so subscriptions/effects clean up cleanly.
+    await act(async () => {
+      resolveConversation({
+        ok: true,
+        json: async () => ({ conversation: { id: 'conv-123' } }),
+      });
+      resolveMessages({
+        ok: true,
+        json: async () => [],
+      });
+      await Promise.resolve();
+    });
   });
 
   it('shows empty state when no messages exist', async () => {

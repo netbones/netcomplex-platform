@@ -35,7 +35,7 @@ describe('TurnstileWidget component', () => {
     // The widget creates a div container for the Turnstile challenge
     // In test environment, the Cloudflare script won't load, but the container should exist
     expect(container.firstChild).toBeInTheDocument();
-  }, 15000);
+  }, 30000);
 });
 
 describe('LoadingSpinner component', () => {

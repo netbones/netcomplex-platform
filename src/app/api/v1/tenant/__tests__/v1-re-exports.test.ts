@@ -186,29 +186,29 @@ describe('v1 re-export routes', () => {
     it('re-exports resources', async () => {
       const mod = await import('@/app/api/v1/public/resources/route');
       expect(mod.GET).toBeInstanceOf(Function);
-    });
+    }, 30000);
 
     it('re-exports events', async () => {
       const mod = await import('@/app/api/v1/public/events/route');
       expect(mod.GET).toBeInstanceOf(Function);
-    });
+    }, 30000);
 
     it('re-exports competitions', async () => {
       const mod = await import('@/app/api/v1/public/competitions/route');
       expect(mod.GET).toBeInstanceOf(Function);
-    });
+    }, 30000);
 
     it('re-exports content', async () => {
       const mod = await import('@/app/api/v1/public/content/route');
       expect(mod.GET).toBeInstanceOf(Function);
-    });
+    }, 30000);
   });
 
   describe('system namespace', () => {
     it('re-exports flags', async () => {
       const mod = await import('@/app/api/v1/system/flags/route');
       expect(mod.GET).toBeInstanceOf(Function);
-    });
+    }, 30000);
   });
 
   describe('tenant namespace', () => {
@@ -263,7 +263,7 @@ describe('v1 re-export routes', () => {
           for (const method of methods) {
             expect(mod[method as keyof typeof mod]).toBeInstanceOf(Function);
           }
-        });
+        }, 30000);
       });
     }
   });

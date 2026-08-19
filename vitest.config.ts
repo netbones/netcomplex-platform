@@ -57,6 +57,10 @@ export default defineConfig({
         replacement: path.resolve(__dirname, './src/entities/setup/index.server'),
       },
       {
+        find: '@entities/vehicle/server',
+        replacement: path.resolve(__dirname, './src/entities/vehicle/index.server'),
+      },
+      {
         find: '@entities/dwallet/server',
         replacement: path.resolve(__dirname, './src/entities/dwallet/index.server'),
       },
