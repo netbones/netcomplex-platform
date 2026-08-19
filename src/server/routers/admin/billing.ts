@@ -187,6 +187,7 @@ export const adminBillingRouter = router({
         tenantName: tenants.name,
         planName: billingPlans.name,
         planTier: billingPlans.tier,
+        planMonthlyPrice: billingPlans.monthlyPrice,
       })
       .from(tenantSubscriptions)
       .leftJoin(tenants, eq(tenantSubscriptions.tenantId, tenants.id))

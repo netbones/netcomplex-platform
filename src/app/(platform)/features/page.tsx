@@ -1,8 +1,11 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { PlatformFooter, PlatformHeader } from '@features/platform';
 import { Check, Minus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { apiGet } from '@/shared/api/http-client';
+import type { PricingPlan } from '@features/pricing';
 
 interface FeatureGroup {
   group: string;
@@ -203,21 +206,18 @@ const tiers = [
   {
     id: 'core',
     name: 'Core',
-    price: 'R299/mo',
     color: 'text-emerald-600',
     bg: 'bg-emerald-50',
   },
   {
     id: 'foundation',
     name: 'Foundation',
-    price: 'R599/mo',
     color: 'text-amber-600',
     bg: 'bg-amber-50',
   },
   {
     id: 'pro-max',
     name: 'Pro-Max',
-    price: 'Custom',
     color: 'text-lapis-deep',
     bg: 'bg-lapis-azure/10',
   },
@@ -236,6 +236,27 @@ function TierCell({ value }: { value: boolean | string }) {
 
 export default function FeaturesPage() {
   const { t } = useTranslation('platform');
+  const [plans, setPlans] = useState<PricingPlan[]>([]);
+
+  useEffect(() => {
+    async function fetchPricing() {
+      try {
+        const { data } = await apiGet<{ plans: PricingPlan[] }>('/api/pricing');
+        setPlans(Array.isArray(data?.plans) ? data.plans : []);
+      } catch {
+        // Prices are a progressive enhancement; the feature table remains
+        // readable without them (tier names and check marks still render).
+      }
+    }
+
+    fetchPricing();
+  }, []);
+
+  const priceFor = (tierId: string) => {
+    const plan = plans.find(p => p.id === tierId);
+    if (!plan) return null;
+    return plan.price === 'Custom' ? 'Custom' : `${plan.price}${plan.period}`;
+  };
 
   return (
     <div className="min-h-screen bg-vellum">
@@ -259,7 +280,7 @@ export default function FeaturesPage() {
             {tiers.map(tier => (
               <div key={tier.id} className={`text-center p-4 rounded-xl ${tier.bg}`}>
                 <h3 className={`text-lg font-bold ${tier.color}`}>{tier.name}</h3>
-                <p className="text-sm text-lapis-mid mt-1">{tier.price}</p>
+                <p className="text-sm text-lapis-mid mt-1">{priceFor(tier.id) ?? '—'}</p>
               </div>
             ))}
           </div>

@@ -1,8 +1,9 @@
 import { TIERS, type TierLevel } from '@entities/tenant';
-import { withTenant } from '@entities/tenant/server';
+import { withTenantOptional } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
+import { getSeatRateCard } from '@shared/lib/billing/seat-rate-card';
 
-import { apiSuccess, apiInternalError } from '@api/server';
+import { apiSuccess, apiInternalError, db } from '@api/server';
 
 import type { PricingPlan } from '@features/pricing';
 
@@ -10,12 +11,13 @@ export const maxDuration = 8;
 
 export type { PricingPlan };
 
-// Static pricing data aligned with Netcomplex tiers
-const PRICING_PLANS: Record<TierLevel, Omit<PricingPlan, 'id'>> = {
+// Non-price marketing metadata per tier. The displayed price/period are derived
+// from the DB seat rate card (ADVISORY-041 Phase 2) so no ZAR literal lives in
+// this surface. All-in seat-licence pricing means every tier shows the flagship
+// per-household rate; tiers differentiate on capability, not price.
+const TIER_META: Record<TierLevel, Omit<PricingPlan, 'id' | 'price' | 'period'>> = {
   core: {
     name: 'Core',
-    price: 'R299',
-    period: '/month',
     description: 'Entry tier for small communities up to 50 units',
     features: [
       'Up to 5 pages',
@@ -32,8 +34,6 @@ const PRICING_PLANS: Record<TierLevel, Omit<PricingPlan, 'id'>> = {
   },
   foundation: {
     name: 'Foundation',
-    price: 'R599',
-    period: '/month',
     description: 'Growth tier for expanding communities up to 200 units',
     features: [
       'Up to 15 pages',
@@ -52,8 +52,6 @@ const PRICING_PLANS: Record<TierLevel, Omit<PricingPlan, 'id'>> = {
   },
   'pro-max': {
     name: 'Pro‑Max',
-    price: 'Custom',
-    period: '',
     description: 'Enterprise tier for large HOAs and property management companies',
     features: [
       'Unlimited pages',
@@ -72,16 +70,23 @@ const PRICING_PLANS: Record<TierLevel, Omit<PricingPlan, 'id'>> = {
   },
 };
 
+function pickFlagshipRate(rateCard: Array<{ priceLabel: string }>): string {
+  return rateCard[0]?.priceLabel ?? 'Contact Sales';
+}
+
 export async function GET() {
   try {
-    // Tenant context required but pricing is static
-    await withTenant();
+    // Marketing route — tenant optional; falls back to the global rate card.
+    const { tenantId } = await withTenantOptional();
 
-    // In the future, this could fetch from a database
-    // For now, return static data aligned with Netcomplex tiers
-    const plans: PricingPlan[] = Object.entries(PRICING_PLANS).map(([tier, plan]) => ({
-      id: tier as TierLevel,
-      ...plan,
+    const rateCard = await getSeatRateCard(db, tenantId);
+    const price = pickFlagshipRate(rateCard);
+
+    const plans: PricingPlan[] = (Object.keys(TIER_META) as TierLevel[]).map(id => ({
+      id,
+      ...TIER_META[id],
+      price,
+      period: '/household/mo',
     }));
 
     return apiSuccess({

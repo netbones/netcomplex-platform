@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Search } from 'lucide-react';
 import { trpc } from '@api/client';
 import { ErrorBoundary } from '@shared/ui';
+import { decimalToNumber } from '@shared/lib/billing/helpers';
 
 const STATUS_COLORS: Record<string, string> = {
   ACTIVE: 'bg-green-100 text-green-700',
@@ -23,17 +24,11 @@ function formatDateView(dateStr: string | null): string {
   });
 }
 
-function formatAmount(tier: string | null): string {
-  switch (tier) {
-    case 'STANDARD':
-      return 'Free';
-    case 'PREMIUM':
-      return 'R299/mo';
-    case 'ENTERPRISE':
-      return 'R999/mo';
-    default:
-      return '—';
-  }
+function formatAmount(monthlyPrice: string | number | null | undefined): string {
+  if (monthlyPrice === null || monthlyPrice === undefined) return '—';
+  const price = decimalToNumber(monthlyPrice);
+  if (price <= 0) return 'Free';
+  return `R${Math.round(price)}/mo`;
 }
 
 export function AdminSubscriptionsWidget() {
@@ -136,7 +131,9 @@ export function AdminSubscriptionsWidget() {
                     <td className="py-2 text-gray-500">
                       {formatDateView(sub.nextBillingDate?.toString() ?? null)}
                     </td>
-                    <td className="py-2 text-right text-gray-700">{formatAmount(sub.planTier)}</td>
+                    <td className="py-2 text-right text-gray-700">
+                      {formatAmount(sub.planMonthlyPrice)}
+                    </td>
                   </tr>
                 ))}
               </tbody>
