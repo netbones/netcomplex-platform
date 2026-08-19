@@ -8,7 +8,7 @@
 > `soralia-village-zbvq` (401 hotfix, committed), `soralia-village-0jh1` (Setup Center).
 > Docs: `docs/advisories/ADVISORY-031.md` (supersedes ADVISORY-030), `ONBOARDING_REFACTOR.md`.
 
-> **Last updated:** 2026-08-18 (ADVISORY-040 Phase 1 + 2 shipped: SeatPlan, SeatSubscription, PaymentTransaction sharing)
+> **Last updated:** 2026-08-19 (ADVISORY-040 Phase 1+2 shipped; Gate G5/D7 closed — R12.50 all-in, labour absorbed until 3rd scheme)
 > **Total remaining:** 50 issues (49 open, 1 in-progress)
 > **Note:** BD is for quick fixes and small tasks. **Any BD issue touching 5+ files across multiple FSD slices, or requiring new directories/types, is GSD territory — escalate it.**
 
@@ -72,6 +72,7 @@ Audit evidence in the advisory. Cross-cutting with `z76s` (platform hardening) a
 | `5m7l` | task    | Confirm Schedule F Table 2 revenue share % with anchor tenant (dWallet addendum)       | ○      |
 | `a8pg` | task    | ADVISORY-040 Phase 1: SeatPlan + SeatType schema, migration, ADVISORY-041 seed         | ✅     |
 | `0zw5` | task    | ADVISORY-040 Phase 2: SeatSubscription model + PaymentTransaction FK loosening         | ✅     |
+| `81zr` | task    | Record all-in R12.50 pricing decision (Gate G5/D7): labour absorbed until 3 schemes    | ✅     |
 | `bxh6` | task    | Security v1 go-live: dispatch, seed, legal, UAT                                        | ○      |
 | `xpwe` | feature | Security domain: panic button, contacts, and admin dashboard shell                     | ✅     |
 | `3o6b` | feature | Access Control domain — visitors, codes, inbox, admin stream                           | ◐      |
